@@ -7,23 +7,29 @@ import java.math.BigDecimal;
 
 public interface JsonWriter extends Closeable, Flushable {
 
-  void setIndent(String indent);
+  void indent(String indent);
 
-  String getIndent();
+  String indent();
 
-  void setLenient(boolean lenient);
+  void lenient(boolean lenient);
 
-  boolean isLenient();
+  boolean lenient();
 
-  void setSerializeNulls(boolean serializeNulls);
+  void serializeNulls(boolean serializeNulls);
 
-  boolean getSerializeNulls();
+  boolean serializeNulls();
+
+  boolean serializeEmpty();
+
+  JsonWriter serializeEmpty(boolean serializeEmpty);
 
   String path();
 
   JsonWriter beginArray() throws IOException;
 
   JsonWriter endArray() throws IOException;
+
+  JsonWriter emptyArray() throws IOException;
 
   JsonWriter beginObject() throws IOException;
 
@@ -55,9 +61,10 @@ public interface JsonWriter extends Closeable, Flushable {
 
   JsonWriter jsonValue(Object value) throws IOException;
 
-  void promoteValueToName();
+  //void promoteValueToName();
 
   void close() throws IOException;
 
   void flush() throws IOException;
+
 }

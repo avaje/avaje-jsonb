@@ -35,12 +35,12 @@ class JacksonReader implements JsonReader {
     return parser.getCurrentLocation().toString();
   }
 
-  boolean promoteNameToValue;
-
-  @Override
-  public void promoteNameToValue() {
-    promoteNameToValue = true;
-  }
+//  boolean promoteNameToValue;
+//
+//  @Override
+//  public void promoteNameToValue() {
+//    promoteNameToValue = true;
+//  }
 
   @Override
   public boolean hasNextField() throws IOException {
@@ -98,7 +98,7 @@ class JacksonReader implements JsonReader {
   }
 
   @Override
-  public void endObject() throws IOException {
+  public void endObject() {
     JsonToken token = parser.currentToken();
     if (token != JsonToken.END_OBJECT) {
       throw new IllegalStateException("Expected end object "+parser.getCurrentLocation());

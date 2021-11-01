@@ -93,6 +93,10 @@ abstract class BaseCollectionAdapter<C extends Collection<T>, T> extends JsonAda
 
   @Override
   public void toJson(JsonWriter writer, C value) throws IOException {
+    if (value.isEmpty()) {
+      writer.emptyArray();
+      return;
+    }
     writer.beginArray();
     for (T element : value) {
       elementAdapter.toJson(writer, element);

@@ -5,15 +5,17 @@ import io.avaje.mason.JsonWriter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 class JacksonWriter implements JsonWriter {
 
   private final JsonGenerator generator;
+  private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
-  private boolean promoteValueToName;
+  //private boolean promoteValueToName;
 
   JacksonWriter(JsonGenerator generator) {
     this.generator = generator;
@@ -30,33 +32,44 @@ class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void setIndent(String indent) {
+  public void indent(String indent) {
 
   }
 
   @Override
-  public String getIndent() {
+  public String indent() {
     return null;
   }
 
   @Override
-  public void setLenient(boolean lenient) {
+  public void lenient(boolean lenient) {
 
   }
 
   @Override
-  public boolean isLenient() {
+  public boolean lenient() {
     return false;
   }
 
   @Override
-  public void setSerializeNulls(boolean serializeNulls) {
-
+  public void serializeNulls(boolean serializeNulls) {
+    this.serializeNulls = serializeNulls;
   }
 
   @Override
-  public boolean getSerializeNulls() {
-    return false;
+  public boolean serializeNulls() {
+    return serializeNulls;
+  }
+
+  @Override
+  public boolean serializeEmpty() {
+    return serializeEmpty;
+  }
+
+  @Override
+  public JsonWriter serializeEmpty(boolean serializeEmpty) {
+    this.serializeEmpty = serializeEmpty;
+    return this;
   }
 
   @Override
@@ -64,10 +77,10 @@ class JacksonWriter implements JsonWriter {
     return generator.toString();
   }
 
-  @Override
-  public void promoteValueToName() {
-    promoteValueToName = true;
-  }
+//  @Override
+//  public void promoteValueToName() {
+//    promoteValueToName = true;
+//  }
 
   @Override
   public JsonWriter beginArray() throws IOException {
@@ -78,7 +91,7 @@ class JacksonWriter implements JsonWriter {
 
   @Override
   public JsonWriter endArray() throws IOException {
-    promoteValueToName = false;
+    //promoteValueToName = false;
     generator.writeEndArray();
     return this;
   }
@@ -92,7 +105,7 @@ class JacksonWriter implements JsonWriter {
 
   @Override
   public JsonWriter endObject() throws IOException {
-    promoteValueToName = false;
+    //promoteValueToName = false;
     generator.writeEndObject();
     return this;
   }
@@ -111,6 +124,16 @@ class JacksonWriter implements JsonWriter {
   }
 
   @Override
+  public JsonWriter emptyArray() throws IOException {
+    if (serializeEmpty) {
+      writeDeferredName();
+      generator.writeStartArray();
+      generator.writeEndArray();
+    }
+    return this;
+  }
+
+  @Override
   public JsonWriter nullValue() throws IOException {
     if (serializeNulls) {
       writeDeferredName();
@@ -121,10 +144,10 @@ class JacksonWriter implements JsonWriter {
 
   @Override
   public JsonWriter value(String value) throws IOException {
-    if (promoteValueToName) {
-      promoteValueToName = false;
-      return name(value);
-    }
+//    if (promoteValueToName) {
+//      promoteValueToName = false;
+//      return name(value);
+//    }
     if (value == null) {
       return nullValue();
     }
@@ -218,6 +241,8 @@ class JacksonWriter implements JsonWriter {
       writeMap((Map<?, ?>) value);
     } else if (value instanceof List<?>) {
       writeList((List<?>) value);
+    } else if (value instanceof Collection<?>) {
+      writeCollection((Collection<?>) value);
     } else if (value instanceof String) {
       value(((String) value));
     } else if (value instanceof Boolean) {
@@ -239,6 +264,14 @@ class JacksonWriter implements JsonWriter {
   }
 
   private void writeList(List<?> value) throws IOException {
+    beginArray();
+    for (Object element : value) {
+      jsonValue(element);
+    }
+    endArray();
+  }
+
+  private void writeCollection(Collection<?> value) throws IOException {
     beginArray();
     for (Object element : value) {
       jsonValue(element);

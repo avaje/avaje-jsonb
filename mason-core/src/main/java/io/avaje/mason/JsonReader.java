@@ -32,5 +32,5 @@ public interface JsonReader {
 
   String path();
 
-  void promoteNameToValue();
+  //void promoteNameToValue();
 }
