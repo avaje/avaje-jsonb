@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.avaje</groupId>
+    <artifactId>java8-oss</artifactId>
+    <version>3.2</version>
+  </parent>
+
+  <groupId>org.avaje.mason</groupId>
+  <artifactId>mason-parent</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>mason parent</name>
+  <description>parent pom for mason</description>
+
+  <scm>
+    <developerConnection>scm:git:git@github.com:avaje/mason.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <properties>
+    <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
+  </properties>
+
+  <modules>
+    <module>mason-core</module>
+    <module>mason-generator</module>
+    <module>blackbox-test</module>
+  </modules>
+</project>
+
