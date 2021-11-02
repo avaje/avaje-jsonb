@@ -1,10 +1,10 @@
 package org.example.customer;
 
-import io.avaje.jsonb.JsonClass;
+import io.avaje.jsonb.Json;
 
 import java.time.Instant;
 
-@JsonClass
+@Json
 public class Customer {
 
   private Long id;

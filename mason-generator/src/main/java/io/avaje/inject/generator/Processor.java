@@ -1,6 +1,6 @@
 package io.avaje.inject.generator;
 
-import io.avaje.jsonb.JsonClass;
+import io.avaje.jsonb.Json;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -39,14 +39,14 @@ public class Processor extends AbstractProcessor {
   @Override
   public Set<String> getSupportedAnnotationTypes() {
     Set<String> annotations = new LinkedHashSet<>();
-    annotations.add(JsonClass.class.getCanonicalName());
+    annotations.add(Json.class.getCanonicalName());
     //TODO: Json.Import ?
     return annotations;
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Set<? extends Element> beans = roundEnv.getElementsAnnotatedWith(JsonClass.class);
+    Set<? extends Element> beans = roundEnv.getElementsAnnotatedWith(Json.class);
     readChangedBeans(beans);
     // write(roundEnv.processingOver());
     return false;
