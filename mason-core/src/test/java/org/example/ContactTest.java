@@ -1,7 +1,7 @@
 package org.example;
 
-import io.avaje.mason.JsonType;
-import io.avaje.mason.Jsonb;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

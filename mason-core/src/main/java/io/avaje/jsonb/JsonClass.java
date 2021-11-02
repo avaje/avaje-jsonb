@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.mason;
+package io.avaje.jsonb;
 
 
 import java.lang.annotation.Documented;

@@ -1,4 +1,4 @@
-package io.avaje.mason;
+package io.avaje.jsonb;
 
 import java.io.*;
 import java.util.List;

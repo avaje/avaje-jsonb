@@ -1,4 +1,4 @@
-package io.avaje.mason.base;
+package io.avaje.jsonb.base;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;

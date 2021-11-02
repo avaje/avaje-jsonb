@@ -1,9 +1,9 @@
-package io.avaje.mason.jackson;
+package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import io.avaje.mason.JsonReader;
-import io.avaje.mason.JsonWriter;
-import io.avaje.mason.spi.IOAdapter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.spi.IOAdapter;
 
 import java.io.*;
 

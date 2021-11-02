@@ -1,6 +1,6 @@
 package io.avaje.inject.generator;
 
-import io.avaje.mason.JsonClass;
+import io.avaje.jsonb.JsonClass;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;

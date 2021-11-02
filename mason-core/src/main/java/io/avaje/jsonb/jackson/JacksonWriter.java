@@ -1,7 +1,7 @@
-package io.avaje.mason.jackson;
+package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import io.avaje.mason.JsonWriter;
+import io.avaje.jsonb.JsonWriter;
 
 import java.io.IOException;
 import java.math.BigDecimal;

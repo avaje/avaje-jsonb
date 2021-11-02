@@ -1,12 +1,11 @@
 package org.example;
 
-import io.avaje.mason.JsonAdapter;
-import io.avaje.mason.JsonReader;
-import io.avaje.mason.JsonWriter;
-import io.avaje.mason.Jsonb;
+import io.avaje.jsonb.JsonAdapter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.Jsonb;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.UUID;
 
 public class ContactJsonAdapter extends JsonAdapter<Contact> {

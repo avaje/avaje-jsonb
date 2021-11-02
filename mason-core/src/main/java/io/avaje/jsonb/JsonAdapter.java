@@ -1,4 +1,4 @@
-package io.avaje.mason;
+package io.avaje.jsonb;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

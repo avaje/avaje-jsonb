@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Square, Inc.
+ * Copyright (C) 2016 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.mason;
+package io.avaje.jsonb;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.io.IOException;
 
 /**
- * Annotates another annotation, causing it to specialize how values are encoded and decoded.
+ * Thrown when the data being parsed is not encoded as valid JSON.
  */
-@Target(ANNOTATION_TYPE)
-@Retention(RUNTIME)
-@Documented
-public @interface JsonQualifier {
+public final class JsonEncodingException extends IOException {
+  public JsonEncodingException(String message) {
+    super(message);
+  }
 }

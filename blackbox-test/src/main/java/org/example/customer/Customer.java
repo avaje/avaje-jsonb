@@ -1,6 +1,6 @@
 package org.example.customer;
 
-import io.avaje.mason.JsonClass;
+import io.avaje.jsonb.JsonClass;
 
 import java.time.Instant;
 

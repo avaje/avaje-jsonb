@@ -1,8 +1,8 @@
-package io.avaje.mason.jackson;
+package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import io.avaje.mason.JsonReader;
+import io.avaje.jsonb.JsonReader;
 
 import java.io.IOException;
 

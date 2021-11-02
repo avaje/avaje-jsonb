@@ -1,7 +1,7 @@
-package io.avaje.mason.spi;
+package io.avaje.jsonb.spi;
 
-import io.avaje.mason.JsonReader;
-import io.avaje.mason.JsonWriter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
 
 import java.io.*;
 

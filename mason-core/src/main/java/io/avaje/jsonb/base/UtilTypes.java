@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.mason.base;
+package io.avaje.jsonb.base;
 
 import java.lang.reflect.*;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
-import static io.avaje.mason.base.Util.*;
+import static io.avaje.jsonb.base.Util.*;
 
 /**
  * Factory methods for types.

@@ -1,15 +1,15 @@
-package io.avaje.mason.base;
+package io.avaje.jsonb.base;
 
-import io.avaje.mason.*;
-import io.avaje.mason.jackson.JacksonAdapter;
-import io.avaje.mason.spi.IOAdapter;
+import io.avaje.jsonb.*;
+import io.avaje.jsonb.jackson.JacksonAdapter;
+import io.avaje.jsonb.spi.IOAdapter;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static io.avaje.mason.base.Util.*;
+import static io.avaje.jsonb.base.Util.*;
 import static java.util.Objects.requireNonNull;
 
 /**

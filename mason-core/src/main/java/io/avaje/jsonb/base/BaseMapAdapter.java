@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.mason.base;
+package io.avaje.jsonb.base;
 
-import io.avaje.mason.*;
+import io.avaje.jsonb.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

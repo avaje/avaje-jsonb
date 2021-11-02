@@ -1,6 +1,6 @@
-package io.avaje.mason.spi;
+package io.avaje.jsonb.spi;
 
-import io.avaje.mason.Jsonb;
+import io.avaje.jsonb.Jsonb;
 
 public interface Bootstrap {
 

@@ -1,6 +1,6 @@
 package org.example;
 
-import io.avaje.mason.JsonAdapter;
+import io.avaje.jsonb.JsonAdapter;
 
 import java.util.function.Supplier;
 

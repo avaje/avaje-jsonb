@@ -1,6 +1,6 @@
-package io.avaje.mason.base;
+package io.avaje.jsonb.base;
 
-import io.avaje.mason.*;
+import io.avaje.jsonb.*;
 
 import java.io.*;
 import java.lang.reflect.Type;

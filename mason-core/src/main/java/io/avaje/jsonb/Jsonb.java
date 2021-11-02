@@ -1,7 +1,7 @@
-package io.avaje.mason;
+package io.avaje.jsonb;
 
-import io.avaje.mason.base.DefaultBootstrap;
-import io.avaje.mason.spi.Bootstrap;
+import io.avaje.jsonb.base.DefaultBootstrap;
+import io.avaje.jsonb.spi.Bootstrap;
 
 import java.io.*;
 import java.lang.annotation.Annotation;

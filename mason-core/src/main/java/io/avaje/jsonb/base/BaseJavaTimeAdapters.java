@@ -1,8 +1,8 @@
-package io.avaje.mason.base;
+package io.avaje.jsonb.base;
 
-import io.avaje.mason.JsonAdapter;
-import io.avaje.mason.JsonReader;
-import io.avaje.mason.JsonWriter;
+import io.avaje.jsonb.JsonAdapter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
 
 import java.io.IOException;
 import java.time.Instant;

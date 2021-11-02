@@ -1,6 +1,6 @@
-package io.avaje.mason.base;
+package io.avaje.jsonb.base;
 
-import io.avaje.mason.Jsonb;
+import io.avaje.jsonb.Jsonb;
 
 public class DefaultBootstrap {
 
