@@ -19,11 +19,33 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-final class Util {
+public final class Util {
 
   static final Type[] EMPTY_TYPE_ARRAY = new Type[]{};
 
   private Util() {
+  }
+
+  /**
+   * Returns an array type whose elements are all instances of {@code componentType}.
+   */
+  public static GenericArrayType arrayOf(Type elementType) {
+    return new Util.GenericArrayTypeImpl(elementType);
+  }
+
+  public static ParameterizedType listOf(Type elementType) {
+    return newParameterizedType(List.class, elementType);
+  }
+
+  /**
+   * Returns a new parameterized type, applying {@code typeArguments} to {@code rawType}. Use this
+   * method if {@code rawType} is not enclosed in another type.
+   */
+  public static ParameterizedType newParameterizedType(Type rawType, Type... typeArguments) {
+    if (typeArguments.length == 0) {
+      throw new IllegalArgumentException("Missing type arguments for " + rawType);
+    }
+    return new Util.ParameterizedTypeImpl(null, rawType, typeArguments);
   }
 
   static boolean typesMatch(Type pattern, Type candidate) {
@@ -115,14 +137,14 @@ final class Util {
         Type componentType = original.getComponentType();
         Type newComponentType =
           resolve(context, contextRawType, componentType, visitedTypeVariables);
-        return componentType == newComponentType ? original : Types.arrayOf(newComponentType);
+        return componentType == newComponentType ? original : arrayOf(newComponentType);
 
       } else if (toResolve instanceof GenericArrayType) {
         GenericArrayType original = (GenericArrayType) toResolve;
         Type componentType = original.getGenericComponentType();
         Type newComponentType =
           resolve(context, contextRawType, componentType, visitedTypeVariables);
-        return componentType == newComponentType ? original : Types.arrayOf(newComponentType);
+        return componentType == newComponentType ? original : arrayOf(newComponentType);
 
       } else if (toResolve instanceof ParameterizedType) {
         ParameterizedType original = (ParameterizedType) toResolve;

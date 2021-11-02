@@ -2,7 +2,7 @@ package org.example;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.base.Types;
+import io.avaje.jsonb.Types;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

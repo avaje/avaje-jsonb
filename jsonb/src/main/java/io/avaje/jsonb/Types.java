@@ -1,9 +1,11 @@
-package io.avaje.jsonb.base;
+package io.avaje.jsonb;
+
+
+import io.avaje.jsonb.base.Util;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 
 public class Types {
 
@@ -15,11 +17,11 @@ public class Types {
    * Returns an array type whose elements are all instances of {@code componentType}.
    */
   public static GenericArrayType arrayOf(Type elementType) {
-    return new Util.GenericArrayTypeImpl(elementType);
+    return Util.arrayOf(elementType);
   }
 
   public static ParameterizedType listOf(Type elementType) {
-    return newParameterizedType(List.class, elementType);
+    return Util.listOf(elementType);
   }
 
   /**
@@ -27,10 +29,7 @@ public class Types {
    * method if {@code rawType} is not enclosed in another type.
    */
   public static ParameterizedType newParameterizedType(Type rawType, Type... typeArguments) {
-    if (typeArguments.length == 0) {
-      throw new IllegalArgumentException("Missing type arguments for " + rawType);
-    }
-    return new Util.ParameterizedTypeImpl(null, rawType, typeArguments);
+    return Util.newParameterizedType(rawType, typeArguments);
   }
 
 }

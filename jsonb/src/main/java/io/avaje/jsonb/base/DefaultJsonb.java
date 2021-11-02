@@ -97,7 +97,7 @@ class DefaultJsonb implements Jsonb {
   }
 
   <T> JsonType<List<T>> listOf(Type key, JsonAdapter<T> adapter) {
-    Type listKey = Types.listOf(key);
+    Type listKey = Util.listOf(key);
     JsonAdapter<List<T>> listAdapter = builder.listOf(listKey, adapter);
     return new SimpleJsonType<>(this, listKey, listAdapter);
   }
