@@ -10,5 +10,7 @@ class Constants {
   //static final String META_INF_MODULE = "META-INF/services/io.avaje.inject.spi.Module";
 
   //static final String GENERATED = "io.avaje.inject.spi.Generated";
+  static final String JSONB_WILD = "io.avaje.jsonb.*";
+  static final String IOEXCEPTION = "java.io.IOException";
 
 }

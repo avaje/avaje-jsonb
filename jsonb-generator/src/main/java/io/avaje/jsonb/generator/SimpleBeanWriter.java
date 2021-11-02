@@ -1,9 +1,13 @@
 package io.avaje.jsonb.generator;
 
+import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.Types;
+
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.time.Instant;
 
 /**
  * Write the source code for the bean.
@@ -41,6 +45,8 @@ class SimpleBeanWriter {
     writeImports();
     writeClassStart();
     writeFields();
+    writeConstructor();
+    writeToJson();
 
     writeClassEnd();
     writer.close();
@@ -48,6 +54,16 @@ class SimpleBeanWriter {
 
   private void writeFields() {
     beanReader.writeFields(writer);
+  }
+
+  private void writeConstructor() {
+    writer.append("  public %sJsonAdapter(Jsonb jsonb) {", shortName).eol();
+    beanReader.writeConstructor(writer);
+    writer.append("  }").eol();
+  }
+
+  private void writeToJson() {
+    beanReader.writeToJson(writer);
   }
 
   private void writeImports() {

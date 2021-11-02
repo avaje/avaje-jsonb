@@ -9,6 +9,8 @@ import java.util.Set;
  */
 class GenericType {
 
+  private static final GenericTypeMap TYPE_MAP = new GenericTypeMap();
+
   /**
    * Trim off generic wildcard from the raw type if present.
    */
@@ -37,6 +39,10 @@ class GenericType {
    */
   GenericType() {
     this.raw = null;
+  }
+
+  String raw() {
+    return raw;
   }
 
   /**
@@ -110,10 +116,8 @@ class GenericType {
    * Append the short version of the type (given the type and parameters are in imports).
    */
   void writeShort(Append writer) {
-
     String main = Util.shortName(trimExtends());
     writer.append(main);
-
     final int paramCount = params.size();
     if (paramCount > 0) {
       writer.append("<");
@@ -124,6 +128,18 @@ class GenericType {
         params.get(i).writeShort(writer);
       }
       writer.append(">");
+    }
+  }
+
+  void writeType(String prefix, StringBuilder sb) {
+    String main = Util.shortName(trimExtends());
+    sb.append(prefix).append(main).append(".class");
+    final int paramCount = params.size();
+    if (paramCount > 0) {
+      for (int i = 0; i < paramCount; i++) {
+        sb.append(",");
+        params.get(i).writeType(",", sb);
+      }
     }
   }
 
@@ -142,7 +158,7 @@ class GenericType {
 
   private String trimExtends() {
     String type = topType();
-    if (type != null &&  type.startsWith("? extends ")) {
+    if (type != null && type.startsWith("? extends ")) {
       return type.substring(10);
     }
     return type;
@@ -174,4 +190,36 @@ class GenericType {
     params.add(param);
   }
 
+  String asTypeDeclaration() {
+    if (params.size() == 0) {
+      return asTypeBasic();
+    }
+    if (params.size() == 1) {
+      return asTypeContainer();
+    }
+    StringBuilder sb = new StringBuilder();
+    writeType("Types.newParameterizedType(", sb);
+    return sb.append(")").toString();
+  }
+
+  private String asTypeBasic() {
+    String topType = topType();
+    String adapterType = TYPE_MAP.typeOfRaw(topType);
+    if (adapterType != null) {
+      return adapterType;
+    }
+    return Util.shortName(topType)+".class";
+  }
+
+  private String asTypeContainer() {
+    GenericType param = params.get(0);
+    String containerType = topType();
+    switch (containerType) {
+      case "java.util.List":
+        return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
+      case "java.util.Set":
+        return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
+    }
+    return "FIXME: Unhandled Container Type " + containerType;
+  }
 }

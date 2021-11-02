@@ -17,6 +17,7 @@ class TypeExtendsInjection {
   private final List<FieldReader> baseFields = new ArrayList<>();
   private final List<FieldReader> inheritedFields = new ArrayList<>();
   private final Map<String, MethodReader> maybeSetterMethods = new LinkedHashMap<>();
+  private final Map<String, MethodReader> maybeGetterMethods = new LinkedHashMap<>();
 
   private final TypeElement baseType;
   private final ProcessingContext context;
@@ -69,11 +70,16 @@ class TypeExtendsInjection {
     ExecutableElement methodElement = (ExecutableElement) element;
     if (methodElement.getModifiers().contains(Modifier.PUBLIC)) {
       List<? extends VariableElement> parameters = methodElement.getParameters();
+      final String methodKey = methodElement.getSimpleName().toString();
       if (parameters.size() == 1) {
-        final String methodKey = methodElement.getSimpleName().toString();
         if (!maybeSetterMethods.containsKey(methodKey)) {
           MethodReader methodReader = new MethodReader(context, methodElement, type).read();
           maybeSetterMethods.put(methodKey, methodReader);
+        }
+      } else if (parameters.size() == 0) {
+        if (!maybeGetterMethods.containsKey(methodKey)) {
+          MethodReader methodReader = new MethodReader(context, methodElement, type).read();
+          maybeGetterMethods.put(methodKey, methodReader);
         }
       }
     }
@@ -93,6 +99,7 @@ class TypeExtendsInjection {
     allFields.addAll(inheritedFields);
 
     matchFieldsToSetterOrConstructor();
+    matchFieldsToGetter();
   }
 
   private void matchFieldsToSetterOrConstructor() {
@@ -105,6 +112,7 @@ class TypeExtendsInjection {
     }
   }
 
+
   private void matchFieldToSetter(FieldReader field) {
     String name = field.getFieldName();
     MethodReader setter = maybeSetterMethods.get(name);
@@ -114,14 +122,39 @@ class TypeExtendsInjection {
       setter = maybeSetterMethods.get(setterName(name));
       if (setter != null) {
         field.setterMethod(setter);
-      } else if (!field.isPublic()){
-        context.logError("Non public field "+ name +" with no matching setter or constructor?");
+      } else if (!field.isPublic()) {
+        context.logError("Non public field " + name + " with no matching setter or constructor?");
+      }
+    }
+  }
+
+  private void matchFieldsToGetter() {
+    for (FieldReader field : allFields) {
+      matchFieldToGetter(field);
+    }
+  }
+
+  private void matchFieldToGetter(FieldReader field) {
+    String name = field.getFieldName();
+    MethodReader getter = maybeGetterMethods.get(name);
+    if (getter != null) {
+      field.getterMethod(getter);
+    } else {
+      getter = maybeSetterMethods.get(getterName(name));
+      if (getter != null) {
+        field.getterMethod(getter);
+      } else if (!field.isPublic()) {
+        context.logError("Non public field " + name + " with no matching getter?");
       }
     }
   }
 
   private String setterName(String name) {
     return "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+  }
+
+  private String getterName(String name) {
+    return "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
   }
 
   List<FieldReader> allFields() {

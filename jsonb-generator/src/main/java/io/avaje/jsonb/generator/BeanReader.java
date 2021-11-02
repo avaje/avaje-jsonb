@@ -53,11 +53,16 @@ class BeanReader {
   }
 
   private Set<String> importTypes() {
-    //importTypes.add(Constants.GENERATED);
+    importTypes.add(Constants.JSONB_WILD);
+    importTypes.add(Constants.IOEXCEPTION);
+
     if (Util.validImportType(type)) {
       importTypes.add(type);
     }
     typeReader.extraImports(importTypes);
+    for (FieldReader allField : allFields) {
+      allField.addImports(importTypes);
+    }
     return importTypes;
   }
 
@@ -76,5 +81,26 @@ class BeanReader {
       allField.writeDebug(writer);
     }
     writer.eol();
+    for (FieldReader allField : allFields) {
+      allField.writeField(writer);
+    }
+    writer.eol();
+  }
+
+  void writeConstructor(Append writer) {
+    for (FieldReader allField : allFields) {
+      allField.writeConstructor(writer);
+    }
+  }
+
+  void writeToJson(Append writer){
+    String varName = Character.toLowerCase(shortName.charAt(0)) + shortName.substring(1);
+    writer.append("  public void toJson(JsonWriter writer, %s %s) throws IOException {", shortName, varName).eol();
+    writer.append("    writer.beginObject();").eol();
+    for (FieldReader allField : allFields) {
+      allField.writeToJson(writer, varName);
+    }
+    writer.append("    writer.endObject();").eol();
+    writer.append("  }").eol();
   }
 }
