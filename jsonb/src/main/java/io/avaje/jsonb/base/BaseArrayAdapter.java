@@ -32,10 +32,10 @@ import java.util.List;
 final class BaseArrayAdapter extends JsonAdapter<Object> {
   public static final Factory FACTORY =
     (type, annotations, moshi) -> {
-      Type elementType = UtilTypes.arrayComponentType(type);
+      Type elementType = Util.arrayComponentType(type);
       if (elementType == null) return null;
       if (!annotations.isEmpty()) return null;
-      Class<?> elementClass = UtilTypes.rawType(elementType);
+      Class<?> elementClass = Util.rawType(elementType);
       JsonAdapter<Object> elementAdapter = moshi.adapter(elementType);
       return new BaseArrayAdapter(elementClass, elementAdapter).nullSafe();
     };

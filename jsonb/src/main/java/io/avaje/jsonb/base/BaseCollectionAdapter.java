@@ -31,7 +31,7 @@ abstract class BaseCollectionAdapter<C extends Collection<T>, T> extends JsonAda
 
   public static final JsonAdapter.Factory FACTORY =
     (type, annotations, moshi) -> {
-      Class<?> rawType = UtilTypes.rawType(type);
+      Class<?> rawType = Util.rawType(type);
       if (!annotations.isEmpty()) return null;
       if (rawType == List.class || rawType == Collection.class) {
         return newListAdapter(type, moshi).nullSafe();
@@ -57,7 +57,7 @@ abstract class BaseCollectionAdapter<C extends Collection<T>, T> extends JsonAda
   }
 
   static <T> JsonAdapter<Collection<T>> newListAdapter(Type type, Jsonb jsonb) {
-    Type elementType = UtilTypes.collectionElementType(type);
+    Type elementType = Util.collectionElementType(type);
     JsonAdapter<T> elementAdapter = jsonb.adapter(elementType);
     return new BaseCollectionAdapter<Collection<T>, T>(elementAdapter) {
       @Override
@@ -68,7 +68,7 @@ abstract class BaseCollectionAdapter<C extends Collection<T>, T> extends JsonAda
   }
 
   static <T> JsonAdapter<Set<T>> newSetAdapter(Type type, Jsonb jsonb) {
-    Type elementType = UtilTypes.collectionElementType(type);
+    Type elementType = Util.collectionElementType(type);
     JsonAdapter<T> elementAdapter = jsonb.adapter(elementType);
     return new BaseCollectionAdapter<Set<T>, T>(elementAdapter) {
       @Override

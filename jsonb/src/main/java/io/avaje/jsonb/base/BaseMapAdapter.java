@@ -31,10 +31,10 @@ final class BaseMapAdapter<V> extends JsonAdapter<Map<String, V>> {
   static final Factory FACTORY =
     (type, annotations, jsonb) -> {
       if (!annotations.isEmpty()) return null;
-      Class<?> rawType = UtilTypes.rawType(type);
+      Class<?> rawType = Util.rawType(type);
       if (rawType != Map.class) return null;
-      Type[] keyAndValue = UtilTypes.mapKeyAndValueTypes(type, rawType);
-      return new BaseMapAdapter<>(jsonb, keyAndValue[1]).nullSafe();
+      Type valueType = Util.mapValueType(type, rawType);
+      return new BaseMapAdapter<>(jsonb, valueType).nullSafe();
     };
 
   //private final JsonAdapter<K> keyAdapter;
