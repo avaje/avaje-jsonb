@@ -7,8 +7,8 @@
     <version>3.2</version>
   </parent>
 
-  <groupId>org.avaje.mason</groupId>
-  <artifactId>mason-parent</artifactId>
+  <groupId>org.avaje.jsonb</groupId>
+  <artifactId>jsonb-parent</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>mason parent</name>
@@ -24,8 +24,8 @@
   </properties>
 
   <modules>
-    <module>mason-core</module>
-    <module>mason-generator</module>
+    <module>jsonb</module>
+    <module>jsonb-generator</module>
     <module>blackbox-test</module>
   </modules>
 </project>

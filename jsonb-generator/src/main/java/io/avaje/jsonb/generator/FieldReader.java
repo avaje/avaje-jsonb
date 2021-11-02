@@ -8,11 +8,13 @@ class FieldReader {
 
   private final Element element;
   private final boolean publicField;
+  private final String rawType;
   private MethodReader setter;
   private boolean constructorParam;
 
   FieldReader(Element element) {
     this.element = element;
+    this.rawType = element.asType().toString();
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
   }
 
@@ -37,6 +39,6 @@ class FieldReader {
   }
 
   void writeDebug(Append writer) {
-    writer.append("  // %s setter:%s constructor:%s public:%s", getFieldName(), setter, constructorParam, publicField).eol();
+    writer.append("  // %s [%s] setter:%s constructor:%s public:%s", getFieldName(), rawType, setter, constructorParam, publicField).eol();
   }
 }
