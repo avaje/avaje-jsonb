@@ -1,7 +1,7 @@
 package io.avaje.jsonb;
 
 
-import io.avaje.jsonb.base.Util;
+import io.avaje.jsonb.core.Util;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;

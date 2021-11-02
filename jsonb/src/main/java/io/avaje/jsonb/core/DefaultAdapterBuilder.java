@@ -1,4 +1,4 @@
-package io.avaje.jsonb.base;
+package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonReader;
@@ -9,7 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static io.avaje.jsonb.base.Util.typeAnnotatedWithAnnotations;
+import static io.avaje.jsonb.core.Util.typeAnnotatedWithAnnotations;
 
 /**
  * Builds and caches the JsonAdapter adapters for DefaultJsonb.

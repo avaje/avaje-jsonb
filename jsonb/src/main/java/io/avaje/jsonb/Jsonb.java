@@ -1,6 +1,6 @@
 package io.avaje.jsonb;
 
-import io.avaje.jsonb.base.DefaultBootstrap;
+import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.Bootstrap;
 
 import java.io.*;

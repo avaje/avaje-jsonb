@@ -1,4 +1,4 @@
-package io.avaje.jsonb.base;
+package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 

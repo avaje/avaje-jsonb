@@ -1,4 +1,4 @@
-package io.avaje.jsonb.base;
+package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.jackson.JacksonAdapter;
@@ -9,7 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static io.avaje.jsonb.base.Util.*;
+import static io.avaje.jsonb.core.Util.*;
 import static java.util.Objects.requireNonNull;
 
 /**
