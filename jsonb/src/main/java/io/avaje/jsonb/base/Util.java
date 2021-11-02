@@ -19,55 +19,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-
 final class Util {
-//  static final Set<Annotation> NO_ANNOTATIONS = Collections.emptySet();
+
   static final Type[] EMPTY_TYPE_ARRAY = new Type[]{};
-//  static final Class<?> DEFAULT_CONSTRUCTOR_MARKER;
-//  private static final Class<? extends Annotation> METADATA;
-//
-//  /**
-//   * A map from primitive types to their corresponding wrapper types.
-//   */
-//  private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER_TYPE;
-
-  static {
-//    Class<? extends Annotation> metadata = null;
-//    try {
-//      //noinspection unchecked
-//      metadata = (Class<? extends Annotation>) Class.forName(getKotlinMetadataClassName());
-//    } catch (ClassNotFoundException ignored) {
-//    }
-//    METADATA = metadata;
-//
-//    // We look up the constructor marker separately because Metadata might be (justifiably)
-//    // stripped by R8/Proguard but the DefaultConstructorMarker is still present.
-//    Class<?> defaultConstructorMarker = null;
-//    try {
-//      defaultConstructorMarker = Class.forName("kotlin.jvm.internal.DefaultConstructorMarker");
-//    } catch (ClassNotFoundException ignored) {
-//    }
-//    DEFAULT_CONSTRUCTOR_MARKER = defaultConstructorMarker;
-//
-//    Map<Class<?>, Class<?>> primToWrap = new LinkedHashMap<>(16);
-//
-//    primToWrap.put(boolean.class, Boolean.class);
-//    primToWrap.put(byte.class, Byte.class);
-//    primToWrap.put(char.class, Character.class);
-//    primToWrap.put(double.class, Double.class);
-//    primToWrap.put(float.class, Float.class);
-//    primToWrap.put(int.class, Integer.class);
-//    primToWrap.put(long.class, Long.class);
-//    primToWrap.put(short.class, Short.class);
-//    primToWrap.put(void.class, Void.class);
-//
-//    PRIMITIVE_TO_WRAPPER_TYPE = Collections.unmodifiableMap(primToWrap);
-  }
-
-//  // Extracted as a method with a keep rule to prevent R8 from keeping Kotlin Metada
-//  private static String getKotlinMetadataClassName() {
-//    return "kotlin.Metadata";
-//  }
 
   private Util() {
   }
@@ -77,21 +31,6 @@ final class Util {
     return UtilTypes.equals(pattern, candidate);
   }
 
-//  static Set<? extends Annotation> jsonAnnotations(AnnotatedElement annotatedElement) {
-//    return jsonAnnotations(annotatedElement.getAnnotations());
-//  }
-//
-//  static Set<? extends Annotation> jsonAnnotations(Annotation[] annotations) {
-//    Set<Annotation> result = null;
-//    for (Annotation annotation : annotations) {
-//      if (annotation.annotationType().isAnnotationPresent(JsonQualifier.class)) {
-//        if (result == null) result = new LinkedHashSet<>();
-//        result.add(annotation);
-//      }
-//    }
-//    return result != null ? Collections.unmodifiableSet(result) : Util.NO_ANNOTATIONS;
-//  }
-
   static boolean isAnnotationPresent(Set<? extends Annotation> annotations, Class<? extends Annotation> annotationClass) {
     if (annotations.isEmpty()) return false; // Save an iterator in the common case.
     for (Annotation annotation : annotations) {
@@ -100,44 +39,7 @@ final class Util {
     return false;
   }
 
-//  /**
-//   * Returns true if {@code annotations} has any annotation whose simple name is Nullable.
-//   */
-//  static boolean hasNullable(Annotation[] annotations) {
-//    for (Annotation annotation : annotations) {
-//      if (annotation.annotationType().getSimpleName().equals("Nullable")) {
-//        return true;
-//      }
-//    }
-//    return false;
-//  }
-
-//  /**
-//   * Returns true if {@code rawType} is built in. We don't reflect on private fields of platform
-//   * types because they're unspecified and likely to be different on Java vs. Android.
-//   */
-//  static boolean isPlatformType(Class<?> rawType) {
-//    String name = rawType.getName();
-//    return name.startsWith("android.")
-//      || name.startsWith("androidx.")
-//      || name.startsWith("java.")
-//      || name.startsWith("javax.")
-//      || name.startsWith("kotlin.")
-//      || name.startsWith("kotlinx.")
-//      || name.startsWith("scala.");
-//  }
-//
-//  /**
-//   * Throws the cause of {@code e}, wrapping it if it is checked.
-//   */
-//  static RuntimeException rethrowCause(InvocationTargetException e) {
-//    Throwable cause = e.getTargetException();
-//    if (cause instanceof RuntimeException) throw (RuntimeException) cause;
-//    if (cause instanceof Error) throw (Error) cause;
-//    throw new RuntimeException(cause);
-//  }
-
-  static Type canonicalizeClass(Class cls) {
+  static Type canonicalizeClass(Class<?> cls) {
     return cls.isArray() ? new GenericArrayTypeImpl(canonicalize(cls.getComponentType())) : cls;
   }
 
@@ -429,7 +331,7 @@ final class Util {
   static final class GenericArrayTypeImpl implements GenericArrayType {
     private final Type componentType;
 
-    public GenericArrayTypeImpl(Type componentType) {
+    GenericArrayTypeImpl(Type componentType) {
       this.componentType = canonicalize(componentType);
     }
 
@@ -463,7 +365,7 @@ final class Util {
     private final Type upperBound;
     private final Type lowerBound;
 
-    public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
+    WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
       if (lowerBounds.length > 1) throw new IllegalArgumentException();
       if (upperBounds.length != 1) throw new IllegalArgumentException();
 
@@ -519,137 +421,4 @@ final class Util {
     return type + (annotations.isEmpty() ? " (with no annotations)" : " annotated " + annotations);
   }
 
-//  /**
-//   * Loads the generated JsonAdapter for classes annotated {@link JsonClass}. This works because it
-//   * uses the same naming conventions as {@code JsonClassCodeGenProcessor}.
-//   */
-//  static JsonAdapter<?> generatedAdapter(DefaultJsonb moshi, Type type, Class<?> rawType) {
-//    JsonClass jsonClass = rawType.getAnnotation(JsonClass.class);
-//    if (jsonClass == null || !jsonClass.generateAdapter()) {
-//      return null;
-//    }
-//    String adapterClassName = Types.generatedJsonAdapterName(rawType.getName());
-//    Class<? extends JsonAdapter<?>> adapterClass = null;
-//    try {
-//      //noinspection unchecked - We generate types to match.
-//      adapterClass =
-//        (Class<? extends JsonAdapter<?>>)
-//          Class.forName(adapterClassName, true, rawType.getClassLoader());
-//      Constructor<? extends JsonAdapter<?>> constructor;
-//      Object[] args;
-//      if (type instanceof ParameterizedType) {
-//        Type[] typeArgs = ((ParameterizedType) type).getActualTypeArguments();
-//        try {
-//          // Common case first
-//          constructor = adapterClass.getDeclaredConstructor(DefaultJsonb.class, Type[].class);
-//          args = new Object[]{moshi, typeArgs};
-//        } catch (NoSuchMethodException e) {
-//          constructor = adapterClass.getDeclaredConstructor(Type[].class);
-//          args = new Object[]{typeArgs};
-//        }
-//      } else {
-//        try {
-//          // Common case first
-//          constructor = adapterClass.getDeclaredConstructor(DefaultJsonb.class);
-//          args = new Object[]{moshi};
-//        } catch (NoSuchMethodException e) {
-//          constructor = adapterClass.getDeclaredConstructor();
-//          args = new Object[0];
-//        }
-//      }
-//      constructor.setAccessible(true);
-//      return constructor.newInstance(args).nullSafe();
-//    } catch (ClassNotFoundException e) {
-//      throw new RuntimeException("Failed to find the generated JsonAdapter class for " + type, e);
-//    } catch (NoSuchMethodException e) {
-//      if (!(type instanceof ParameterizedType) && adapterClass.getTypeParameters().length != 0) {
-//        throw new RuntimeException(
-//          "Failed to find the generated JsonAdapter constructor for '"
-//            + type
-//            + "'. Suspiciously, the type was not parameterized but the target class '"
-//            + adapterClass.getCanonicalName()
-//            + "' is generic. Consider using "
-//            + "Types#newParameterizedType() to define these missing type variables.",
-//          e);
-//      } else {
-//        throw new RuntimeException(
-//          "Failed to find the generated JsonAdapter constructor for " + type, e);
-//      }
-//    } catch (IllegalAccessException e) {
-//      throw new RuntimeException("Failed to access the generated JsonAdapter for " + type, e);
-//    } catch (InstantiationException e) {
-//      throw new RuntimeException("Failed to instantiate the generated JsonAdapter for " + type, e);
-//    } catch (InvocationTargetException e) {
-//      throw rethrowCause(e);
-//    }
-//  }
-//
-//  static boolean isKotlin(Class<?> targetClass) {
-//    return METADATA != null && targetClass.isAnnotationPresent(METADATA);
-//  }
-//
-//  /**
-//   * Reflectively looks up the defaults constructor of a kotlin class.
-//   *
-//   * @param targetClass the target kotlin class to instantiate.
-//   * @param <T>         the type of {@code targetClass}.
-//   * @return the instantiated {@code targetClass} instance.
-//   */
-//  static <T> Constructor<T> lookupDefaultsConstructor(Class<T> targetClass) {
-//    if (DEFAULT_CONSTRUCTOR_MARKER == null) {
-//      throw new IllegalStateException(
-//        "DefaultConstructorMarker not on classpath. Make sure the "
-//          + "Kotlin stdlib is on the classpath.");
-//    }
-//    Constructor<T> defaultConstructor = findConstructor(targetClass);
-//    defaultConstructor.setAccessible(true);
-//    return defaultConstructor;
-//  }
-//
-//  private static <T> Constructor<T> findConstructor(Class<T> targetClass) {
-//    for (Constructor<?> constructor : targetClass.getDeclaredConstructors()) {
-//      Class<?>[] paramTypes = constructor.getParameterTypes();
-//      if (paramTypes.length != 0
-//        && paramTypes[paramTypes.length - 1].equals(DEFAULT_CONSTRUCTOR_MARKER)) {
-//        //noinspection unchecked
-//        return (Constructor<T>) constructor;
-//      }
-//    }
-//
-//    throw new IllegalStateException("No defaults constructor found for " + targetClass);
-//  }
-//
-//  static JsonDataException missingProperty(String propertyName, String jsonName, JsonReader reader) {
-//    String path = reader.path();
-//    String message;
-//    if (jsonName.equals(propertyName)) {
-//      message = String.format("Required value '%s' missing at %s", propertyName, path);
-//    } else {
-//      message =
-//        String.format(
-//          "Required value '%s' (JSON name '%s') missing at %s", propertyName, jsonName, path);
-//    }
-//    return new JsonDataException(message);
-//  }
-//
-//  static JsonDataException unexpectedNull(String propertyName, String jsonName, JsonReader reader) {
-//    String path = reader.path();
-//    String message;
-//    if (jsonName.equals(propertyName)) {
-//      message = String.format("Non-null value '%s' was null at %s", propertyName, path);
-//    } else {
-//      message =
-//        String.format(
-//          "Non-null value '%s' (JSON name '%s') was null at %s", propertyName, jsonName, path);
-//    }
-//    return new JsonDataException(message);
-//  }
-//
-//  // Public due to inline access in MoshiKotlinTypesExtensions
-//  static <T> Class<T> boxIfPrimitive(Class<T> type) {
-//    // cast is safe: long.class and Long.class are both of type Class<Long>
-//    @SuppressWarnings("unchecked")
-//    Class<T> wrapped = (Class<T>) PRIMITIVE_TO_WRAPPER_TYPE.get(type);
-//    return (wrapped == null) ? type : wrapped;
-//  }
 }
