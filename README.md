@@ -24,6 +24,7 @@ Goals:
 - [moshi](https://github.com/square/moshi)
 - [reddit - why use moshi over gson](https://www.reddit.com/r/androiddev/comments/684flw/why_use_moshi_over_gson/)
 - [LoganSquare](https://github.com/bluelinelabs/LoganSquare)
+- [instagram - ig-json-parser](https://github.com/Instagram/ig-json-parser)
 - [jackson core](https://github.com/FasterXML/jackson-core)
 - [jackson databind](https://github.com/FasterXML/jackson-databind)
 - [gson](https://github.com/google/gson)
