@@ -61,7 +61,7 @@ final class UtilTypes {
   }
 
 
-  static Class<?> getRawType(Type type) {
+  static Class<?> rawType(Type type) {
     if (type instanceof Class<?>) {
       // type is a normal class.
       return (Class<?>) type;
@@ -76,7 +76,7 @@ final class UtilTypes {
 
     } else if (type instanceof GenericArrayType) {
       Type componentType = ((GenericArrayType) type).getGenericComponentType();
-      return Array.newInstance(getRawType(componentType), 0).getClass();
+      return Array.newInstance(rawType(componentType), 0).getClass();
 
     } else if (type instanceof TypeVariable) {
       // We could use the variable's bounds, but that won't work if there are multiple. having a raw
@@ -84,7 +84,7 @@ final class UtilTypes {
       return Object.class;
 
     } else if (type instanceof WildcardType) {
-      return getRawType(((WildcardType) type).getUpperBounds()[0]);
+      return rawType(((WildcardType) type).getUpperBounds()[0]);
 
     } else {
       String className = type == null ? "null" : type.getClass().getName();
@@ -102,8 +102,8 @@ final class UtilTypes {
    *
    * @throws IllegalArgumentException if this type is not a collection.
    */
-  static Type collectionElementType(Type context, Class<?> contextRawType) {
-    Type collectionType = getSupertype(context, contextRawType, Collection.class);
+  static Type collectionElementType(Type context) {
+    Type collectionType = supertype(context, Collection.class, Collection.class);
     if (collectionType instanceof WildcardType) {
       collectionType = ((WildcardType) collectionType).getUpperBounds()[0];
     }
@@ -122,7 +122,7 @@ final class UtilTypes {
 
     } else if (a instanceof Class) {
       if (b instanceof GenericArrayType) {
-        return equals(((Class) a).getComponentType(), ((GenericArrayType) b).getGenericComponentType());
+        return equals(((Class<?>) a).getComponentType(), ((GenericArrayType) b).getGenericComponentType());
       }
       return a.equals(b); // Class already specifies equals().
 
@@ -144,8 +144,7 @@ final class UtilTypes {
 
     } else if (a instanceof GenericArrayType) {
       if (b instanceof Class) {
-        return equals(
-          ((Class) b).getComponentType(), ((GenericArrayType) a).getGenericComponentType());
+        return equals(((Class<?>) b).getComponentType(), ((GenericArrayType) a).getGenericComponentType());
       }
       if (!(b instanceof GenericArrayType)) return false;
       GenericArrayType ga = (GenericArrayType) a;
@@ -183,7 +182,7 @@ final class UtilTypes {
       return new Type[]{String.class, String.class};
     }
 
-    Type mapType = getSupertype(context, contextRawType, Map.class);
+    Type mapType = supertype(context, contextRawType, Map.class);
     if (mapType instanceof ParameterizedType) {
       ParameterizedType mapParameterizedType = (ParameterizedType) mapType;
       return mapParameterizedType.getActualTypeArguments();
@@ -198,9 +197,9 @@ final class UtilTypes {
    *
    * @param supertype a superclass of, or interface implemented by, this.
    */
-  static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+  static Type supertype(Type context, Class<?> contextRawType, Class<?> supertype) {
     if (!supertype.isAssignableFrom(contextRawType)) throw new IllegalArgumentException();
-    return resolve(context, contextRawType, getGenericSupertype(context, contextRawType, supertype));
+    return resolve(context, contextRawType, genericSupertype(context, contextRawType, supertype));
   }
 
   /**

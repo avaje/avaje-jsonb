@@ -179,7 +179,7 @@ final class Util {
     // We can't reduce this further.
     if (declaredByRaw == null) return unknown;
 
-    Type declaredBy = getGenericSupertype(context, contextRawType, declaredByRaw);
+    Type declaredBy = genericSupertype(context, contextRawType, declaredByRaw);
     if (declaredBy instanceof ParameterizedType) {
       int index = indexOf(declaredByRaw.getTypeParameters(), unknown);
       return ((ParameterizedType) declaredBy).getActualTypeArguments()[index];
@@ -193,7 +193,7 @@ final class Util {
    * IntegerSet}, the result for when supertype is {@code Set.class} is {@code Set<Integer>} and the
    * result when the supertype is {@code Collection.class} is {@code Collection<Integer>}.
    */
-  static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
+  static Type genericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {
     if (toResolve == rawType) {
       return context;
     }
@@ -205,7 +205,7 @@ final class Util {
         if (interfaces[i] == toResolve) {
           return rawType.getGenericInterfaces()[i];
         } else if (toResolve.isAssignableFrom(interfaces[i])) {
-          return getGenericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
+          return genericSupertype(rawType.getGenericInterfaces()[i], interfaces[i], toResolve);
         }
       }
     }
@@ -217,7 +217,7 @@ final class Util {
         if (rawSupertype == toResolve) {
           return rawType.getGenericSuperclass();
         } else if (toResolve.isAssignableFrom(rawSupertype)) {
-          return getGenericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
+          return genericSupertype(rawType.getGenericSuperclass(), rawSupertype, toResolve);
         }
         rawType = rawSupertype;
       }
@@ -267,7 +267,7 @@ final class Util {
       if (rawType instanceof Class<?>) {
         Class<?> enclosingClass = ((Class<?>) rawType).getEnclosingClass();
         if (ownerType != null) {
-          if (enclosingClass == null || UtilTypes.getRawType(ownerType) != enclosingClass) {
+          if (enclosingClass == null || UtilTypes.rawType(ownerType) != enclosingClass) {
             throw new IllegalArgumentException(
               "unexpected owner type for " + rawType + ": " + ownerType);
           }

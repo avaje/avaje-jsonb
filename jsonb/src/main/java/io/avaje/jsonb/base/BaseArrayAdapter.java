@@ -35,7 +35,7 @@ final class BaseArrayAdapter extends JsonAdapter<Object> {
       Type elementType = UtilTypes.arrayComponentType(type);
       if (elementType == null) return null;
       if (!annotations.isEmpty()) return null;
-      Class<?> elementClass = UtilTypes.getRawType(elementType);
+      Class<?> elementClass = UtilTypes.rawType(elementType);
       JsonAdapter<Object> elementAdapter = moshi.adapter(elementType);
       return new BaseArrayAdapter(elementClass, elementAdapter).nullSafe();
     };
