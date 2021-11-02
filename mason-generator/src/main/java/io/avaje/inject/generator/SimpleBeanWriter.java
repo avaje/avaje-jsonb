@@ -42,9 +42,14 @@ class SimpleBeanWriter {
     writePackage();
     writeImports();
     writeClassStart();
+    writeFields();
 
     writeClassEnd();
     writer.close();
+  }
+
+  private void writeFields() {
+    beanReader.writeFields(writer);
   }
 
   private void writeImports() {
@@ -56,7 +61,7 @@ class SimpleBeanWriter {
   }
 
   private void writeClassStart() {
-    writer.append("public class ").append(shortName).append("JsonAdapter").append(" ");
+    writer.append("public class %sJsonAdapter ", shortName);
     //writer.append("implements ");
     writer.append(" {").eol().eol();
   }

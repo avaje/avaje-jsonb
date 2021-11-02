@@ -12,14 +12,10 @@ class BeanReader {
   private final String type;
 
   private final MethodReader constructor;
-  private final List<FieldReader> injectFields;
-  private final List<MethodReader> injectMethods;
-  private final List<MethodReader> factoryMethods;
+  private final List<FieldReader> allFields;
 
   private final Set<String> importTypes = new TreeSet<>();
   private final TypeReader typeReader;
-
-  private boolean writtenToFile;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
     this.beanType = beanType;
@@ -29,10 +25,8 @@ class BeanReader {
     this.typeReader = new TypeReader(beanType, context);
 
     typeReader.process();
-    this.injectMethods = typeReader.getInjectMethods();
-    this.injectFields = typeReader.getInjectFields();
-    this.factoryMethods = typeReader.getFactoryMethods();
-    this.constructor = typeReader.getConstructor();
+    this.allFields = typeReader.allFields();
+    this.constructor = typeReader.constructor();
   }
 
   @Override
@@ -45,31 +39,10 @@ class BeanReader {
   }
 
   BeanReader read() {
-    if (constructor != null) {
-      constructor.addImports(importTypes);
-    }
-    for (FieldReader fields : injectFields) {
+    for (FieldReader fields : allFields) {
       fields.addImports(importTypes);
     }
-    for (MethodReader methods : injectMethods) {
-      methods.addImports(importTypes);
-    }
-    for (MethodReader factoryMethod : factoryMethods) {
-      factoryMethod.addImports(importTypes);
-    }
     return this;
-  }
-
-  List<MethodReader> getFactoryMethods() {
-    return factoryMethods;
-  }
-
-  List<String> getInterfaces() {
-    return typeReader.getInterfaces();
-  }
-
-  Set<GenericType> getGenericTypes() {
-    return typeReader.getGenericTypes();
   }
 
   /**
@@ -98,4 +71,10 @@ class BeanReader {
   }
 
 
+  void writeFields(Append writer) {
+    for (FieldReader allField : allFields) {
+      allField.writeDebug(writer);
+    }
+    writer.eol();
+  }
 }

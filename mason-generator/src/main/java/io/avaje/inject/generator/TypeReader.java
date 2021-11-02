@@ -7,7 +7,6 @@ import java.util.Set;
 
 class TypeReader {
 
-  private final boolean forBean;
   private final TypeElement beanType;
   private final Set<String> importTypes;
   private final TypeExtendsReader extendsReader;
@@ -15,11 +14,10 @@ class TypeReader {
   private String typesRegister;
 
   TypeReader(TypeElement returnElement, ProcessingContext context) {
-    this(false, returnElement, context, new LinkedHashSet<>());
+    this(returnElement, context, new LinkedHashSet<>());
   }
 
-  private TypeReader(boolean forBean, TypeElement beanType, ProcessingContext context, Set<String> importTypes) {
-    this.forBean = forBean;
+  private TypeReader(TypeElement beanType, ProcessingContext context, Set<String> importTypes) {
     this.beanType = beanType;
     this.importTypes = importTypes;
     this.extendsReader = new TypeExtendsReader(beanType, context);
@@ -29,28 +27,16 @@ class TypeReader {
     return typesRegister;
   }
 
-  List<String> getInterfaces() {
-    return extendsReader.getInterfaceTypes();
-  }
-
   void addImports(Set<String> importTypes) {
     importTypes.addAll(this.importTypes);
   }
 
-  List<FieldReader> getInjectFields() {
-    return extendsReader.getInjectFields();
+  List<FieldReader> allFields() {
+    return extendsReader.allFields();
   }
 
-  List<MethodReader> getInjectMethods() {
-    return extendsReader.getInjectMethods();
-  }
-
-  List<MethodReader> getFactoryMethods() {
-    return extendsReader.getFactoryMethods();
-  }
-
-  MethodReader getConstructor() {
-    return extendsReader.getConstructor();
+  MethodReader constructor() {
+    return extendsReader.constructor();
   }
 
   Set<GenericType> getGenericTypes() {
@@ -58,15 +44,13 @@ class TypeReader {
   }
 
   void process() {
-    extendsReader.process(forBean);
+    extendsReader.process();
     initRegistrationTypes();
   }
 
   private void initRegistrationTypes() {
     TypeAppender appender = new TypeAppender(importTypes);
     appender.add(extendsReader.getBaseType());
-    appender.add(extendsReader.getExtendsTypes());
-    appender.add(extendsReader.getInterfaceTypes());
     this.genericTypes = appender.genericTypes();
     this.typesRegister = appender.asString();
   }

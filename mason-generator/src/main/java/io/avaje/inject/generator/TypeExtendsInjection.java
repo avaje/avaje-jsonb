@@ -1,9 +1,10 @@
 package io.avaje.inject.generator;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import java.util.*;
+import javax.lang.model.element.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Read points for field injection and method injection
@@ -11,14 +12,15 @@ import java.util.*;
  */
 class TypeExtendsInjection {
 
-  private final List<MethodReader> otherConstructors = new ArrayList<>();
-  private final List<MethodReader> factoryMethods = new ArrayList<>();
-  private final List<FieldReader> injectFields = new ArrayList<>();
-  private final Map<String, MethodReader> injectMethods = new LinkedHashMap<>();
-  private final Set<String> notInjectMethods = new HashSet<>();
+  private final List<MethodReader> publicConstructors = new ArrayList<>();
+  private final List<FieldReader> allFields = new ArrayList<>();
+  private final List<FieldReader> baseFields = new ArrayList<>();
+  private final List<FieldReader> inheritedFields = new ArrayList<>();
+  private final Map<String, MethodReader> maybeSetterMethods = new LinkedHashMap<>();
 
   private final TypeElement baseType;
   private final ProcessingContext context;
+  private MethodReader constructor;
 
   TypeExtendsInjection(TypeElement baseType, ProcessingContext context) {
     this.baseType = baseType;
@@ -32,7 +34,7 @@ class TypeExtendsInjection {
           readConstructor(element, type);
           break;
         case FIELD:
-          readField(element);
+          readField(element, type);
           break;
         case METHOD:
           readMethod(element, type);
@@ -41,11 +43,14 @@ class TypeExtendsInjection {
     }
   }
 
-  private void readField(Element element) {
-//    Inject inject = element.getAnnotation(Inject.class);
-//    if (inject != null) {
-//      injectFields.add(new FieldReader(element));
-//    }
+  private void readField(Element element, TypeElement type) {
+    if (!element.getModifiers().contains(Modifier.TRANSIENT)) {
+      if (type != baseType) {
+        baseFields.add(new FieldReader(element));
+      } else {
+        inheritedFields.add(new FieldReader(element));
+      }
+    }
   }
 
   private void readConstructor(Element element, TypeElement type) {
@@ -53,59 +58,87 @@ class TypeExtendsInjection {
       // only interested in the top level constructors
       return;
     }
-
     ExecutableElement ex = (ExecutableElement) element;
     MethodReader methodReader = new MethodReader(context, ex, baseType).read();
-//    Inject inject = element.getAnnotation(Inject.class);
-//    if (inject != null) {
-//      injectConstructor = methodReader;
-//    } else {
-      if (methodReader.isNotPrivate()) {
-        otherConstructors.add(methodReader);
-      }
-//    }
+    if (methodReader.isPublic()) {
+      publicConstructors.add(methodReader);
+    }
   }
 
   private void readMethod(Element element, TypeElement type) {
     ExecutableElement methodElement = (ExecutableElement) element;
-
-    final String methodKey = methodElement.getSimpleName().toString();
-    if (!notInjectMethods.contains(methodKey)) {
-      if (!injectMethods.containsKey(methodKey)) {
-        MethodReader methodReader = new MethodReader(context, methodElement, type).read();
-        if (methodReader.isNotPrivate()) {
-          injectMethods.put(methodKey, methodReader);
+    if (methodElement.getModifiers().contains(Modifier.PUBLIC)) {
+      List<? extends VariableElement> parameters = methodElement.getParameters();
+      if (parameters.size() == 1) {
+        final String methodKey = methodElement.getSimpleName().toString();
+        if (!maybeSetterMethods.containsKey(methodKey)) {
+          MethodReader methodReader = new MethodReader(context, methodElement, type).read();
+          maybeSetterMethods.put(methodKey, methodReader);
         }
       }
-    } else {
-      notInjectMethods.add(methodKey);
     }
   }
 
-  List<FieldReader> getInjectFields() {
-    List<FieldReader> list = new ArrayList(injectFields);
-    Collections.reverse(list);
-    return list;
+  private final Map<String, MethodReader.MethodParam> constructorParamMap = new LinkedHashMap<>();
+
+  void processCompleted() {
+    constructor = determineConstructor();
+    if (constructor != null) {
+      List<MethodReader.MethodParam> params = constructor.getParams();
+      for (MethodReader.MethodParam param : params) {
+        constructorParamMap.put(param.name(), param);
+      }
+    }
+    allFields.addAll(baseFields);
+    allFields.addAll(inheritedFields);
+
+    matchFieldsToSetterOrConstructor();
   }
 
-  List<MethodReader> getInjectMethods() {
-    List<MethodReader> list = new ArrayList<>(injectMethods.values());
-    Collections.reverse(list);
-    return list;
+  private void matchFieldsToSetterOrConstructor() {
+    for (FieldReader field : allFields) {
+      if (constructorParamMap.get(field.getFieldName()) != null) {
+        field.constructorParam();
+      } else {
+        matchFieldToSetter(field);
+      }
+    }
   }
 
-  List<MethodReader> getFactoryMethods() {
-    return factoryMethods;
+  private void matchFieldToSetter(FieldReader field) {
+    String name = field.getFieldName();
+    MethodReader setter = maybeSetterMethods.get(name);
+    if (setter != null) {
+      field.setterMethod(setter);
+    } else {
+      setter = maybeSetterMethods.get(setterName(name));
+      if (setter != null) {
+        field.setterMethod(setter);
+      } else if (!field.isPublic()){
+        context.logError("Non public field "+ name +" with no matching setter or constructor?");
+      }
+    }
   }
 
+  private String setterName(String name) {
+    return "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+  }
 
-  MethodReader getConstructor() {
-    if (otherConstructors.size() == 1) {
-      return otherConstructors.get(0);
+  List<FieldReader> allFields() {
+    return allFields;
+  }
+
+  MethodReader constructor() {
+    return constructor;
+  }
+
+  private MethodReader determineConstructor() {
+    if (publicConstructors.size() == 1) {
+      return publicConstructors.get(0);
     }
     // check if there is only one public constructor
     List<MethodReader> allPublic = new ArrayList<>();
-    for (MethodReader ctor : otherConstructors) {
+    for (MethodReader ctor : publicConstructors) {
       if (ctor.isPublic()) {
         allPublic.add(ctor);
       }
@@ -116,4 +149,5 @@ class TypeExtendsInjection {
     }
     return null;
   }
+
 }
