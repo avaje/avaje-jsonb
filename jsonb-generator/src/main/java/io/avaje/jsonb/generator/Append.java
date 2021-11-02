@@ -1,4 +1,4 @@
-package io.avaje.inject.generator;
+package io.avaje.jsonb.generator;
 
 import java.io.IOException;
 import java.io.Writer;

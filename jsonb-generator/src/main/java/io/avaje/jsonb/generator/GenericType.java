@@ -1,4 +1,4 @@
-package io.avaje.inject.generator;
+package io.avaje.jsonb.generator;
 
 import java.util.ArrayList;
 import java.util.List;

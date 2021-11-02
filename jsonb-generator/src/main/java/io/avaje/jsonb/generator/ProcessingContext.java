@@ -1,4 +1,4 @@
-package io.avaje.inject.generator;
+package io.avaje.jsonb.generator;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.FilerException;

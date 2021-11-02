@@ -1,11 +1,9 @@
-package io.avaje.inject.generator;
+package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Write the source code for the bean.

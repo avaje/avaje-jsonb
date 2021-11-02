@@ -1,4 +1,4 @@
-package io.avaje.inject.generator;
+package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
