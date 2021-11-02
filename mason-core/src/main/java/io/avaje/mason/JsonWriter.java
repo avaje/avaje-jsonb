@@ -61,8 +61,6 @@ public interface JsonWriter extends Closeable, Flushable {
 
   JsonWriter jsonValue(Object value) throws IOException;
 
-  //void promoteValueToName();
-
   void close() throws IOException;
 
   void flush() throws IOException;

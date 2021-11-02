@@ -35,13 +35,6 @@ class JacksonReader implements JsonReader {
     return parser.getCurrentLocation().toString();
   }
 
-//  boolean promoteNameToValue;
-//
-//  @Override
-//  public void promoteNameToValue() {
-//    promoteNameToValue = true;
-//  }
-
   @Override
   public boolean hasNextField() throws IOException {
     return parser.nextToken() == JsonToken.FIELD_NAME;

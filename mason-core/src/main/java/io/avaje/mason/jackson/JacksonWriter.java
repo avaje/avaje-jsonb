@@ -15,7 +15,6 @@ class JacksonWriter implements JsonWriter {
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
-  //private boolean promoteValueToName;
 
   JacksonWriter(JsonGenerator generator) {
     this.generator = generator;
@@ -77,11 +76,6 @@ class JacksonWriter implements JsonWriter {
     return generator.toString();
   }
 
-//  @Override
-//  public void promoteValueToName() {
-//    promoteValueToName = true;
-//  }
-
   @Override
   public JsonWriter beginArray() throws IOException {
     writeDeferredName();
@@ -91,7 +85,6 @@ class JacksonWriter implements JsonWriter {
 
   @Override
   public JsonWriter endArray() throws IOException {
-    //promoteValueToName = false;
     generator.writeEndArray();
     return this;
   }
@@ -105,7 +98,6 @@ class JacksonWriter implements JsonWriter {
 
   @Override
   public JsonWriter endObject() throws IOException {
-    //promoteValueToName = false;
     generator.writeEndObject();
     return this;
   }
@@ -144,10 +136,6 @@ class JacksonWriter implements JsonWriter {
 
   @Override
   public JsonWriter value(String value) throws IOException {
-//    if (promoteValueToName) {
-//      promoteValueToName = false;
-//      return name(value);
-//    }
     if (value == null) {
       return nullValue();
     }

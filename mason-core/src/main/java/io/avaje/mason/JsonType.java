@@ -3,8 +3,14 @@ package io.avaje.mason;
 import java.io.*;
 import java.util.List;
 
+/**
+ * A nicer to use JsonAdapter.
+ */
 public interface JsonType<T> {
 
+  /**
+   * Return the list type for this JsonType.
+   */
   JsonType<List<T>> list();
 
   String toJson(T bean) throws IOException;
