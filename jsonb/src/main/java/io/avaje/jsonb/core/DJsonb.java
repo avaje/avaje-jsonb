@@ -15,49 +15,49 @@ import static java.util.Objects.requireNonNull;
 /**
  * Default implementation of Jsonb.
  */
-class DefaultJsonb implements Jsonb {
+class DJsonb implements Jsonb {
 
-  private final DefaultAdapterBuilder builder;
-  private final IOAdapter ioAdapter;
+  private final CoreAdapterBuilder builder;
+  private final IOAdapter io;
 
-  DefaultJsonb(List<JsonAdapter.Factory> factories) {
-    this.builder = new DefaultAdapterBuilder(this, factories);
-    this.ioAdapter = new JacksonAdapter();
+  DJsonb(List<JsonAdapter.Factory> factories) {
+    this.builder = new CoreAdapterBuilder(this, factories);
+    this.io = new JacksonAdapter(); //TODO: Service load the ioAdapter implementation
   }
 
   @Override
   public JsonWriter writer(Writer writer) throws IOException {
-    return ioAdapter.writer(writer);
+    return io.writer(writer);
   }
 
   @Override
   public JsonWriter writer(OutputStream outputStream) throws IOException {
-    return ioAdapter.writer(outputStream);
+    return io.writer(outputStream);
   }
 
   @Override
   public JsonReader reader(Reader reader) throws IOException {
-    return ioAdapter.reader(reader);
+    return io.reader(reader);
   }
 
   @Override
   public JsonReader reader(InputStream inputStream) throws IOException {
-    return ioAdapter.reader(inputStream);
+    return io.reader(inputStream);
   }
 
   @Override
   public JsonReader reader(String json) throws IOException {
-    return ioAdapter.reader(json);
+    return io.reader(json);
   }
 
   @Override
   public <T> JsonType<T> type(Class<T> cls) {
-    return new SimpleJsonType<>(this, cls, adapter(cls));
+    return new DJsonType<>(this, cls, adapter(cls));
   }
 
   @Override
   public <T> JsonType<T> type(Type type) {
-    return new SimpleJsonType<>(this, type, adapter(type));
+    return new DJsonType<>(this, type, adapter(type));
   }
 
   @Override
@@ -99,7 +99,7 @@ class DefaultJsonb implements Jsonb {
   <T> JsonType<List<T>> listOf(Type key, JsonAdapter<T> adapter) {
     Type listKey = Util.listOf(key);
     JsonAdapter<List<T>> listAdapter = builder.listOf(listKey, adapter);
-    return new SimpleJsonType<>(this, listKey, listAdapter);
+    return new DJsonType<>(this, listKey, listAdapter);
   }
 
   /**
@@ -135,15 +135,12 @@ class DefaultJsonb implements Jsonb {
       for (Component next : load) {
         next.register(this);
       }
-//      for (Component component : ) {
-//        component.register(this);
-//      }
     }
 
     @Override
-    public DefaultJsonb build() {
+    public DJsonb build() {
       registerComponents();
-      return new DefaultJsonb(this.factories);
+      return new DJsonb(this.factories);
     }
 
 

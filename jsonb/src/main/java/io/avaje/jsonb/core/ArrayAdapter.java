@@ -26,24 +26,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Converts arrays to JSON arrays containing their converted contents. This supports both primitive
- * and object arrays.
+ * Converts arrays to JSON arrays containing their converted contents.
+ * This supports both primitive and object arrays.
  */
-final class BaseArrayAdapter extends JsonAdapter<Object> {
+final class ArrayAdapter extends JsonAdapter<Object> {
   public static final Factory FACTORY =
-    (type, annotations, moshi) -> {
+    (type, annotations, jsonb) -> {
       Type elementType = Util.arrayComponentType(type);
       if (elementType == null) return null;
       if (!annotations.isEmpty()) return null;
       Class<?> elementClass = Util.rawType(elementType);
-      JsonAdapter<Object> elementAdapter = moshi.adapter(elementType);
-      return new BaseArrayAdapter(elementClass, elementAdapter).nullSafe();
+      JsonAdapter<Object> elementAdapter = jsonb.adapter(elementType);
+      return new ArrayAdapter(elementClass, elementAdapter).nullSafe();
     };
 
   private final Class<?> elementClass;
   private final JsonAdapter<Object> elementAdapter;
 
-  BaseArrayAdapter(Class<?> elementClass, JsonAdapter<Object> elementAdapter) {
+  ArrayAdapter(Class<?> elementClass, JsonAdapter<Object> elementAdapter) {
     this.elementClass = elementClass;
     this.elementAdapter = elementAdapter;
   }

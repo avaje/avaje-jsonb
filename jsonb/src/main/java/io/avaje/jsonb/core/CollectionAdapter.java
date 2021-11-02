@@ -27,28 +27,26 @@ import java.util.*;
 /**
  * Converts collection types to JSON arrays containing their converted contents.
  */
-abstract class BaseCollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> {
+abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> {
 
   public static final JsonAdapter.Factory FACTORY =
-    (type, annotations, moshi) -> {
+    (type, annotations, jsonb) -> {
       Class<?> rawType = Util.rawType(type);
       if (!annotations.isEmpty()) return null;
       if (rawType == List.class || rawType == Collection.class) {
-        return newListAdapter(type, moshi).nullSafe();
+        return newListAdapter(type, jsonb).nullSafe();
       } else if (rawType == Set.class) {
-        return newSetAdapter(type, moshi).nullSafe();
+        return newSetAdapter(type, jsonb).nullSafe();
       }
       return null;
     };
 
-  private final JsonAdapter<T> elementAdapter;
-
-  private BaseCollectionAdapter(JsonAdapter<T> elementAdapter) {
-    this.elementAdapter = elementAdapter;
-  }
-
+  /**
+   * Helper that takes a base JsonAdapter and returns another JsonAdapter for a List
+   * containing elements of the base type.
+   */
   static <T> JsonAdapter<List<T>> listOf(JsonAdapter<T> base) {
-    return new BaseCollectionAdapter<List<T>, T>(base) {
+    return new CollectionAdapter<List<T>, T>(base) {
       @Override
       List<T> newCollection() {
         return new ArrayList<>();
@@ -59,7 +57,7 @@ abstract class BaseCollectionAdapter<C extends Collection<T>, T> extends JsonAda
   static <T> JsonAdapter<Collection<T>> newListAdapter(Type type, Jsonb jsonb) {
     Type elementType = Util.collectionElementType(type);
     JsonAdapter<T> elementAdapter = jsonb.adapter(elementType);
-    return new BaseCollectionAdapter<Collection<T>, T>(elementAdapter) {
+    return new CollectionAdapter<Collection<T>, T>(elementAdapter) {
       @Override
       Collection<T> newCollection() {
         return new ArrayList<>();
@@ -70,12 +68,18 @@ abstract class BaseCollectionAdapter<C extends Collection<T>, T> extends JsonAda
   static <T> JsonAdapter<Set<T>> newSetAdapter(Type type, Jsonb jsonb) {
     Type elementType = Util.collectionElementType(type);
     JsonAdapter<T> elementAdapter = jsonb.adapter(elementType);
-    return new BaseCollectionAdapter<Set<T>, T>(elementAdapter) {
+    return new CollectionAdapter<Set<T>, T>(elementAdapter) {
       @Override
       Set<T> newCollection() {
         return new LinkedHashSet<>();
       }
     };
+  }
+
+  private final JsonAdapter<T> elementAdapter;
+
+  private CollectionAdapter(JsonAdapter<T> elementAdapter) {
+    this.elementAdapter = elementAdapter;
   }
 
   abstract C newCollection();

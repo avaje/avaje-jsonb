@@ -24,24 +24,24 @@ import java.util.Map;
 
 /**
  * Converts maps with string keys to JSON objects.
- *
- * <p>TODO: support maps with other key types and convert to/from strings.
  */
-final class BaseMapAdapter<V> extends JsonAdapter<Map<String, V>> {
-  static final Factory FACTORY =
-    (type, annotations, jsonb) -> {
-      if (!annotations.isEmpty()) return null;
-      Class<?> rawType = Util.rawType(type);
-      if (rawType != Map.class) return null;
-      Type valueType = Util.mapValueType(type, rawType);
-      return new BaseMapAdapter<>(jsonb, valueType).nullSafe();
-    };
+final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
 
-  //private final JsonAdapter<K> keyAdapter;
+  static final Factory FACTORY = (type, annotations, jsonb) -> {
+    if (!annotations.isEmpty()) {
+      return null;
+    }
+    Class<?> rawType = Util.rawType(type);
+    if (rawType != Map.class) {
+      return null;
+    }
+    Type valueType = Util.mapValueType(type, rawType);
+    return new MapAdapter<>(jsonb, valueType).nullSafe();
+  };
+
   private final JsonAdapter<V> valueAdapter;
 
-  BaseMapAdapter(Jsonb jsonb, Type valueType) {
-    //this.keyAdapter = jsonb.adapter(keyType);
+  MapAdapter(Jsonb jsonb, Type valueType) {
     this.valueAdapter = jsonb.adapter(valueType);
   }
 
@@ -52,8 +52,6 @@ final class BaseMapAdapter<V> extends JsonAdapter<Map<String, V>> {
       if (entry.getKey() == null) {
         throw new JsonDataException("Map key is null at " + writer.path());
       }
-      //writer.promoteValueToName();
-      //keyAdapter.toJson(writer, entry.getKey());
       writer.name(entry.getKey());
       valueAdapter.toJson(writer, entry.getValue());
     }
@@ -65,9 +63,7 @@ final class BaseMapAdapter<V> extends JsonAdapter<Map<String, V>> {
     Map<String, V> result = new LinkedHashMap<>();
     reader.beginObject();
     while (reader.hasNextField()) {
-      //reader.promoteNameToValue();
       String name = reader.nextField();
-      //K name = keyAdapter.fromJson(reader);
       V value = valueAdapter.fromJson(reader);
       V replaced = result.put(name, value);
       if (replaced != null) {
@@ -88,6 +84,6 @@ final class BaseMapAdapter<V> extends JsonAdapter<Map<String, V>> {
 
   @Override
   public String toString() {
-    return "JsonAdapter(" + valueAdapter + ")";
+    return "MapAdapter(" + valueAdapter + ")";
   }
 }

@@ -5,6 +5,6 @@ import io.avaje.jsonb.Jsonb;
 public class DefaultBootstrap {
 
   public static Jsonb.Builder newBuilder() {
-    return new DefaultJsonb.DBuilder();
+    return new DJsonb.DBuilder();
   }
 }

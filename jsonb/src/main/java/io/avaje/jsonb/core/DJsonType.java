@@ -6,14 +6,14 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
 
-final class SimpleJsonType<T> implements JsonType<T> {
+final class DJsonType<T> implements JsonType<T> {
 
-  private final DefaultJsonb jsonb;
+  private final DJsonb jsonb;
   private final JsonAdapter<T> adapter;
   private final Type key;
   private JsonType<List<T>> listType;
 
-  SimpleJsonType(DefaultJsonb jsonb, Type key, JsonAdapter<T> adapter) {
+  DJsonType(DJsonb jsonb, Type key, JsonAdapter<T> adapter) {
     this.jsonb = jsonb;
     this.key = key;
     this.adapter = adapter;

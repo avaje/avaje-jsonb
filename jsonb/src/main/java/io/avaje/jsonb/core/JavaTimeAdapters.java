@@ -8,26 +8,31 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.UUID;
 
-final class BaseJavaTimeAdapters {
+/**
+ * Adds support for java time types.
+ */
+final class JavaTimeAdapters {
 
   static final JsonAdapter.Factory FACTORY = (type, annotations, jsonb) -> {
     if (!annotations.isEmpty()) {
       return null;
     }
     if (type == Instant.class) {
-      return BaseJavaTimeAdapters.INSTANT_ADAPTER;
+      return JavaTimeAdapters.INSTANT_ADAPTER;
     }
     if (type == UUID.class) {
-      return BaseJavaTimeAdapters.UUID_ADAPTER;
+      return JavaTimeAdapters.UUID_ADAPTER;
     }
     return null;
   };
 
-  static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<Instant>() {
+  /**
+   * Using ISO-8601
+   */
+  private static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<Instant>() {
     @Override
     public Instant fromJson(JsonReader reader) throws IOException {
-      String value = reader.nextString();
-      return Instant.parse(value);
+      return Instant.parse(reader.nextString());
     }
 
     @Override
@@ -36,11 +41,10 @@ final class BaseJavaTimeAdapters {
     }
   };
 
-  static final JsonAdapter<UUID> UUID_ADAPTER = new JsonAdapter<UUID>() {
+  private static final JsonAdapter<UUID> UUID_ADAPTER = new JsonAdapter<UUID>() {
     @Override
     public UUID fromJson(JsonReader reader) throws IOException {
-      String value = reader.nextString();
-      return UUID.fromString(value);
+      return UUID.fromString(reader.nextString());
     }
 
     @Override

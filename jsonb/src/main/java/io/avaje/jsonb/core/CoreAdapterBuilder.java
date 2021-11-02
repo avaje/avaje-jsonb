@@ -12,24 +12,24 @@ import java.util.*;
 import static io.avaje.jsonb.core.Util.typeAnnotatedWithAnnotations;
 
 /**
- * Builds and caches the JsonAdapter adapters for DefaultJsonb.
+ * Builds and caches the JsonAdapter adapters for DJsonb.
  */
-class DefaultAdapterBuilder {
+class CoreAdapterBuilder {
 
-  private final DefaultJsonb context;
+  private final DJsonb context;
   private final List<JsonAdapter.Factory> factories;
   private final ThreadLocal<LookupChain> lookupChainThreadLocal = new ThreadLocal<>();
   private final Map<Object, JsonAdapter<?>> adapterCache = new LinkedHashMap<>();
 
-  DefaultAdapterBuilder(DefaultJsonb context, List<JsonAdapter.Factory> userFactories) {
+  CoreAdapterBuilder(DJsonb context, List<JsonAdapter.Factory> userFactories) {
     this.context = context;
     this.factories = new ArrayList<>();
     this.factories.addAll(userFactories);
     this.factories.add(BasicTypesAdapters.FACTORY);
-    this.factories.add(BaseJavaTimeAdapters.FACTORY);
-    this.factories.add(BaseCollectionAdapter.FACTORY);
-    this.factories.add(BaseMapAdapter.FACTORY);
-    this.factories.add(BaseArrayAdapter.FACTORY);
+    this.factories.add(JavaTimeAdapters.FACTORY);
+    this.factories.add(CollectionAdapter.FACTORY);
+    this.factories.add(MapAdapter.FACTORY);
+    this.factories.add(ArrayAdapter.FACTORY);
   }
 
   /**
@@ -95,7 +95,7 @@ class DefaultAdapterBuilder {
       if (adapter1 != null) {
         return (JsonAdapter<List<T>>) adapter1;
       }
-      JsonAdapter<List<T>> listAdapter = BaseCollectionAdapter.listOf(elementAdapter);
+      JsonAdapter<List<T>> listAdapter = CollectionAdapter.listOf(elementAdapter);
       adapterCache.put(key, listAdapter);
       return listAdapter;
     }
@@ -195,11 +195,7 @@ class DefaultAdapterBuilder {
       for (Iterator<Lookup<?>> i = stack.descendingIterator(); i.hasNext(); ) {
         Lookup<?> lookup = i.next();
         errorMessageBuilder.append("\nfor ").append(lookup.type);
-        //if (lookup.fieldName != null) {
-        //    errorMessageBuilder.append(' ').append(lookup.fieldName);
-        //}
       }
-
       return new IllegalArgumentException(errorMessageBuilder.toString(), e);
     }
   }
@@ -209,7 +205,6 @@ class DefaultAdapterBuilder {
    */
   static final class Lookup<T> extends JsonAdapter<T> {
     final Type type;
-    //final String fieldName;
     final Object cacheKey;
     JsonAdapter<T> adapter;
 
