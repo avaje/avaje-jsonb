@@ -10,16 +10,15 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Processor extends AbstractProcessor {
 
+  private final ComponentMetaData metaData = new ComponentMetaData();
   private ProcessingContext context;
   private Elements elementUtils;
-  private final List<BeanReader> readers = new ArrayList<>();
+  private boolean readModuleInfo;
 
   public Processor() {
   }
@@ -44,12 +43,34 @@ public class Processor extends AbstractProcessor {
     return annotations;
   }
 
+  /**
+   * Read the existing meta data from InjectModule (if found) and the factory bean (if exists).
+   */
+  private void readModule() {
+    if (readModuleInfo) {
+      return;
+    }
+    readModuleInfo = true;
+    new ComponentReader(context, metaData).read();
+  }
+
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Set<? extends Element> beans = roundEnv.getElementsAnnotatedWith(Json.class);
-    writeBeanAdapters(beans);
-    // write(roundEnv.processingOver());
+    readModule();
+    writeBeanAdapters(roundEnv.getElementsAnnotatedWith(Json.class));
+    writeComponent(roundEnv.processingOver());
     return false;
+  }
+
+  private void writeComponent(boolean processingOver) {
+    if (processingOver) {
+      SimpleComponentWriter componentWriter = new SimpleComponentWriter(context, metaData);
+      try {
+        componentWriter.write();
+      } catch (IOException e) {
+        context.logError("Error writing component", e);
+      }
+    }
   }
 
   /**
@@ -63,7 +84,7 @@ public class Processor extends AbstractProcessor {
         TypeElement typeElement = (TypeElement) element;
         BeanReader beanReader = new BeanReader(typeElement, context);
         beanReader.read();
-        readers.add(beanReader);
+        metaData.add(beanReader.adapterFullName());
         try {
           SimpleBeanWriter beanWriter = new SimpleBeanWriter(beanReader, context);
           beanWriter.write();
@@ -73,6 +94,5 @@ public class Processor extends AbstractProcessor {
       }
     }
   }
-
 
 }

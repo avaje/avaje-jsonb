@@ -1,27 +1,16 @@
 package io.avaje.jsonb.generator;
 
 import javax.annotation.processing.Filer;
-import javax.annotation.processing.FilerException;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
-import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.Reader;
-import java.nio.file.NoSuchFileException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 class ProcessingContext {
 
@@ -73,4 +62,7 @@ class ProcessingContext {
     return typeUtils.asElement(returnType);
   }
 
+  ProcessingEnvironment env() {
+    return processingEnv;
+  }
 }

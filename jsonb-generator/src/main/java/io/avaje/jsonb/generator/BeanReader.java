@@ -37,6 +37,10 @@ class BeanReader {
     return beanType.toString();
   }
 
+  String adapterFullName() {
+    return type + "JsonAdapter";
+  }
+
   TypeElement getBeanType() {
     return beanType;
   }
@@ -165,4 +169,5 @@ class BeanReader {
     writer.append("    }").eol();
     writer.append("    reader.endObject();").eol();
   }
+
 }
