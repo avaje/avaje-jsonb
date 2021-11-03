@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
@@ -35,11 +36,23 @@ class SimpleComponentWriter {
     writer.close();
   }
 
+  void writeMetaInf() throws IOException {
+    FileObject fileObject = context.createMetaInfWriterFor(Constants.META_INF_COMPONENT);
+    if (fileObject != null) {
+      Writer writer = fileObject.openWriter();
+      writer.write(metaData.fullName());
+      writer.close();
+    }
+  }
+
   private void writeRegister() {
     writer.append("  @Override").eol();
     writer.append("  public void register(Jsonb.Builder builder) {").eol();
-    writer.append("    builder.add(Customer.class, CustomerJsonAdapter::new);").eol();
-    writer.append("    builder.add(Contact.class, ContactJsonAdapter::new);").eol();
+    for (String adapterFullName : metaData.all()) {
+      String shortName = Util.shortName(adapterFullName);
+      String typeName = shortName.substring(0, shortName.length() - 11);
+      writer.append("    builder.add(%s.class, %s::new);", typeName, shortName).eol();
+    }
     writer.append("  }").eol();
   }
 

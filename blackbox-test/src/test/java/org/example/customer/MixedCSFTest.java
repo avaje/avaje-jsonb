@@ -2,7 +2,6 @@ package org.example.customer;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import org.example.customer.jsonb.MixedCSFJsonAdapter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -20,7 +19,7 @@ class MixedCSFTest {
     mixed.four = 44L;
 
     Jsonb jsonb = Jsonb.newBuilder()
-      .add(MixedCSF.class, MixedCSFJsonAdapter::new)
+      //.add(MixedCSF.class, MixedCSFJsonAdapter::new)
       .build();
 
     JsonType<MixedCSF> mixedAdapter = jsonb.type(MixedCSF.class);

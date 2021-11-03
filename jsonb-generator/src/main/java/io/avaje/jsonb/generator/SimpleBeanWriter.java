@@ -25,6 +25,11 @@ class SimpleBeanWriter {
     this.adapterPackage = originPackage.equals("") ? "jsonb" : originPackage + ".jsonb";
     this.adapterFullName = adapterPackage + "." + shortName + "JsonAdapter";
   }
+
+  String fullName() {
+    return adapterFullName;
+  }
+
   private Writer createFileWriter() throws IOException {
     JavaFileObject jfo = context.createWriter(adapterFullName);
     return jfo.openWriter();

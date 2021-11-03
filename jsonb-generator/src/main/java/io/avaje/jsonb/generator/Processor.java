@@ -67,6 +67,7 @@ public class Processor extends AbstractProcessor {
       SimpleComponentWriter componentWriter = new SimpleComponentWriter(context, metaData);
       try {
         componentWriter.write();
+        componentWriter.writeMetaInf();
       } catch (IOException e) {
         context.logError("Error writing component", e);
       }

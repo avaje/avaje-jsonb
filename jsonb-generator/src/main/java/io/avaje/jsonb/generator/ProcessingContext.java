@@ -9,7 +9,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 import java.io.IOException;
 
 class ProcessingContext {
@@ -52,6 +54,10 @@ class ProcessingContext {
    */
   JavaFileObject createWriter(String cls) throws IOException {
     return filer.createSourceFile(cls);
+  }
+
+  FileObject createMetaInfWriterFor(String interfaceType) throws IOException {
+    return filer.createResource(StandardLocation.CLASS_OUTPUT, "", interfaceType);
   }
 
   TypeElement element(String rawType) {
