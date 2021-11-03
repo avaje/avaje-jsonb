@@ -4,6 +4,8 @@ import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
+import org.example.customer.jsonb.ContactJsonAdapter;
+import org.example.customer.jsonb.CustomerJsonAdapter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

@@ -11,9 +11,8 @@ class SimpleComponentWriter {
 
   private final ProcessingContext context;
   private final ComponentMetaData metaData;
+  private final Set<String> importTypes = new TreeSet<>();
   private Append writer;
-
-  //private String packageName;
 
   SimpleComponentWriter(ProcessingContext context, ComponentMetaData metaData) {
     this.context = context;
@@ -29,20 +28,11 @@ class SimpleComponentWriter {
   void write() throws IOException {
     writer = new Append(createFileWriter());
     writePackage();
-    writeDebug();
     writeImports();
     writeClassStart();
     writeRegister();
     writeClassEnd();
     writer.close();
-  }
-
-  private void writeDebug() {
-    List<String> all = metaData.all();
-    for (String s : all) {
-      writer.append("// %s", s).eol();
-    }
-    writer.eol();
   }
 
   private void writeRegister() {
@@ -74,12 +64,11 @@ class SimpleComponentWriter {
     writer.append("public class %s implements Jsonb.Component {", shortName).eol().eol();
   }
 
-  private final Set<String> importTypes = new TreeSet<>();
 
   private void writeImports() {
     importTypes.add(Constants.JSONB);
     importTypes.add(Constants.JSONB_SPI);
-    importTypes.addAll(metaData.all());
+    importTypes.addAll(metaData.allImports());
 
     for (String importType : importTypes) {
       if (Util.validImportType(importType)) {

@@ -9,22 +9,24 @@ class SimpleBeanWriter {
 
   private final BeanReader beanReader;
   private final ProcessingContext context;
-  private final String originName;
   private final String shortName;
-  private final String packageName;
+  private final String adapterPackage;
+  private final String adapterFullName;
+
   private Append writer;
 
   SimpleBeanWriter(BeanReader beanReader, ProcessingContext context) {
     this.beanReader = beanReader;
     this.context = context;
     TypeElement origin = beanReader.getBeanType();
-    this.originName = origin.getQualifiedName().toString();
+    String originName = origin.getQualifiedName().toString();
     this.shortName = origin.getSimpleName().toString();
-    this.packageName = Util.packageOf(originName);
+    String originPackage = Util.packageOf(originName);
+    this.adapterPackage = originPackage.equals("") ? "jsonb" : originPackage + ".jsonb";
+    this.adapterFullName = adapterPackage + "." + shortName + "JsonAdapter";
   }
-
   private Writer createFileWriter() throws IOException {
-    JavaFileObject jfo = context.createWriter(originName + "JsonAdapter");
+    JavaFileObject jfo = context.createWriter(adapterFullName);
     return jfo.openWriter();
   }
 
@@ -68,8 +70,6 @@ class SimpleBeanWriter {
   }
 
   private void writePackage() {
-    if (packageName != null) {
-      writer.append("package %s;", packageName).eol().eol();
-    }
+    writer.append("package %s;", adapterPackage).eol().eol();
   }
 }

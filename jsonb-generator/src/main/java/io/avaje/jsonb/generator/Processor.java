@@ -84,9 +84,9 @@ public class Processor extends AbstractProcessor {
         TypeElement typeElement = (TypeElement) element;
         BeanReader beanReader = new BeanReader(typeElement, context);
         beanReader.read();
-        metaData.add(beanReader.adapterFullName());
         try {
           SimpleBeanWriter beanWriter = new SimpleBeanWriter(beanReader, context);
+          metaData.add(beanWriter.fullName());
           beanWriter.write();
         } catch (IOException e) {
           context.logError("Error writing JsonAdapter for " + beanReader, e);

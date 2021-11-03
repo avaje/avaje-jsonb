@@ -2,6 +2,7 @@ package org.example.customer;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
+import org.example.customer.jsonb.MixedCSFJsonAdapter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
