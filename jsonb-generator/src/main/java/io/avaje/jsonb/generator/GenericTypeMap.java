@@ -8,18 +8,22 @@ class GenericTypeMap {
   private final Map<String, String> basic = new HashMap<>();
 
   GenericTypeMap() {
-    basic.put("java.lang.Integer", "Integer.TYPE");
-    basic.put("java.lang.Long", "Long.TYPE");
-    basic.put("java.lang.String", "String.class");
-    basic.put("java.time.Instant", "Instant.class");
-  }
+    basic.put("char", "Character.TYPE");
+    basic.put("byte", "Byte.TYPE");
+    basic.put("boolean", "Boolean.TYPE");
+    basic.put("int", "Integer.TYPE");
+    basic.put("long", "Long.TYPE");
+    basic.put("short", "Short.TYPE");
+    basic.put("double", "Double.TYPE");
+    basic.put("float", "Float.TYPE");
 
-  String typeOf(GenericType genericType) {
-    String basicType = basic.get(genericType.raw());
-    if (basicType != null) {
-      return basicType;
-    }
-    return genericType.asTypeDeclaration();
+    basic.put("java.lang.Boolean", "Boolean.class");
+    basic.put("java.lang.Integer", "Integer.class");
+    basic.put("java.lang.Long", "Long.class");
+    basic.put("java.lang.Short", "Short.class");
+    basic.put("java.lang.Double", "Double.class");
+    basic.put("java.lang.Float", "Float.class");
+    basic.put("java.lang.String", "String.class");
   }
 
   String typeOfRaw(String rawType) {

@@ -13,6 +13,8 @@ class FieldReader {
   private final String adapterFieldName;
   private final String adapterShortType;
   private final String fieldName;
+  private final boolean primitive;
+  private final String defaultValue;
 
   private MethodReader setter;
   private MethodReader getter;
@@ -26,9 +28,14 @@ class FieldReader {
     this.genericType = GenericType.parse(rawType);
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
 
+    String shortType = genericType.shortType();
+    primitive = PrimitiveUtil.isPrimitive(shortType);
+    defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
+    String typeWrapped = PrimitiveUtil.wrap(shortType);
+    adapterShortType = "JsonAdapter<" + typeWrapped + ">";
+
     String typeShortName = genericType.shortName();
-    adapterShortType = "JsonAdapter<" + typeShortName + ">";
-    adapterFieldName = Character.toLowerCase(typeShortName.charAt(0)) + typeShortName.substring(1) + "JsonAdapter";
+    adapterFieldName = (primitive ? "p" : "") + Character.toLowerCase(typeShortName.charAt(0)) + typeShortName.substring(1) + "JsonAdapter";
   }
 
   String getFieldName() {
@@ -64,7 +71,8 @@ class FieldReader {
   }
 
   void writeField(Append writer) {
-    writer.append("  private final JsonAdapter<%s> %s;", genericType.shortType(), adapterFieldName).eol();
+    genericType.shortType();
+    writer.append("  private final %s %s;", adapterShortType, adapterFieldName).eol();
   }
 
   void writeConstructor(Append writer) {
@@ -85,13 +93,20 @@ class FieldReader {
   }
 
   void writeFromJsonVariables(Append writer) {
-    writer.append("    %s %s = null; boolean _set$%s = false;", genericType.shortType(), fieldName, fieldName).eol();
+    writer.append("    %s %s = %s;", genericType.shortType(), fieldName, defaultValue);
+    if (!constructorParam) {
+      writer.append(" boolean _set$%s = false;", fieldName);
+    }
+    writer.eol();
   }
 
   void writeFromJsonSwitch(Append writer) {
     writer.append("        case \"%s\": {", fieldName).eol();
-    writer.append("          %s = %s.fromJson(reader); _set$%s = true;", fieldName, adapterFieldName, fieldName).eol();
-    writer.append("          break;").eol();
+    writer.append("          %s = %s.fromJson(reader);", fieldName, adapterFieldName);
+    if (!constructorParam) {
+      writer.append(" _set$%s = true;", fieldName);
+    }
+    writer.append(" break;").eol();
     writer.append("        }").eol();
   }
 

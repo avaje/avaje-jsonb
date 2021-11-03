@@ -23,6 +23,8 @@ class CustomerTest {
   void toJson() throws IOException {
 
     Jsonb jsonb = Jsonb.newBuilder()
+      // the below adapters are automatically registered via
+      // service loading the GeneratedJsonComponent
       //.add(Contact.class, ContactJsonAdapter::new)
       //.add(Customer.class, CustomerJsonAdapter::new)
       .build();

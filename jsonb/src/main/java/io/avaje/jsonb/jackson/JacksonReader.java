@@ -75,6 +75,11 @@ class JacksonReader implements JsonReader {
   }
 
   @Override
+  public double nextDouble() throws IOException {
+    return parser.getValueAsDouble();
+  }
+
+  @Override
   public String nextString() throws IOException {
     return parser.getValueAsString();
   }

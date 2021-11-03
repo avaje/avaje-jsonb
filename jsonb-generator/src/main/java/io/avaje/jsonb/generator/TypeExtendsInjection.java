@@ -139,13 +139,20 @@ class TypeExtendsInjection {
     MethodReader getter = maybeGetterMethods.get(name);
     if (getter != null) {
       field.getterMethod(getter);
-    } else {
-      getter = maybeGetterMethods.get(getterName(name));
-      if (getter != null) {
-        field.getterMethod(getter);
-      } else if (!field.isPublic()) {
-        context.logError("Non public field " + name + " with no matching getter?");
-      }
+      return;
+    }
+    getter = maybeGetterMethods.get(getterName(name));
+    if (getter != null) {
+      field.getterMethod(getter);
+      return;
+    }
+    getter = maybeGetterMethods.get(isGetterName(name));
+    if (getter != null) {
+      field.getterMethod(getter);
+      return;
+    }
+    if (!field.isPublic()) {
+      context.logError("Non public field " + name + " with no matching getter?");
     }
   }
 
@@ -155,6 +162,10 @@ class TypeExtendsInjection {
 
   private String getterName(String name) {
     return "get" + Util.initcap(name);
+  }
+
+  private String isGetterName(String name) {
+    return "is" + Util.initcap(name);
   }
 
   List<FieldReader> allFields() {

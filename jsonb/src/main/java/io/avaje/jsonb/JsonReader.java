@@ -24,6 +24,8 @@ public interface JsonReader {
 
   long nextLong() throws IOException;
 
+  double nextDouble() throws IOException;
+
   String nextString() throws IOException;
 
   boolean peekIsNull();
