@@ -30,27 +30,27 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
-  public String toJson(T bean) throws IOException {
+  public String toJson(T value) throws IOException {
     StringWriter writer = new StringWriter(200);
     try (JsonWriter jsonWriter = jsonb.writer(writer)) {
-      toJson(jsonWriter, bean);
+      toJson(jsonWriter, value);
     }
     return writer.toString();
   }
 
   @Override
-  public void toJson(JsonWriter writer, T bean) throws IOException {
-    adapter.toJson(writer, bean);
+  public void toJson(JsonWriter writer, T value) throws IOException {
+    adapter.toJson(writer, value);
   }
 
   @Override
-  public void toJson(Writer writer, T bean) throws IOException {
-    adapter.toJson(jsonb.writer(writer), bean);
+  public void toJson(Writer writer, T value) throws IOException {
+    adapter.toJson(jsonb.writer(writer), value);
   }
 
   @Override
-  public void toJson(OutputStream outputStream, T bean) throws IOException {
-    adapter.toJson(jsonb.writer(outputStream), bean);
+  public void toJson(OutputStream outputStream, T value) throws IOException {
+    adapter.toJson(jsonb.writer(outputStream), value);
   }
 
   @Override

@@ -40,6 +40,9 @@ public interface Jsonb {
 
   <T> JsonAdapter<T> adapter(Type type, Set<? extends Annotation> annotations);
 
+  /**
+   * Build the Jsonb instance adding JsonAdapter, Factory or AdapterBuilder.
+   */
   interface Builder {
 
     <T> Jsonb.Builder add(Type type, JsonAdapter<T> jsonAdapter);
@@ -50,15 +53,33 @@ public interface Jsonb {
 
     Jsonb.Builder add(JsonAdapter.Factory factory);
 
+    /**
+     * Build the Jsonb instance with all the given adapters and factories registered.
+     */
     Jsonb build();
   }
 
+  /**
+   * Function to build a JsonAdapter that needs Jsonb.
+   */
   @FunctionalInterface
   interface AdapterBuilder {
+
+    /**
+     * Create a JsonAdapter given the Jsonb instance.
+     */
     JsonAdapter<?> build(Jsonb jsonb);
   }
 
+  /**
+   * Components register JsonAdapters Jsonb.Builder
+   */
+  @FunctionalInterface
   interface Component {
+
+    /**
+     * Register JsonAdapters with the Builder.
+     */
     void register(Builder builder);
   }
 }

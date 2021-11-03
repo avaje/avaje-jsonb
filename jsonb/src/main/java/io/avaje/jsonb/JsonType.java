@@ -4,7 +4,10 @@ import java.io.*;
 import java.util.List;
 
 /**
- * A nicer to use JsonAdapter.
+ * Provides API to serialise a type to and from JSON.
+ * <p>
+ * JsonType does not exist in Moshi and has been added to provide a
+ * slightly easier API to use than JsonAdapter.
  */
 public interface JsonType<T> {
 
@@ -13,13 +16,13 @@ public interface JsonType<T> {
    */
   JsonType<List<T>> list();
 
-  String toJson(T bean) throws IOException;
+  String toJson(T value) throws IOException;
 
-  void toJson(JsonWriter writer, T bean) throws IOException;
+  void toJson(JsonWriter writer, T value) throws IOException;
 
-  void toJson(Writer writer, T bean) throws IOException;
+  void toJson(Writer writer, T value) throws IOException;
 
-  void toJson(OutputStream outputStream, T bean) throws IOException;
+  void toJson(OutputStream outputStream, T value) throws IOException;
 
   T fromJson(JsonReader reader) throws IOException;
 
