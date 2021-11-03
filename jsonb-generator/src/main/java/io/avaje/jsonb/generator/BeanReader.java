@@ -121,10 +121,13 @@ class BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) throws IOException {", shortName, varName).eol();
+    writer.append("    // variables to read json values into").eol();
     for (FieldReader allField : allFields) {
       allField.writeFromJsonVariables(writer);
     }
     writeFromJsonSwitch(writer);
+    writer.eol();
+    writer.append("    // build and return %s", shortName).eol();
     writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
     if (constructor != null) {
       List<MethodReader.MethodParam> params = constructor.getParams();
@@ -145,6 +148,7 @@ class BeanReader {
 
   private void writeFromJsonSwitch(Append writer) {
     writer.eol();
+    writer.append("    // read json").eol();
     writer.append("    reader.beginObject();").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
     writer.append("      String fieldName = reader.nextField();").eol();

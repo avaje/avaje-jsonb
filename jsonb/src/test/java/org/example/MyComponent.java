@@ -1,7 +1,11 @@
 package org.example;
 
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.spi.Generated;
+import io.avaje.jsonb.spi.MetaData;
 
+@Generated
+@MetaData({CustomerJsonAdapter.class, ContactJsonAdapter.class})
 public class MyComponent implements Jsonb.Component {
 
   @Override

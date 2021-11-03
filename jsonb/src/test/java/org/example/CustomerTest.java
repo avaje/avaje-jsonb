@@ -21,8 +21,8 @@ class CustomerTest {
   void toJson() throws IOException {
 
     Jsonb jsonb = Jsonb.newBuilder()
-      .add(Contact.class, ContactJsonAdapter::new)
-      .add(Customer.class, CustomerJsonAdapter::new)
+      //.add(Contact.class, ContactJsonAdapter::new)
+      //.add(Customer.class, CustomerJsonAdapter::new)
       .build();
 
     Customer customer = new Customer().id(42).name("rob").whenCreated(Instant.now());

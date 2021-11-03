@@ -19,7 +19,7 @@ public class Processor extends AbstractProcessor {
 
   private ProcessingContext context;
   private Elements elementUtils;
-  private List<BeanReader> readers = new ArrayList<>();
+  private final List<BeanReader> readers = new ArrayList<>();
 
   public Processor() {
   }
@@ -47,7 +47,7 @@ public class Processor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     Set<? extends Element> beans = roundEnv.getElementsAnnotatedWith(Json.class);
-    readChangedBeans(beans);
+    writeBeanAdapters(beans);
     // write(roundEnv.processingOver());
     return false;
   }
@@ -55,7 +55,7 @@ public class Processor extends AbstractProcessor {
   /**
    * Read the beans that have changed.
    */
-  private void readChangedBeans(Set<? extends Element> beans) {
+  private void writeBeanAdapters(Set<? extends Element> beans) {
     for (Element element : beans) {
       if (!(element instanceof TypeElement)) {
         context.logError("unexpected type [" + element + "]");
@@ -64,7 +64,6 @@ public class Processor extends AbstractProcessor {
         BeanReader beanReader = new BeanReader(typeElement, context);
         beanReader.read();
         readers.add(beanReader);
-
         try {
           SimpleBeanWriter beanWriter = new SimpleBeanWriter(beanReader, context);
           beanWriter.write();
