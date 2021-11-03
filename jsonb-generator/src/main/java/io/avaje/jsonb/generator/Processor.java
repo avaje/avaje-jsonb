@@ -8,7 +8,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -17,7 +16,7 @@ public class Processor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
   private ProcessingContext context;
-  private Elements elementUtils;
+  private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
 
   public Processor() {
@@ -32,7 +31,7 @@ public class Processor extends AbstractProcessor {
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
     this.context = new ProcessingContext(processingEnv);
-    this.elementUtils = processingEnv.getElementUtils();
+    this.componentWriter = new SimpleComponentWriter(context, metaData);
   }
 
   @Override
@@ -58,13 +57,23 @@ public class Processor extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     readModule();
     writeBeanAdapters(roundEnv.getElementsAnnotatedWith(Json.class));
+    initialiseComponent();
     writeComponent(roundEnv.processingOver());
     return false;
   }
 
+  private void initialiseComponent() {
+    metaData.initialiseFullName();
+    try {
+      componentWriter.initialise();
+    } catch (IOException e) {
+      context.logError("Error creating writer for JsonbComponent", e);
+    }
+  }
+
   private void writeComponent(boolean processingOver) {
     if (processingOver) {
-      SimpleComponentWriter componentWriter = new SimpleComponentWriter(context, metaData);
+
       try {
         componentWriter.write();
         componentWriter.writeMetaInf();

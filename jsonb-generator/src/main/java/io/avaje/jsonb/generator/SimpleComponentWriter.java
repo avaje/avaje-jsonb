@@ -14,16 +14,21 @@ class SimpleComponentWriter {
   private final ComponentMetaData metaData;
   private final Set<String> importTypes = new TreeSet<>();
   private Append writer;
+  private JavaFileObject fileObject;
 
   SimpleComponentWriter(ProcessingContext context, ComponentMetaData metaData) {
     this.context = context;
     this.metaData = metaData;
   }
 
+  void initialise() throws IOException {
+    if (fileObject == null) {
+      fileObject = context.createWriter(metaData.fullName());
+    }
+  }
+
   private Writer createFileWriter() throws IOException {
-    String fullName = metaData.fullName();
-    JavaFileObject jfo = context.createWriter(fullName);
-    return jfo.openWriter();
+    return fileObject.openWriter();
   }
 
   void write() throws IOException {
@@ -53,7 +58,7 @@ class SimpleComponentWriter {
       String typeName = shortName.substring(0, shortName.length() - 11);
       writer.append("    builder.add(%s.class, %s::new);", typeName, shortName).eol();
     }
-    writer.append("  }").eol();
+    writer.append("  }").eol().eol();
   }
 
   private void writeClassEnd() {

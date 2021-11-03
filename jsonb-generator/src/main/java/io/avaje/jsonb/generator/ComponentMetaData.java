@@ -7,6 +7,13 @@ class ComponentMetaData {
   private final List<String> allTypes = new ArrayList<>();
   private String fullName;
 
+  /**
+   * Ensure the component name has been initialised.
+   */
+  void initialiseFullName() {
+    fullName();
+  }
+
   void add(String type) {
     allTypes.add(type);
   }
