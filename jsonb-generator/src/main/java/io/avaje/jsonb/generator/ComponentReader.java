@@ -1,8 +1,9 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.spi.MetaData;
-
 import javax.annotation.processing.FilerException;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -11,12 +12,13 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 class ComponentReader {
 
+  private static final String META_DATA = "io.avaje.jsonb.spi.MetaData";
   private final ProcessingContext ctx;
   private final ComponentMetaData componentMetaData;
 
@@ -26,19 +28,34 @@ class ComponentReader {
   }
 
   void read() {
-    String factory = loadMetaInfServices();
-    if (factory != null) {
-      TypeElement moduleType = ctx.element(factory);
+    String componentFullName = loadMetaInfServices();
+    if (componentFullName != null) {
+      TypeElement moduleType = ctx.element(componentFullName);
       if (moduleType != null) {
-        componentMetaData.setFullName(factory);
-        MetaData metaData = moduleType.getAnnotation(MetaData.class);
-        Class<?>[] value = metaData.value();
-        ctx.logError("got:" + Arrays.toString(value));
-        for (Class<?> aClass : value) {
-          componentMetaData.add(aClass.getCanonicalName());
+        componentMetaData.setFullName(componentFullName);
+        readMetaData(moduleType);
+      }
+    }
+  }
+
+  /**
+   * Read the existing JsonAdapters from the MetaData annotation of the generated component.
+   */
+  private void readMetaData(TypeElement moduleType) {
+    for (AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
+      if (META_DATA.equals(annotationMirror.getAnnotationType().toString())) {
+        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationMirror.getElementValues().entrySet()) {
+          for (Object adapterEntry : (List<?>) entry.getValue().getValue()) {
+            componentMetaData.add(adapterNameFromEntry(adapterEntry));
+          }
         }
       }
     }
+  }
+
+  private String adapterNameFromEntry(Object adapterEntry) {
+    String nameWithSuffix = adapterEntry.toString();
+    return nameWithSuffix.substring(0, nameWithSuffix.length() - 6);
   }
 
   private String loadMetaInfServices() {

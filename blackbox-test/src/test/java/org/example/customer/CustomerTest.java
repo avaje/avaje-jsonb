@@ -27,7 +27,7 @@ class CustomerTest {
       //.add(Customer.class, CustomerJsonAdapter::new)
       .build();
 
-    Customer customer = new Customer().id(42L).name("rob").whenCreated(Instant.now());
+    var customer = new Customer().id(42L).name("rob").whenCreated(Instant.now());
     customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
     customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
 
