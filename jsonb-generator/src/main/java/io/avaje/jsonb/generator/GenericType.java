@@ -112,22 +112,28 @@ class GenericType {
     return type != null && !type.startsWith("java.lang.") && type.contains(".");
   }
 
+  String shortType() {
+    StringBuilder sb = new StringBuilder();
+    writeShortType(sb);
+    return sb.toString();
+  }
+
   /**
    * Append the short version of the type (given the type and parameters are in imports).
    */
-  void writeShort(Append writer) {
+  void writeShortType(StringBuilder sb) {
     String main = Util.shortName(trimExtends());
-    writer.append(main);
+    sb.append(main);
     final int paramCount = params.size();
     if (paramCount > 0) {
-      writer.append("<");
+      sb.append("<");
       for (int i = 0; i < paramCount; i++) {
         if (i > 0) {
-          writer.append(",");
+          sb.append(",");
         }
-        params.get(i).writeShort(writer);
+        params.get(i).writeShortType(sb);
       }
-      writer.append(">");
+      sb.append(">");
     }
   }
 

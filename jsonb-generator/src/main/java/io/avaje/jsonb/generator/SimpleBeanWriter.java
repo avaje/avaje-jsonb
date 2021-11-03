@@ -64,6 +64,7 @@ class SimpleBeanWriter {
 
   private void writeToJson() {
     beanReader.writeToJson(writer);
+    beanReader.writeFromJson(writer);
   }
 
   private void writeImports() {
@@ -75,9 +76,7 @@ class SimpleBeanWriter {
   }
 
   private void writeClassStart() {
-    writer.append("public class %sJsonAdapter ", shortName);
-    //writer.append("implements ");
-    writer.append(" {").eol().eol();
+    writer.append("public class %sJsonAdapter extends JsonAdapter<%s> {", shortName, shortName).eol().eol();
   }
 
   private void writePackage() {

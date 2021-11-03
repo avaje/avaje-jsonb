@@ -2,7 +2,10 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 class BeanReader {
 
@@ -81,20 +84,28 @@ class BeanReader {
       allField.writeDebug(writer);
     }
     writer.eol();
+    Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      allField.writeField(writer);
+      if (uniqueTypes.add(allField.adapterShortType())) {
+        allField.writeField(writer);
+      }
     }
     writer.eol();
   }
 
   void writeConstructor(Append writer) {
+    Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      allField.writeConstructor(writer);
+      if (uniqueTypes.add(allField.adapterShortType())) {
+        allField.writeConstructor(writer);
+      }
     }
   }
 
-  void writeToJson(Append writer){
+  void writeToJson(Append writer) {
     String varName = Character.toLowerCase(shortName.charAt(0)) + shortName.substring(1);
+    writer.eol();
+    writer.append("  @Override").eol();
     writer.append("  public void toJson(JsonWriter writer, %s %s) throws IOException {", shortName, varName).eol();
     writer.append("    writer.beginObject();").eol();
     for (FieldReader allField : allFields) {
@@ -102,5 +113,52 @@ class BeanReader {
     }
     writer.append("    writer.endObject();").eol();
     writer.append("  }").eol();
+  }
+
+  void writeFromJson(Append writer) {
+    String varName = Character.toLowerCase(shortName.charAt(0)) + shortName.substring(1);
+
+    writer.eol();
+    writer.append("  @Override").eol();
+    writer.append("  public %s fromJson(JsonReader reader) throws IOException {", shortName, varName).eol();
+    for (FieldReader allField : allFields) {
+      allField.writeFromJsonVariables(writer);
+    }
+    writeFromJsonSwitch(writer);
+    writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+    if (constructor != null) {
+      List<MethodReader.MethodParam> params = constructor.getParams();
+      for (int i = 0, size = params.size(); i < size; i++) {
+        if (i > 0) {
+          writer.append(", ");
+        }
+        writer.append(params.get(i).name()); // assuming name matches field here?
+      }
+    }
+    writer.append(");").eol();
+    for (FieldReader allField : allFields) {
+      allField.writeFromJsonSetter(writer, varName);
+    }
+    writer.append("    return _$%s;", varName).eol();
+    writer.append("  }").eol();
+  }
+
+  private void writeFromJsonSwitch(Append writer) {
+    writer.eol();
+    writer.append("    reader.beginObject();").eol();
+    writer.append("    while (reader.hasNextField()) {").eol();
+    writer.append("      String fieldName = reader.nextField();").eol();
+    writer.append("      switch (fieldName) {").eol();
+    for (FieldReader allField : allFields) {
+      allField.writeFromJsonSwitch(writer);
+    }
+
+    writer.append("        default: {").eol();
+    writer.append("          // TODO: Support skip unknown field/value etc").eol();
+    writer.append("          throw new IllegalStateException(\"fieldName \" + fieldName + \" not found \");").eol();
+    writer.append("        }").eol();
+    writer.append("      }").eol();
+    writer.append("    }").eol();
+    writer.append("    reader.endObject();").eol();
   }
 }

@@ -70,4 +70,25 @@ class Util {
     return false;
   }
 
+  static String initLower(String name) {
+    StringBuilder sb = new StringBuilder(name.length());
+    boolean upper = true;
+    for (char ch : name.toCharArray()) {
+      if (upper && Character.isUpperCase(ch)) {
+        sb.append(Character.toLowerCase(ch));
+      } else {
+        upper = false;
+        sb.append(ch);
+      }
+    }
+    return sb.toString();
+  }
+
+  public static String initcap(String input) {
+    if (input.length() < 2) {
+      return input.toUpperCase();
+    } else {
+      return Character.toUpperCase(input.charAt(0)) + input.substring(1);
+    }
+  }
 }

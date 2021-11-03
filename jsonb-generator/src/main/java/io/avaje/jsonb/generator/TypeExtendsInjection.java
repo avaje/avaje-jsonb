@@ -140,7 +140,7 @@ class TypeExtendsInjection {
     if (getter != null) {
       field.getterMethod(getter);
     } else {
-      getter = maybeSetterMethods.get(getterName(name));
+      getter = maybeGetterMethods.get(getterName(name));
       if (getter != null) {
         field.getterMethod(getter);
       } else if (!field.isPublic()) {
@@ -154,7 +154,7 @@ class TypeExtendsInjection {
   }
 
   private String getterName(String name) {
-    return "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    return "get" + Util.initcap(name);
   }
 
   List<FieldReader> allFields() {

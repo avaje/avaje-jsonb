@@ -1,7 +1,10 @@
 package org.example.customer;
 
+import io.avaje.jsonb.Json;
+
 import java.util.UUID;
 
+@Json
 public class Contact {
 
   private final UUID id;

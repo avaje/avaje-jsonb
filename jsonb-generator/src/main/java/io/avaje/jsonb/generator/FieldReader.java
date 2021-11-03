@@ -27,7 +27,7 @@ class FieldReader {
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
 
     String typeShortName = genericType.shortName();
-    adapterShortType = "JsonAdapter<"+typeShortName+">";
+    adapterShortType = "JsonAdapter<" + typeShortName + ">";
     adapterFieldName = Character.toLowerCase(typeShortName.charAt(0)) + typeShortName.substring(1) + "JsonAdapter";
   }
 
@@ -59,10 +59,12 @@ class FieldReader {
     writer.append("  // %s [%s] setter:%s constructor:%s public:%s", getFieldName(), rawType, setter, constructorParam, publicField).eol();
   }
 
+  String adapterShortType() {
+    return genericType.shortType();
+  }
+
   void writeField(Append writer) {
-    writer.append("  private final JsonAdapter<");
-    genericType.writeShort(writer);
-    writer.append("> %s;", adapterFieldName).eol();
+    writer.append("  private final JsonAdapter<%s> %s;", genericType.shortType(), adapterFieldName).eol();
   }
 
   void writeConstructor(Append writer) {
@@ -81,4 +83,24 @@ class FieldReader {
       writer.append("FIXME: field is not public and has not getter ? ", varName).eol();
     }
   }
+
+  void writeFromJsonVariables(Append writer) {
+    writer.append("    %s %s = null; boolean _set$%s = false;", genericType.shortType(), fieldName, fieldName).eol();
+  }
+
+  void writeFromJsonSwitch(Append writer) {
+    writer.append("        case \"%s\": {", fieldName).eol();
+    writer.append("          %s = %s.fromJson(reader); _set$%s = true;", fieldName, adapterFieldName, fieldName).eol();
+    writer.append("          break;").eol();
+    writer.append("        }").eol();
+  }
+
+  void writeFromJsonSetter(Append writer, String varName) {
+    if (setter != null) {
+      writer.append("    if (_set$%s) _$%s.%s(%s);", fieldName, varName, setter.getName(), fieldName).eol();
+    } else if (publicField) {
+      writer.append("    if (_set$%s) _$%s.%s = %s;", fieldName, varName, fieldName, fieldName).eol();
+    }
+  }
+
 }

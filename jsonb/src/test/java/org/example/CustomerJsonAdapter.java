@@ -55,32 +55,33 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> {
   @Override
   public Customer fromJson(JsonReader reader) throws IOException {
 
-    Integer id = null;
-    String name = null;
-    Instant whenCreated = null;
-    List<Contact> contacts = null;
+    Integer id = null; boolean _set$id = false;
+    String name = null; boolean _set$name = false;
+    Instant whenCreated = null; boolean _set$whenCreated = false;
+    List<Contact> contacts = null; boolean _set$contacts = false;
 
     reader.beginObject();
     while (reader.hasNextField()) {
       String fieldName = reader.nextField();
       switch (fieldName) {
         case "id": {
-          id = intAdapter.fromJson(reader);
+          id = intAdapter.fromJson(reader); _set$id = true;
           break;
         }
         case "name": {
-          name = stringAdapter.fromJson(reader);
+          name = stringAdapter.fromJson(reader); _set$name = true;
           break;
         }
         case "whenCreated": {
-          whenCreated = instantAdapter.fromJson(reader);
+          whenCreated = instantAdapter.fromJson(reader); _set$whenCreated = true;
           break;
         }
         case "contacts": {
-          contacts = contactsAdapter.fromJson(reader);
+          contacts = contactsAdapter.fromJson(reader); _set$contacts = true;
           break;
         }
         default: {
+          // TODO: Support skip unknown field/value etc
           throw new IllegalStateException("fieldName " + fieldName + " not found ");
         }
       }
@@ -88,10 +89,10 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> {
     reader.endObject();
 
     Customer customer = new Customer();
-    customer.id(id);
-    customer.name(name);
-    customer.whenCreated(whenCreated);
-    customer.contacts(contacts);
+    if (_set$id) customer.id(id);
+    if (_set$name) customer.name(name);
+    if (_set$whenCreated) customer.whenCreated(whenCreated);
+    if (_set$contacts) customer.contacts(contacts);
     return customer;
   }
 
