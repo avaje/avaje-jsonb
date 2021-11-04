@@ -3,9 +3,9 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.core.Util;
 
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 public class Types {
 
@@ -26,6 +26,16 @@ public class Types {
 
   public static Type setOf(Type elementType) {
     return Util.setOf(elementType);
+  }
+
+  /**
+   * Return the Type for a Map with String keys and the given value element type.
+   *
+   * @param valueElementType The type of the values in the Map.
+   * @return Type for a Map with String keys and the given value element type.
+   */
+  public static Type mapOf(Type valueElementType) {
+    return newParameterizedType(Map.class, String.class, valueElementType);
   }
 
   /**
