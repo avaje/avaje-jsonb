@@ -54,6 +54,12 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
+  public T fromObject(Object value) throws IOException {
+    JsonReader reader = jsonb.objectReader(value);
+    return adapter.fromJson(reader);
+  }
+
+  @Override
   public T fromJson(JsonReader reader) throws IOException {
     return adapter.fromJson(reader);
   }

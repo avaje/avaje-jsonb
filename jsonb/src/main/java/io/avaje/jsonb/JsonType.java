@@ -24,6 +24,15 @@ public interface JsonType<T> {
 
   void toJson(OutputStream outputStream, T value) throws IOException;
 
+  /**
+   * Convert from 'object form' expecting {@code Map<String,Object>} for
+   * 'json object' and expecting {@code Collection<?>} for 'json array'.
+   *
+   * @param value The json value that will be converted into T.
+   * @return The value converted from 'object form'.
+   */
+  T fromObject(Object value) throws IOException;
+
   T fromJson(JsonReader reader) throws IOException;
 
   T fromJson(String content) throws IOException;

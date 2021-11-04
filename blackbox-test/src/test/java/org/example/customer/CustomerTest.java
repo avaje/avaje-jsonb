@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,7 +58,40 @@ class CustomerTest {
     assertThat(from1.id()).isEqualTo(customer.id());
     assertThat(from1.name()).isEqualTo(customer.name());
     assertThat(from1.whenCreated()).isEqualTo(customer.whenCreated());
-
   }
 
+  @Test
+  void fromObject() throws IOException {
+    var jsonb = Jsonb.newBuilder().build();
+
+    var customerJson = jsonb.type(Customer.class);
+
+    Instant now = Instant.now();
+    Map<String,Object> customerMap = new LinkedHashMap<>();
+    customerMap.put("id", 42L);
+    customerMap.put("name", "foo");
+    customerMap.put("whenCreated", now);
+
+    Set<Map<String,Object>> contactMaps = new LinkedHashSet<>();
+    contactMaps.add(contactMap("fn0", "ln0"));
+    contactMaps.add(contactMap("fn1", "ln1"));
+    customerMap.put("contacts", contactMaps);
+
+    Customer customer = customerJson.fromObject(customerMap);
+
+    assertThat(customer.id()).isEqualTo(42L);
+    assertThat(customer.name()).isEqualTo("foo");
+    assertThat(customer.whenCreated()).isEqualTo(now);
+    assertThat(customer.contacts()).hasSize(2);
+    assertThat(customer.contacts().get(0).firstName()).isEqualTo("fn0");
+    assertThat(customer.contacts().get(1).firstName()).isEqualTo("fn1");
+  }
+
+  private Map<String, Object> contactMap(String fn, String ln) {
+    Map<String,Object> contactMap = new LinkedHashMap<>();
+    contactMap.put("id", UUID.randomUUID());
+    contactMap.put("firstName", fn);
+    contactMap.put("lastName", ln);
+    return contactMap;
+  }
 }

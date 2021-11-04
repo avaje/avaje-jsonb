@@ -102,6 +102,10 @@ class DJsonb implements Jsonb {
     return new DJsonType<>(this, listKey, listAdapter);
   }
 
+  JsonReader objectReader(Object value) {
+    return new ObjectJsonReader(value);
+  }
+
   /**
    * Implementation of Jsonb.Builder.
    */
