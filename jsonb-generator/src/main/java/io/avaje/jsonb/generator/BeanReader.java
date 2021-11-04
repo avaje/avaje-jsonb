@@ -9,24 +9,20 @@ import java.util.TreeSet;
 
 class BeanReader {
 
-  private final ProcessingContext context;
   private final TypeElement beanType;
   private final String shortName;
   private final String type;
 
   private final MethodReader constructor;
   private final List<FieldReader> allFields;
-
   private final Set<String> importTypes = new TreeSet<>();
-  private final TypeReader typeReader;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
     this.beanType = beanType;
-    this.context = context;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
-    this.typeReader = new TypeReader(beanType, context);
 
+    TypeReader typeReader = new TypeReader(beanType, context);
     typeReader.process();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
@@ -35,10 +31,6 @@ class BeanReader {
   @Override
   public String toString() {
     return beanType.toString();
-  }
-
-  String adapterFullName() {
-    return type + "JsonAdapter";
   }
 
   TypeElement getBeanType() {
@@ -66,7 +58,6 @@ class BeanReader {
     if (Util.validImportType(type)) {
       importTypes.add(type);
     }
-    typeReader.extraImports(importTypes);
     for (FieldReader allField : allFields) {
       allField.addImports(importTypes);
     }
