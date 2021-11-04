@@ -1,6 +1,5 @@
 package org.example.customer.inherit;
 
-import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
