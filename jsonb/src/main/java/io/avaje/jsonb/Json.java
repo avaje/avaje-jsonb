@@ -15,4 +15,14 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Documented
 public @interface Json {
 
+  @Retention(CLASS)
+  @Target({ElementType.TYPE, ElementType.PACKAGE})
+  @Documented
+  @interface Import {
+
+    /**
+     * Specify types to generate Json Adapters for.
+     */
+    Class<?>[] value();
+  }
 }

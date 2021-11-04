@@ -10,11 +10,13 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Processor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
+  private final ImportReader importReader = new ImportReader();
   private ProcessingContext context;
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
@@ -38,7 +40,7 @@ public class Processor extends AbstractProcessor {
   public Set<String> getSupportedAnnotationTypes() {
     Set<String> annotations = new LinkedHashSet<>();
     annotations.add(Json.class.getCanonicalName());
-    //TODO: Json.Import ?
+    annotations.add(Json.Import.class.getCanonicalName());
     return annotations;
   }
 
@@ -54,12 +56,30 @@ public class Processor extends AbstractProcessor {
   }
 
   @Override
-  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     readModule();
-    writeBeanAdapters(roundEnv.getElementsAnnotatedWith(Json.class));
+    writeAdapters(round.getElementsAnnotatedWith(Json.class));
+    writeAdaptersForImported(round.getElementsAnnotatedWith(Json.Import.class));
     initialiseComponent();
-    writeComponent(roundEnv.processingOver());
+    writeComponent(round.processingOver());
     return false;
+  }
+
+  /**
+   * Elements that have a {@code @Json.Import} annotation.
+   */
+  private void writeAdaptersForImported(Set<? extends Element> importedElements) {
+    for (Element importedElement : importedElements) {
+      List<String> importTypes = importReader.read(importedElement);
+      for (String importType : importTypes) {
+        TypeElement element = context.element(importType);
+        if (element == null) {
+          context.logError("Unable to find imported element " + importType);
+        } else {
+          writeAdapterForType(element);
+        }
+      }
+    }
   }
 
   private void initialiseComponent() {
@@ -73,7 +93,6 @@ public class Processor extends AbstractProcessor {
 
   private void writeComponent(boolean processingOver) {
     if (processingOver) {
-
       try {
         componentWriter.write();
         componentWriter.writeMetaInf();
@@ -86,22 +105,25 @@ public class Processor extends AbstractProcessor {
   /**
    * Read the beans that have changed.
    */
-  private void writeBeanAdapters(Set<? extends Element> beans) {
+  private void writeAdapters(Set<? extends Element> beans) {
     for (Element element : beans) {
       if (!(element instanceof TypeElement)) {
         context.logError("unexpected type [" + element + "]");
       } else {
-        TypeElement typeElement = (TypeElement) element;
-        BeanReader beanReader = new BeanReader(typeElement, context);
-        beanReader.read();
-        try {
-          SimpleBeanWriter beanWriter = new SimpleBeanWriter(beanReader, context);
-          metaData.add(beanWriter.fullName());
-          beanWriter.write();
-        } catch (IOException e) {
-          context.logError("Error writing JsonAdapter for " + beanReader, e);
-        }
+        writeAdapterForType((TypeElement) element);
       }
+    }
+  }
+
+  private void writeAdapterForType(TypeElement typeElement) {
+    BeanReader beanReader = new BeanReader(typeElement, context);
+    beanReader.read();
+    try {
+      SimpleBeanWriter beanWriter = new SimpleBeanWriter(beanReader, context);
+      metaData.add(beanWriter.fullName());
+      beanWriter.write();
+    } catch (IOException e) {
+      context.logError("Error writing JsonAdapter for " + beanReader, e);
     }
   }
 
