@@ -5,7 +5,7 @@ import io.avaje.jsonb.*;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,7 +13,7 @@ final class BasicTypesAdapters {
 
   public static final JsonAdapter.Factory FACTORY = new JsonAdapter.Factory() {
 
-    @SuppressWarnings({"unchecked","rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public JsonAdapter<?> create(Type type, Set<? extends Annotation> annotations, Jsonb jsonb) {
       if (!annotations.isEmpty()) return null;
@@ -34,9 +34,7 @@ final class BasicTypesAdapters {
       if (type == Long.class) return LONG_JSON_ADAPTER.nullSafe();
       if (type == Short.class) return SHORT_JSON_ADAPTER.nullSafe();
       if (type == String.class) return STRING_JSON_ADAPTER.nullSafe();
-
-//            } else if (type == Object.class) {
-//                return (new StandardJsonAdapters.ObjectJsonAdapter(moshi)).nullSafe();
+      if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
 
       Class<?> rawType = Util.rawType(type);
       if (rawType.isEnum()) {
@@ -62,6 +60,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Boolean)";
     }
   };
+
   static final JsonAdapter<Byte> BYTE_JSON_ADAPTER = new JsonAdapter<Byte>() {
     @Override
     public Byte fromJson(JsonReader reader) throws IOException {
@@ -78,6 +77,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Byte)";
     }
   };
+
   static final JsonAdapter<Character> CHARACTER_JSON_ADAPTER = new JsonAdapter<Character>() {
     @Override
     public Character fromJson(JsonReader reader) throws IOException {
@@ -99,6 +99,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Character)";
     }
   };
+
   static final JsonAdapter<Double> DOUBLE_JSON_ADAPTER = new JsonAdapter<Double>() {
     @Override
     public Double fromJson(JsonReader reader) throws IOException {
@@ -115,6 +116,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Double)";
     }
   };
+
   static final JsonAdapter<Float> FLOAT_JSON_ADAPTER = new JsonAdapter<Float>() {
     @Override
     public Float fromJson(JsonReader reader) throws IOException {
@@ -137,6 +139,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Float)";
     }
   };
+
   static final JsonAdapter<Integer> INTEGER_JSON_ADAPTER = new JsonAdapter<Integer>() {
     @Override
     public Integer fromJson(JsonReader reader) throws IOException {
@@ -153,6 +156,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Integer)";
     }
   };
+
   static final JsonAdapter<Long> LONG_JSON_ADAPTER = new JsonAdapter<Long>() {
     @Override
     public Long fromJson(JsonReader reader) throws IOException {
@@ -169,6 +173,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Long)";
     }
   };
+
   static final JsonAdapter<Short> SHORT_JSON_ADAPTER = new JsonAdapter<Short>() {
     @Override
     public Short fromJson(JsonReader reader) throws IOException {
@@ -185,6 +190,7 @@ final class BasicTypesAdapters {
       return "JsonAdapter(Short)";
     }
   };
+
   static final JsonAdapter<String> STRING_JSON_ADAPTER = new JsonAdapter<String>() {
     @Override
     public String fromJson(JsonReader reader) throws IOException {
@@ -202,9 +208,6 @@ final class BasicTypesAdapters {
     }
   };
 
-  private BasicTypesAdapters() {
-  }
-
   static int rangeCheckNextInt(JsonReader reader, String typeMessage, int min, int max) throws IOException {
     int value = reader.nextInt();
     if (value >= min && value <= max) {
@@ -214,65 +217,67 @@ final class BasicTypesAdapters {
     }
   }
 
-//    static final class ObjectJsonAdapter extends JAdapter<Object> {
-//        private final Mason moshi;
-//        private final JAdapter<List> listJsonAdapter;
-//        private final JAdapter<Map> mapAdapter;
-//        private final JAdapter<String> stringAdapter;
-//        private final JAdapter<Double> doubleAdapter;
-//        private final JAdapter<Boolean> booleanAdapter;
-//
-//        ObjectJsonAdapter(Mason moshi) {
-//            this.moshi = moshi;
-//            this.listJsonAdapter = moshi.adapter(List.class);
-//            this.mapAdapter = moshi.adapter(Map.class);
-//            this.stringAdapter = moshi.adapter(String.class);
-//            this.doubleAdapter = moshi.adapter(Double.class);
-//            this.booleanAdapter = moshi.adapter(Boolean.class);
-//        }
-//
-//        public Object fromJson(JsonReader reader) throws IOException {
-////            switch(reader.peek()) {
-////                case BEGIN_ARRAY:
-////                    return this.listJsonAdapter.fromJson(reader);
-////                case BEGIN_OBJECT:
-////                    return this.mapAdapter.fromJson(reader);
-////                case STRING:
-////                    return this.stringAdapter.fromJson(reader);
-////                case NUMBER:
-////                    return this.doubleAdapter.fromJson(reader);
-////                case BOOLEAN:
-////                    return this.booleanAdapter.fromJson(reader);
-////                case NULL:
-////                    return reader.nextNull();
-////                default:
-////                    throw new IllegalStateException("Expected a value but was " + reader.peek() + " at path " + reader.getPath());
-////            }
-//        }
-//
-//        public void toJson(JsonWriter writer, Object value) throws IOException {
-//            Class<?> valueClass = value.getClass();
-//            if (valueClass == Object.class) {
-//                writer.beginObject();
-//                writer.endObject();
-//            } else {
-//                this.moshi.adapter(this.toJsonType(valueClass), Util.NO_ANNOTATIONS).toJson(writer, value);
-//            }
-//
-//        }
-//
-//        private Class<?> toJsonType(Class<?> valueClass) {
-//            if (Map.class.isAssignableFrom(valueClass)) {
-//                return Map.class;
-//            } else {
-//                return Collection.class.isAssignableFrom(valueClass) ? Collection.class : valueClass;
-//            }
-//        }
-//
-//        public String toString() {
-//            return "JsonAdapter(Object)";
-//        }
-//    }
+  @SuppressWarnings("rawtypes")
+  static final class ObjectJsonAdapter extends JsonAdapter<Object> {
+    private final Jsonb jsonb;
+    private final JsonAdapter<List> listJsonAdapter;
+    private final JsonAdapter<Map> mapAdapter;
+    private final JsonAdapter<String> stringAdapter;
+    private final JsonAdapter<Double> doubleAdapter;
+    private final JsonAdapter<Boolean> booleanAdapter;
+
+    ObjectJsonAdapter(Jsonb jsonb) {
+      this.jsonb = jsonb;
+      this.listJsonAdapter = jsonb.adapter(List.class);
+      this.mapAdapter = jsonb.adapter(Map.class);
+      this.stringAdapter = jsonb.adapter(String.class);
+      this.doubleAdapter = jsonb.adapter(Double.class);
+      this.booleanAdapter = jsonb.adapter(Boolean.class);
+    }
+
+    @Override
+    public Object fromJson(JsonReader reader) throws IOException {
+      switch (reader.peek()) {
+        case BEGIN_ARRAY:
+          return this.listJsonAdapter.fromJson(reader);
+        case BEGIN_OBJECT:
+          return this.mapAdapter.fromJson(reader);
+        case STRING:
+          return this.stringAdapter.fromJson(reader);
+        case NUMBER:
+          return this.doubleAdapter.fromJson(reader);
+        case BOOLEAN:
+          return this.booleanAdapter.fromJson(reader);
+        case NULL:
+          return reader.nextNull();
+        default:
+          throw new IllegalStateException("Expected a value but was " + reader.peek() + " at path " + reader.path());
+      }
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, Object value) throws IOException {
+      Class<?> valueClass = value.getClass();
+      if (valueClass == Object.class) {
+        writer.beginObject();
+        writer.endObject();
+      } else {
+        this.jsonb.adapter(this.toJsonType(valueClass), Collections.emptySet()).toJson(writer, value);
+      }
+    }
+
+    private Class<?> toJsonType(Class<?> valueClass) {
+      if (Map.class.isAssignableFrom(valueClass)) {
+        return Map.class;
+      } else {
+        return Collection.class.isAssignableFrom(valueClass) ? Collection.class : valueClass;
+      }
+    }
+
+    public String toString() {
+      return "JsonAdapter(Object)";
+    }
+  }
 
   static final class EnumJsonAdapter<T extends Enum<T>> extends JsonAdapter<T> {
     private final Class<T> enumType;

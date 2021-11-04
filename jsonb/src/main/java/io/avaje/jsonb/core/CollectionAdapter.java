@@ -29,17 +29,16 @@ import java.util.*;
  */
 abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> {
 
-  public static final JsonAdapter.Factory FACTORY =
-    (type, annotations, jsonb) -> {
-      Class<?> rawType = Util.rawType(type);
-      if (!annotations.isEmpty()) return null;
-      if (rawType == List.class || rawType == Collection.class) {
-        return newListAdapter(type, jsonb).nullSafe();
-      } else if (rawType == Set.class) {
-        return newSetAdapter(type, jsonb).nullSafe();
-      }
-      return null;
-    };
+  public static final JsonAdapter.Factory FACTORY = (type, annotations, jsonb) -> {
+    Class<?> rawType = Util.rawType(type);
+    if (!annotations.isEmpty()) return null;
+    if (rawType == List.class || rawType == Collection.class) {
+      return newListAdapter(type, jsonb).nullSafe();
+    } else if (rawType == Set.class) {
+      return newSetAdapter(type, jsonb).nullSafe();
+    }
+    return null;
+  };
 
   /**
    * Helper that takes a base JsonAdapter and returns another JsonAdapter for a List

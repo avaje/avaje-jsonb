@@ -91,18 +91,40 @@ class JacksonReader implements JsonReader {
     if (parser.currentToken() == JsonToken.START_OBJECT) {
       return;
     }
-    JsonToken token = parser.nextToken();
-    if (token != JsonToken.START_OBJECT) {
-      throw new IllegalStateException("Expected start object "+parser.getCurrentLocation());
+    if (parser.nextToken() != JsonToken.START_OBJECT) {
+      throw new IllegalStateException("Expected start object " + parser.getCurrentLocation() + " but got " + parser.currentToken());
     }
   }
 
   @Override
   public void endObject() {
-    JsonToken token = parser.currentToken();
-    if (token != JsonToken.END_OBJECT) {
-      throw new IllegalStateException("Expected end object "+parser.getCurrentLocation());
+    if (parser.currentToken() != JsonToken.END_OBJECT) {
+      throw new IllegalStateException("Expected end object " + parser.getCurrentLocation() + " but got " + parser.currentToken());
     }
   }
 
+  @Override
+  public Token peek() throws IOException {
+    JsonToken token = parser.currentToken();
+    if (token == null) {
+      token = parser.nextToken();
+    }
+    switch (token) {
+      case START_OBJECT:
+        return Token.BEGIN_OBJECT;
+      case START_ARRAY:
+        return Token.BEGIN_ARRAY;
+      case VALUE_NULL:
+        return Token.NULL;
+      case VALUE_STRING:
+        return Token.STRING;
+      case VALUE_NUMBER_FLOAT:
+      case VALUE_NUMBER_INT:
+        return Token.NUMBER;
+      case VALUE_FALSE:
+      case VALUE_TRUE:
+        return Token.BOOLEAN;
+    }
+    throw new IllegalStateException("Unhandled token " + token);
+  }
 }

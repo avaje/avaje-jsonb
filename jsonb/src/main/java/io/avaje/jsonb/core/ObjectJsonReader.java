@@ -122,6 +122,11 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
+  public Token peek() {
+    throw new IllegalStateException("not called");
+  }
+
+  @Override
   public String toString() {
     return String.valueOf(source);
   }
