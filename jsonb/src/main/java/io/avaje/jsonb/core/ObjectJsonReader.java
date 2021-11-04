@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * JsonReader with a source of java objects, Map, Collection etc.
+ */
 final class ObjectJsonReader implements JsonReader {
 
   private final Object source;
