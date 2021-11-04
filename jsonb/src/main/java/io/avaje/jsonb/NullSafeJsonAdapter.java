@@ -27,4 +27,9 @@ final class NullSafeJsonAdapter<T> extends JsonAdapter<T> {
       return delegate.fromJson(reader);
     }
   }
+
+  @Override
+  public String toString() {
+    return delegate + ".nullSafe()";
+  }
 }

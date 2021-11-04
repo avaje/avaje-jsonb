@@ -14,15 +14,9 @@ import java.util.UUID;
 final class JavaTimeAdapters {
 
   static final JsonAdapter.Factory FACTORY = (type, annotations, jsonb) -> {
-    if (!annotations.isEmpty()) {
-      return null;
-    }
-    if (type == Instant.class) {
-      return JavaTimeAdapters.INSTANT_ADAPTER;
-    }
-    if (type == UUID.class) {
-      return JavaTimeAdapters.UUID_ADAPTER;
-    }
+    if (!annotations.isEmpty()) return null;
+    if (type == Instant.class) return JavaTimeAdapters.INSTANT_ADAPTER;
+    if (type == UUID.class) return JavaTimeAdapters.UUID_ADAPTER;
     return null;
   };
 
@@ -39,6 +33,11 @@ final class JavaTimeAdapters {
     public void toJson(JsonWriter writer, Instant value) throws IOException {
       writer.value(value.toString());
     }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Instant)";
+    }
   };
 
   private static final JsonAdapter<UUID> UUID_ADAPTER = new JsonAdapter<UUID>() {
@@ -50,6 +49,11 @@ final class JavaTimeAdapters {
     @Override
     public void toJson(JsonWriter writer, UUID value) throws IOException {
       writer.value(value.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(UUID)";
     }
   };
 }

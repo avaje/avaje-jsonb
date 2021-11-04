@@ -9,8 +9,15 @@ import java.util.List;
 @Json
 public class Customer {
 
+  public enum Status {
+    NEW,
+    ACTIVE,
+    DISABLED
+  }
+
   private Long id;
   private String name;
+  private Status status;
   private Instant whenCreated;
   private List<Contact> contacts = new ArrayList<>();
 
@@ -29,6 +36,15 @@ public class Customer {
 
   public Customer name(String name) {
     this.name = name;
+    return this;
+  }
+
+  public Status status() {
+    return status;
+  }
+
+  public Customer status(Status status) {
+    this.status = status;
     return this;
   }
 

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CustomerTest {
 
-  final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"whenCreated\":";
+  final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\",\"whenCreated\":";
 
   @Test
   void toJson() throws IOException {
@@ -29,7 +29,7 @@ class CustomerTest {
       //.add(Customer.class, CustomerJsonAdapter::new)
       .build();
 
-    var customer = new Customer().id(42L).name("rob").whenCreated(Instant.now());
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE).whenCreated(Instant.now());
     customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
     customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
 
@@ -42,6 +42,7 @@ class CustomerTest {
     Customer from2 = customerType.fromJson(asJson);
     assertThat(from2.id()).isEqualTo(customer.id());
     assertThat(from2.name()).isEqualTo(customer.name());
+    assertThat(from2.status()).isEqualTo(customer.status());
     assertThat(from2.whenCreated()).isEqualTo(customer.whenCreated());
 
     // using JsonAdapter ... not so easy to deal with Strings

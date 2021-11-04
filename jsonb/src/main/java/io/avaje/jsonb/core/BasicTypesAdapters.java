@@ -1,67 +1,51 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonDataException;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.*;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
 final class BasicTypesAdapters {
 
-  public static final JsonAdapter.Factory FACTORY = (type, annotations, jsonb) -> {
-    if (!annotations.isEmpty()) {
-      return null;
-    } else if (type == Boolean.TYPE) {
-      return BasicTypesAdapters.BOOLEAN_JSON_ADAPTER;
-    } else if (type == Byte.TYPE) {
-      return BasicTypesAdapters.BYTE_JSON_ADAPTER;
-    } else if (type == Character.TYPE) {
-      return BasicTypesAdapters.CHARACTER_JSON_ADAPTER;
-    } else if (type == Double.TYPE) {
-      return BasicTypesAdapters.DOUBLE_JSON_ADAPTER;
-    } else if (type == Float.TYPE) {
-      return BasicTypesAdapters.FLOAT_JSON_ADAPTER;
-    } else if (type == Integer.TYPE) {
-      return BasicTypesAdapters.INTEGER_JSON_ADAPTER;
-    } else if (type == Long.TYPE) {
-      return BasicTypesAdapters.LONG_JSON_ADAPTER;
-    } else if (type == Short.TYPE) {
-      return BasicTypesAdapters.SHORT_JSON_ADAPTER;
-    } else if (type == Boolean.class) {
-      return BasicTypesAdapters.BOOLEAN_JSON_ADAPTER.nullSafe();
-    } else if (type == Byte.class) {
-      return BasicTypesAdapters.BYTE_JSON_ADAPTER.nullSafe();
-    } else if (type == Character.class) {
-      return BasicTypesAdapters.CHARACTER_JSON_ADAPTER.nullSafe();
-    } else if (type == Double.class) {
-      return BasicTypesAdapters.DOUBLE_JSON_ADAPTER.nullSafe();
-    } else if (type == Float.class) {
-      return BasicTypesAdapters.FLOAT_JSON_ADAPTER.nullSafe();
-    } else if (type == Integer.class) {
-      return BasicTypesAdapters.INTEGER_JSON_ADAPTER.nullSafe();
-    } else if (type == Long.class) {
-      return BasicTypesAdapters.LONG_JSON_ADAPTER.nullSafe();
-    } else if (type == Short.class) {
-      return BasicTypesAdapters.SHORT_JSON_ADAPTER.nullSafe();
-    } else if (type == String.class) {
-      return BasicTypesAdapters.STRING_JSON_ADAPTER.nullSafe();
+  public static final JsonAdapter.Factory FACTORY = new JsonAdapter.Factory() {
+
+    @SuppressWarnings({"unchecked","rawtypes"})
+    @Override
+    public JsonAdapter<?> create(Type type, Set<? extends Annotation> annotations, Jsonb jsonb) {
+      if (!annotations.isEmpty()) return null;
+      if (type == Boolean.TYPE) return BOOLEAN_JSON_ADAPTER;
+      if (type == Byte.TYPE) return BYTE_JSON_ADAPTER;
+      if (type == Character.TYPE) return CHARACTER_JSON_ADAPTER;
+      if (type == Double.TYPE) return DOUBLE_JSON_ADAPTER;
+      if (type == Float.TYPE) return FLOAT_JSON_ADAPTER;
+      if (type == Integer.TYPE) return INTEGER_JSON_ADAPTER;
+      if (type == Long.TYPE) return LONG_JSON_ADAPTER;
+      if (type == Short.TYPE) return SHORT_JSON_ADAPTER;
+      if (type == Boolean.class) return BOOLEAN_JSON_ADAPTER.nullSafe();
+      if (type == Byte.class) return BYTE_JSON_ADAPTER.nullSafe();
+      if (type == Character.class) return CHARACTER_JSON_ADAPTER.nullSafe();
+      if (type == Double.class) return DOUBLE_JSON_ADAPTER.nullSafe();
+      if (type == Float.class) return FLOAT_JSON_ADAPTER.nullSafe();
+      if (type == Integer.class) return INTEGER_JSON_ADAPTER.nullSafe();
+      if (type == Long.class) return LONG_JSON_ADAPTER.nullSafe();
+      if (type == Short.class) return SHORT_JSON_ADAPTER.nullSafe();
+      if (type == String.class) return STRING_JSON_ADAPTER.nullSafe();
+
 //            } else if (type == Object.class) {
 //                return (new StandardJsonAdapters.ObjectJsonAdapter(moshi)).nullSafe();
-//            } else {
-//                Class<?> rawType = Types.getRawType(type);
-//                JAdapter<?> generatedAdapter = Util.generatedAdapter(moshi, type, rawType);
-//                if (generatedAdapter != null) {
-//                    return generatedAdapter;
-//                } else {
-//                    return rawType.isEnum() ? (new StandardJsonAdapters.EnumJsonAdapter(rawType)).nullSafe() : null;
-//                }
+
+      Class<?> rawType = Util.rawType(type);
+      if (rawType.isEnum()) {
+        return new EnumJsonAdapter(rawType).nullSafe();
+      }
+      return null;
     }
-    return null;
   };
-  //    private static final String ERROR_FORMAT = "Expected %s but was %s at path %s";
+
   static final JsonAdapter<Boolean> BOOLEAN_JSON_ADAPTER = new JsonAdapter<Boolean>() {
     @Override
     public Boolean fromJson(JsonReader reader) throws IOException {
@@ -71,6 +55,11 @@ final class BasicTypesAdapters {
     @Override
     public void toJson(JsonWriter writer, Boolean value) throws IOException {
       writer.value(value);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Boolean)";
     }
   };
   static final JsonAdapter<Byte> BYTE_JSON_ADAPTER = new JsonAdapter<Byte>() {
@@ -82,6 +71,11 @@ final class BasicTypesAdapters {
     @Override
     public void toJson(JsonWriter writer, Byte value) throws IOException {
       writer.value((long) (value.intValue() & 255));
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Byte)";
     }
   };
   static final JsonAdapter<Character> CHARACTER_JSON_ADAPTER = new JsonAdapter<Character>() {
@@ -99,6 +93,11 @@ final class BasicTypesAdapters {
     public void toJson(JsonWriter writer, Character value) throws IOException {
       writer.value(value.toString());
     }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Character)";
+    }
   };
   static final JsonAdapter<Double> DOUBLE_JSON_ADAPTER = new JsonAdapter<Double>() {
     @Override
@@ -109,6 +108,11 @@ final class BasicTypesAdapters {
     @Override
     public void toJson(JsonWriter writer, Double value) throws IOException {
       writer.value(value);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Double)";
     }
   };
   static final JsonAdapter<Float> FLOAT_JSON_ADAPTER = new JsonAdapter<Float>() {
@@ -127,6 +131,11 @@ final class BasicTypesAdapters {
       requireNonNull(value);
       writer.value(value);
     }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Float)";
+    }
   };
   static final JsonAdapter<Integer> INTEGER_JSON_ADAPTER = new JsonAdapter<Integer>() {
     @Override
@@ -137,6 +146,11 @@ final class BasicTypesAdapters {
     @Override
     public void toJson(JsonWriter writer, Integer value) throws IOException {
       writer.value(value);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Integer)";
     }
   };
   static final JsonAdapter<Long> LONG_JSON_ADAPTER = new JsonAdapter<Long>() {
@@ -149,6 +163,11 @@ final class BasicTypesAdapters {
     public void toJson(JsonWriter writer, Long value) throws IOException {
       writer.value(value);
     }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Long)";
+    }
   };
   static final JsonAdapter<Short> SHORT_JSON_ADAPTER = new JsonAdapter<Short>() {
     @Override
@@ -160,6 +179,11 @@ final class BasicTypesAdapters {
     public void toJson(JsonWriter writer, Short value) throws IOException {
       writer.value((long) value.intValue());
     }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Short)";
+    }
   };
   static final JsonAdapter<String> STRING_JSON_ADAPTER = new JsonAdapter<String>() {
     @Override
@@ -170,6 +194,11 @@ final class BasicTypesAdapters {
     @Override
     public void toJson(JsonWriter writer, String value) throws IOException {
       writer.value(value);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(String)";
     }
   };
 
@@ -245,49 +274,27 @@ final class BasicTypesAdapters {
 //        }
 //    }
 
-//    static final class EnumJsonAdapter<T extends Enum<T>> extends JsonAdapter<T> {
-//        private final Class<T> enumType;
-//        private final String[] nameStrings;
-//        private final T[] constants;
-//        private final Options options;
-//
-//        EnumJsonAdapter(Class<T> enumType) {
-//            this.enumType = enumType;
-//
-//            try {
-//                this.constants = (Enum[])enumType.getEnumConstants();
-//                this.nameStrings = new String[this.constants.length];
-//
-//                for(int i = 0; i < this.constants.length; ++i) {
-//                    T constant = this.constants[i];
-//                    Json annotation = (Json)enumType.getField(constant.name()).getAnnotation(Json.class);
-//                    String name = annotation != null ? annotation.name() : constant.name();
-//                    this.nameStrings[i] = name;
-//                }
-//
-//                this.options = Options.of(this.nameStrings);
-//            } catch (NoSuchFieldException var6) {
-//                throw new AssertionError("Missing field in " + enumType.getName(), var6);
-//            }
-//        }
-//
-//        public T fromJson(JsonReader reader) throws IOException {
-//            int index = reader.selectString(this.options);
-//            if (index != -1) {
-//                return this.constants[index];
-//            } else {
-//                String path = reader.getPath();
-//                String name = reader.nextString();
-//                throw new JsonDataException("Expected one of " + Arrays.asList(this.nameStrings) + " but was " + name + " at path " + path);
-//            }
-//        }
-//
-//        public void toJson(JsonWriter writer, T value) throws IOException {
-//            writer.value(this.nameStrings[value.ordinal()]);
-//        }
-//
-//        public String toString() {
-//            return "JsonAdapter(" + this.enumType.getName() + ")";
-//        }
-//    }
+  static final class EnumJsonAdapter<T extends Enum<T>> extends JsonAdapter<T> {
+    private final Class<T> enumType;
+
+    EnumJsonAdapter(Class<T> enumType) {
+      this.enumType = enumType;
+    }
+
+    @Override
+    public T fromJson(JsonReader reader) throws IOException {
+      String value = reader.nextString();
+      return Enum.valueOf(enumType, value);
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, T value) throws IOException {
+      writer.value(value.name());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(" + this.enumType.getName() + ")";
+    }
+  }
 }
