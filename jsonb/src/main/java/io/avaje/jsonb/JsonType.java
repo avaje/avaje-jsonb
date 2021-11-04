@@ -2,6 +2,7 @@ package io.avaje.jsonb;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,6 +22,11 @@ public interface JsonType<T> {
    * Return the set type for this JsonType.
    */
   JsonType<Set<T>> set();
+
+  /**
+   * Return the map with this type as the value type and string keys.
+   */
+  JsonType<Map<String, T>> map();
 
   String toJson(T value) throws IOException;
 

@@ -5,6 +5,8 @@ import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,5 +25,21 @@ class NLowerHyphenTest {
 
     NLowHyp fromJson = jsonType.fromJson(asJson);
     assertEquals(fromJson, bean);
+  }
+
+  @Test
+  void mapOfRecord() throws IOException {
+
+    JsonType<Map<String, NLowHyp>> mapJsonType = jsonType.map();
+
+    Map<String, NLowHyp> map = new LinkedHashMap<>();
+    map.put("aaa",new NLowHyp("sim", "simPlus", 42));
+    map.put("bbb",new NLowHyp("bSim", "bSimPlus", 43));
+
+    String asJson = mapJsonType.toJson(map);
+
+    Map<String, NLowHyp> fromJson = mapJsonType.fromJson(asJson);
+    assertThat(fromJson).isEqualTo(map);
+
   }
 }

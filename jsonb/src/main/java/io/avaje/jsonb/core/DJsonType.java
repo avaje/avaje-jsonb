@@ -5,6 +5,7 @@ import io.avaje.jsonb.*;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 final class DJsonType<T> implements JsonType<T> {
@@ -27,6 +28,11 @@ final class DJsonType<T> implements JsonType<T> {
   @Override
   public JsonType<Set<T>> set() {
     return jsonb.type(Types.setOf(type));
+  }
+
+  @Override
+  public JsonType<Map<String, T>> map() {
+    return jsonb.type(Types.mapOf(type));
   }
 
   @Override
