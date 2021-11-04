@@ -71,4 +71,15 @@ class IntegerTest {
     Set<Integer> integers = integerSetJson.fromObject(Arrays.asList(41, 42));
     assertThat(integers).containsExactly(41, 42);
   }
+
+
+  @Test
+  void array_viaTypes() throws IOException {
+
+    var integerArrayJson = jsonb.type(Types.arrayOf(Integer.class));
+
+    String asJson = integerArrayJson.toJson(new Integer[]{41, 42});
+    Integer[] fromJson = (Integer[]) integerArrayJson.fromJson(asJson);
+    assertThat(fromJson).containsExactly(41, 42);
+  }
 }

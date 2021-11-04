@@ -33,14 +33,6 @@ public final class Util {
     return new Util.GenericArrayTypeImpl(elementType);
   }
 
-  public static ParameterizedType listOf(Type elementType) {
-    return newParameterizedType(List.class, elementType);
-  }
-
-  public static ParameterizedType setOf(Type elementType) {
-    return newParameterizedType(Set.class, elementType);
-  }
-
   /**
    * Returns a new parameterized type, applying {@code typeArguments} to {@code rawType}. Use this
    * method if {@code rawType} is not enclosed in another type.

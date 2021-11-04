@@ -5,8 +5,13 @@ import io.avaje.jsonb.core.Util;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+/**
+ * Factory methods for types.
+ */
 public class Types {
 
   private Types() {
@@ -20,12 +25,18 @@ public class Types {
     return Util.arrayOf(elementType);
   }
 
+  /**
+   * Returns a Type that is a List of the given element type.
+   */
   public static Type listOf(Type elementType) {
-    return Util.listOf(elementType);
+    return newParameterizedType(List.class, elementType);
   }
 
+  /**
+   * Returns a Type that is a Set of the given element type.
+   */
   public static Type setOf(Type elementType) {
-    return Util.setOf(elementType);
+    return newParameterizedType(Set.class, elementType);
   }
 
   /**
