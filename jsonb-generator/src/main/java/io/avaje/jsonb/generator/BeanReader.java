@@ -22,7 +22,7 @@ class BeanReader {
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
 
-    TypeReader typeReader = new TypeReader(beanType, context);
+    TypeExtendsReader typeReader = new TypeExtendsReader(beanType, context);
     typeReader.process();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
