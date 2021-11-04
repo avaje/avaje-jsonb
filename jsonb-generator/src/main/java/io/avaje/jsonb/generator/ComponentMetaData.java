@@ -25,6 +25,9 @@ class ComponentMetaData {
   String fullName() {
     if (fullName == null) {
       String topPackage = TopPackage.of(allTypes);
+      if (!topPackage.endsWith(".jsonb")) {
+        topPackage += ".jsonb";
+      }
       fullName = topPackage + ".GeneratedJsonComponent";
     }
     return fullName;
