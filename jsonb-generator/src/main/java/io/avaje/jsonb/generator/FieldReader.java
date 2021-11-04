@@ -63,7 +63,16 @@ class FieldReader {
   }
 
   void writeDebug(Append writer) {
-    writer.append("  // %s [%s] setter:%s constructor:%s public:%s", getFieldName(), rawType, setter, constructorParam, publicField).eol();
+    writer.append("  // %s [%s]", getFieldName(), rawType);
+    if (constructorParam) {
+      writer.append(" constructor").eol();
+    } else if (setter != null) {
+      writer.append(" setter:%s ", setter).eol();
+    } else if (publicField) {
+      writer.append(" publicField").eol();
+    } else {
+      writer.append(" ERROR?? no constructor, setter and not a public field?").eol();
+    }
   }
 
   String adapterShortType() {
