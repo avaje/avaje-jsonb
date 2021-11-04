@@ -125,7 +125,7 @@ class BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) throws IOException {", shortName, varName).eol();
-    writer.append("    // variables to read json values into").eol();
+    writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
     for (FieldReader allField : allFields) {
       allField.writeFromJsonVariables(writer);
     }
@@ -139,7 +139,7 @@ class BeanReader {
         if (i > 0) {
           writer.append(", ");
         }
-        writer.append(params.get(i).name()); // assuming name matches field here?
+        writer.append("_val$").append(params.get(i).name()); // assuming name matches field here?
       }
     }
     writer.append(");").eol();

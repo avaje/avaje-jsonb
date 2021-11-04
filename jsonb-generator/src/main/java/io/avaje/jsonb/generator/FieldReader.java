@@ -93,16 +93,28 @@ class FieldReader {
   }
 
   void writeFromJsonVariables(Append writer) {
-    writer.append("    %s %s = %s;", genericType.shortType(), fieldName, defaultValue);
+    writer.append("    %s _val$%s = %s;", pad(genericType.shortType()), fieldName, defaultValue);
     if (!constructorParam) {
       writer.append(" boolean _set$%s = false;", fieldName);
     }
     writer.eol();
   }
 
+  private String pad(String value) {
+    int pad = 10 - value.length();
+    if (pad < 1) {
+      return value;
+    }
+    StringBuilder sb = new StringBuilder(10).append(value);
+    for (int i = 0; i < pad; i++) {
+      sb.append(" ");
+    }
+    return sb.toString();
+  }
+
   void writeFromJsonSwitch(Append writer) {
     writer.append("        case \"%s\": {", fieldName).eol();
-    writer.append("          %s = %s.fromJson(reader);", fieldName, adapterFieldName);
+    writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
     if (!constructorParam) {
       writer.append(" _set$%s = true;", fieldName);
     }
@@ -112,9 +124,9 @@ class FieldReader {
 
   void writeFromJsonSetter(Append writer, String varName) {
     if (setter != null) {
-      writer.append("    if (_set$%s) _$%s.%s(%s);", fieldName, varName, setter.getName(), fieldName).eol();
+      writer.append("    if (_set$%s) _$%s.%s(_val$%s);", fieldName, varName, setter.getName(), fieldName).eol();
     } else if (publicField) {
-      writer.append("    if (_set$%s) _$%s.%s = %s;", fieldName, varName, fieldName, fieldName).eol();
+      writer.append("    if (_set$%s) _$%s.%s = _val$%s;", fieldName, varName, fieldName, fieldName).eol();
     }
   }
 
