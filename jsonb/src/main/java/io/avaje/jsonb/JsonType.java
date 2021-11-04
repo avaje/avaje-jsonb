@@ -2,6 +2,7 @@ package io.avaje.jsonb;
 
 import java.io.*;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides API to serialise a type to and from JSON.
@@ -16,6 +17,11 @@ public interface JsonType<T> {
    */
   JsonType<List<T>> list();
 
+  /**
+   * Return the set type for this JsonType.
+   */
+  JsonType<Set<T>> set();
+
   String toJson(T value) throws IOException;
 
   void toJson(JsonWriter writer, T value) throws IOException;
@@ -23,15 +29,6 @@ public interface JsonType<T> {
   void toJson(Writer writer, T value) throws IOException;
 
   void toJson(OutputStream outputStream, T value) throws IOException;
-
-  /**
-   * Convert from 'object form' expecting {@code Map<String,Object>} for
-   * 'json object' and expecting {@code Collection<?>} for 'json array'.
-   *
-   * @param value The json value that will be converted into T.
-   * @return The value converted from 'object form'.
-   */
-  T fromObject(Object value) throws IOException;
 
   T fromJson(JsonReader reader) throws IOException;
 
@@ -41,4 +38,12 @@ public interface JsonType<T> {
 
   T fromJson(InputStream inputStream) throws IOException;
 
+  /**
+   * Convert from 'object form' expecting {@code Map<String,Object>} for
+   * 'json object' and expecting {@code Collection<?>} for 'json array'.
+   *
+   * @param value The json value that will be converted into T.
+   * @return The value converted from 'object form'.
+   */
+  T fromObject(Object value) throws IOException;
 }

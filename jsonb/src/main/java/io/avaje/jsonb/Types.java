@@ -16,12 +16,16 @@ public class Types {
   /**
    * Returns an array type whose elements are all instances of {@code componentType}.
    */
-  public static GenericArrayType arrayOf(Type elementType) {
+  public static Type arrayOf(Type elementType) {
     return Util.arrayOf(elementType);
   }
 
-  public static ParameterizedType listOf(Type elementType) {
+  public static Type listOf(Type elementType) {
     return Util.listOf(elementType);
+  }
+
+  public static Type setOf(Type elementType) {
+    return Util.setOf(elementType);
   }
 
   /**

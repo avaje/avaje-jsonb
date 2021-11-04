@@ -15,8 +15,10 @@ class JacksonReader implements JsonReader {
   }
 
   @Override
-  public void beginArray() {
-
+  public void beginArray() throws IOException {
+    if (parser.currentToken() == null) {
+      parser.nextToken();
+    }
   }
 
   @Override

@@ -5,28 +5,28 @@ import io.avaje.jsonb.*;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Set;
 
 final class DJsonType<T> implements JsonType<T> {
 
   private final DJsonb jsonb;
+  private final Type type;
   private final JsonAdapter<T> adapter;
-  private final Type key;
-  private JsonType<List<T>> listType;
 
-  DJsonType(DJsonb jsonb, Type key, JsonAdapter<T> adapter) {
+  DJsonType(DJsonb jsonb, Type type, JsonAdapter<T> adapter) {
     this.jsonb = jsonb;
-    this.key = key;
+    this.type = type;
     this.adapter = adapter;
   }
 
   @Override
   public JsonType<List<T>> list() {
-    synchronized (this) {
-      if (listType == null) {
-        listType = jsonb.listOf(key, adapter);
-      }
-      return listType;
-    }
+    return jsonb.type(Types.listOf(type));
+  }
+
+  @Override
+  public JsonType<Set<T>> set() {
+    return jsonb.type(Types.setOf(type));
   }
 
   @Override

@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public interface JsonReader {
 
-  void beginArray();
+  void beginArray() throws IOException;
 
   void endArray();
 

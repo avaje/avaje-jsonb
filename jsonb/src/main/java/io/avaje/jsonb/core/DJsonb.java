@@ -8,6 +8,7 @@ import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.avaje.jsonb.core.Util.*;
 import static java.util.Objects.requireNonNull;
@@ -19,6 +20,7 @@ class DJsonb implements Jsonb {
 
   private final CoreAdapterBuilder builder;
   private final IOAdapter io;
+  private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
 
   DJsonb(List<JsonAdapter.Factory> factories) {
     this.builder = new CoreAdapterBuilder(this, factories);
@@ -52,12 +54,17 @@ class DJsonb implements Jsonb {
 
   @Override
   public <T> JsonType<T> type(Class<T> cls) {
-    return new DJsonType<>(this, cls, adapter(cls));
+    return typeWithCache(cls);
   }
 
   @Override
   public <T> JsonType<T> type(Type type) {
-    return new DJsonType<>(this, type, adapter(type));
+    return typeWithCache(type);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> JsonType<T> typeWithCache(Type type) {
+    return (JsonType<T>) typeCache.computeIfAbsent(type, _type -> new DJsonType<>(this, _type, adapter(_type)));
   }
 
   @Override
@@ -94,12 +101,6 @@ class DJsonb implements Jsonb {
       return type;
     }
     return Arrays.asList(type, annotations);
-  }
-
-  <T> JsonType<List<T>> listOf(Type key, JsonAdapter<T> adapter) {
-    Type listKey = Util.listOf(key);
-    JsonAdapter<List<T>> listAdapter = builder.listOf(listKey, adapter);
-    return new DJsonType<>(this, listKey, listAdapter);
   }
 
   JsonReader objectReader(Object value) {
@@ -146,7 +147,6 @@ class DJsonb implements Jsonb {
       registerComponents();
       return new DJsonb(this.factories);
     }
-
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
       requireNonNull(type);

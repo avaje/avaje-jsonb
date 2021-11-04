@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,7 +20,7 @@ class ListTest {
 
     Jsonb jsonb = Jsonb.newBuilder().build();
 
-    ParameterizedType listOfString = Types.listOf(String.class);
+    Type listOfString = Types.listOf(String.class);
     JsonType<List<String>> listOfStringType = jsonb.type(listOfString);
 
     List<String> data = Arrays.asList("one", "two", "three");
