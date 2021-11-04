@@ -44,10 +44,10 @@ public abstract class JsonAdapter<T> {
    * Return a null safe version of this adapter.
    */
   public final JsonAdapter<T> nullSafe() {
-    if (this instanceof NullSafeJsonAdapter) {
+    if (this instanceof NullSafeAdapter) {
       return this;
     }
-    return new NullSafeJsonAdapter<>(this);
+    return new NullSafeAdapter<>(this);
   }
 
   public interface Factory {

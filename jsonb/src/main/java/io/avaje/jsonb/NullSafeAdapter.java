@@ -17,11 +17,11 @@ package io.avaje.jsonb;
 
 import java.io.IOException;
 
-final class NullSafeJsonAdapter<T> extends JsonAdapter<T> {
+final class NullSafeAdapter<T> extends JsonAdapter<T> {
 
   private final JsonAdapter<T> delegate;
 
-  NullSafeJsonAdapter(JsonAdapter<T> delegate) {
+  NullSafeAdapter(JsonAdapter<T> delegate) {
     this.delegate = delegate;
   }
 

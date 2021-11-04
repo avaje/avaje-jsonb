@@ -24,7 +24,7 @@ import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
-final class BasicTypesAdapters {
+final class BasicTypeAdapters {
 
   public static final JsonAdapter.Factory FACTORY = new JsonAdapter.Factory() {
 

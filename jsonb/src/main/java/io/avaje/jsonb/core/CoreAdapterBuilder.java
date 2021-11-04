@@ -40,7 +40,7 @@ class CoreAdapterBuilder {
     this.context = context;
     this.factories = new ArrayList<>();
     this.factories.addAll(userFactories);
-    this.factories.add(BasicTypesAdapters.FACTORY);
+    this.factories.add(BasicTypeAdapters.FACTORY);
     this.factories.add(JavaTimeAdapters.FACTORY);
     this.factories.add(CollectionAdapter.FACTORY);
     this.factories.add(MapAdapter.FACTORY);
