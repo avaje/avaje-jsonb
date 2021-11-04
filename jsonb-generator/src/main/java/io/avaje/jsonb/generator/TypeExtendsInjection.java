@@ -21,11 +21,13 @@ class TypeExtendsInjection {
 
   private final TypeElement baseType;
   private final ProcessingContext context;
+  private final NamingConvention namingConvention;
   private MethodReader constructor;
 
-  TypeExtendsInjection(TypeElement baseType, ProcessingContext context) {
+  TypeExtendsInjection(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.context = context;
+    this.namingConvention = namingConvention;
   }
 
   void read(TypeElement type) {
@@ -47,9 +49,9 @@ class TypeExtendsInjection {
   private void readField(Element element, TypeElement type) {
     if (!element.getModifiers().contains(Modifier.TRANSIENT)) {
       if (type != baseType) {
-        baseFields.add(new FieldReader(element));
+        baseFields.add(new FieldReader(element, namingConvention));
       } else {
-        inheritedFields.add(new FieldReader(element));
+        inheritedFields.add(new FieldReader(element, namingConvention));
       }
     }
   }

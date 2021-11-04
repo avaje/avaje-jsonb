@@ -54,8 +54,7 @@ class ComponentReader {
   }
 
   private String adapterNameFromEntry(Object adapterEntry) {
-    String nameWithSuffix = adapterEntry.toString();
-    return nameWithSuffix.substring(0, nameWithSuffix.length() - 6);
+    return Util.trimClassSuffix(adapterEntry.toString());
   }
 
   private String loadMetaInfServices() {

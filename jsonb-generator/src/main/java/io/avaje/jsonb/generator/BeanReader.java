@@ -16,13 +16,15 @@ class BeanReader {
   private final MethodReader constructor;
   private final List<FieldReader> allFields;
   private final Set<String> importTypes = new TreeSet<>();
+  private final NamingConvention namingConvention;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
+    this.namingConvention = new NamingConventionReader(beanType).get();
 
-    TypeExtendsReader typeReader = new TypeExtendsReader(beanType, context);
+    TypeExtendsReader typeReader = new TypeExtendsReader(beanType, context, namingConvention);
     typeReader.process();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
@@ -74,6 +76,7 @@ class BeanReader {
 
 
   void writeFields(Append writer) {
+    writer.append("  // naming convention %s", namingConvention).eol();
     for (FieldReader allField : allFields) {
       allField.writeDebug(writer);
     }

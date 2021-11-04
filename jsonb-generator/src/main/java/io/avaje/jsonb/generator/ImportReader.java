@@ -23,7 +23,7 @@ class ImportReader {
       if (JSON_IMPORT.equals(mirror.getAnnotationType().toString())) {
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
           for (Object importType : (List<?>) entry.getValue().getValue()) {
-            fullNames.add(trimClassSuffix(importType));
+            fullNames.add(Util.trimClassSuffix(importType.toString()));
           }
         }
       }
@@ -31,8 +31,4 @@ class ImportReader {
     return fullNames;
   }
 
-  private String trimClassSuffix(Object adapterEntry) {
-    String nameWithSuffix = adapterEntry.toString();
-    return nameWithSuffix.substring(0, nameWithSuffix.length() - 6);
-  }
 }

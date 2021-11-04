@@ -13,10 +13,10 @@ class TypeExtendsReader {
   private final ProcessingContext context;
   private final TypeExtendsInjection extendsInjection;
 
-  TypeExtendsReader(TypeElement baseType, ProcessingContext context) {
+  TypeExtendsReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.context = context;
-    this.extendsInjection = new TypeExtendsInjection(baseType, context);
+    this.extendsInjection = new TypeExtendsInjection(baseType, context, namingConvention);
   }
 
   List<FieldReader> allFields() {

@@ -15,15 +15,17 @@ class FieldReader {
   private final String fieldName;
   private final boolean primitive;
   private final String defaultValue;
+  private final String propertyName;
 
   private MethodReader setter;
   private MethodReader getter;
 
   private boolean constructorParam;
 
-  FieldReader(Element element) {
+  FieldReader(Element element, NamingConvention namingConvention) {
     this.element = element;
     this.fieldName = element.getSimpleName().toString();
+    this.propertyName = namingConvention.from(fieldName);
     this.rawType = element.asType().toString();
     this.genericType = GenericType.parse(rawType);
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
@@ -63,7 +65,7 @@ class FieldReader {
   }
 
   void writeDebug(Append writer) {
-    writer.append("  // %s [%s]", getFieldName(), rawType);
+    writer.append("  // %s [%s] name:%s", fieldName, rawType, propertyName);
     if (constructorParam) {
       writer.append(" constructor").eol();
     } else if (setter != null) {
@@ -90,7 +92,7 @@ class FieldReader {
   }
 
   void writeToJson(Append writer, String varName) {
-    writer.append("    writer.name(\"%s\");", fieldName).eol();
+    writer.append("    writer.name(\"%s\");", propertyName).eol();
     writer.append("    %s.toJson(writer, ", adapterFieldName);
     if (publicField) {
       writer.append("%s.%s);", varName, fieldName).eol();
@@ -122,7 +124,7 @@ class FieldReader {
   }
 
   void writeFromJsonSwitch(Append writer) {
-    writer.append("        case \"%s\": {", fieldName).eol();
+    writer.append("        case \"%s\": {", propertyName).eol();
     writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
     if (!constructorParam) {
       writer.append(" _set$%s = true;", fieldName);

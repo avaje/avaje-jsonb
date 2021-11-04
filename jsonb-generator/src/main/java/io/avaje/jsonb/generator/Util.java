@@ -91,4 +91,11 @@ class Util {
       return Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
   }
+
+  /**
+   * Trim off the .class suffix.
+   */
+  static String trimClassSuffix(String nameWithSuffix) {
+    return nameWithSuffix.substring(0, nameWithSuffix.length() - 6);
+  }
 }

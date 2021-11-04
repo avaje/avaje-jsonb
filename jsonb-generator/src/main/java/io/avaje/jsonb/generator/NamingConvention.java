@@ -4,6 +4,7 @@ import io.avaje.jsonb.Json;
 
 class NamingConvention {
 
+  private final Json.Naming naming;
   private final Convert convert;
 
   static NamingConvention of(Json.Naming naming) {
@@ -11,7 +12,13 @@ class NamingConvention {
   }
 
   private NamingConvention(Json.Naming naming) {
-    convert = init(naming);
+    this.naming = naming;
+    this.convert = init(naming);
+  }
+
+  @Override
+  public String toString() {
+    return naming.toString();
   }
 
   Convert init(Json.Naming naming) {
