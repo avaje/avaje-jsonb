@@ -37,11 +37,10 @@ class BeanReader {
     return beanType;
   }
 
-  BeanReader read() {
+  void read() {
     for (FieldReader fields : allFields) {
       fields.addImports(importTypes);
     }
-    return this;
   }
 
   /**

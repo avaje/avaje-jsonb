@@ -15,6 +15,8 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Documented
 public @interface Json {
 
+  Naming naming() default Naming.Match;
+
   @Retention(CLASS)
   @Target({ElementType.TYPE, ElementType.PACKAGE})
   @Documented
@@ -24,5 +26,16 @@ public @interface Json {
      * Specify types to generate Json Adapters for.
      */
     Class<?>[] value();
+  }
+
+  enum Naming {
+    Match,
+    LowerHyphen,
+    LowerUnderscore,
+    LowerSpace,
+    UpperCamel,
+    UpperHyphen,
+    UpperUnderscore,
+    UpperSpace
   }
 }

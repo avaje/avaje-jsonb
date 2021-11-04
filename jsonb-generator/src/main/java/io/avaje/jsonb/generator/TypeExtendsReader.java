@@ -13,16 +13,10 @@ class TypeExtendsReader {
   private final ProcessingContext context;
   private final TypeExtendsInjection extendsInjection;
 
-  private String baseTypeRaw;
-
   TypeExtendsReader(TypeElement baseType, ProcessingContext context) {
     this.baseType = baseType;
     this.context = context;
     this.extendsInjection = new TypeExtendsInjection(baseType, context);
-  }
-
-  String getBaseType() {
-    return baseTypeRaw;
   }
 
   List<FieldReader> allFields() {
@@ -36,7 +30,6 @@ class TypeExtendsReader {
   void process() {
     String base = baseType.getQualifiedName().toString();
     if (!GenericType.isGeneric(base)) {
-      baseTypeRaw = base;
       extendsInjection.read(baseType);
     }
     TypeElement superElement = superOf(baseType);
