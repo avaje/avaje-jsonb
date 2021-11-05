@@ -25,7 +25,7 @@ class FieldReader {
   FieldReader(Element element, NamingConvention namingConvention) {
     this.element = element;
     this.fieldName = element.getSimpleName().toString();
-    this.propertyName = namingConvention.from(fieldName);
+    this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
     this.rawType = element.asType().toString();
     this.genericType = GenericType.parse(rawType);
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);

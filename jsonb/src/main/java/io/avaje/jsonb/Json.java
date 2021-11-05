@@ -38,6 +38,20 @@ public @interface Json {
   }
 
   /**
+   * Override the json property name.
+   */
+  @Retention(CLASS)
+  @Target({ElementType.FIELD})
+  @Documented
+  @interface Property {
+
+    /**
+     * Specify the name for this property.
+     */
+    String value();
+  }
+
+  /**
    * The naming convention that we can use for a given type.
    */
   enum Naming {
