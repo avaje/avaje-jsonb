@@ -36,45 +36,45 @@ public interface JsonWriter extends Closeable, Flushable {
 
   boolean serializeEmpty();
 
-  JsonWriter serializeEmpty(boolean serializeEmpty);
+  void serializeEmpty(boolean serializeEmpty);
 
   String path();
 
-  JsonWriter beginArray() throws IOException;
+  void beginArray() throws IOException;
 
-  JsonWriter endArray() throws IOException;
+  void endArray() throws IOException;
 
-  JsonWriter emptyArray() throws IOException;
+  void emptyArray() throws IOException;
 
-  JsonWriter beginObject() throws IOException;
+  void beginObject() throws IOException;
 
-  JsonWriter endObject() throws IOException;
+  void endObject() throws IOException;
 
-  JsonWriter name(String name) throws IOException;
+  void name(String name) throws IOException;
 
-  JsonWriter nullValue() throws IOException;
+  void nullValue() throws IOException;
 
-  JsonWriter value(String value) throws IOException;
+  void value(String value) throws IOException;
 
-  JsonWriter value(boolean value) throws IOException;
+  void value(boolean value) throws IOException;
 
-  JsonWriter value(int value) throws IOException;
+  void value(int value) throws IOException;
 
-  JsonWriter value(long value) throws IOException;
+  void value(long value) throws IOException;
 
-  JsonWriter value(double value) throws IOException;
+  void value(double value) throws IOException;
 
-  JsonWriter value(Boolean value) throws IOException;
+  void value(Boolean value) throws IOException;
 
-  JsonWriter value(Integer value) throws IOException;
+  void value(Integer value) throws IOException;
 
-  JsonWriter value(Long value) throws IOException;
+  void value(Long value) throws IOException;
 
-  JsonWriter value(Double value) throws IOException;
+  void value(Double value) throws IOException;
 
-  JsonWriter value(BigDecimal value) throws IOException;
+  void value(BigDecimal value) throws IOException;
 
-  JsonWriter jsonValue(Object value) throws IOException;
+  void jsonValue(Object value) throws IOException;
 
   void close() throws IOException;
 

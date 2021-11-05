@@ -7,7 +7,7 @@ import io.avaje.jsonb.spi.DelegateJsonWriter;
 
 import java.io.IOException;
 
-class JacksonWriteBuffer extends DelegateJsonWriter implements BufferedJsonWriter {
+final class JacksonWriteBuffer extends DelegateJsonWriter implements BufferedJsonWriter {
 
   private final SegmentedStringWriter buffer;
 

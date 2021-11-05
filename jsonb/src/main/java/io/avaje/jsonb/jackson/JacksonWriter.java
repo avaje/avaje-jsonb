@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-class JacksonWriter implements JsonWriter {
+final class JacksonWriter implements JsonWriter {
 
   private final JsonGenerator generator;
   private boolean serializeEmpty;
@@ -66,9 +66,8 @@ class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public JsonWriter serializeEmpty(boolean serializeEmpty) {
+  public void serializeEmpty(boolean serializeEmpty) {
     this.serializeEmpty = serializeEmpty;
-    return this;
   }
 
   @Override
@@ -77,154 +76,144 @@ class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public JsonWriter beginArray() throws IOException {
+  public void beginArray() throws IOException {
     writeDeferredName();
     generator.writeStartArray();
-    return this;
   }
 
   @Override
-  public JsonWriter endArray() throws IOException {
+  public void endArray() throws IOException {
     generator.writeEndArray();
-    return this;
   }
 
   @Override
-  public JsonWriter beginObject() throws IOException {
+  public void beginObject() throws IOException {
     writeDeferredName();
     generator.writeStartObject();
-    return this;
   }
 
   @Override
-  public JsonWriter endObject() throws IOException {
+  public void endObject() throws IOException {
     generator.writeEndObject();
-    return this;
   }
 
   @Override
-  public JsonWriter name(String name) {
+  public void name(String name) {
     deferredName = name;
-    return this;
   }
 
   void writeDeferredName() throws IOException {
     if (deferredName != null) {
+      //generator.writeFieldName();
       generator.writeFieldName(deferredName);
       deferredName = null;
     }
   }
 
   @Override
-  public JsonWriter emptyArray() throws IOException {
+  public void emptyArray() throws IOException {
     if (serializeEmpty) {
       writeDeferredName();
       generator.writeStartArray();
       generator.writeEndArray();
     }
-    return this;
   }
 
   @Override
-  public JsonWriter nullValue() throws IOException {
+  public void nullValue() throws IOException {
     if (serializeNulls) {
       writeDeferredName();
       generator.writeNull();
     }
-    return this;
   }
 
   @Override
-  public JsonWriter value(String value) throws IOException {
+  public void value(String value) throws IOException {
     if (value == null) {
-      return nullValue();
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.writeString(value);
     }
-    writeDeferredName();
-    generator.writeString(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(boolean value) throws IOException {
+  public void value(boolean value) throws IOException {
     writeDeferredName();
     generator.writeBoolean(value);
-    return this;
   }
 
 
   @Override
-  public JsonWriter value(int value) throws IOException {
+  public void value(int value) throws IOException {
     writeDeferredName();
     generator.writeNumber(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(long value) throws IOException {
+  public void value(long value) throws IOException {
     writeDeferredName();
     generator.writeNumber(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(double value) throws IOException {
+  public void value(double value) throws IOException {
     writeDeferredName();
     generator.writeNumber(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(Boolean value) throws IOException {
+  public void value(Boolean value) throws IOException {
     if (value == null) {
-      return nullValue();
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.writeBoolean(value);
     }
-    writeDeferredName();
-    generator.writeBoolean(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(Integer value) throws IOException {
+  public void value(Integer value) throws IOException {
     if (value == null) {
-      return nullValue();
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.writeNumber(value);
     }
-    writeDeferredName();
-    generator.writeNumber(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(Long value) throws IOException {
+  public void value(Long value) throws IOException {
     if (value == null) {
-      return nullValue();
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.writeNumber(value);
     }
-    writeDeferredName();
-    generator.writeNumber(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(Double value) throws IOException {
+  public void value(Double value) throws IOException {
     if (value == null) {
-      return nullValue();
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.writeNumber(value);
     }
-    writeDeferredName();
-    generator.writeNumber(value);
-    return this;
   }
 
   @Override
-  public JsonWriter value(BigDecimal value) throws IOException {
+  public void value(BigDecimal value) throws IOException {
     if (value == null) {
-      return nullValue();
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.writeNumber(value);
     }
-    writeDeferredName();
-    generator.writeNumber(value);
-    return this;
   }
 
   @Override
-  public JsonWriter jsonValue(Object value) throws IOException {
+  public void jsonValue(Object value) throws IOException {
     if (value instanceof Map<?, ?>) {
       writeMap((Map<?, ?>) value);
     } else if (value instanceof List<?>) {
@@ -248,7 +237,6 @@ class JacksonWriter implements JsonWriter {
     } else {
       throw new IllegalArgumentException("Unsupported type: " + value.getClass().getName());
     }
-    return this;
   }
 
   private void writeList(List<?> value) throws IOException {

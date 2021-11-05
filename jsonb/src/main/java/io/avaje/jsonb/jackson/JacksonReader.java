@@ -6,7 +6,7 @@ import io.avaje.jsonb.JsonReader;
 
 import java.io.IOException;
 
-class JacksonReader implements JsonReader {
+final class JacksonReader implements JsonReader {
 
   private final JsonParser parser;
 
@@ -44,7 +44,7 @@ class JacksonReader implements JsonReader {
 
   @Override
   public String nextField() throws IOException {
-    String nextName = parser.currentName();
+    String nextName = parser.getCurrentName();
     // move to next token
     parser.nextToken();
     return nextName;
@@ -52,7 +52,8 @@ class JacksonReader implements JsonReader {
 
   @Override
   public boolean peekIsNull() {
-    return parser.currentToken() == JsonToken.VALUE_NULL;
+    return parser.hasToken(JsonToken.VALUE_NULL);
+    //return parser.currentToken() == JsonToken.VALUE_NULL;
   }
 
   @Override

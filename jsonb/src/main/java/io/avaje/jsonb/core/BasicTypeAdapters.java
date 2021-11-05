@@ -48,7 +48,7 @@ final class BasicTypeAdapters {
       if (type == Integer.class) return INTEGER_JSON_ADAPTER.nullSafe();
       if (type == Long.class) return LONG_JSON_ADAPTER.nullSafe();
       if (type == Short.class) return SHORT_JSON_ADAPTER.nullSafe();
-      if (type == String.class) return STRING_JSON_ADAPTER.nullSafe();
+      if (type == String.class) return STRING2;//STRING_JSON_ADAPTER.nullSafe();
       if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
 
       Class<?> rawType = Util.rawType(type);
@@ -203,6 +203,31 @@ final class BasicTypeAdapters {
     @Override
     public String toString() {
       return "JsonAdapter(Short)";
+    }
+  };
+
+  static final JsonAdapter<String> STRING2 = new JsonAdapter<String>() {
+    @Override
+    public String fromJson(JsonReader reader) throws IOException {
+      if (reader.peekIsNull()) {
+        return reader.nextNull();
+      } else {
+        return reader.nextString();
+      }
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, String value) throws IOException {
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        writer.value(value);
+      }
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(String)";
     }
   };
 
