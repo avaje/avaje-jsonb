@@ -2,6 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.jackson.JacksonAdapter;
+import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.IOAdapter;
 
 import java.io.*;
@@ -25,6 +26,10 @@ class DJsonb implements Jsonb {
   DJsonb(List<JsonAdapter.Factory> factories) {
     this.builder = new CoreAdapterBuilder(this, factories);
     this.io = new JacksonAdapter(); //TODO: Service load the ioAdapter implementation
+  }
+
+  BufferedJsonWriter bufferedWriter() throws IOException {
+    return io.bufferedWriter();
   }
 
   @Override

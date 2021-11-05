@@ -17,5 +17,6 @@ public interface IOAdapter {
 
   JsonWriter writer(OutputStream outputStream) throws IOException;
 
+  BufferedJsonWriter bufferedWriter() throws IOException;
 
 }

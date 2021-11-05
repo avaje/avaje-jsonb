@@ -39,7 +39,7 @@ class Util {
   static String commonParent(String currentTop, String aPackage) {
 
     if (aPackage == null) return currentTop;
-    if (currentTop == null) return aPackage;
+    if (currentTop == null) return packageOf(aPackage);
     if (aPackage.startsWith(currentTop)) {
       return currentTop;
     }

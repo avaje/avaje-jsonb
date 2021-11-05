@@ -1,6 +1,7 @@
 package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
+import io.avaje.jsonb.spi.BufferedJsonWriter;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -37,11 +38,14 @@ final class DJsonType<T> implements JsonType<T> {
 
   @Override
   public String toJson(T value) throws IOException {
-    StringWriter writer = new StringWriter(200);
-    try (JsonWriter jsonWriter = jsonb.writer(writer)) {
-      toJson(jsonWriter, value);
-    }
-    return writer.toString();
+//    StringWriter writer = new StringWriter(200);
+//    try (JsonWriter jsonWriter = jsonb.writer(writer)) {
+//      toJson(jsonWriter, value);
+//    }
+//    return writer.toString();
+    BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter();
+    toJson(bufferedJsonWriter, value);
+    return bufferedJsonWriter.result();
   }
 
   @Override
