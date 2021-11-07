@@ -23,6 +23,11 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
+  public void close() throws IOException {
+    // do nothing
+  }
+
+  @Override
   public void beginArray() {
     collectionIterator = ((Collection<?>) currentValue).iterator();
   }

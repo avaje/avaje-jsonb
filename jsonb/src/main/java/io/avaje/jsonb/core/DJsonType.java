@@ -65,8 +65,9 @@ final class DJsonType<T> implements JsonType<T> {
 
   @Override
   public T fromObject(Object value) throws IOException {
-    JsonReader reader = jsonb.objectReader(value);
-    return adapter.fromJson(reader);
+    try (JsonReader reader = jsonb.objectReader(value)) {
+      return adapter.fromJson(reader);
+    }
   }
 
   @Override
@@ -76,7 +77,9 @@ final class DJsonType<T> implements JsonType<T> {
 
   @Override
   public T fromJson(String content) throws IOException {
-    return adapter.fromJson(jsonb.reader(content));
+    try (JsonReader reader = jsonb.reader(content)) {
+      return adapter.fromJson(reader);
+    }
   }
 
   @Override

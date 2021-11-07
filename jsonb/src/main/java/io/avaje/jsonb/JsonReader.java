@@ -15,9 +15,10 @@
  */
 package io.avaje.jsonb;
 
+import java.io.Closeable;
 import java.io.IOException;
 
-public interface JsonReader {
+public interface JsonReader extends Closeable {
 
   void beginArray() throws IOException;
 
@@ -53,6 +54,11 @@ public interface JsonReader {
    * Return the current Token.
    */
   Token peek() throws IOException;
+
+  /**
+   * Close the resources of the reader.
+   */
+  void close() throws IOException;
 
 
   /** A structure, name, or value type in a JSON-encoded string. */
