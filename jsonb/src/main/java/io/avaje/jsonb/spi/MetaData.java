@@ -3,12 +3,15 @@ package io.avaje.jsonb.spi;
 import java.lang.annotation.*;
 
 /**
- * Hold bean dependency meta data intended for internal use by code generation (Java annotation processing).
+ * For internal use, holds metadata on generated adapters for use by code generation (Java annotation processing).
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
 public @interface MetaData {
 
+  /**
+   * The generated JsonAdapters.
+   */
   Class<?>[] value();
 
 }
