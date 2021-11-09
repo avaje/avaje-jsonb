@@ -23,6 +23,7 @@ class TypeExtendsInjection {
   private final ProcessingContext context;
   private final NamingConvention namingConvention;
   private MethodReader constructor;
+  private boolean defaultPublicConstructor;
 
   TypeExtendsInjection(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
@@ -64,6 +65,9 @@ class TypeExtendsInjection {
     ExecutableElement ex = (ExecutableElement) element;
     MethodReader methodReader = new MethodReader(context, ex, baseType).read();
     if (methodReader.isPublic()) {
+      if (methodReader.getParams().isEmpty()) {
+        defaultPublicConstructor = true;
+      }
       publicConstructors.add(methodReader);
     }
   }
@@ -179,6 +183,9 @@ class TypeExtendsInjection {
   }
 
   private MethodReader determineConstructor() {
+    if (defaultPublicConstructor) {
+      return null;
+    }
     if (publicConstructors.size() == 1) {
       return publicConstructors.get(0);
     }

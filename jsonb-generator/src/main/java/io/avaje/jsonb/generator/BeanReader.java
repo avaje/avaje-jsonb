@@ -118,15 +118,21 @@ class BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) throws IOException {", shortName, varName).eol();
-    writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
-    for (FieldReader allField : allFields) {
-      allField.writeFromJsonVariables(writer);
+    boolean defaultConstructor = (constructor == null);
+    if (defaultConstructor) {
+      // default public constructor
+      writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
+    } else {
+      writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
+      for (FieldReader allField : allFields) {
+        allField.writeFromJsonVariables(writer);
+      }
     }
-    writeFromJsonSwitch(writer);
+    writeFromJsonSwitch(writer, defaultConstructor, varName);
     writer.eol();
-    writer.append("    // build and return %s", shortName).eol();
-    writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
-    if (constructor != null) {
+    if (!defaultConstructor) {
+      writer.append("    // build and return %s", shortName).eol();
+      writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
       List<MethodReader.MethodParam> params = constructor.getParams();
       for (int i = 0, size = params.size(); i < size; i++) {
         if (i > 0) {
@@ -134,16 +140,16 @@ class BeanReader {
         }
         writer.append("_val$").append(params.get(i).name()); // assuming name matches field here?
       }
-    }
-    writer.append(");").eol();
-    for (FieldReader allField : allFields) {
-      allField.writeFromJsonSetter(writer, varName);
+      writer.append(");").eol();
+      for (FieldReader allField : allFields) {
+        allField.writeFromJsonSetter(writer, varName);
+      }
     }
     writer.append("    return _$%s;", varName).eol();
     writer.append("  }").eol();
   }
 
-  private void writeFromJsonSwitch(Append writer) {
+  private void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
     writer.eol();
     writer.append("    // read json").eol();
     writer.append("    reader.beginObject();").eol();
@@ -151,7 +157,7 @@ class BeanReader {
     writer.append("      String fieldName = reader.nextField();").eol();
     writer.append("      switch (fieldName) {").eol();
     for (FieldReader allField : allFields) {
-      allField.writeFromJsonSwitch(writer);
+      allField.writeFromJsonSwitch(writer, defaultConstructor, varName);
     }
 
     writer.append("        default: {").eol();

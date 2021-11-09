@@ -5,8 +5,8 @@ import io.avaje.jsonb.Json;
 @Json
 public class Address {
 
-  private final Long id;
-  private final String street;
+  private Long id;
+  private String street;
   private String suburb;
   private String city;
 
@@ -14,6 +14,11 @@ public class Address {
     this.id = id;
     this.street = street;
   }
+
+  public Address() {
+    // intentionally blank
+  }
+
 
   public Long getId() {
     return id;
@@ -37,5 +42,13 @@ public class Address {
 
   public void setCity(String city) {
     this.city = city;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setStreet(String street) {
+    this.street = street;
   }
 }

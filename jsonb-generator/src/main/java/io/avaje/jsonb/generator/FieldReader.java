@@ -123,11 +123,19 @@ class FieldReader {
     return sb.toString();
   }
 
-  void writeFromJsonSwitch(Append writer) {
+  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
     writer.append("        case \"%s\": {", propertyName).eol();
-    writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
-    if (!constructorParam) {
-      writer.append(" _set$%s = true;", fieldName);
+    if (defaultConstructor) {
+      if (setter != null) {
+        writer.append("          _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
+      } else if (publicField) {
+        writer.append("          _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
+      }
+    } else {
+      writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
+      if (!constructorParam) {
+        writer.append(" _set$%s = true;", fieldName);
+      }
     }
     writer.append(" break;").eol();
     writer.append("        }").eol();
