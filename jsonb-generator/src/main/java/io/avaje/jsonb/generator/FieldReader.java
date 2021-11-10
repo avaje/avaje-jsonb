@@ -2,6 +2,7 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import java.util.Map;
 import java.util.Set;
 
 class FieldReader {
@@ -18,6 +19,7 @@ class FieldReader {
   private final String propertyName;
   private final boolean serialize;
   private final boolean deserialize;
+  private final boolean unmapped;
 
   private MethodReader setter;
   private MethodReader getter;
@@ -29,25 +31,36 @@ class FieldReader {
     this.fieldName = element.getSimpleName().toString();
     this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
     this.rawType = element.asType().toString();
-    this.genericType = GenericType.parse(rawType);
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
 
     PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
+    this.unmapped = ignoreReader.unmapped();
     this.serialize = ignoreReader.serialize();
     this.deserialize = ignoreReader.deserialize();
 
-    String shortType = genericType.shortType();
-    primitive = PrimitiveUtil.isPrimitive(shortType);
-    defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
-    String typeWrapped = PrimitiveUtil.wrap(shortType);
-    adapterShortType = "JsonAdapter<" + typeWrapped + ">";
-
-    String typeShortName = genericType.shortName();
-    adapterFieldName = (primitive ? "p" : "") + Util.initLower(typeShortName) + "JsonAdapter";
+    if (unmapped) {
+      genericType = GenericType.parse("java.lang.Object");
+      adapterShortType = "JsonAdapter<Object>";
+      adapterFieldName = "objectJsonAdapter";
+      defaultValue = "null";
+      primitive = false;
+    } else {
+      genericType = GenericType.parse(rawType);
+      String shortType = genericType.shortType();
+      primitive = PrimitiveUtil.isPrimitive(shortType);
+      defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
+      String typeWrapped = PrimitiveUtil.wrap(shortType);
+      adapterShortType = "JsonAdapter<" + typeWrapped + ">";
+      adapterFieldName = (primitive ? "p" : "") + Util.initLower(genericType.shortName()) + "JsonAdapter";
+    }
   }
 
   String getFieldName() {
     return fieldName;
+  }
+
+  boolean isUnmapped() {
+    return unmapped;
   }
 
   boolean include() {
@@ -63,6 +76,9 @@ class FieldReader {
   }
 
   void addImports(Set<String> importTypes) {
+    if (unmapped) {
+      importTypes.add("java.util.*");
+    }
     genericType.addImports(importTypes);
   }
 
@@ -78,7 +94,7 @@ class FieldReader {
     constructorParam = true;
   }
 
-  boolean isPublic() {
+  boolean isPublicField() {
     return publicField;
   }
 
@@ -117,18 +133,38 @@ class FieldReader {
   }
 
   void writeToJson(Append writer, String varName) {
-    writer.append("    writer.name(\"%s\");", propertyName).eol();
-    writer.append("    %s.toJson(writer, ", adapterFieldName);
-    if (publicField) {
-      writer.append("%s.%s);", varName, fieldName).eol();
-    } else if (getter != null) {
-      writer.append("%s.%s());", varName, getter.getName()).eol();
+    if (unmapped) {
+      writer.append("    Map<String, Object> unmapped = ");
+      writeGetValue(writer, varName, ";");
+      writer.eol();
+      writer.append("    if (unmapped != null) {").eol();
+      writer.append("      for (Map.Entry<String, Object> entry : unmapped.entrySet()) {").eol();
+      writer.append("        writer.name(entry.getKey());").eol();
+      writer.append("        objectJsonAdapter.toJson(writer, entry.getValue());").eol();
+      writer.append("      }").eol();
+      writer.append("    }").eol();
     } else {
-      writer.append("FIXME: field is not public and has not getter ? ", varName).eol();
+      writer.append("    writer.name(\"%s\");", propertyName).eol();
+      writer.append("    %s.toJson(writer, ", adapterFieldName);
+      writeGetValue(writer, varName, ");");
+      writer.eol();
+    }
+  }
+
+  private void writeGetValue(Append writer, String varName, String suffix) {
+    if (publicField) {
+      writer.append("%s.%s%s", varName, fieldName, suffix);
+    } else if (getter != null) {
+      writer.append("%s.%s()%s", varName, getter.getName(), suffix);
+    } else {
+      writer.append("FIXME: field is not public and has not getter ? ", varName);
     }
   }
 
   void writeFromJsonVariables(Append writer) {
+    if (unmapped) {
+      return;
+    }
     writer.append("    %s _val$%s = %s;", pad(genericType.shortType()), fieldName, defaultValue);
     if (!constructorParam) {
       writer.append(" boolean _set$%s = false;", fieldName);
@@ -149,6 +185,9 @@ class FieldReader {
   }
 
   void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
+    if (unmapped) {
+      return;
+    }
     writer.append("        case \"%s\": {", propertyName).eol();
     if (!deserialize) {
       writer.append("          reader.skipValue();");
@@ -169,10 +208,22 @@ class FieldReader {
   }
 
   void writeFromJsonSetter(Append writer, String varName) {
+    if (unmapped) {
+      writeFromJsonUnmapped(writer, varName);
+      return;
+    }
     if (setter != null) {
       writer.append("    if (_set$%s) _$%s.%s(_val$%s);", fieldName, varName, setter.getName(), fieldName).eol();
     } else if (publicField) {
       writer.append("    if (_set$%s) _$%s.%s = _val$%s;", fieldName, varName, fieldName, fieldName).eol();
+    }
+  }
+
+  void writeFromJsonUnmapped(Append writer, String varName) {
+    if (setter != null) {
+      writer.append("    _$%s.%s(unmapped);", varName, setter.getName()).eol();
+    } else if (publicField) {
+      writer.append("    _$%s.%s = unmapped;", varName, fieldName).eol();
     }
   }
 }

@@ -128,7 +128,7 @@ class TypeExtendsInjection {
       setter = maybeSetterMethods.get(setterName(name));
       if (setter != null) {
         field.setterMethod(setter);
-      } else if (!field.isPublic()) {
+      } else if (!field.isPublicField()) {
         context.logError("Non public field " + name + " with no matching setter or constructor?");
       }
     }
@@ -157,7 +157,7 @@ class TypeExtendsInjection {
       field.getterMethod(getter);
       return;
     }
-    if (!field.isPublic()) {
+    if (!field.isPublicField()) {
       context.logError("Non public field " + name + " with no matching getter?");
     }
   }

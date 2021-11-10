@@ -73,6 +73,25 @@ public @interface Json {
   }
 
   /**
+   * Annotate a {@code Map<String,Object>} field to hold unmapped json properties.
+   * <p>
+   * When reading unknown properties from json content these are read and put into
+   * this map. When writing json this map is included back into the content.
+   *
+   * <pre>{@code
+   *
+   *   @Json.Unmapped
+   *   Map<String,Object> unmapped;
+   *
+   * }</pre>
+   */
+  @Retention(CLASS)
+  @Target({ElementType.FIELD})
+  @interface Unmapped {
+
+  }
+
+  /**
    * The naming convention that we can use for a given type.
    */
   enum Naming {

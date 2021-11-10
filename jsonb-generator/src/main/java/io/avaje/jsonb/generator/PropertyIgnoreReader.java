@@ -9,11 +9,18 @@ import java.util.Map;
 class PropertyIgnoreReader {
 
   private static final String JSON_IGNORE = "io.avaje.jsonb.Json.Ignore";
+  private static final String JSON_UNMAPPED = "io.avaje.jsonb.Json.Unmapped";
+
+  private boolean unmapped;
   private boolean ignoreSerialize;
   private boolean ignoreDeserialize;
 
   PropertyIgnoreReader(Element element) {
     read(element);
+  }
+
+  boolean unmapped() {
+    return unmapped;
   }
 
   boolean serialize() {
@@ -29,7 +36,9 @@ class PropertyIgnoreReader {
    */
   void read(Element element) {
     for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
-      if (JSON_IGNORE.equals(mirror.getAnnotationType().toString())) {
+      if (JSON_UNMAPPED.equals(mirror.getAnnotationType().toString())) {
+        unmapped = true;
+      } else if (JSON_IGNORE.equals(mirror.getAnnotationType().toString())) {
         ignoreDeserialize = true;
         ignoreSerialize = true;
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {

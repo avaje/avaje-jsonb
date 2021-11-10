@@ -109,7 +109,6 @@ class GenericType {
     final int paramCount = params.size();
     if (paramCount > 0) {
       for (GenericType param : params) {
-        sb.append(",");
         param.writeType(",", sb);
       }
     }

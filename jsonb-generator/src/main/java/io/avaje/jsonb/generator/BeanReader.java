@@ -17,6 +17,7 @@ class BeanReader {
   private final List<FieldReader> allFields;
   private final Set<String> importTypes = new TreeSet<>();
   private final NamingConvention namingConvention;
+  private FieldReader unmappedField;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
     this.beanType = beanType;
@@ -40,8 +41,11 @@ class BeanReader {
   }
 
   void read() {
-    for (FieldReader fields : allFields) {
-      fields.addImports(importTypes);
+    for (FieldReader field : allFields) {
+      field.addImports(importTypes);
+      if (field.isUnmapped()) {
+        unmappedField = field;
+      }
     }
   }
 
@@ -136,6 +140,9 @@ class BeanReader {
         }
       }
     }
+    if (unmappedField != null) {
+      writer.append("    Map<String, Object> unmapped = new LinkedHashMap<>();").eol();
+    }
     writeFromJsonSwitch(writer, defaultConstructor, varName);
     writer.eol();
     if (!defaultConstructor) {
@@ -146,7 +153,7 @@ class BeanReader {
         if (i > 0) {
           writer.append(", ");
         }
-        writer.append("_val$").append(params.get(i).name()); // assuming name matches field here?
+        writer.append(constructorParamName(params.get(i).name())); // assuming name matches field here?
       }
       writer.append(");").eol();
       for (FieldReader allField : allFields) {
@@ -154,9 +161,23 @@ class BeanReader {
           allField.writeFromJsonSetter(writer, varName);
         }
       }
+    } else {
+      if (unmappedField != null) {
+        writer.append("   // unmappedField... ", varName).eol();
+        unmappedField.writeFromJsonUnmapped(writer, varName);
+      }
     }
     writer.append("    return _$%s;", varName).eol();
     writer.append("  }").eol();
+  }
+
+  private String constructorParamName(String name) {
+    if (unmappedField != null) {
+      if (unmappedField.getFieldName().equals(name)) {
+        return "unmapped";
+      }
+    }
+    return "_val$" + name;
   }
 
   private void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
@@ -170,8 +191,13 @@ class BeanReader {
       allField.writeFromJsonSwitch(writer, defaultConstructor, varName);
     }
     writer.append("        default: {").eol();
-    writer.append("          reader.unmappedField(fieldName);").eol();
-    writer.append("          reader.skipValue();").eol();
+    if (unmappedField != null) {
+      writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
+      writer.append("          unmapped.put(fieldName, value);").eol();
+    } else {
+      writer.append("          reader.unmappedField(fieldName);").eol();
+      writer.append("          reader.skipValue();").eol();
+    }
     writer.append("        }").eol();
     writer.append("      }").eol();
     writer.append("    }").eol();
