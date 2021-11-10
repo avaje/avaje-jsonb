@@ -41,10 +41,6 @@ class GenericType {
     this.raw = null;
   }
 
-  String raw() {
-    return raw;
-  }
-
   /**
    * Return true if this is a generic type.
    */
@@ -63,39 +59,9 @@ class GenericType {
     return new GenericTypeParser(raw).parse();
   }
 
-  /**
-   * Parse and return the main type if it contains a type parameter like {@code <T>}.
-   */
-  static String removeParameter(String raw) {
-    final GenericType type = parse(raw);
-    return type.hasParameter() ? type.getMainType() : raw;
-  }
-
-  /**
-   * Parse and return as GenericType or null if it is not generic.
-   */
-  static GenericType maybe(String paramType) {
-    return isGeneric(paramType) ? parse(paramType) : null;
-  }
-
   @Override
   public String toString() {
     return raw != null ? raw : mainType + '<' + params + '>';
-  }
-
-  /**
-   * Return true if the type contains a type parameter like {@code <T>}.
-   */
-  boolean hasParameter() {
-    if (mainType != null && mainType.indexOf('.') == -1) {
-      return true;
-    }
-    for (GenericType param : params) {
-      if (param.hasParameter()) {
-        return true;
-      }
-    }
-    return false;
   }
 
   void addImports(Set<String> importTypes) {
@@ -142,9 +108,9 @@ class GenericType {
     sb.append(prefix).append(main).append(".class");
     final int paramCount = params.size();
     if (paramCount > 0) {
-      for (int i = 0; i < paramCount; i++) {
+      for (GenericType param : params) {
         sb.append(",");
-        params.get(i).writeType(",", sb);
+        param.writeType(",", sb);
       }
     }
   }
@@ -172,20 +138,6 @@ class GenericType {
 
   String topType() {
     return (mainType != null) ? mainType : raw;
-  }
-
-  /**
-   * Return the main type.
-   */
-  String getMainType() {
-    return mainType;
-  }
-
-  /**
-   * Return the parameter types.
-   */
-  List<GenericType> getParams() {
-    return params;
   }
 
   void setMainType(String mainType) {

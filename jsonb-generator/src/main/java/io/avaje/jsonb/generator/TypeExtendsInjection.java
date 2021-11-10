@@ -163,7 +163,7 @@ class TypeExtendsInjection {
   }
 
   private String setterName(String name) {
-    return "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    return "set" + Util.initCap(name);
   }
 
   private String getterName(String name) {
