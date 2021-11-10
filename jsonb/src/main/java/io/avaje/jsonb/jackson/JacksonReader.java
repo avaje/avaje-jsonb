@@ -9,14 +9,28 @@ import java.io.IOException;
 final class JacksonReader implements JsonReader {
 
   private final JsonParser parser;
+  private final boolean failOnUnknown;
 
-  JacksonReader(JsonParser parser) {
+  JacksonReader(JsonParser parser, boolean failOnUnknown) {
     this.parser = parser;
+    this.failOnUnknown = failOnUnknown;
   }
 
   @Override
   public void close() throws IOException {
     parser.close();
+  }
+
+  @Override
+  public void unmappedField(String fieldName) {
+    if (failOnUnknown) {
+      throw new IllegalStateException("Unknown property " + fieldName + " at " + parser.getCurrentLocation());
+    }
+  }
+
+  @Override
+  public void skipValue() throws IOException {
+    parser.skipChildren();
   }
 
   @Override

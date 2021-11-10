@@ -12,24 +12,26 @@ import java.io.*;
 public class JacksonAdapter implements IOAdapter {
 
   private final JsonFactory jsonFactory;
+  private final boolean failOnUnknown;
 
-  public JacksonAdapter() {
-    jsonFactory = new JsonFactory();
+  public JacksonAdapter(boolean failOnUnknown) {
+    this.failOnUnknown = failOnUnknown;
+    this.jsonFactory = new JsonFactory();
   }
 
   @Override
   public JsonReader reader(String json) throws IOException {
-    return new JacksonReader(jsonFactory.createParser(json));
+    return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
   }
 
   @Override
   public JsonReader reader(Reader reader) throws IOException {
-    return new JacksonReader(jsonFactory.createParser(reader));
+    return new JacksonReader(jsonFactory.createParser(reader), failOnUnknown);
   }
 
   @Override
   public JsonReader reader(InputStream inputStream) throws IOException {
-    return new JacksonReader(jsonFactory.createParser(inputStream));
+    return new JacksonReader(jsonFactory.createParser(inputStream), failOnUnknown);
   }
 
   @Override

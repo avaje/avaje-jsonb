@@ -47,6 +47,8 @@ public interface Jsonb {
 
     <T> Jsonb.Builder add(Type type, JsonAdapter<T> jsonAdapter);
 
+    Builder failOnUnknown(boolean failOnUnknown);
+
     Jsonb.Builder add(Type type, AdapterBuilder builder);
 
     <T> Jsonb.Builder add(Type type, Class<? extends Annotation> annotation, JsonAdapter<T> jsonAdapter);

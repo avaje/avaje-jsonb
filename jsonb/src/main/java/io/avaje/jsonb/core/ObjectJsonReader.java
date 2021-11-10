@@ -23,7 +23,17 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public void close() throws IOException {
+  public void unmappedField(String fieldName) {
+
+  }
+
+  @Override
+  public void close() {
+    // do nothing
+  }
+
+  @Override
+  public void skipValue() {
     // do nothing
   }
 

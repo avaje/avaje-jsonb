@@ -23,9 +23,9 @@ class DJsonb implements Jsonb {
   private final IOAdapter io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
 
-  DJsonb(List<JsonAdapter.Factory> factories) {
+  DJsonb(List<JsonAdapter.Factory> factories, boolean failOnUnknown) {
     this.builder = new CoreAdapterBuilder(this, factories);
-    this.io = new JacksonAdapter(); //TODO: Service load the ioAdapter implementation
+    this.io = new JacksonAdapter(failOnUnknown); //TODO: Service load the ioAdapter implementation
   }
 
   BufferedJsonWriter bufferedWriter() throws IOException {
@@ -117,7 +117,14 @@ class DJsonb implements Jsonb {
    */
   static final class DBuilder implements Jsonb.Builder {
 
-    final List<JsonAdapter.Factory> factories = new ArrayList<>();
+    private final List<JsonAdapter.Factory> factories = new ArrayList<>();
+    private boolean failOnUnknown;
+
+    @Override
+    public Builder failOnUnknown(boolean failOnUnknown) {
+      this.failOnUnknown = failOnUnknown;
+      return this;
+    }
 
     @Override
     public Builder add(Type type, AdapterBuilder builder) {
@@ -150,7 +157,7 @@ class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(this.factories);
+      return new DJsonb(factories, failOnUnknown);
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {

@@ -15,8 +15,8 @@ final class JavaTimeAdapters {
 
   static final JsonAdapter.Factory FACTORY = (type, annotations, jsonb) -> {
     if (!annotations.isEmpty()) return null;
-    if (type == Instant.class) return JavaTimeAdapters.INSTANT_ADAPTER;
-    if (type == UUID.class) return JavaTimeAdapters.UUID_ADAPTER;
+    if (type == Instant.class) return JavaTimeAdapters.INSTANT_ADAPTER.nullSafe();
+    if (type == UUID.class) return JavaTimeAdapters.UUID_ADAPTER.nullSafe();
     return null;
   };
 

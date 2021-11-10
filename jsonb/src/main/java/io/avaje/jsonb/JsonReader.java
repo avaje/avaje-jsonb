@@ -60,8 +60,19 @@ public interface JsonReader extends Closeable {
    */
   void close() throws IOException;
 
+  /**
+   * Skip the next value.
+   */
+  void skipValue() throws IOException;
 
-  /** A structure, name, or value type in a JSON-encoded string. */
+  /**
+   * Reading json with an unmapped field, throw an Exception if failOnUnmapped is true.
+   */
+  void unmappedField(String fieldName);
+
+  /**
+   * A structure, name, or value type in a JSON-encoded string.
+   */
   enum Token {
 
     /**
@@ -94,7 +105,9 @@ public interface JsonReader extends Closeable {
 //     */
 //    NAME,
 
-    /** A JSON string. */
+    /**
+     * A JSON string.
+     */
     STRING,
 
     /**
@@ -102,10 +115,14 @@ public interface JsonReader extends Closeable {
      */
     NUMBER,
 
-    /** A JSON {@code true} or {@code false}. */
+    /**
+     * A JSON {@code true} or {@code false}.
+     */
     BOOLEAN,
 
-    /** A JSON {@code null}. */
+    /**
+     * A JSON {@code null}.
+     */
     NULL,
 
 //    /**

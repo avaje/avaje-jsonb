@@ -48,6 +48,31 @@ public @interface Json {
   }
 
   /**
+   * Exclude the property from serialization, deserialization or both.
+   * <p>
+   * We can explicitly use {@code deserialize=true} to include the property in
+   * deserialization but not serialization. For example, we might do this on
+   * a property that represents a secret like a password.
+   * <p>
+   * We can explicitly use {@code serialize=true} to include the property in
+   * serialization but not deserialization.
+   */
+  @Retention(CLASS)
+  @Target({ElementType.FIELD})
+  @interface Ignore {
+
+    /**
+     * Set this explicitly to true to include in serialization.
+     */
+    boolean serialize() default false;
+
+    /**
+     * Set this explicitly to true to include in deserialization.
+     */
+    boolean deserialize() default false;
+  }
+
+  /**
    * The naming convention that we can use for a given type.
    */
   enum Naming {

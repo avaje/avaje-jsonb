@@ -17,6 +17,13 @@ public class Customer {
 
   private Long id;
   private String name;
+  @Json.Ignore
+  private String mySecret1;
+  @Json.Ignore(serialize = true)
+  private String mySecret2;
+  @Json.Ignore(deserialize = true)
+  private String mySecret3;
+
   private Status status;
   private Instant whenCreated;
   private List<Contact> contacts = new ArrayList<>();
@@ -63,6 +70,33 @@ public class Customer {
 
   public Customer contacts(List<Contact> contacts) {
     this.contacts = contacts;
+    return this;
+  }
+
+  public String getMySecret1() {
+    return mySecret1;
+  }
+
+  public Customer mySecret1(String mySecret1) {
+    this.mySecret1 = mySecret1;
+    return this;
+  }
+
+  public String getMySecret2() {
+    return mySecret2;
+  }
+
+  public Customer mySecret2(String mySecret2) {
+    this.mySecret2 = mySecret2;
+    return this;
+  }
+
+  public String getMySecret3() {
+    return mySecret3;
+  }
+
+  public Customer mySecret3(String mySecret3) {
+    this.mySecret3 = mySecret3;
     return this;
   }
 }

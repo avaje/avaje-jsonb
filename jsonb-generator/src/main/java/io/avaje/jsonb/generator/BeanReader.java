@@ -83,8 +83,10 @@ class BeanReader {
     writer.eol();
     Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      if (uniqueTypes.add(allField.adapterShortType())) {
-        allField.writeField(writer);
+      if (allField.include()) {
+        if (uniqueTypes.add(allField.adapterShortType())) {
+          allField.writeField(writer);
+        }
       }
     }
     writer.eol();
@@ -93,8 +95,10 @@ class BeanReader {
   void writeConstructor(Append writer) {
     Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      if (uniqueTypes.add(allField.adapterShortType())) {
-        allField.writeConstructor(writer);
+      if (allField.include()) {
+        if (uniqueTypes.add(allField.adapterShortType())) {
+          allField.writeConstructor(writer);
+        }
       }
     }
   }
@@ -106,7 +110,9 @@ class BeanReader {
     writer.append("  public void toJson(JsonWriter writer, %s %s) throws IOException {", shortName, varName).eol();
     writer.append("    writer.beginObject();").eol();
     for (FieldReader allField : allFields) {
-      allField.writeToJson(writer, varName);
+      if (allField.includeToJson()) {
+        allField.writeToJson(writer, varName);
+      }
     }
     writer.append("    writer.endObject();").eol();
     writer.append("  }").eol();
@@ -125,7 +131,9 @@ class BeanReader {
     } else {
       writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
       for (FieldReader allField : allFields) {
-        allField.writeFromJsonVariables(writer);
+        if (allField.includeFromJson()) {
+          allField.writeFromJsonVariables(writer);
+        }
       }
     }
     writeFromJsonSwitch(writer, defaultConstructor, varName);
@@ -142,7 +150,9 @@ class BeanReader {
       }
       writer.append(");").eol();
       for (FieldReader allField : allFields) {
-        allField.writeFromJsonSetter(writer, varName);
+        if (allField.includeFromJson()) {
+          allField.writeFromJsonSetter(writer, varName);
+        }
       }
     }
     writer.append("    return _$%s;", varName).eol();
@@ -159,10 +169,9 @@ class BeanReader {
     for (FieldReader allField : allFields) {
       allField.writeFromJsonSwitch(writer, defaultConstructor, varName);
     }
-
     writer.append("        default: {").eol();
-    writer.append("          // TODO: Support skip unknown field/value etc").eol();
-    writer.append("          throw new IllegalStateException(\"fieldName \" + fieldName + \" not found \");").eol();
+    writer.append("          reader.unmappedField(fieldName);").eol();
+    writer.append("          reader.skipValue();").eol();
     writer.append("        }").eol();
     writer.append("      }").eol();
     writer.append("    }").eol();

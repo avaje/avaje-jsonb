@@ -16,6 +16,8 @@ class FieldReader {
   private final boolean primitive;
   private final String defaultValue;
   private final String propertyName;
+  private final boolean serialize;
+  private final boolean deserialize;
 
   private MethodReader setter;
   private MethodReader getter;
@@ -30,6 +32,10 @@ class FieldReader {
     this.genericType = GenericType.parse(rawType);
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
 
+    PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
+    this.serialize = ignoreReader.serialize();
+    this.deserialize = ignoreReader.deserialize();
+
     String shortType = genericType.shortType();
     primitive = PrimitiveUtil.isPrimitive(shortType);
     defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
@@ -42,6 +48,18 @@ class FieldReader {
 
   String getFieldName() {
     return fieldName;
+  }
+
+  boolean include() {
+    return serialize || deserialize;
+  }
+
+  boolean includeToJson() {
+    return serialize;
+  }
+
+  boolean includeFromJson() {
+    return deserialize;
   }
 
   void addImports(Set<String> importTypes) {
@@ -66,15 +84,23 @@ class FieldReader {
 
   void writeDebug(Append writer) {
     writer.append("  // %s [%s] name:%s", fieldName, rawType, propertyName);
-    if (constructorParam) {
-      writer.append(" constructor").eol();
-    } else if (setter != null) {
-      writer.append(" setter:%s ", setter).eol();
-    } else if (publicField) {
-      writer.append(" publicField").eol();
-    } else {
-      writer.append(" ERROR?? no constructor, setter and not a public field?").eol();
+    if (!serialize) {
+      writer.append(" ignoreSerialize");
     }
+    if (!deserialize) {
+      writer.append(" ignoreDeserialize");
+    } else {
+      if (constructorParam) {
+        writer.append(" constructor");
+      } else if (setter != null) {
+        writer.append(" setter:%s ", setter);
+      } else if (publicField) {
+        writer.append(" publicField");
+      } else {
+        writer.append(" ERROR?? no constructor, setter and not a public field?");
+      }
+    }
+    writer.eol();
   }
 
   String adapterShortType() {
@@ -82,7 +108,6 @@ class FieldReader {
   }
 
   void writeField(Append writer) {
-    genericType.shortType();
     writer.append("  private final %s %s;", adapterShortType, adapterFieldName).eol();
   }
 
@@ -125,7 +150,9 @@ class FieldReader {
 
   void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
     writer.append("        case \"%s\": {", propertyName).eol();
-    if (defaultConstructor) {
+    if (!deserialize) {
+      writer.append("          reader.skipValue();");
+    } else if (defaultConstructor) {
       if (setter != null) {
         writer.append("          _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
       } else if (publicField) {
@@ -148,5 +175,4 @@ class FieldReader {
       writer.append("    if (_set$%s) _$%s.%s = _val$%s;", fieldName, varName, fieldName, fieldName).eol();
     }
   }
-
 }
