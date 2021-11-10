@@ -119,7 +119,7 @@ public class Processor extends AbstractProcessor {
     BeanReader beanReader = new BeanReader(typeElement, context);
     beanReader.read();
     try {
-      SimpleBeanWriter beanWriter = new SimpleBeanWriter(beanReader, context);
+      SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader, context);
       metaData.add(beanWriter.fullName());
       beanWriter.write();
     } catch (IOException e) {

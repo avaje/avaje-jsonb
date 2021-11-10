@@ -5,7 +5,7 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 
-class SimpleBeanWriter {
+class SimpleAdapterWriter {
 
   private final BeanReader beanReader;
   private final ProcessingContext context;
@@ -15,7 +15,7 @@ class SimpleBeanWriter {
 
   private Append writer;
 
-  SimpleBeanWriter(BeanReader beanReader, ProcessingContext context) {
+  SimpleAdapterWriter(BeanReader beanReader, ProcessingContext context) {
     this.beanReader = beanReader;
     this.context = context;
     TypeElement origin = beanReader.getBeanType();
