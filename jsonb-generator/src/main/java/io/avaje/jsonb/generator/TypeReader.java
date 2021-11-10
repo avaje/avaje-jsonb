@@ -10,7 +10,9 @@ import java.util.Map;
  * Read points for field injection and method injection
  * on baseType plus inherited injection points.
  */
-class TypeExtendsInjection {
+class TypeReader {
+
+  private static final String JAVA_LANG_OBJECT = "java.lang.Object";
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
@@ -25,7 +27,7 @@ class TypeExtendsInjection {
   private MethodReader constructor;
   private boolean defaultPublicConstructor;
 
-  TypeExtendsInjection(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
+  TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.context = context;
     this.namingConvention = namingConvention;
@@ -203,4 +205,29 @@ class TypeExtendsInjection {
     return null;
   }
 
+  void process() {
+    String base = baseType.getQualifiedName().toString();
+    if (!GenericType.isGeneric(base)) {
+      read(baseType);
+    }
+    TypeElement superElement = superOf(baseType);
+    if (superElement != null) {
+      addSuperType(superElement);
+    }
+    processCompleted();
+  }
+
+  private void addSuperType(TypeElement element) {
+    String type = element.getQualifiedName().toString();
+    if (!type.equals(JAVA_LANG_OBJECT)) {
+      if (!GenericType.isGeneric(type)) {
+        read(element);
+        addSuperType(superOf(element));
+      }
+    }
+  }
+
+  private TypeElement superOf(TypeElement element) {
+    return (TypeElement) context.asElement(element.getSuperclass());
+  }
 }

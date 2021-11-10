@@ -25,7 +25,7 @@ class BeanReader {
     this.shortName = shortName(beanType);
     this.namingConvention = new NamingConventionReader(beanType).get();
 
-    TypeExtendsReader typeReader = new TypeExtendsReader(beanType, context, namingConvention);
+    TypeReader typeReader = new TypeReader(beanType, context, namingConvention);
     typeReader.process();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
