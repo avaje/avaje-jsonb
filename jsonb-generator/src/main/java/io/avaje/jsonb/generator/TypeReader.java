@@ -1,10 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Read points for field injection and method injection
@@ -16,6 +13,7 @@ class TypeReader {
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
+  private final Map<String, FieldReader> allFieldMap = new HashMap<>();
   private final Map<String, MethodReader> maybeSetterMethods = new LinkedHashMap<>();
   private final Map<String, MethodReader> maybeGetterMethods = new LinkedHashMap<>();
 
@@ -35,12 +33,12 @@ class TypeReader {
     this.subTypes = new TypeSubTypeReader(baseType, context);
   }
 
-  void read(TypeElement type, TypeElement matchType) {
+  void read(TypeElement type) {
     final List<FieldReader> localFields = new ArrayList<>();
     for (Element element : type.getEnclosedElements()) {
       switch (element.getKind()) {
         case CONSTRUCTOR:
-          readConstructor(element, type, matchType);
+          readConstructor(element, type);
           break;
         case FIELD:
           readField(element, localFields);
@@ -50,13 +48,20 @@ class TypeReader {
           break;
       }
     }
-    if (currentSubType != null) {
-      allFields.addAll(localFields);
+    if (currentSubType == null && type != baseType) {
+      for (FieldReader localField : localFields) {
+        allFields.add(0, localField);
+        allFieldMap.put(localField.getFieldName(), localField);
+      }
     } else {
-      if (type != baseType) {
-        allFields.addAll(0, localFields);
-      } else {
-        allFields.addAll(localFields);
+      for (FieldReader localField : localFields) {
+        FieldReader commonField = allFieldMap.get(localField.getFieldName());
+        if (commonField == null) {
+          allFields.add(localField);
+          allFieldMap.put(localField.getFieldName(), localField);
+        } else {
+          commonField.addSubType(currentSubType);
+        }
       }
     }
   }
@@ -67,9 +72,14 @@ class TypeReader {
     }
   }
 
-  private void readConstructor(Element element, TypeElement type, TypeElement matchType) {
-    if (type != matchType) {
-      // only interested in the top level constructors
+  private void readConstructor(Element element, TypeElement type) {
+    if (currentSubType != null) {
+      if (currentSubType.element() != type) {
+        // context.logError("subType " + currentSubType.element() + " ignore constructor " + element);
+        return;
+      }
+    } else if (type != baseType) {
+      // context.logError("baseType " + baseType + " ignore constructor: " + element);
       return;
     }
     ExecutableElement ex = (ExecutableElement) element;
@@ -203,7 +213,7 @@ class TypeReader {
   void process() {
     String base = baseType.getQualifiedName().toString();
     if (!GenericType.isGeneric(base)) {
-      read(baseType, baseType);
+      read(baseType);
     }
     TypeElement superElement = superOf(baseType);
     if (superElement != null) {
@@ -241,13 +251,10 @@ class TypeReader {
   }
 
   private void addSuperType(TypeElement element, TypeElement matchType) {
-    if (matchType != null && matchType == element) {
-      return;
-    }
     String type = element.getQualifiedName().toString();
     if (!type.equals(JAVA_LANG_OBJECT)) {
       if (!GenericType.isGeneric(type)) {
-        read(element, matchType);
+        read(element);
         addSuperType(superOf(element), matchType);
       }
     }

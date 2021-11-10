@@ -43,6 +43,10 @@ class BeanReader {
     return beanType;
   }
 
+  List<FieldReader> allFields() {
+    return allFields;
+  }
+
   void read() {
     for (FieldReader field : allFields) {
       field.addImports(importTypes);
@@ -111,7 +115,7 @@ class BeanReader {
   }
 
   void writeToJson(Append writer) {
-    String varName = Character.toLowerCase(shortName.charAt(0)) + shortName.substring(1);
+    String varName = Util.initLower(shortName);
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public void toJson(JsonWriter writer, %s %s) throws IOException {", shortName, varName).eol();
@@ -153,8 +157,7 @@ class BeanReader {
   }
 
   void writeFromJson(Append writer) {
-    String varName = Character.toLowerCase(shortName.charAt(0)) + shortName.substring(1);
-
+    String varName = Util.initLower(shortName);
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) throws IOException {", shortName, varName).eol();
@@ -183,21 +186,7 @@ class BeanReader {
       return;
     }
     if (!directLoad) {
-      writer.append("    // build and return %s", shortName).eol();
-      writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
-      List<MethodReader.MethodParam> params = constructor.getParams();
-      for (int i = 0, size = params.size(); i < size; i++) {
-        if (i > 0) {
-          writer.append(", ");
-        }
-        writer.append(constructorParamName(params.get(i).name())); // assuming name matches field here?
-      }
-      writer.append(");").eol();
-      for (FieldReader allField : allFields) {
-        if (allField.includeFromJson()) {
-          allField.writeFromJsonSetter(writer, varName);
-        }
-      }
+      writeJsonBuildResult(writer, varName);
     } else {
       if (unmappedField != null) {
         writer.append("   // unmappedField... ", varName).eol();
@@ -208,26 +197,36 @@ class BeanReader {
     writer.append("  }").eol();
   }
 
+  private void writeJsonBuildResult(Append writer, String varName) {
+    writer.append("    // build and return %s", shortName).eol();
+    writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+    List<MethodReader.MethodParam> params = constructor.getParams();
+    for (int i = 0, size = params.size(); i < size; i++) {
+      if (i > 0) {
+        writer.append(", ");
+      }
+      writer.append(constructorParamName(params.get(i).name())); // assuming name matches field here?
+    }
+    writer.append(");").eol();
+    for (FieldReader allField : allFields) {
+      if (allField.includeFromJson()) {
+        allField.writeFromJsonSetter(writer, varName, "");
+      }
+    }
+  }
+
   private void writeFromJsonWithSubTypes(Append writer, String varName) {
     writer.append("    if (type == null) {").eol();
     writer.append("      throw new IllegalStateException(\"Missing @type property which is required?\");").eol();
     writer.append("    }").eol();
-
-    List<TypeSubTypeMeta> subTypes = typeReader.subTypes();
-    for (TypeSubTypeMeta subTypeMeta : subTypes) {
-      String subType = subTypeMeta.type();
-      String subTypeName = subTypeMeta.name();
-
-      writer.append("    if (\"%s\".equals(type)) {", subTypeName).eol();
-      writer.append("      %s %s = new %s();", subType, varName, subType).eol();
-      writer.append("    }").eol();
+    for (TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
+      subTypeMeta.writeFromJsonBuild(writer, varName, this);
     }
-
-    writer.append("    return null;").eol();
+    writer.append("    throw new IllegalStateException(\"Unknown value for @type property \" + type);").eol();
     writer.append("  }").eol();
   }
 
-  private String constructorParamName(String name) {
+  String constructorParamName(String name) {
     if (unmappedField != null) {
       if (unmappedField.getFieldName().equals(name)) {
         return "unmapped";

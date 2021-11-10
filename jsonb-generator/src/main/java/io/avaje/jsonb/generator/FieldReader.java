@@ -2,14 +2,16 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 class FieldReader {
 
+  private final Map<String,TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
   private final Element element;
   private final boolean publicField;
   private final String rawType;
-  private final TypeSubTypeMeta subType;
   private final GenericType genericType;
   private final String adapterFieldName;
   private final String adapterShortType;
@@ -28,7 +30,7 @@ class FieldReader {
 
   FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType) {
     this.element = element;
-    this.subType = subType;
+    addSubType(subType);
     this.fieldName = element.getSimpleName().toString();
     this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
     this.rawType = element.asType().toString();
@@ -68,12 +70,22 @@ class FieldReader {
     return serialize || deserialize;
   }
 
-  boolean includeToJson(String type) {
-    return serialize && (subType == null || subType.matches(type));
-  }
-
   boolean includeFromJson() {
     return deserialize;
+  }
+
+  boolean includeToJson(String type) {
+    return serialize && (subTypes.containsKey(type));
+  }
+
+  void addSubType(TypeSubTypeMeta currentSubType) {
+    if (currentSubType != null) {
+      subTypes.put(currentSubType.type(), currentSubType);
+    }
+  }
+
+  boolean includeForType(TypeSubTypeMeta subType) {
+    return subTypes.containsKey(subType.type());
   }
 
   void addImports(Set<String> importTypes) {
@@ -117,8 +129,8 @@ class FieldReader {
         writer.append(" ERROR?? no constructor, setter and not a public field?");
       }
     }
-    if (subType != null) {
-      writer.append(" subType %s", subType.type());
+    if (!subTypes.isEmpty()) {
+      writer.append(" subTypes %s", subTypes.keySet());
     }
     writer.eol();
   }
@@ -211,15 +223,15 @@ class FieldReader {
     writer.append("        }").eol();
   }
 
-  void writeFromJsonSetter(Append writer, String varName) {
+  void writeFromJsonSetter(Append writer, String varName, String prefix) {
     if (unmapped) {
       writeFromJsonUnmapped(writer, varName);
       return;
     }
     if (setter != null) {
-      writer.append("    if (_set$%s) _$%s.%s(_val$%s);", fieldName, varName, setter.getName(), fieldName).eol();
+      writer.append("%s    if (_set$%s) _$%s.%s(_val$%s);", prefix, fieldName, varName, setter.getName(), fieldName).eol();
     } else if (publicField) {
-      writer.append("    if (_set$%s) _$%s.%s = _val$%s;", fieldName, varName, fieldName, fieldName).eol();
+      writer.append("%s    if (_set$%s) _$%s.%s = _val$%s;", prefix, fieldName, varName, fieldName, fieldName).eol();
     }
   }
 
