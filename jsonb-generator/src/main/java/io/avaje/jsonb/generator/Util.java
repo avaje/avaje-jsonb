@@ -43,7 +43,7 @@ class Util {
     return currentTop;
   }
 
-  public static String initcap(String input) {
+  static String initCap(String input) {
     if (input.length() < 2) {
       return input.toUpperCase();
     } else {
@@ -56,5 +56,23 @@ class Util {
    */
   static String trimClassSuffix(String nameWithSuffix) {
     return nameWithSuffix.substring(0, nameWithSuffix.length() - 6);
+  }
+
+  static String initLower(String name) {
+    StringBuilder sb = new StringBuilder(name.length());
+    boolean toLower = true;
+    for (char ch : name.toCharArray()) {
+      if (Character.isUpperCase(ch)) {
+        if (toLower) {
+          sb.append(Character.toLowerCase(ch));
+        } else {
+          sb.append(ch);
+        }
+      } else {
+        sb.append(ch);
+        toLower = false;
+      }
+    }
+    return sb.toString();
   }
 }

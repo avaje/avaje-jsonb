@@ -7,10 +7,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class UtilTest {
 
   @Test
-  void initcap() {
-    assertEquals("Hello", Util.initcap("hello"));
-    assertEquals("Url", Util.initcap("url"));
-    assertEquals("Fo", Util.initcap("fo"));
-    assertEquals("A", Util.initcap("a"));
+  void initCap() {
+    assertEquals("Hello", Util.initCap("hello"));
+    assertEquals("Url", Util.initCap("url"));
+    assertEquals("Fo", Util.initCap("fo"));
+    assertEquals("A", Util.initCap("a"));
+    assertEquals("InitCap", Util.initCap("initCap"));
+  }
+
+  @Test
+  void initLower() {
+    assertEquals("hello", Util.initLower("hello"));
+    assertEquals("url", Util.initLower("URL"));
+    assertEquals("initCap", Util.initLower("InitCap"));
   }
 }

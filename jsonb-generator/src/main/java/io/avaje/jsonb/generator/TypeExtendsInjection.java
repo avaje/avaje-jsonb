@@ -167,11 +167,11 @@ class TypeExtendsInjection {
   }
 
   private String getterName(String name) {
-    return "get" + Util.initcap(name);
+    return "get" + Util.initCap(name);
   }
 
   private String isGetterName(String name) {
-    return "is" + Util.initcap(name);
+    return "is" + Util.initCap(name);
   }
 
   List<FieldReader> allFields() {

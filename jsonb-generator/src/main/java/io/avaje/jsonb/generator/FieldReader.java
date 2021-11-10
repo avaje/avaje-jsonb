@@ -43,7 +43,7 @@ class FieldReader {
     adapterShortType = "JsonAdapter<" + typeWrapped + ">";
 
     String typeShortName = genericType.shortName();
-    adapterFieldName = (primitive ? "p" : "") + Character.toLowerCase(typeShortName.charAt(0)) + typeShortName.substring(1) + "JsonAdapter";
+    adapterFieldName = (primitive ? "p" : "") + Util.initLower(typeShortName) + "JsonAdapter";
   }
 
   String getFieldName() {
