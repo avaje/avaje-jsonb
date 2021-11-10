@@ -1,6 +1,7 @@
 package io.avaje.jsonb;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -90,6 +91,24 @@ public @interface Json {
   @interface Unmapped {
 
   }
+
+  @Retention(CLASS)
+  @Target({ElementType.TYPE})
+  @Repeatable(SubTypes.class)
+  @interface SubType {
+
+    Class<?> value();
+
+    String name() default "";
+  }
+
+  @Retention(CLASS)
+  @Target({ElementType.TYPE})
+  @interface SubTypes {
+
+    SubType[] value();
+  }
+
 
   /**
    * The naming convention that we can use for a given type.

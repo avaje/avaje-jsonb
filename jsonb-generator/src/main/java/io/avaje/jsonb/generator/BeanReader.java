@@ -17,6 +17,8 @@ class BeanReader {
   private final List<FieldReader> allFields;
   private final Set<String> importTypes = new TreeSet<>();
   private final NamingConvention namingConvention;
+  private final boolean hasSubTypes;
+  private final TypeReader typeReader;
   private FieldReader unmappedField;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
@@ -25,8 +27,9 @@ class BeanReader {
     this.shortName = shortName(beanType);
     this.namingConvention = new NamingConventionReader(beanType).get();
 
-    TypeReader typeReader = new TypeReader(beanType, context, namingConvention);
+    this.typeReader = new TypeReader(beanType, context, namingConvention);
     typeReader.process();
+    this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
   }
@@ -113,13 +116,40 @@ class BeanReader {
     writer.append("  @Override").eol();
     writer.append("  public void toJson(JsonWriter writer, %s %s) throws IOException {", shortName, varName).eol();
     writer.append("    writer.beginObject();").eol();
-    for (FieldReader allField : allFields) {
-      if (allField.includeToJson()) {
-        allField.writeToJson(writer, varName);
-      }
+    if (hasSubTypes) {
+      writeToJsonForSubtypes(writer, varName);
+    } else {
+      writeToJsonForType(writer, varName, "    ", null);
     }
     writer.append("    writer.endObject();").eol();
     writer.append("  }").eol();
+  }
+
+  private void writeToJsonForSubtypes(Append writer, String varName) {
+    if (hasSubTypes) {
+      List<TypeSubTypeMeta> subTypes = typeReader.subTypes();
+      for (int i = 0; i < subTypes.size(); i++) {
+        TypeSubTypeMeta subTypeMeta = subTypes.get(i);
+        String subType = subTypeMeta.type();
+        String subTypeName = subTypeMeta.name();
+        String elseIf = i == 0 ? "if" : "else if";
+        writer.append("    %s (%s instanceof %s) {", elseIf, varName, subType).eol();
+        writer.append("      %s sub = (%s)%s;", subType, subType, varName).eol();
+        writer.append("      writer.name(\"%s\");", "@type").eol();
+        writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
+        writeToJsonForType(writer, "sub", "      ", null);
+        writeToJsonForType(writer, "sub", "      ", subType);
+        writer.append("    }").eol();
+      }
+    }
+  }
+
+  private void writeToJsonForType(Append writer, String varName, String prefix, String type) {
+    for (FieldReader allField : allFields) {
+      if (allField.includeToJson(type)) {
+        allField.writeToJson(writer, varName, prefix);
+      }
+    }
   }
 
   void writeFromJson(Append writer) {
@@ -128,8 +158,8 @@ class BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) throws IOException {", shortName, varName).eol();
-    boolean defaultConstructor = (constructor == null);
-    if (defaultConstructor) {
+    boolean directLoad = (constructor == null && !hasSubTypes);
+    if (directLoad) {
       // default public constructor
       writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
     } else {
@@ -140,12 +170,19 @@ class BeanReader {
         }
       }
     }
+    if (hasSubTypes) {
+      writer.eol().append("    String type = null;").eol();
+    }
     if (unmappedField != null) {
       writer.append("    Map<String, Object> unmapped = new LinkedHashMap<>();").eol();
     }
-    writeFromJsonSwitch(writer, defaultConstructor, varName);
+    writeFromJsonSwitch(writer, directLoad, varName);
     writer.eol();
-    if (!defaultConstructor) {
+    if (hasSubTypes) {
+      writeFromJsonWithSubTypes(writer, varName);
+      return;
+    }
+    if (!directLoad) {
       writer.append("    // build and return %s", shortName).eol();
       writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
       List<MethodReader.MethodParam> params = constructor.getParams();
@@ -171,6 +208,25 @@ class BeanReader {
     writer.append("  }").eol();
   }
 
+  private void writeFromJsonWithSubTypes(Append writer, String varName) {
+    writer.append("    if (type == null) {").eol();
+    writer.append("      throw new IllegalStateException(\"Missing @type property which is required?\");").eol();
+    writer.append("    }").eol();
+
+    List<TypeSubTypeMeta> subTypes = typeReader.subTypes();
+    for (TypeSubTypeMeta subTypeMeta : subTypes) {
+      String subType = subTypeMeta.type();
+      String subTypeName = subTypeMeta.name();
+
+      writer.append("    if (\"%s\".equals(type)) {", subTypeName).eol();
+      writer.append("      %s %s = new %s();", subType, varName, subType).eol();
+      writer.append("    }").eol();
+    }
+
+    writer.append("    return null;").eol();
+    writer.append("  }").eol();
+  }
+
   private String constructorParamName(String name) {
     if (unmappedField != null) {
       if (unmappedField.getFieldName().equals(name)) {
@@ -187,6 +243,11 @@ class BeanReader {
     writer.append("    while (reader.hasNextField()) {").eol();
     writer.append("      String fieldName = reader.nextField();").eol();
     writer.append("      switch (fieldName) {").eol();
+    if (hasSubTypes) {
+      writer.append("        case \"%s\": {", "@type").eol();
+      writer.append("          type = stringJsonAdapter.fromJson(reader); break;").eol();
+      writer.append("        }").eol();
+    }
     for (FieldReader allField : allFields) {
       allField.writeFromJsonSwitch(writer, defaultConstructor, varName);
     }

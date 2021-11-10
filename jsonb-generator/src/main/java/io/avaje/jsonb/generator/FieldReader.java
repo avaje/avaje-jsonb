@@ -2,7 +2,6 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import java.util.Map;
 import java.util.Set;
 
 class FieldReader {
@@ -10,6 +9,7 @@ class FieldReader {
   private final Element element;
   private final boolean publicField;
   private final String rawType;
+  private final TypeSubTypeMeta subType;
   private final GenericType genericType;
   private final String adapterFieldName;
   private final String adapterShortType;
@@ -26,8 +26,9 @@ class FieldReader {
 
   private boolean constructorParam;
 
-  FieldReader(Element element, NamingConvention namingConvention) {
+  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType) {
     this.element = element;
+    this.subType = subType;
     this.fieldName = element.getSimpleName().toString();
     this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
     this.rawType = element.asType().toString();
@@ -67,8 +68,8 @@ class FieldReader {
     return serialize || deserialize;
   }
 
-  boolean includeToJson() {
-    return serialize;
+  boolean includeToJson(String type) {
+    return serialize && (subType == null || subType.matches(type));
   }
 
   boolean includeFromJson() {
@@ -116,6 +117,9 @@ class FieldReader {
         writer.append(" ERROR?? no constructor, setter and not a public field?");
       }
     }
+    if (subType != null) {
+      writer.append(" subType %s", subType.type());
+    }
     writer.eol();
   }
 
@@ -132,20 +136,20 @@ class FieldReader {
     writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asType).eol();
   }
 
-  void writeToJson(Append writer, String varName) {
+  void writeToJson(Append writer, String varName, String prefix) {
     if (unmapped) {
-      writer.append("    Map<String, Object> unmapped = ");
+      writer.append("%sMap<String, Object> unmapped = ", prefix);
       writeGetValue(writer, varName, ";");
       writer.eol();
-      writer.append("    if (unmapped != null) {").eol();
-      writer.append("      for (Map.Entry<String, Object> entry : unmapped.entrySet()) {").eol();
-      writer.append("        writer.name(entry.getKey());").eol();
-      writer.append("        objectJsonAdapter.toJson(writer, entry.getValue());").eol();
-      writer.append("      }").eol();
-      writer.append("    }").eol();
+      writer.append("%sif (unmapped != null) {", prefix).eol();
+      writer.append("%s for (Map.Entry<String, Object> entry : unmapped.entrySet()) {", prefix).eol();
+      writer.append("%s   writer.name(entry.getKey());", prefix).eol();
+      writer.append("%s   objectJsonAdapter.toJson(writer, entry.getValue());", prefix).eol();
+      writer.append("%s }", prefix).eol();
+      writer.append("%s}", prefix).eol();
     } else {
-      writer.append("    writer.name(\"%s\");", propertyName).eol();
-      writer.append("    %s.toJson(writer, ", adapterFieldName);
+      writer.append("%swriter.name(\"%s\");", prefix, propertyName).eol();
+      writer.append("%s%s.toJson(writer, ", prefix, adapterFieldName);
       writeGetValue(writer, varName, ");");
       writer.eol();
     }

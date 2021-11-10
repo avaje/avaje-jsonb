@@ -51,6 +51,10 @@ class Util {
     }
   }
 
+  static String trimQuotes(String value) {
+    return value.substring(1, value.length() - 1);
+  }
+
   /**
    * Trim off the .class suffix.
    */

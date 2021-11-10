@@ -16,61 +16,73 @@ class TypeReader {
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
-  private final List<FieldReader> baseFields = new ArrayList<>();
-  private final List<FieldReader> inheritedFields = new ArrayList<>();
   private final Map<String, MethodReader> maybeSetterMethods = new LinkedHashMap<>();
   private final Map<String, MethodReader> maybeGetterMethods = new LinkedHashMap<>();
 
+  private final TypeSubTypeReader subTypes;
   private final TypeElement baseType;
   private final ProcessingContext context;
   private final NamingConvention namingConvention;
   private MethodReader constructor;
   private boolean defaultPublicConstructor;
+  private final Map<String, MethodReader.MethodParam> constructorParamMap = new LinkedHashMap<>();
+  private TypeSubTypeMeta currentSubType;
 
   TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.context = context;
     this.namingConvention = namingConvention;
+    this.subTypes = new TypeSubTypeReader(baseType, context);
   }
 
-  void read(TypeElement type) {
+  void read(TypeElement type, TypeElement matchType) {
+    final List<FieldReader> localFields = new ArrayList<>();
     for (Element element : type.getEnclosedElements()) {
       switch (element.getKind()) {
         case CONSTRUCTOR:
-          readConstructor(element, type);
+          readConstructor(element, type, matchType);
           break;
         case FIELD:
-          readField(element, type);
+          readField(element, localFields);
           break;
         case METHOD:
           readMethod(element, type);
           break;
       }
     }
-  }
-
-  private void readField(Element element, TypeElement type) {
-    if (!element.getModifiers().contains(Modifier.TRANSIENT)) {
+    if (currentSubType != null) {
+      allFields.addAll(localFields);
+    } else {
       if (type != baseType) {
-        baseFields.add(new FieldReader(element, namingConvention));
+        allFields.addAll(0, localFields);
       } else {
-        inheritedFields.add(new FieldReader(element, namingConvention));
+        allFields.addAll(localFields);
       }
     }
   }
 
-  private void readConstructor(Element element, TypeElement type) {
-    if (type != baseType) {
+  private void readField(Element element, List<FieldReader> localFields) {
+    if (!element.getModifiers().contains(Modifier.TRANSIENT)) {
+      localFields.add(new FieldReader(element, namingConvention, currentSubType));
+    }
+  }
+
+  private void readConstructor(Element element, TypeElement type, TypeElement matchType) {
+    if (type != matchType) {
       // only interested in the top level constructors
       return;
     }
     ExecutableElement ex = (ExecutableElement) element;
     MethodReader methodReader = new MethodReader(context, ex, baseType).read();
     if (methodReader.isPublic()) {
-      if (methodReader.getParams().isEmpty()) {
-        defaultPublicConstructor = true;
+      if (currentSubType != null) {
+        currentSubType.addConstructor(methodReader);
+      } else {
+        if (methodReader.getParams().isEmpty()) {
+          defaultPublicConstructor = true;
+        }
+        publicConstructors.add(methodReader);
       }
-      publicConstructors.add(methodReader);
     }
   }
 
@@ -91,23 +103,6 @@ class TypeReader {
         }
       }
     }
-  }
-
-  private final Map<String, MethodReader.MethodParam> constructorParamMap = new LinkedHashMap<>();
-
-  void processCompleted() {
-    constructor = determineConstructor();
-    if (constructor != null) {
-      List<MethodReader.MethodParam> params = constructor.getParams();
-      for (MethodReader.MethodParam param : params) {
-        constructorParamMap.put(param.name(), param);
-      }
-    }
-    allFields.addAll(baseFields);
-    allFields.addAll(inheritedFields);
-
-    matchFieldsToSetterOrConstructor();
-    matchFieldsToGetter();
   }
 
   private void matchFieldsToSetterOrConstructor() {
@@ -208,26 +203,61 @@ class TypeReader {
   void process() {
     String base = baseType.getQualifiedName().toString();
     if (!GenericType.isGeneric(base)) {
-      read(baseType);
+      read(baseType, baseType);
     }
     TypeElement superElement = superOf(baseType);
     if (superElement != null) {
-      addSuperType(superElement);
+      addSuperType(superElement, null);
     }
+    readSubTypes();
     processCompleted();
   }
 
-  private void addSuperType(TypeElement element) {
+  private void readSubTypes() {
+    if (hasSubTypes()) {
+      for (TypeSubTypeMeta subType : subTypes.subTypes()) {
+        currentSubType = subType;
+        TypeElement element = context.element(subType.type());
+        currentSubType.setElement(element);
+        addSuperType(element, baseType);
+      }
+    }
+  }
+
+  List<TypeSubTypeMeta> subTypes() {
+    return subTypes.subTypes();
+  }
+
+  void processCompleted() {
+    constructor = determineConstructor();
+    if (constructor != null) {
+      List<MethodReader.MethodParam> params = constructor.getParams();
+      for (MethodReader.MethodParam param : params) {
+        constructorParamMap.put(param.name(), param);
+      }
+    }
+    matchFieldsToSetterOrConstructor();
+    matchFieldsToGetter();
+  }
+
+  private void addSuperType(TypeElement element, TypeElement matchType) {
+    if (matchType != null && matchType == element) {
+      return;
+    }
     String type = element.getQualifiedName().toString();
     if (!type.equals(JAVA_LANG_OBJECT)) {
       if (!GenericType.isGeneric(type)) {
-        read(element);
-        addSuperType(superOf(element));
+        read(element, matchType);
+        addSuperType(superOf(element), matchType);
       }
     }
   }
 
   private TypeElement superOf(TypeElement element) {
     return (TypeElement) context.asElement(element.getSuperclass());
+  }
+
+  boolean hasSubTypes() {
+    return subTypes.hasSubTypes();
   }
 }

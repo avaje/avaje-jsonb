@@ -22,15 +22,11 @@ class PropertyReader {
     for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
       if (JSON_PROPERTY.equals(mirror.getAnnotationType().toString())) {
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
-          return trimQuotes(entry.getValue().toString());
+          return Util.trimQuotes(entry.getValue().toString());
         }
       }
     }
     return null;
-  }
-
-  private static String trimQuotes(String value) {
-    return value.substring(1, value.length() - 1);
   }
 
 }
