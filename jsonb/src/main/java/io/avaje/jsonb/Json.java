@@ -82,7 +82,7 @@ public @interface Json {
    * <pre>{@code
    *
    *   @Json.Unmapped
-   *   Map<String,Object> unmapped;
+   *   Map<String, Object> unmapped;
    *
    * }</pre>
    */
@@ -92,16 +92,47 @@ public @interface Json {
 
   }
 
+  /**
+   * Specify the subtypes that a given type can be represented as.
+   * <p>
+   * This is used on an interface type, abstract type or type with inheritance
+   * to indicate all the concrete subtypes that can represent the type.
+   * <p>
+   * In the example below the abstract Vehicle type has 2 concrete subtypes
+   * of Car and Truck that can represent the type.
+   *
+   * <pre>{@code
+   *
+   *   @Json
+   *   @Json.SubType(type = Car.class)
+   *   @Json.SubType(type = Truck.class, name = "TRUCK")
+   *   public abstract class Vehicle {
+   *    ...
+   *
+   * }</pre>
+   */
   @Retention(CLASS)
   @Target({ElementType.TYPE})
   @Repeatable(SubTypes.class)
   @interface SubType {
 
-    Class<?> value();
+    /**
+     * The concrete type that extends or implements the base type.
+     */
+    Class<?> type();
 
+    /**
+     * The name or "discriminator value" that is used to identify the type.
+     * <p>
+     * When unspecified this is the short name of the class.
+     */
     String name() default "";
   }
 
+  /**
+   * Container of all the concrete SubType's that an interface type or abstract
+   * type can be represented as.
+   */
   @Retention(CLASS)
   @Target({ElementType.TYPE})
   @interface SubTypes {

@@ -3,8 +3,8 @@ package org.example.customer.subtype;
 import io.avaje.jsonb.Json;
 
 @Json
-@Json.SubType(Car.class)
-@Json.SubType(value = Truck.class, name = "TRUCK")
+@Json.SubType(type = Car.class)
+@Json.SubType(type = Truck.class, name = "TRUCK")
 public abstract class Vehicle {
 
   protected long id;

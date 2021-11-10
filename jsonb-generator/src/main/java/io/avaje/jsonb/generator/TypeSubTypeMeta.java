@@ -20,7 +20,7 @@ class TypeSubTypeMeta {
   }
 
   void add(String key, String val) {
-    if (key.equals("value()")) {
+    if (key.equals("type()")) {
       type = Util.trimClassSuffix(val);
     } else if (key.equals("name()")) {
       name = Util.trimQuotes(val);
