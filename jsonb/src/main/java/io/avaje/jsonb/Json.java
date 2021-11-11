@@ -20,6 +20,14 @@ public @interface Json {
   Naming naming() default Naming.Match;
 
   /**
+   * When {@code @Json.SubType} is used this specifies the name of the property
+   * field that holds the type name (discriminator value).
+   * <p>
+   * This defaults to {@code @type} when unspecified.
+   */
+  String typeProperty() default "";
+
+  /**
    * Specify types to generate JsonAdapters for.
    * <p>
    * These types are typically in an external project / dependency or otherwise

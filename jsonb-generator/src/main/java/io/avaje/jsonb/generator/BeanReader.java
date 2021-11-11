@@ -19,13 +19,16 @@ class BeanReader {
   private final NamingConvention namingConvention;
   private final boolean hasSubTypes;
   private final TypeReader typeReader;
+  private final String typeProperty;
   private FieldReader unmappedField;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
-    this.namingConvention = new NamingConventionReader(beanType).get();
+    NamingConventionReader ncReader = new NamingConventionReader(beanType);
+    this.namingConvention = ncReader.get();
+    this.typeProperty = ncReader.typeProperty();
 
     this.typeReader = new TypeReader(beanType, context, namingConvention);
     typeReader.process();
@@ -139,7 +142,7 @@ class BeanReader {
         String elseIf = i == 0 ? "if" : "else if";
         writer.append("    %s (%s instanceof %s) {", elseIf, varName, subType).eol();
         writer.append("      %s sub = (%s)%s;", subType, subType, varName).eol();
-        writer.append("      writer.name(\"%s\");", "@type").eol();
+        writer.append("      writer.name(\"%s\");", typeProperty).eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
         writeToJsonForType(writer, "sub", "      ", null);
         writeToJsonForType(writer, "sub", "      ", subType);
@@ -217,12 +220,12 @@ class BeanReader {
 
   private void writeFromJsonWithSubTypes(Append writer, String varName) {
     writer.append("    if (type == null) {").eol();
-    writer.append("      throw new IllegalStateException(\"Missing @type property which is required?\");").eol();
+    writer.append("      throw new IllegalStateException(\"Missing %s property which is required?\");", typeProperty).eol();
     writer.append("    }").eol();
     for (TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
       subTypeMeta.writeFromJsonBuild(writer, varName, this);
     }
-    writer.append("    throw new IllegalStateException(\"Unknown value for @type property \" + type);").eol();
+    writer.append("    throw new IllegalStateException(\"Unknown value for %s property \" + type);", typeProperty).eol();
     writer.append("  }").eol();
   }
 
@@ -243,7 +246,7 @@ class BeanReader {
     writer.append("      String fieldName = reader.nextField();").eol();
     writer.append("      switch (fieldName) {").eol();
     if (hasSubTypes) {
-      writer.append("        case \"%s\": {", "@type").eol();
+      writer.append("        case \"%s\": {", typeProperty).eol();
       writer.append("          type = stringJsonAdapter.fromJson(reader); break;").eol();
       writer.append("        }").eol();
     }
