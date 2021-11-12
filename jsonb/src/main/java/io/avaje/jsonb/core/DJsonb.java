@@ -137,11 +137,6 @@ class DJsonb implements Jsonb {
     }
 
     @Override
-    public <T> Builder add(Type type, Class<? extends Annotation> annotation, JsonAdapter<T> jsonAdapter) {
-      return add(newAdapterFactory(type, annotation, jsonAdapter));
-    }
-
-    @Override
     public Builder add(JsonAdapter.Factory factory) {
       factories.add(factory);
       return this;
@@ -170,31 +165,6 @@ class DJsonb implements Jsonb {
       requireNonNull(type);
       requireNonNull(builder);
       return (targetType, annotations, jsonb) -> simpleMatch(annotations, type, targetType) ? builder.build(jsonb) : null;
-    }
-
-    static <T> JsonAdapter.Factory newAdapterFactory(Type type, Class<? extends Annotation> annotation, JsonAdapter<T> jsonAdapter) {
-      requireNonNull(type);
-      requireNonNull(annotation);
-      requireNonNull(jsonAdapter);
-      if (!annotation.isAnnotationPresent(JsonQualifier.class)) {
-        throw new IllegalArgumentException(annotation + " does not have @JsonQualifier");
-      }
-      if (annotation.getDeclaredMethods().length > 0) {
-        throw new IllegalArgumentException("Use JsonAdapter.Factory for annotations with elements");
-      }
-
-      return (targetType, annotations, moshi) -> {
-        if (isMatch(type, annotation, targetType, annotations)) {
-          return jsonAdapter;
-        }
-        return null;
-      };
-    }
-
-    private static boolean isMatch(Type type, Class<? extends Annotation> annotation, Type targetType, Set<? extends Annotation> annotations) {
-      return Util.typesMatch(type, targetType)
-        && annotations.size() == 1
-        && Util.isAnnotationPresent(annotations, annotation);
     }
 
   }

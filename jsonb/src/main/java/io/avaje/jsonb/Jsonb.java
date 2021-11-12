@@ -96,11 +96,6 @@ public interface Jsonb {
     <T> Jsonb.Builder add(Type type, JsonAdapter<T> jsonAdapter);
 
     /**
-     * Add a JsonAdapter to use for the given type and qualifier annotation.
-     */
-    <T> Jsonb.Builder add(Type type, Class<? extends Annotation> annotation, JsonAdapter<T> jsonAdapter);
-
-    /**
      * Add a AdapterBuilder which provides a JsonAdapter to use for the given type.
      */
     Jsonb.Builder add(Type type, AdapterBuilder builder);
