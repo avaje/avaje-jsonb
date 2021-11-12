@@ -103,32 +103,6 @@ class CoreAdapterBuilder {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  <T> JsonAdapter<List<T>> listOf(Object key, JsonAdapter<T> elementAdapter) {
-    synchronized (adapterCache) {
-      JsonAdapter<?> adapter = get(key);
-      if (adapter != null) {
-        return (JsonAdapter<List<T>>) adapter;
-      }
-      JsonAdapter<List<T>> listAdapter = CollectionAdapter.listOf(elementAdapter);
-      adapterCache.put(key, listAdapter);
-      return listAdapter;
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  <T> JsonAdapter<Set<T>> setOf(Object key, JsonAdapter<T> elementAdapter) {
-    synchronized (adapterCache) {
-      JsonAdapter<?> adapter = get(key);
-      if (adapter != null) {
-        return (JsonAdapter<Set<T>>) adapter;
-      }
-      JsonAdapter<Set<T>> setAdapter = CollectionAdapter.setOf(elementAdapter);
-      adapterCache.put(key, setAdapter);
-      return setAdapter;
-    }
-  }
-
   /**
    * A possibly-reentrant chain of lookups for JSON adapters.
    *
