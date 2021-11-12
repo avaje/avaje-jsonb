@@ -75,7 +75,7 @@ class FieldReader {
   }
 
   boolean includeToJson(String type) {
-    return serialize && (subTypes.containsKey(type));
+    return serialize && (type == null || subTypes.containsKey(type));
   }
 
   void addSubType(TypeSubTypeMeta currentSubType) {

@@ -144,7 +144,6 @@ class BeanReader {
         writer.append("      %s sub = (%s)%s;", subType, subType, varName).eol();
         writer.append("      writer.name(\"%s\");", typeProperty).eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
-        writeToJsonForType(writer, "sub", "      ", null);
         writeToJsonForType(writer, "sub", "      ", subType);
         writer.append("    }").eol();
       }

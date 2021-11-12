@@ -3,7 +3,7 @@ package org.example.customer.subtype;
 import io.avaje.jsonb.Json;
 
 @Json
-public class Car extends Vehicle{
+public class Car extends Vehicle {
 
   String colour;
 
