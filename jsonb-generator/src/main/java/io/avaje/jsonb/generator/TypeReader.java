@@ -49,8 +49,8 @@ class TypeReader {
       }
     }
     if (currentSubType == null && type != baseType) {
+      allFields.addAll(0, localFields);
       for (FieldReader localField : localFields) {
-        allFields.add(0, localField);
         allFieldMap.put(localField.getFieldName(), localField);
       }
     } else {
