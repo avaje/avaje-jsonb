@@ -13,8 +13,7 @@ import java.util.UUID;
  */
 final class JavaTimeAdapters {
 
-  static final JsonAdapter.Factory FACTORY = (type, annotations, jsonb) -> {
-    if (!annotations.isEmpty()) return null;
+  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
     if (type == Instant.class) return JavaTimeAdapters.INSTANT_ADAPTER.nullSafe();
     if (type == UUID.class) return JavaTimeAdapters.UUID_ADAPTER.nullSafe();
     return null;

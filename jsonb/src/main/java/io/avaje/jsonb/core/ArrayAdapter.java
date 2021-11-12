@@ -31,10 +31,9 @@ import java.util.List;
  */
 final class ArrayAdapter extends JsonAdapter<Object> {
   public static final Factory FACTORY =
-    (type, annotations, jsonb) -> {
+    (type, jsonb) -> {
       Type elementType = Util.arrayComponentType(type);
       if (elementType == null) return null;
-      if (!annotations.isEmpty()) return null;
       Class<?> elementClass = Util.rawType(elementType);
       JsonAdapter<Object> elementAdapter = jsonb.adapter(elementType);
       return new ArrayAdapter(elementClass, elementAdapter).nullSafe();

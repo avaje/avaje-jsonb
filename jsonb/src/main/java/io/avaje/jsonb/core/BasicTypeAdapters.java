@@ -18,9 +18,10 @@ package io.avaje.jsonb.core;
 import io.avaje.jsonb.*;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,8 +31,7 @@ final class BasicTypeAdapters {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public JsonAdapter<?> create(Type type, Set<? extends Annotation> annotations, Jsonb jsonb) {
-      if (!annotations.isEmpty()) return null;
+    public JsonAdapter<?> create(Type type, Jsonb jsonb) {
       if (type == Boolean.TYPE) return BOOLEAN_JSON_ADAPTER;
       if (type == Byte.TYPE) return BYTE_JSON_ADAPTER;
       if (type == Character.TYPE) return CHARACTER_JSON_ADAPTER;

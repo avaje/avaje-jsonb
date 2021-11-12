@@ -29,9 +29,8 @@ import java.util.*;
  */
 abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> {
 
-  public static final JsonAdapter.Factory FACTORY = (type, annotations, jsonb) -> {
+  public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
     Class<?> rawType = Util.rawType(type);
-    if (!annotations.isEmpty()) return null;
     if (rawType == List.class || rawType == Collection.class) {
       return newListAdapter(type, jsonb).nullSafe();
     } else if (rawType == Set.class) {

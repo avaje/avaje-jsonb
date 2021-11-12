@@ -60,6 +60,6 @@ public abstract class JsonAdapter<T> {
      * <p>
      * Returning null means that the adapter could be created by another factory.
      */
-    JsonAdapter<?> create(Type type, Set<? extends Annotation> annotations, Jsonb jsonb);
+    JsonAdapter<?> create(Type type, Jsonb jsonb);
   }
 }

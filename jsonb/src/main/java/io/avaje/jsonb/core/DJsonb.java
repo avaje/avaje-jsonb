@@ -145,18 +145,17 @@ class DJsonb implements Jsonb {
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
-      return (targetType, annotations, jsonb) -> simpleMatch(annotations, type, targetType) ? jsonAdapter : null;
+      return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
       requireNonNull(type);
       requireNonNull(builder);
-      return (targetType, annotations, jsonb) -> simpleMatch(annotations, type, targetType) ? builder.build(jsonb) : null;
+      return (targetType, jsonb) -> simpleMatch(type, targetType) ? builder.build(jsonb) : null;
     }
-
   }
 
-  private static boolean simpleMatch(Set<? extends Annotation> annotations2, Type type2, Type targetType2) {
-    return annotations2.isEmpty() && Util.typesMatch(type2, targetType2);
+  private static boolean simpleMatch(Type type2, Type targetType2) {
+    return Util.typesMatch(type2, targetType2);
   }
 }

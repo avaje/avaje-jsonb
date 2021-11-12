@@ -27,10 +27,7 @@ import java.util.Map;
  */
 final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
 
-  static final Factory FACTORY = (type, annotations, jsonb) -> {
-    if (!annotations.isEmpty()) {
-      return null;
-    }
+  static final Factory FACTORY = (type, jsonb) -> {
     Class<?> rawType = Util.rawType(type);
     if (rawType != Map.class) {
       return null;

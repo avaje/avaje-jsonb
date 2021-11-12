@@ -20,18 +20,13 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
-
-import static io.avaje.jsonb.core.Util.typeAnnotatedWithAnnotations;
 
 /**
  * Builds and caches the JsonAdapter adapters for DJsonb.
  */
 class CoreAdapterBuilder {
-
-  private static final Set<? extends Annotation> EMPTY = Collections.emptySet();
 
   private final DJsonb context;
   private final List<JsonAdapter.Factory> factories;
@@ -89,7 +84,7 @@ class CoreAdapterBuilder {
       }
       // Ask each factory to create the JSON adapter.
       for (JsonAdapter.Factory factory : factories) {
-        JsonAdapter<T> result = (JsonAdapter<T>) factory.create(type, EMPTY, context);
+        JsonAdapter<T> result = (JsonAdapter<T>) factory.create(type, context);
         if (result != null) {
           // Success! Notify the LookupChain so it is cached and can be used by re-entrant calls.
           lookupChain.adapterFound(result);
@@ -97,7 +92,7 @@ class CoreAdapterBuilder {
           return result;
         }
       }
-      throw new IllegalArgumentException("No JsonAdapter for " + typeAnnotatedWithAnnotations(type, EMPTY));
+      throw new IllegalArgumentException("No JsonAdapter for " + type);
     } catch (IllegalArgumentException e) {
       throw lookupChain.exceptionWithLookupStack(e);
     } finally {
