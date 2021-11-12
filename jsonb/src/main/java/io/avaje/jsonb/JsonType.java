@@ -8,8 +8,10 @@ import java.util.Set;
 /**
  * Provides API to serialise a type to and from JSON.
  * <p>
- * JsonType does not exist in Moshi and has been added to provide a
- * slightly easier API to use than JsonAdapter.
+ * JsonType provides the main API that is used to convert to and from json.
+ * <p>
+ * Moshi note: JsonType does not exist in Moshi and has been added to provide a
+ * slightly nicer API to use than JsonAdapter.
  */
 public interface JsonType<T> {
 
@@ -28,20 +30,44 @@ public interface JsonType<T> {
    */
   JsonType<Map<String, T>> map();
 
+  /**
+   * Return the value as json content.
+   */
   String toJson(T value) throws IOException;
 
+  /**
+   * Write the value as json content to the given JsonWriter.
+   */
   void toJson(JsonWriter writer, T value) throws IOException;
 
+  /**
+   * Write the value as json content to the given writer.
+   */
   void toJson(Writer writer, T value) throws IOException;
 
+  /**
+   * Write the value as json content to the given outputStream.
+   */
   void toJson(OutputStream outputStream, T value) throws IOException;
 
+  /**
+   * Read the return the value from the reader.
+   */
   T fromJson(JsonReader reader) throws IOException;
 
+  /**
+   * Read the return the value from the json content.
+   */
   T fromJson(String content) throws IOException;
 
+  /**
+   * Read the return the value from the reader.
+   */
   T fromJson(Reader reader) throws IOException;
 
+  /**
+   * Read the return the value from the inputStream.
+   */
   T fromJson(InputStream inputStream) throws IOException;
 
   /**

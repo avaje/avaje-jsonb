@@ -21,6 +21,9 @@ import java.lang.reflect.Type;
 import java.util.Set;
 import java.util.function.Supplier;
 
+/**
+ * The core API for serialization to and from json.
+ */
 public abstract class JsonAdapter<T> {
 
   /**
