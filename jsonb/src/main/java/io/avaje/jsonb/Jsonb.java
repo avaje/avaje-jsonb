@@ -50,11 +50,6 @@ public interface Jsonb {
   <T> JsonAdapter<T> adapter(Type type);
 
   /**
-   * Return the JsonAdapter used to read and write json for the given type and qualifier annotations.
-   */
-  <T> JsonAdapter<T> adapter(Type type, Set<? extends Annotation> annotations);
-
-  /**
    * Return the JsonReader used to read the given json content.
    */
   JsonReader reader(String json) throws IOException;

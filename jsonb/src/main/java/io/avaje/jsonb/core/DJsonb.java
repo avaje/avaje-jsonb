@@ -82,31 +82,18 @@ class DJsonb implements Jsonb {
     return builder.build(cacheKey);
   }
 
-  @Override
-  public <T> JsonAdapter<T> adapter(Type type) {
-    return adapter(type, Collections.emptySet());
-  }
 
   @Override
-  public <T> JsonAdapter<T> adapter(Type type, Set<? extends Annotation> annotations) {
+  public <T> JsonAdapter<T> adapter(Type type) {
     type = removeSubtypeWildcard(canonicalize(requireNonNull(type)));
-    Object cacheKey = cacheKey(type, requireNonNull(annotations));
+    Object cacheKey = type;
     JsonAdapter<T> result = builder.get(cacheKey);
     if (result != null) {
       return result;
     }
-    return builder.build(type, annotations, cacheKey);
+    return builder.build(type, cacheKey);
   }
 
-  /**
-   * Returns an opaque object that's equal if the type and annotations are equal.
-   */
-  private Object cacheKey(Type type, Set<? extends Annotation> annotations) {
-    if (annotations.isEmpty()) {
-      return type;
-    }
-    return Arrays.asList(type, annotations);
-  }
 
   JsonReader objectReader(Object value) {
     return new ObjectJsonReader(value);

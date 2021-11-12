@@ -31,6 +31,8 @@ import static io.avaje.jsonb.core.Util.typeAnnotatedWithAnnotations;
  */
 class CoreAdapterBuilder {
 
+  private static final Set<? extends Annotation> EMPTY = Collections.emptySet();
+
   private final DJsonb context;
   private final List<JsonAdapter.Factory> factories;
   private final ThreadLocal<LookupChain> lookupChainThreadLocal = new ThreadLocal<>();
@@ -65,14 +67,14 @@ class CoreAdapterBuilder {
    * Build for the simple non-annotated type case.
    */
   <T> JsonAdapter<T> build(Type type) {
-    return build(type, Collections.emptySet(), type);
+    return build(type, type);
   }
 
   /**
    * Build given type and annotations.
    */
   @SuppressWarnings("unchecked")
-  <T> JsonAdapter<T> build(Type type, Set<? extends Annotation> annotations, Object cacheKey) {
+  <T> JsonAdapter<T> build(Type type, Object cacheKey) {
     LookupChain lookupChain = lookupChainThreadLocal.get();
     if (lookupChain == null) {
       lookupChain = new LookupChain();
@@ -87,7 +89,7 @@ class CoreAdapterBuilder {
       }
       // Ask each factory to create the JSON adapter.
       for (JsonAdapter.Factory factory : factories) {
-        JsonAdapter<T> result = (JsonAdapter<T>) factory.create(type, annotations, context);
+        JsonAdapter<T> result = (JsonAdapter<T>) factory.create(type, EMPTY, context);
         if (result != null) {
           // Success! Notify the LookupChain so it is cached and can be used by re-entrant calls.
           lookupChain.adapterFound(result);
@@ -95,7 +97,7 @@ class CoreAdapterBuilder {
           return result;
         }
       }
-      throw new IllegalArgumentException("No JsonAdapter for " + typeAnnotatedWithAnnotations(type, annotations));
+      throw new IllegalArgumentException("No JsonAdapter for " + typeAnnotatedWithAnnotations(type, EMPTY));
     } catch (IllegalArgumentException e) {
       throw lookupChain.exceptionWithLookupStack(e);
     } finally {

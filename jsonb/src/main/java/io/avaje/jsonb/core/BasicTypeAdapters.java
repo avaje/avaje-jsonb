@@ -277,11 +277,11 @@ final class BasicTypeAdapters {
         writer.beginObject();
         writer.endObject();
       } else {
-        this.jsonb.adapter(this.toJsonType(valueClass), Collections.emptySet()).toJson(writer, value);
+        this.jsonb.adapter(this.toJsonType(valueClass)).toJson(writer, value);
       }
     }
 
-    private Class<?> toJsonType(Class<?> valueClass) {
+    private Type toJsonType(Class<?> valueClass) {
       if (Map.class.isAssignableFrom(valueClass)) {
         return Map.class;
       } else {

@@ -439,7 +439,6 @@ public final class Util {
     return type + (annotations.isEmpty() ? " (with no annotations)" : " annotated " + annotations);
   }
 
-
   /**
    * Returns a type that represents an unknown type that extends {@code bound}. For example, if
    * {@code bound} is {@code CharSequence.class}, this returns {@code ? extends CharSequence}. If
