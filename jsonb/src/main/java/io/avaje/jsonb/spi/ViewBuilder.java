@@ -8,6 +8,8 @@ public interface ViewBuilder {
 
   void beginObject(String name, MethodHandle methodHandle);
 
+  MethodHandle field(Class<?> cls, String name);
+
   void add(String name, JsonAdapter<?> adapter, MethodHandle methodHandle);
 
   void addArray(String name, JsonAdapter<?> adapter, MethodHandle methodHandle);

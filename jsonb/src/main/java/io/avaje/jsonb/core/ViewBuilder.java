@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +35,16 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   public MethodHandle method(Class<?> cls, String methodName, Class<?> returnType) {
     try {
       return lookup.findVirtual(cls, methodName, MethodType.methodType(returnType));
+    } catch (Exception e) {
+      throw new JsonException(e);
+    }
+  }
+
+  @Override
+  public MethodHandle field(Class<?> cls, String name) {
+    try {
+      Field field = cls.getDeclaredField(name);
+      return lookup.unreflectGetter(field);
     } catch (Exception e) {
       throw new JsonException(e);
     }

@@ -7,4 +7,6 @@ public class BasicPubFields {
 
   public String one;
   public Long two;
+  public String three;
+  public String four;
 }

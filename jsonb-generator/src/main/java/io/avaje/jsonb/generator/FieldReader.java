@@ -8,7 +8,7 @@ import java.util.Set;
 
 class FieldReader {
 
-  private final Map<String,TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
+  private final Map<String, TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
   private final Element element;
   private final boolean publicField;
   private final String rawType;
@@ -245,10 +245,10 @@ class FieldReader {
 
   void writeViewBuilder(Append writer, String shortName) {
     if (getter == null) {
-      writer.append("    // null getter , need to handle field for %s", fieldName).eol();
+      writer.append("    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));", fieldName, adapterFieldName, shortName, fieldName).eol();
     } else {
       String topType = genericType.topType();
-      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s.class));", fieldName, adapterFieldName, shortName, getter.getName(),topType).eol();
+      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s.class));", fieldName, adapterFieldName, shortName, getter.getName(), topType).eol();
     }
   }
 }
