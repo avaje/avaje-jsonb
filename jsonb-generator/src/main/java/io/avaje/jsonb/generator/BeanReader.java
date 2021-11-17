@@ -50,6 +50,10 @@ class BeanReader {
     return allFields;
   }
 
+  boolean hasSubtypes() {
+    return hasSubTypes;
+  }
+
   void read() {
     for (FieldReader field : allFields) {
       field.addImports(importTypes);
@@ -68,10 +72,11 @@ class BeanReader {
 
   private Set<String> importTypes() {
     importTypes.add(Constants.JSONB_WILD);
-    importTypes.add(Constants.JSONB_SPI);
     importTypes.add(Constants.IOEXCEPTION);
-    importTypes.add(Constants.METHODHANDLE);
-
+    if (!hasSubTypes) {
+      importTypes.add(Constants.JSONB_SPI);
+      importTypes.add(Constants.METHODHANDLE);
+    }
     if (Util.validImportType(type)) {
       importTypes.add(type);
     }
@@ -119,7 +124,14 @@ class BeanReader {
     }
   }
 
-  void writeView(Append writer) {
+
+  void writeViewSupport(Append writer) {
+    if (!hasSubTypes) {
+      writeView(writer);
+      writeViewBuild(writer);
+    }
+  }
+  private void writeView(Append writer) {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public boolean isViewBuilderAware() {").eol();
@@ -131,7 +143,7 @@ class BeanReader {
     writer.append("  }").eol().eol();
   }
 
-  void writeViewBuild(Append writer) {
+  private void writeViewBuild(Append writer) {
     writer.append("  @Override").eol();
     writer.append("  public void build(ViewBuilder builder, String name, MethodHandle handle) {").eol();
     writer.append("    builder.beginObject(name, handle);").eol();
@@ -143,7 +155,7 @@ class BeanReader {
       }
     }
     writer.append("    builder.endObject();").eol();
-    writer.append("  }").eol().eol();
+    writer.append("  }").eol();
   }
 
   void writeToJson(Append writer) {
@@ -294,5 +306,4 @@ class BeanReader {
     writer.append("    }").eol();
     writer.append("    reader.endObject();").eol();
   }
-
 }

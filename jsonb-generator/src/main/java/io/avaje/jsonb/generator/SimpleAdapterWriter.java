@@ -54,8 +54,7 @@ class SimpleAdapterWriter {
   }
 
   private void writeToFromJson() {
-    beanReader.writeView(writer);
-    beanReader.writeViewBuild(writer);
+    beanReader.writeViewSupport(writer);
     beanReader.writeToJson(writer);
     beanReader.writeFromJson(writer);
   }
@@ -65,7 +64,11 @@ class SimpleAdapterWriter {
   }
 
   private void writeClassStart() {
-    writer.append("public class %sJsonAdapter extends JsonAdapter<%s> implements ViewBuilderAware {", shortName, shortName).eol().eol();
+    writer.append("public class %sJsonAdapter extends JsonAdapter<%s> ", shortName, shortName);
+    if (!beanReader.hasSubtypes()) {
+      writer.append("implements ViewBuilderAware ");
+    }
+    writer.append("{").eol().eol();
   }
 
   private void writeFields() {
