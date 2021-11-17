@@ -12,5 +12,6 @@ public class MyComponent implements Jsonb.Component {
   public void register(Jsonb.Builder builder) {
     builder.add(Customer.class, CustomerJsonAdapter::new);
     builder.add(Contact.class, ContactJsonAdapter::new);
+    builder.add(Address.class, AddressJsonAdapter::new);
   }
 }

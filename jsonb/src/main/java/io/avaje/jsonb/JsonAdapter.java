@@ -15,23 +15,15 @@
  */
 package io.avaje.jsonb;
 
+import io.avaje.jsonb.spi.ViewBuilderAware;
+
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * The core API for serialization to and from json.
  */
 public abstract class JsonAdapter<T> {
-
-  /**
-   * Plan to use this to support "partial objects / views".
-   */
-  public void toJsonFrom(JsonWriter writer, Supplier<T> supplier) throws IOException {
-    toJson(writer, supplier.get());
-  }
 
   /**
    * Write the value to the writer.
@@ -51,6 +43,20 @@ public abstract class JsonAdapter<T> {
       return this;
     }
     return new NullSafeAdapter<>(this);
+  }
+
+  /**
+   * Return true if this adapter represents a json object or json array of objects that supports json views.
+   */
+  public boolean isViewBuilderAware() {
+    return false;
+  }
+
+  /**
+   * Return the ViewBuilder.Aware for this adapter.
+   */
+  public ViewBuilderAware viewBuild() {
+    throw new IllegalStateException("This adapter is not ViewBuilderAware");
   }
 
   public interface Factory {

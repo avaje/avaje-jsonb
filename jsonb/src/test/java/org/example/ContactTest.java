@@ -11,8 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ContactTest {
 
-  final UUID id = UUID.fromString("5cd91926-a0e9-4d15-9f90-ad1060e4d1c7");
-  final String jsonStart = "{\"id\":\""+id+"\",\"firstName\":\"rob\",\"lastName\":\"foo\"";
+
+  final String jsonStart = "{\"id\":44,\"firstName\":\"rob\",\"lastName\":\"foo\"";
 
   @Test
   void toJson() throws IOException {
@@ -28,7 +28,7 @@ class ContactTest {
       .build();
 
 
-    Contact contact = new Contact(id, "rob", "foo");
+    Contact contact = new Contact(44L, "rob", "foo");
 
 
     JsonType<Contact> contactType = jsonb.type(Contact.class);

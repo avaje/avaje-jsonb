@@ -4,11 +4,14 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.jackson.JacksonAdapter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.IOAdapter;
+import io.avaje.jsonb.spi.ViewBuilderAware;
 
 import java.io.*;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.avaje.jsonb.core.Util.*;
@@ -94,9 +97,21 @@ class DJsonb implements Jsonb {
     return builder.build(type, cacheKey);
   }
 
-
   JsonReader objectReader(Object value) {
     return new ObjectJsonReader(value);
+  }
+
+  <T> JsonView<T> buildView(String dsl, JsonAdapter<T> adapter, Type type) {
+    ViewBuilderAware aware = adapter.viewBuild();
+    // TODO: should cache by dsl and type
+    try {
+      ViewDsl viewDsl =  ViewDsl.parse(dsl);
+      ViewBuilder viewBuilder = new ViewBuilder(viewDsl);
+      aware.build(viewBuilder);
+      return viewBuilder.build(this);
+    } catch (Throwable e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   /**

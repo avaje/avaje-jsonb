@@ -1,46 +1,60 @@
 package org.example;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.*;
+import io.avaje.jsonb.spi.ViewBuilder;
+import io.avaje.jsonb.spi.ViewBuilderAware;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 
-public class ContactJsonAdapter extends JsonAdapter<Contact> {
+public class ContactJsonAdapter extends JsonAdapter<Contact> implements ViewBuilderAware {
 
-  public static class Register implements Jsonb.Component {
-    @Override
-    public void register(Jsonb.Builder builder) {
-      builder.add(Contact.class, ContactJsonAdapter::new);
-    }
-  }
-
-  private final JsonAdapter<UUID> uuidAdapter;
+  private final JsonAdapter<Long> longAdapter;
   private final JsonAdapter<String> stringAdapter;
 
   public ContactJsonAdapter(Jsonb jsonb) {
-    uuidAdapter = jsonb.adapter(UUID.class);
+    longAdapter = jsonb.adapter(Long.class);
     stringAdapter = jsonb.adapter(String.class);
+  }
+
+  @Override
+  public boolean isViewBuilderAware() {
+    return true;
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
+  }
+
+  @Override
+  public void build(ViewBuilder builder, String name, MethodHandle mh) throws NoSuchMethodException, IllegalAccessException {
+    builder.beginObject(name, mh);
+    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    builder.add("id", longAdapter, lookup.findVirtual(Contact.class, "id", MethodType.methodType(Long.class)));
+    builder.add("firstName", stringAdapter, lookup.findVirtual(Contact.class, "firstName", MethodType.methodType(String.class)));
+    builder.add("lastName", stringAdapter, lookup.findVirtual(Contact.class, "lastName", MethodType.methodType(String.class)));
+    builder.endObject();
   }
 
   @Override
   public void toJson(JsonWriter writer, Contact customer) throws IOException {
     writer.beginObject();
     writer.name("id");
-    uuidAdapter.toJson(writer, customer.id());
+    longAdapter.toJson(writer, customer.id());
     writer.name("firstName");
-    writer.value(customer.firstName());
+    stringAdapter.toJson(writer, customer.firstName());
     writer.name("lastName");
-    writer.value(customer.lastName());
+    stringAdapter.toJson(writer, customer.lastName());
     writer.endObject();
   }
 
   @Override
   public Contact fromJson(JsonReader reader) throws IOException {
 
-    UUID id = null;
+    Long id = null;
     String firstName = null;
     String lastName = null;
 
@@ -49,7 +63,7 @@ public class ContactJsonAdapter extends JsonAdapter<Contact> {
       String fieldName = reader.nextField();
       switch (fieldName) {
         case "id": {
-          id = uuidAdapter.fromJson(reader);
+          id = longAdapter.fromJson(reader);
           break;
         }
         case "firstName": {

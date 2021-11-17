@@ -9,6 +9,7 @@ public class Customer {
   Integer id;
   String name;
   Instant whenCreated;
+  Address billingAddress;
   List<Contact> contacts = new ArrayList<>();
 
   public Integer id() {
@@ -35,6 +36,15 @@ public class Customer {
 
   public Customer whenCreated(Instant whenCreated) {
     this.whenCreated = whenCreated;
+    return this;
+  }
+
+  public Address billingAddress() {
+    return billingAddress;
+  }
+
+  public Customer billingAddress(Address billingAddress) {
+    this.billingAddress = billingAddress;
     return this;
   }
 

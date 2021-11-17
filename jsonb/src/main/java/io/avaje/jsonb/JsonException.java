@@ -15,13 +15,22 @@
  */
 package io.avaje.jsonb;
 
-import java.io.IOException;
-
 /**
  * Thrown when the data being parsed is not encoded as valid JSON.
  */
-public final class JsonEncodingException extends IOException {
-  public JsonEncodingException(String message) {
+public final class JsonException extends RuntimeException {
+  public JsonException(String message) {
     super(message);
+  }
+
+  public JsonException(Throwable exception) {
+    super(exception);
+  }
+
+  public static JsonException of(Throwable e) {
+    if (e instanceof JsonException) {
+      return (JsonException)e;
+    }
+    return new JsonException(e);
   }
 }

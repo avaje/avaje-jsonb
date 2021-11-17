@@ -15,19 +15,19 @@
  */
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.*;
+import io.avaje.jsonb.spi.ViewBuilder;
+import io.avaje.jsonb.spi.ViewBuilderAware;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Type;
 import java.util.*;
 
 /**
  * Converts collection types to JSON arrays containing their converted contents.
  */
-abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> {
+abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> implements ViewBuilderAware {
 
   public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
     Class<?> rawType = Util.rawType(type);
@@ -90,6 +90,21 @@ abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter
   }
 
   abstract C newCollection();
+
+  @Override
+  public boolean isViewBuilderAware() {
+    return elementAdapter.isViewBuilderAware();
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
+  }
+
+  @Override
+  public void build(ViewBuilder builder, String name, MethodHandle handle) throws NoSuchMethodException, IllegalAccessException {
+    builder.addArray(name, elementAdapter, handle);
+  }
 
   @Override
   public C fromJson(JsonReader reader) throws IOException {

@@ -1,34 +1,49 @@
 package org.example;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.Types;
+import io.avaje.jsonb.*;
+import io.avaje.jsonb.spi.ViewBuilder;
+import io.avaje.jsonb.spi.ViewBuilderAware;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
 import java.time.Instant;
 import java.util.List;
 
-public class CustomerJsonAdapter extends JsonAdapter<Customer> {
-
-  public static class Register implements Jsonb.Component {
-    @Override
-    public void register(Jsonb.Builder builder) {
-      builder.add(Customer.class, CustomerJsonAdapter::new);
-    }
-  }
+public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBuilderAware {
 
   private final JsonAdapter<Integer> intAdapter;
   private final JsonAdapter<String> stringAdapter;
   private final JsonAdapter<Instant> instantAdapter;
   private final JsonAdapter<List<Contact>> contactsAdapter;
+  private final JsonAdapter<Address> addressAdapter;
 
   public CustomerJsonAdapter(Jsonb jsonb) {
     intAdapter = jsonb.adapter(Integer.TYPE);
     stringAdapter = jsonb.adapter(String.class);
     instantAdapter = jsonb.adapter(Instant.class);
+    addressAdapter = jsonb.adapter(Address.class).nullSafe();
     contactsAdapter = jsonb.adapter(Types.listOf(Contact.class));
+  }
+
+  @Override
+  public boolean isViewBuilderAware() {
+    return true;
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
+  }
+
+  @Override
+  public void build(ViewBuilder builder, String name, MethodHandle handle) throws NoSuchMethodException, IllegalAccessException {
+    builder.beginObject(name, handle);
+    builder.add("id", intAdapter, builder.method(Customer.class, "id", Integer.class));
+    builder.add("name", stringAdapter, builder.method(Customer.class, "name", String.class));
+    builder.add("whenCreated", instantAdapter, builder.method(Customer.class, "whenCreated", Instant.class));
+    builder.add("billingAddress", addressAdapter, builder.method(Customer.class, "billingAddress", Address.class));
+    builder.add("contacts", contactsAdapter, builder.method(Customer.class, "contacts", List.class));
+    builder.endObject();
   }
 
   @Override
@@ -37,19 +52,14 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> {
     writer.name("id");
     intAdapter.toJson(writer, customer.id());
     writer.name("name");
-    writer.value(customer.name());
+    stringAdapter.toJson(writer, customer.name());
     writer.name("whenCreated");
     instantAdapter.toJson(writer, customer.whenCreated());
+    writer.name("billingAddress");
+    addressAdapter.toJson(writer, customer.billingAddress());
     writer.name("contacts");
     contactsAdapter.toJson(writer, customer.contacts());
     writer.endObject();
-  }
-
-  public void buildFor(PartialContext ctx, Customer customer) {
-    //instantAdapter.toJsonFrom(writer, customer::whenCreated);
-    if (ctx.include("id")) {
-      ctx.add("id", intAdapter, customer::id);
-    }
   }
 
   @Override
@@ -58,6 +68,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> {
     Integer id = null; boolean _set$id = false;
     String name = null; boolean _set$name = false;
     Instant whenCreated = null; boolean _set$whenCreated = false;
+    Address billingAddress = null; boolean _set$billingAddress = false;
     List<Contact> contacts = null; boolean _set$contacts = false;
 
     reader.beginObject();
@@ -76,6 +87,10 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> {
           whenCreated = instantAdapter.fromJson(reader); _set$whenCreated = true;
           break;
         }
+        case "billingAddress": {
+          billingAddress = addressAdapter.fromJson(reader); _set$billingAddress = true;
+          break;
+        }
         case "contacts": {
           contacts = contactsAdapter.fromJson(reader); _set$contacts = true;
           break;
@@ -92,6 +107,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> {
     if (_set$id) customer.id(id);
     if (_set$name) customer.name(name);
     if (_set$whenCreated) customer.whenCreated(whenCreated);
+    if (_set$billingAddress) customer.billingAddress(billingAddress);
     if (_set$contacts) customer.contacts(contacts);
     return customer;
   }

@@ -1,15 +1,13 @@
 package org.example;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonType;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,14 +18,12 @@ class CustomerTest {
   @Test
   void toJson() throws IOException {
 
-    Jsonb jsonb = Jsonb.newBuilder()
-      //.add(Contact.class, ContactJsonAdapter::new)
-      //.add(Customer.class, CustomerJsonAdapter::new)
-      .build();
+    Jsonb jsonb = Jsonb.newBuilder().build();
 
-    Customer customer = new Customer().id(42).name("rob").whenCreated(Instant.now());
-    customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
-    customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
+    Address billingAddress = new Address().street("street").suburb("suburb");
+    Customer customer = new Customer().id(42).name("rob").whenCreated(Instant.now()).billingAddress(billingAddress);
+    customer.contacts().add(new Contact(7L, "fo", "nar"));
+    customer.contacts().add(new Contact(8L, "ba", "zar"));
 
 
     JsonType<Customer> customerType = jsonb.type(Customer.class);
@@ -54,7 +50,42 @@ class CustomerTest {
     assertThat(from1.id()).isEqualTo(customer.id());
     assertThat(from1.name()).isEqualTo(customer.name());
     assertThat(from1.whenCreated()).isEqualTo(customer.whenCreated());
-
   }
 
+  @Test
+  void jsonView() {
+
+    Jsonb jsonb = Jsonb.newBuilder().build();
+
+    JsonView<Customer> customerJsonView = jsonb.type(Customer.class).view("(id, name, billingAddress(street), contacts(id, lastName))");
+
+    Address billingAddress = new Address().street("my street").suburb("my suburb");
+    Customer customer = new Customer().id(42).name("rob").whenCreated(Instant.now()).billingAddress(billingAddress);
+    customer.contacts().add(new Contact(7L, "fo", "nar"));
+    customer.contacts().add(new Contact(8L, "ba", "zar"));
+
+    String asJson = customerJsonView.toJson(customer);
+    assertThat(asJson).isEqualTo("{\"id\":42,\"name\":\"rob\",\"billingAddress\":{\"street\":\"my street\"},\"contacts\":[{\"id\":7,\"lastName\":\"nar\"},{\"id\":8,\"lastName\":\"zar\"}]}");
+  }
+
+  @Test
+  void jsonView_list() {
+
+    Jsonb jsonb = Jsonb.newBuilder().build();
+
+    JsonView<List<Customer>> customerJsonView = jsonb.type(Customer.class).list().view("(id, name, contacts(*))");
+
+    Address billingAddress = new Address().street("my street").suburb("my suburb");
+    Customer customer0 = new Customer().id(42).name("rob").whenCreated(Instant.now()).billingAddress(billingAddress);
+    Customer customer1 = new Customer().id(43).name("bob").whenCreated(Instant.now()).billingAddress(billingAddress);
+    customer0.contacts().add(new Contact(7L, "fo", "nar"));
+    customer0.contacts().add(new Contact(8L, "ba", "zar"));
+
+    List<Customer> customers = new ArrayList<>();
+    customers.add(customer0);
+    customers.add(customer1);
+
+    String asJson = customerJsonView.toJson(customers);
+    assertThat(asJson).isEqualTo("[{\"id\":42,\"name\":\"rob\",\"contacts\":[{\"id\":7,\"firstName\":\"fo\",\"lastName\":\"nar\"},{\"id\":8,\"firstName\":\"ba\",\"lastName\":\"zar\"}]},{\"id\":43,\"name\":\"bob\"}]");
+  }
 }

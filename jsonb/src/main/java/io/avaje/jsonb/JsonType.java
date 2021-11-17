@@ -16,6 +16,27 @@ import java.util.Set;
 public interface JsonType<T> {
 
   /**
+   * Build and return the view given the DSL that specifies the properties to include.
+   * <p>
+   * Examples of json view DSL:
+   * <pre>{@code
+   *
+   *   // only include the id and name properties
+   *   (id, name)
+   *
+   *   // include billAddress which is a nested type
+   *   (id, name, billingAddress(street, suburb))
+   *
+   *   // include billAddress with all it's properties
+   *   (id, name, billingAddress(*))
+   *
+   *   (id, name, billingAddress(street, suburb), shippingAddress(*), contacts(email,lastName, firstName))
+   *
+   * }</pre>
+   */
+  JsonView<T> view(String dsl);
+
+  /**
    * Return the list type for this JsonType.
    */
   JsonType<List<T>> list();

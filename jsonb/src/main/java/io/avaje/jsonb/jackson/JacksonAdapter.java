@@ -13,10 +13,12 @@ public class JacksonAdapter implements IOAdapter {
 
   private final JsonFactory jsonFactory;
   private final boolean failOnUnknown;
+  private final NameCache nameCache;
 
   public JacksonAdapter(boolean failOnUnknown) {
     this.failOnUnknown = failOnUnknown;
     this.jsonFactory = new JsonFactory();
+    this.nameCache = new NameCache();
   }
 
   @Override
@@ -36,13 +38,13 @@ public class JacksonAdapter implements IOAdapter {
 
   @Override
   public JsonWriter writer(Writer writer) throws IOException {
-    return new JacksonWriter(jsonFactory.createGenerator(writer));
+    return new JacksonWriter(jsonFactory.createGenerator(writer), nameCache);
   }
 
 
   @Override
   public JsonWriter writer(OutputStream outputStream) throws IOException {
-    return new JacksonWriter(jsonFactory.createGenerator(outputStream));
+    return new JacksonWriter(jsonFactory.createGenerator(outputStream), nameCache);
   }
 
   @Override

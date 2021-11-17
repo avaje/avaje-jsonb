@@ -88,6 +88,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
     delegate.name(name);
   }
 
+//  @Override
+//  public void name(Object name) throws IOException {
+//    delegate.name(name);
+//  }
+
   @Override
   public void nullValue() throws IOException {
     delegate.nullValue();

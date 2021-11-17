@@ -1,6 +1,7 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.io.SerializedString;
 import io.avaje.jsonb.JsonWriter;
 
 import java.io.IOException;
@@ -11,13 +12,15 @@ import java.util.Map;
 
 final class JacksonWriter implements JsonWriter {
 
+  private final NameCache nameCache;
   private final JsonGenerator generator;
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
 
-  JacksonWriter(JsonGenerator generator) {
+  JacksonWriter(JsonGenerator generator, NameCache nameCache) {
     this.generator = generator;
+    this.nameCache = nameCache;
   }
 
   @Override
@@ -105,7 +108,9 @@ final class JacksonWriter implements JsonWriter {
   void writeDeferredName() throws IOException {
     if (deferredName != null) {
       //generator.writeFieldName();
-      generator.writeFieldName(deferredName);
+      SerializedString key = nameCache.get(deferredName);
+      generator.writeFieldName(key);
+      //generator.writeFieldName(deferredName);
       deferredName = null;
     }
   }
@@ -116,6 +121,8 @@ final class JacksonWriter implements JsonWriter {
       writeDeferredName();
       generator.writeStartArray();
       generator.writeEndArray();
+    } else if (deferredName != null) {
+      deferredName = null;
     }
   }
 
