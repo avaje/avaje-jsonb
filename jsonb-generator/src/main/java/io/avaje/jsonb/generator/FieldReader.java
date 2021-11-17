@@ -242,4 +242,13 @@ class FieldReader {
       writer.append("    _$%s.%s = unmapped;", varName, fieldName).eol();
     }
   }
+
+  void writeViewBuilder(Append writer, String shortName) {
+    if (getter == null) {
+      writer.append("    // null getter , need to handle field for %s", fieldName).eol();
+    } else {
+      String topType = genericType.topType();
+      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s.class));", fieldName, adapterFieldName, shortName, getter.getName(),topType).eol();
+    }
+  }
 }

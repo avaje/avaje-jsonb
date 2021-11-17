@@ -1,11 +1,6 @@
 package org.example.customer;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonType;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
-//import org.example.customer.jsonb.ContactJsonAdapter;
-//import org.example.customer.jsonb.CustomerJsonAdapter;
+import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -20,20 +15,24 @@ class CustomerTest {
   final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\",\"whenCreated\":";
 
   @Test
-  void toJson() throws IOException {
+  void toJson_view() {
+    Jsonb jsonb = Jsonb.newBuilder().build();
+    JsonView<Customer> customerJsonView = jsonb.type(Customer.class).view("(id, name)");
 
-    Jsonb jsonb = Jsonb.newBuilder()
-      // the below adapters are automatically registered via
-      // service loading the GeneratedJsonComponent
-      //.add(Contact.class, ContactJsonAdapter::new)
-      //.add(Customer.class, CustomerJsonAdapter::new)
-      .build();
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE).whenCreated(Instant.now());
+
+    String asJson = customerJsonView.toJson(customer);
+    assertThat(asJson).isEqualTo("{\"id\":42,\"name\":\"rob\"}");
+  }
+
+  @Test
+  void toJson() throws IOException {
 
     var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE).whenCreated(Instant.now());
     customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
     customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
 
-
+    Jsonb jsonb = Jsonb.newBuilder().build();
     JsonType<Customer> customerType = jsonb.type(Customer.class);
     String asJson = customerType.toJson(customer);
     assertThat(asJson).startsWith(jsonStart);

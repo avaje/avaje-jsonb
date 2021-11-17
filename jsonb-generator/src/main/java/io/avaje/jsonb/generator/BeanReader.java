@@ -68,7 +68,9 @@ class BeanReader {
 
   private Set<String> importTypes() {
     importTypes.add(Constants.JSONB_WILD);
+    importTypes.add(Constants.JSONB_SPI);
     importTypes.add(Constants.IOEXCEPTION);
+    importTypes.add(Constants.METHODHANDLE);
 
     if (Util.validImportType(type)) {
       importTypes.add(type);
@@ -115,6 +117,33 @@ class BeanReader {
         }
       }
     }
+  }
+
+  void writeView(Append writer) {
+    writer.eol();
+    writer.append("  @Override").eol();
+    writer.append("  public boolean isViewBuilderAware() {").eol();
+    writer.append("    return true;").eol();
+    writer.append("  }").eol().eol();
+    writer.append("  @Override").eol();
+    writer.append("  public ViewBuilderAware viewBuild() {").eol();
+    writer.append("    return this;").eol();
+    writer.append("  }").eol().eol();
+  }
+
+  void writeViewBuild(Append writer) {
+    writer.append("  @Override").eol();
+    writer.append("  public void build(ViewBuilder builder, String name, MethodHandle handle) {").eol();
+    writer.append("    builder.beginObject(name, handle);").eol();
+    if (!hasSubTypes) {
+      for (FieldReader allField : allFields) {
+        if (allField.includeToJson(null)) {
+          allField.writeViewBuilder(writer, shortName);
+        }
+      }
+    }
+    writer.append("    builder.endObject();").eol();
+    writer.append("  }").eol().eol();
   }
 
   void writeToJson(Append writer) {

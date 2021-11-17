@@ -56,16 +56,20 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   }
 
   @Override
-  public void add(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) throws NoSuchMethodException, IllegalAccessException {
-    if (viewDsl.contains(name)) {
-      if (adapter.isViewBuilderAware()) {
-        ViewBuilderAware nested = adapter.viewBuild();
-        viewDsl.push(name);
-        nested.build(this, name, methodHandle);
-        viewDsl.pop();
-      } else {
-        current.add(new Scalar(name, adapter, methodHandle));
+  public void add(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) {
+    try {
+      if (viewDsl.contains(name)) {
+        if (adapter.isViewBuilderAware()) {
+          ViewBuilderAware nested = adapter.viewBuild();
+          viewDsl.push(name);
+          nested.build(this, name, methodHandle);
+          viewDsl.pop();
+        } else {
+          current.add(new Scalar(name, adapter, methodHandle));
+        }
       }
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new IllegalStateException(e);
     }
   }
 

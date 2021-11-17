@@ -8,7 +8,7 @@ public interface ViewBuilder {
 
   void beginObject(String name, MethodHandle methodHandle);
 
-  void add(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) throws NoSuchMethodException, IllegalAccessException;
+  void add(String name, JsonAdapter<?> adapter, MethodHandle methodHandle);
 
   void addArray(String name, JsonAdapter<?> adapter, MethodHandle methodHandle);
 
