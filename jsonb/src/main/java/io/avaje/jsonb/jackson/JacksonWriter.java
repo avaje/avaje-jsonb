@@ -16,7 +16,7 @@ final class JacksonWriter implements JsonWriter {
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
-  private final ArrayStack<JacksonNames> nameStack = new ArrayStack<>();
+  private ArrayStack<JacksonNames> nameStack;
   private JacksonNames currentNames;
   private int namePos = -1;
 
@@ -99,9 +99,7 @@ final class JacksonWriter implements JsonWriter {
   @Override
   public void endObject() throws IOException {
     generator.writeEndObject();
-    if (!nameStack.isEmpty()) {
-      currentNames = nameStack.pop();
-    }
+    currentNames = nameStack != null ? nameStack.pop() : null;
   }
 
   @Override
@@ -112,14 +110,17 @@ final class JacksonWriter implements JsonWriter {
   @Override
   public void names(MetaNames nextNames) {
     if (currentNames != null) {
+      if (nameStack == null) {
+        nameStack = new ArrayStack<>();
+      }
       nameStack.push(currentNames);
     }
     this.currentNames = (JacksonNames)nextNames;
   }
 
   @Override
-  public void key(int i) {
-    this.namePos = i;
+  public void name(int position) {
+    this.namePos = position;
   }
 
   void writeDeferredName() throws IOException {

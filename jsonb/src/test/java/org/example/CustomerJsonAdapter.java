@@ -53,15 +53,15 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
   public void toJson(JsonWriter writer, Customer customer) throws IOException {
     writer.beginObject();
     writer.names(names);
-    writer.key( 0);
+    writer.name( 0);
     intAdapter.toJson(writer, customer.id());
-    writer.key( 1);
+    writer.name( 1);
     stringAdapter.toJson(writer, customer.name());
-    writer.key( 2);
+    writer.name( 2);
     instantAdapter.toJson(writer, customer.whenCreated());
-    writer.key( 3);
+    writer.name( 3);
     addressAdapter.toJson(writer, customer.billingAddress());
-    writer.key( 4);
+    writer.name( 4);
     contactsAdapter.toJson(writer, customer.contacts());
     writer.endObject();
   }

@@ -25,25 +25,27 @@ public class MyCustomNarrowAdapter extends JsonAdapter<NarrowNamesRecord> {
 
   public MyCustomNarrowAdapter(Jsonb jsonb) {
     this.stringJsonAdapter = jsonb.adapter(String.class);
-    names = jsonb.properties("a", "b", "c", "d", "e");
-
-    new Random();
+    this.names = jsonb.properties("a", "b", "c", "d", "e");
   }
 
   @Override
   public void toJson(JsonWriter writer, NarrowNamesRecord myRecord) throws IOException {
     writer.beginObject();
-    writer.names(names);
-    //writer.name("firstNameProperty1");
-    writer.key(0);
+    //writer.names(names);
+    //writer.name(0);
+    writer.name("a");
     stringJsonAdapter.toJson(writer, myRecord.a());
-    writer.key(1);
+    //writer.name(1);
+    writer.name("b");
     stringJsonAdapter.toJson(writer, myRecord.b());
-    writer.key(2);
+    //writer.name(2);
+    writer.name("c");
     stringJsonAdapter.toJson(writer, myRecord.c());
-    writer.key(3);
+    //writer.name(3);
+    writer.name("d");
     stringJsonAdapter.toJson(writer, myRecord.d());
-    writer.key(4);
+    //writer.name(4);
+    writer.name("e");
     stringJsonAdapter.toJson(writer, myRecord.e());
     writer.endObject();
   }

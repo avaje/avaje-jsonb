@@ -54,7 +54,7 @@ public interface JsonWriter extends Closeable, Flushable {
 
   void names(MetaNames names);
 
-  void key(int i);
+  void name(int position);
 
   void name(String name) throws IOException;
 

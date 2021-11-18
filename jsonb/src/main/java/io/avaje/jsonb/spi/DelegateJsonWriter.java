@@ -94,8 +94,8 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void key(int i) {
-    delegate.key(i);
+  public void name(int position) {
+    delegate.name(position);
   }
 
   @Override

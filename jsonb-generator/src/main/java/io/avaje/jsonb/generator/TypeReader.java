@@ -51,14 +51,14 @@ class TypeReader {
     if (currentSubType == null && type != baseType) {
       allFields.addAll(0, localFields);
       for (FieldReader localField : localFields) {
-        allFieldMap.put(localField.getFieldName(), localField);
+        allFieldMap.put(localField.fieldName(), localField);
       }
     } else {
       for (FieldReader localField : localFields) {
-        FieldReader commonField = allFieldMap.get(localField.getFieldName());
+        FieldReader commonField = allFieldMap.get(localField.fieldName());
         if (commonField == null) {
           allFields.add(localField);
-          allFieldMap.put(localField.getFieldName(), localField);
+          allFieldMap.put(localField.fieldName(), localField);
         } else {
           commonField.addSubType(currentSubType);
         }
@@ -117,7 +117,7 @@ class TypeReader {
 
   private void matchFieldsToSetterOrConstructor() {
     for (FieldReader field : allFields) {
-      if (constructorParamMap.get(field.getFieldName()) != null) {
+      if (constructorParamMap.get(field.fieldName()) != null) {
         field.constructorParam();
       } else {
         matchFieldToSetter(field);
@@ -127,7 +127,7 @@ class TypeReader {
 
 
   private void matchFieldToSetter(FieldReader field) {
-    String name = field.getFieldName();
+    String name = field.fieldName();
     MethodReader setter = maybeSetterMethods.get(name);
     if (setter != null) {
       field.setterMethod(setter);
@@ -148,7 +148,7 @@ class TypeReader {
   }
 
   private void matchFieldToGetter(FieldReader field) {
-    String name = field.getFieldName();
+    String name = field.fieldName();
     MethodReader getter = maybeGetterMethods.get(name);
     if (getter != null) {
       field.getterMethod(getter);
@@ -239,6 +239,7 @@ class TypeReader {
   }
 
   void processCompleted() {
+    setFieldPositions();
     constructor = determineConstructor();
     if (constructor != null) {
       List<MethodReader.MethodParam> params = constructor.getParams();
@@ -248,6 +249,16 @@ class TypeReader {
     }
     matchFieldsToSetterOrConstructor();
     matchFieldsToGetter();
+  }
+
+  /**
+   * Set the index position of the fields (for MetaNames).
+   */
+  private void setFieldPositions() {
+    int offset = subTypes.hasSubTypes() ? 1 : 0;
+    for (int pos = 0, size = allFields.size(); pos < size; pos++) {
+      allFields.get(pos).position(pos + offset);
+    }
   }
 
   private void addSuperType(TypeElement element, TypeElement matchType) {

@@ -25,7 +25,7 @@ class FieldReader {
 
   private MethodReader setter;
   private MethodReader getter;
-
+  private int position;
   private boolean constructorParam;
 
   FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType) {
@@ -58,8 +58,16 @@ class FieldReader {
     }
   }
 
-  String getFieldName() {
+  void position(int pos) {
+    position = pos;
+  }
+
+  String fieldName() {
     return fieldName;
+  }
+
+  String propertyName() {
+    return propertyName;
   }
 
   boolean isUnmapped() {
@@ -160,7 +168,7 @@ class FieldReader {
       writer.append("%s }", prefix).eol();
       writer.append("%s}", prefix).eol();
     } else {
-      writer.append("%swriter.name(\"%s\");", prefix, propertyName).eol();
+      writer.append("%swriter.name(%s);", prefix, position).eol();
       writer.append("%s%s.toJson(writer, ", prefix, adapterFieldName);
       writeGetValue(writer, varName, ");");
       writer.eol();

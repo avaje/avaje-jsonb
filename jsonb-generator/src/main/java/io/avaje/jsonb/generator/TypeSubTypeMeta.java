@@ -71,7 +71,7 @@ class TypeSubTypeMeta {
 
   private boolean isIncludeSetter(FieldReader field) {
     return field.includeFromJson()
-      && !constructorFieldNames.contains(field.getFieldName())
+      && !constructorFieldNames.contains(field.fieldName())
       && field.includeForType(this);
   }
 

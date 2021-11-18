@@ -44,11 +44,11 @@ public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuil
   public void toJson(JsonWriter writer, Address address) throws IOException {
     writer.beginObject();
     writer.names(names);
-    writer.key(0);
+    writer.name(0);
     stringAdapter.toJson(writer, address.street());
-    writer.key(1);
+    writer.name(1);
     stringAdapter.toJson(writer, address.suburb());
-    writer.key(2);
+    writer.name(2);
     stringAdapter.toJson(writer, address.city());
     writer.endObject();
   }

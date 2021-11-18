@@ -29,17 +29,17 @@ public class MyCustomWideAdapter extends JsonAdapter<WideNamesRecord> {
   @Override
   public void toJson(JsonWriter writer, WideNamesRecord myRecord) throws IOException {
     writer.beginObject();
-    writer.names(names);
-    //writer.name("firstNameProperty1");
-    writer.key(0);
+    //writer.names(names);
+    //writer.name(0);
+    writer.name("firstNameProperty1");
     stringJsonAdapter.toJson(writer, myRecord.firstNameProperty1());
-    writer.key(1);
+    writer.name("lastNameProperty2");
     stringJsonAdapter.toJson(writer, myRecord.lastNameProperty2());
-    writer.key(2);
+    writer.name("anotherSimilarProperty3");
     stringJsonAdapter.toJson(writer, myRecord.anotherSimilarProperty3());
-    writer.key(3);
+    writer.name("moreOrLessProperty4");
     stringJsonAdapter.toJson(writer, myRecord.moreOrLessProperty4());
-    writer.key(4);
+    writer.name("lastButNotLeastProperty5");
     stringJsonAdapter.toJson(writer, myRecord.lastButNotLeastProperty5());
     writer.endObject();
   }

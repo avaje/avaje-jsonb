@@ -14,7 +14,7 @@ final class ArrayStack<E> {
   /**
    * Creates an empty Stack.
    */
-  public ArrayStack() {
+  ArrayStack() {
     this.list = new ArrayList<>();
   }
 
@@ -26,56 +26,16 @@ final class ArrayStack<E> {
   /**
    * Pushes an item onto the top of this stack.
    */
-  public void push(E item) {
+  void push(E item) {
     list.add(item);
   }
 
   /**
-   * Removes the object at the top of this stack and returns that object as
-   * the value of this function.
+   * Removes the object at the top of this stack or null if it's empty.
    */
-  public E pop() {
+  E pop() {
     int len = list.size();
-    if (len == 0) {
-      throw new EmptyStackException();
-    }
-    return list.remove(len - 1);
+    return len == 0 ? null : list.remove(len - 1);
   }
 
-//  private E peekZero(boolean retNull) {
-//    int len = list.size();
-//    if (len == 0) {
-//      if (retNull) {
-//        return null;
-//      }
-//      throw new EmptyStackException();
-//    }
-//    return list.get(len - 1);
-//  }
-
-//  /**
-//   * Returns the object at the top of this stack without removing it.
-//   */
-//  public E peek() {
-//    return peekZero(false);
-//  }
-//
-//  /**
-//   * Returns the object at the top of this stack without removing it.
-//   * If the stack is empty this returns null.
-//   */
-//  public E peekWithNull() {
-//    return peekZero(true);
-//  }
-
-  /**
-   * Tests if this stack is empty.
-   */
-  public boolean isEmpty() {
-    return list.isEmpty();
-  }
-//
-//  public boolean contains(E o) {
-//    return list.contains(o);
-//  }
 }

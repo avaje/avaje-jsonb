@@ -73,8 +73,8 @@ class BeanReader {
   private Set<String> importTypes() {
     importTypes.add(Constants.JSONB_WILD);
     importTypes.add(Constants.IOEXCEPTION);
+    importTypes.add(Constants.JSONB_SPI);
     if (!hasSubTypes) {
-      importTypes.add(Constants.JSONB_SPI);
       importTypes.add(Constants.METHODHANDLE);
     }
     if (Util.validImportType(type)) {
@@ -110,6 +110,7 @@ class BeanReader {
         }
       }
     }
+    writer.append("  private final MetaNames names;").eol();
     writer.eol();
   }
 
@@ -122,8 +123,19 @@ class BeanReader {
         }
       }
     }
+    writer.append("    this.names = jsonb.properties(");
+    if (hasSubTypes) {
+      writer.append("\"").append(typeProperty).append("\", ");
+    }
+    for (int i = 0, size = allFields.size(); i < size; i++) {
+      FieldReader fieldReader = allFields.get(i);
+      if (i > 0) {
+        writer.append(", ");
+      }
+      writer.append("\"").append(fieldReader.propertyName()).append("\"");
+    }
+    writer.append(");").eol();
   }
-
 
   void writeViewSupport(Append writer) {
     if (!hasSubTypes) {
@@ -164,6 +176,7 @@ class BeanReader {
     writer.append("  @Override").eol();
     writer.append("  public void toJson(JsonWriter writer, %s %s) throws IOException {", shortName, varName).eol();
     writer.append("    writer.beginObject();").eol();
+    writer.append("    writer.names(names);").eol();
     if (hasSubTypes) {
       writeToJsonForSubtypes(writer, varName);
     } else {
@@ -183,7 +196,7 @@ class BeanReader {
         String elseIf = i == 0 ? "if" : "else if";
         writer.append("    %s (%s instanceof %s) {", elseIf, varName, subType).eol();
         writer.append("      %s sub = (%s)%s;", subType, subType, varName).eol();
-        writer.append("      writer.name(\"%s\");", typeProperty).eol();
+        writer.append("      writer.name(0);").eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
         writeToJsonForType(writer, "sub", "      ", subType);
         writer.append("    }").eol();
@@ -271,7 +284,7 @@ class BeanReader {
 
   String constructorParamName(String name) {
     if (unmappedField != null) {
-      if (unmappedField.getFieldName().equals(name)) {
+      if (unmappedField.fieldName().equals(name)) {
         return "unmapped";
       }
     }
