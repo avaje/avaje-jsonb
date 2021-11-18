@@ -2,13 +2,12 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.Bootstrap;
+import io.avaje.jsonb.spi.MetaNames;
 
 import java.io.*;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.ServiceLoader;
-import java.util.Set;
 
 public interface Jsonb {
 
@@ -73,6 +72,8 @@ public interface Jsonb {
    * Return the JsonWriter used to write json to the given outputStream.
    */
   JsonWriter writer(OutputStream outputStream) throws IOException;
+
+  MetaNames properties(String... names);
 
   /**
    * Build the Jsonb instance adding JsonAdapter, Factory or AdapterBuilder.

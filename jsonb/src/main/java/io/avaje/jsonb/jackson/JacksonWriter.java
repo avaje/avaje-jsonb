@@ -1,8 +1,8 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.io.SerializedString;
 import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.spi.MetaNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -12,15 +12,16 @@ import java.util.Map;
 
 final class JacksonWriter implements JsonWriter {
 
-  private final NameCache nameCache;
   private final JsonGenerator generator;
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
+  private final ArrayStack<JacksonNames> nameStack = new ArrayStack<>();
+  private JacksonNames currentNames;
+  private int namePos = -1;
 
-  JacksonWriter(JsonGenerator generator, NameCache nameCache) {
+  JacksonWriter(JsonGenerator generator) {
     this.generator = generator;
-    this.nameCache = nameCache;
   }
 
   @Override
@@ -98,6 +99,9 @@ final class JacksonWriter implements JsonWriter {
   @Override
   public void endObject() throws IOException {
     generator.writeEndObject();
+    if (!nameStack.isEmpty()) {
+      currentNames = nameStack.pop();
+    }
   }
 
   @Override
@@ -105,12 +109,25 @@ final class JacksonWriter implements JsonWriter {
     deferredName = name;
   }
 
+  @Override
+  public void names(MetaNames nextNames) {
+    if (currentNames != null) {
+      nameStack.push(currentNames);
+    }
+    this.currentNames = (JacksonNames)nextNames;
+  }
+
+  @Override
+  public void key(int i) {
+    this.namePos = i;
+  }
+
   void writeDeferredName() throws IOException {
-    if (deferredName != null) {
-      //generator.writeFieldName();
-      SerializedString key = nameCache.get(deferredName);
-      generator.writeFieldName(key);
-      //generator.writeFieldName(deferredName);
+    if (namePos > -1) {
+      generator.writeFieldName(currentNames.key(namePos));
+      namePos = -1;
+    } else if (deferredName != null) {
+      generator.writeFieldName(deferredName);
       deferredName = null;
     }
   }
@@ -121,6 +138,8 @@ final class JacksonWriter implements JsonWriter {
       writeDeferredName();
       generator.writeStartArray();
       generator.writeEndArray();
+    } else if (namePos >= 0) {
+      namePos = -1;
     } else if (deferredName != null) {
       deferredName = null;
     }

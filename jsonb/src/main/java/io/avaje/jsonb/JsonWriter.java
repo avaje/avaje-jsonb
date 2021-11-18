@@ -15,6 +15,8 @@
  */
 package io.avaje.jsonb;
 
+import io.avaje.jsonb.spi.MetaNames;
+
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -50,9 +52,11 @@ public interface JsonWriter extends Closeable, Flushable {
 
   void endObject() throws IOException;
 
-  void name(String name) throws IOException;
+  void names(MetaNames names);
 
-  //void name(Object name) throws IOException;
+  void key(int i);
+
+  void name(String name) throws IOException;
 
   void nullValue() throws IOException;
 

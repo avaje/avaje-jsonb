@@ -1,6 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.*;
+import io.avaje.jsonb.spi.MetaNames;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
@@ -12,9 +13,11 @@ import java.lang.invoke.MethodType;
 public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuilderAware {
 
   private final JsonAdapter<String> stringAdapter;
+  private final MetaNames names;
 
   public AddressJsonAdapter(Jsonb jsonb) {
     stringAdapter = jsonb.adapter(String.class);
+    names = jsonb.properties("street", "suburb", "city");
   }
 
   @Override
@@ -40,11 +43,12 @@ public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuil
   @Override
   public void toJson(JsonWriter writer, Address address) throws IOException {
     writer.beginObject();
-    writer.name("street");
+    writer.names(names);
+    writer.key(0);
     stringAdapter.toJson(writer, address.street());
-    writer.name("suburb");
+    writer.key(1);
     stringAdapter.toJson(writer, address.suburb());
-    writer.name("city");
+    writer.key(2);
     stringAdapter.toJson(writer, address.city());
     writer.endObject();
   }

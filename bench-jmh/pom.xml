@@ -12,7 +12,7 @@
   <properties>
     <jmh.version>1.33</jmh.version>
     <yasson.version>2.0.2</yasson.version>
-    <avaje-jsonb.version>0.1-SNAPSHOT</avaje-jsonb.version>
+    <avaje-jsonb.version>0.2-SNAPSHOT</avaje-jsonb.version>
     <java.release>17</java.release>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>

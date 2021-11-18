@@ -45,14 +45,14 @@ public class PropertyStrTenTest {
     Jsonb viewAwareJsonb = Jsonb.newBuilder().add(SomePropertyData.class, MyViewAdapter::new).build();
     JsonType<SomePropertyData> viewAwareType = viewAwareJsonb.type(SomePropertyData.class);
     allView = viewAwareType.view("(*)");
-    prop35View = viewAwareType.view("(prop3, prop5)");
+    prop35View = viewAwareType.view("(anotherSimilarProperty3, lastButNotLeastProperty5)");
 
     var moshi = new Moshi.Builder().build();
     moshiAdapter = moshi.adapter(SomePropertyData.class);
-    testData =       new SomePropertyData("prop1", "prop2", "property3", "property4", "property5", "property6", "property7", "property8", "property9", "property10");
-    loganTestData = new OtherPropertyData("prop1", "prop2", "property3", "property4", "property5", "property6", "property7", "property8", "property9", "property10");
+    testData =       new SomePropertyData("firstNameProperty1", "lastNameProperty2", "anotherSimilarProperty3", "moreOrLessProperty4", "lastButNotLeastProperty5", "property6", "property7", "property8", "property9", "property10");
+    loganTestData = new OtherPropertyData("firstNameProperty1", "lastNameProperty2", "anotherSimilarProperty3", "moreOrLessProperty4", "lastButNotLeastProperty5", "property6", "property7", "property8", "property9", "property10");
 
-    content = "{\"prop1\":\"prop1\",\"prop2\":\"prop2\",\"prop3\":\"property3\",\"prop4\":\"property4\",\"prop5\":\"property5\",\"prop6\":\"property6\",\"prop7\":\"property7\",\"prop8\":\"property8\",\"prop9\":\"property9\",\"prop10\":\"property10\"}";
+    content = "{\"firstNameProperty1\":\"firstNameProperty1\",\"lastNameProperty2\":\"lastNameProperty2\",\"anotherSimilarProperty3\":\"anotherSimilarProperty3\",\"moreOrLessProperty4\":\"moreOrLessProperty4\",\"lastButNotLeastProperty5\":\"lastButNotLeastProperty5\",\"prop6\":\"property6\",\"prop7\":\"property7\",\"prop8\":\"property8\",\"prop9\":\"property9\",\"prop10\":\"property10\"}";
   }
 
   @Benchmark

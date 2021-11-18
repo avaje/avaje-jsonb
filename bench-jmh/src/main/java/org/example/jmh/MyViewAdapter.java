@@ -13,11 +13,11 @@ import org.example.jmh.model.SomePropertyData;
 public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements ViewBuilderAware {
 
   // naming convention Match
-  // prop1 [java.lang.String] name:prop1 setter:setProp1
-  // prop2 [java.lang.String] name:prop2 setter:setProp2
-  // prop3 [java.lang.String] name:prop3 setter:setProp3
-  // prop4 [java.lang.String] name:prop4 setter:setProp4
-  // prop5 [java.lang.String] name:prop5 setter:setProp5
+  // firstNameProperty1 [java.lang.String] name:firstNameProperty1 setter:setProp1
+  // lastNameProperty2 [java.lang.String] name:lastNameProperty2 setter:setProp2
+  // anotherSimilarProperty3 [java.lang.String] name:anotherSimilarProperty3 setter:setProp3
+  // moreOrLessProperty4 [java.lang.String] name:moreOrLessProperty4 setter:setProp4
+  // lastButNotLeastProperty5 [java.lang.String] name:lastButNotLeastProperty5 setter:setProp5
   // prop6 [java.lang.String] name:prop6 setter:setProp6
   // prop7 [java.lang.String] name:prop7 setter:setProp7
   // prop8 [java.lang.String] name:prop8 setter:setProp8
@@ -43,11 +43,11 @@ public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements View
   @Override
   public void build(ViewBuilder builder, String name, MethodHandle handle) throws NoSuchMethodException, IllegalAccessException {
     builder.beginObject(name, handle);
-    builder.add("prop1", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp1", String.class));
-    builder.add("prop2", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp2", String.class));
-    builder.add("prop3", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp3", String.class));
-    builder.add("prop4", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp4", String.class));
-    builder.add("prop5", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp5", String.class));
+    builder.add("firstNameProperty1", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp1", String.class));
+    builder.add("lastNameProperty2", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp2", String.class));
+    builder.add("anotherSimilarProperty3", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp3", String.class));
+    builder.add("moreOrLessProperty4", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp4", String.class));
+    builder.add("lastButNotLeastProperty5", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp5", String.class));
     builder.add("prop6", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp6", String.class));
     builder.add("prop7", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp7", String.class));
     builder.add("prop8", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp8", String.class));
@@ -59,15 +59,15 @@ public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements View
   @Override
   public void toJson(JsonWriter writer, SomePropertyData somePropertyData) throws IOException {
     writer.beginObject();
-    writer.name("prop1");
+    writer.name("firstNameProperty1");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp1());
-    writer.name("prop2");
+    writer.name("lastNameProperty2");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp2());
-    writer.name("prop3");
+    writer.name("anotherSimilarProperty3");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp3());
-    writer.name("prop4");
+    writer.name("moreOrLessProperty4");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp4());
-    writer.name("prop5");
+    writer.name("lastButNotLeastProperty5");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp5());
     writer.name("prop6");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp6());
@@ -91,19 +91,19 @@ public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements View
     while (reader.hasNextField()) {
       String fieldName = reader.nextField();
       switch (fieldName) {
-        case "prop1": {
+        case "firstNameProperty1": {
           _$somePropertyData.setProp1(stringJsonAdapter.fromJson(reader)); break;
         }
-        case "prop2": {
+        case "lastNameProperty2": {
           _$somePropertyData.setProp2(stringJsonAdapter.fromJson(reader)); break;
         }
-        case "prop3": {
+        case "anotherSimilarProperty3": {
           _$somePropertyData.setProp3(stringJsonAdapter.fromJson(reader)); break;
         }
-        case "prop4": {
+        case "moreOrLessProperty4": {
           _$somePropertyData.setProp4(stringJsonAdapter.fromJson(reader)); break;
         }
-        case "prop5": {
+        case "lastButNotLeastProperty5": {
           _$somePropertyData.setProp5(stringJsonAdapter.fromJson(reader)); break;
         }
         case "prop6": {

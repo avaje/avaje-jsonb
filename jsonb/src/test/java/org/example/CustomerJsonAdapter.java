@@ -1,6 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.*;
+import io.avaje.jsonb.spi.MetaNames;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
@@ -16,6 +17,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
   private final JsonAdapter<Instant> instantAdapter;
   private final JsonAdapter<List<Contact>> contactsAdapter;
   private final JsonAdapter<Address> addressAdapter;
+  private final MetaNames names;
 
   public CustomerJsonAdapter(Jsonb jsonb) {
     intAdapter = jsonb.adapter(Integer.TYPE);
@@ -23,6 +25,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
     instantAdapter = jsonb.adapter(Instant.class);
     addressAdapter = jsonb.adapter(Address.class).nullSafe();
     contactsAdapter = jsonb.adapter(Types.listOf(Contact.class));
+    names = jsonb.properties("id", "name", "whenCreated", "billingAddress", "contacts");
   }
 
   @Override
@@ -49,15 +52,16 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
   @Override
   public void toJson(JsonWriter writer, Customer customer) throws IOException {
     writer.beginObject();
-    writer.name("id");
+    writer.names(names);
+    writer.key( 0);
     intAdapter.toJson(writer, customer.id());
-    writer.name("name");
+    writer.key( 1);
     stringAdapter.toJson(writer, customer.name());
-    writer.name("whenCreated");
+    writer.key( 2);
     instantAdapter.toJson(writer, customer.whenCreated());
-    writer.name("billingAddress");
+    writer.key( 3);
     addressAdapter.toJson(writer, customer.billingAddress());
-    writer.name("contacts");
+    writer.key( 4);
     contactsAdapter.toJson(writer, customer.contacts());
     writer.endObject();
   }
