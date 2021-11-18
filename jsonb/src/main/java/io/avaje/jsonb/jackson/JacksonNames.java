@@ -1,9 +1,9 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.io.SerializedString;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 
-final class JacksonNames implements MetaNames {
+final class JacksonNames implements PropertyNames {
 
   private final SerializedString[] keys;
 

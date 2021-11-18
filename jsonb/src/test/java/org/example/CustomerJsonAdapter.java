@@ -1,7 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
@@ -17,7 +17,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
   private final JsonAdapter<Instant> instantAdapter;
   private final JsonAdapter<List<Contact>> contactsAdapter;
   private final JsonAdapter<Address> addressAdapter;
-  private final MetaNames names;
+  private final PropertyNames names;
 
   public CustomerJsonAdapter(Jsonb jsonb) {
     intAdapter = jsonb.adapter(Integer.TYPE);

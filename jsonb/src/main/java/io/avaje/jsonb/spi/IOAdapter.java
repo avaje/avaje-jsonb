@@ -19,5 +19,5 @@ public interface IOAdapter {
 
   BufferedJsonWriter bufferedWriter() throws IOException;
 
-  MetaNames properties(String... names);
+  PropertyNames properties(String... names);
 }

@@ -1,7 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
@@ -13,7 +13,7 @@ import java.lang.invoke.MethodType;
 public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuilderAware {
 
   private final JsonAdapter<String> stringAdapter;
-  private final MetaNames names;
+  private final PropertyNames names;
 
   public AddressJsonAdapter(Jsonb jsonb) {
     stringAdapter = jsonb.adapter(String.class);

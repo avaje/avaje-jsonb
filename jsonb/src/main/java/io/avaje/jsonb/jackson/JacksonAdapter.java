@@ -6,7 +6,7 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.IOAdapter;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.*;
 
@@ -21,7 +21,7 @@ public class JacksonAdapter implements IOAdapter {
   }
 
   @Override
-  public MetaNames properties(String... names) {
+  public PropertyNames properties(String... names) {
     return new JacksonNames(names);
   }
 

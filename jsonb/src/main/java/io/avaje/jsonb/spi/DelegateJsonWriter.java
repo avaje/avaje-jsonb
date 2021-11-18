@@ -89,7 +89,7 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void names(MetaNames names) {
+  public void names(PropertyNames names) {
     delegate.names(names);
   }
 

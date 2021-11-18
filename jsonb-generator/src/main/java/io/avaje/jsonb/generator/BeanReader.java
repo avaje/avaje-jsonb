@@ -110,7 +110,7 @@ class BeanReader {
         }
       }
     }
-    writer.append("  private final MetaNames names;").eol();
+    writer.append("  private final PropertyNames names;").eol();
     writer.eol();
   }
 

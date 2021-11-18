@@ -252,7 +252,7 @@ class TypeReader {
   }
 
   /**
-   * Set the index position of the fields (for MetaNames).
+   * Set the index position of the fields (for PropertyNames).
    */
   private void setFieldPositions() {
     int offset = subTypes.hasSubTypes() ? 1 : 0;

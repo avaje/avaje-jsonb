@@ -2,7 +2,7 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.Bootstrap;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -73,7 +73,7 @@ public interface Jsonb {
    */
   JsonWriter writer(OutputStream outputStream) throws IOException;
 
-  MetaNames properties(String... names);
+  PropertyNames properties(String... names);
 
   /**
    * Build the Jsonb instance adding JsonAdapter, Factory or AdapterBuilder.

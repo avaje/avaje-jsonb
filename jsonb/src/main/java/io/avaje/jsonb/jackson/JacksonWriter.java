@@ -2,7 +2,7 @@ package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -108,7 +108,7 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void names(MetaNames nextNames) {
+  public void names(PropertyNames nextNames) {
     if (currentNames != null) {
       if (nameStack == null) {
         nameStack = new ArrayStack<>();

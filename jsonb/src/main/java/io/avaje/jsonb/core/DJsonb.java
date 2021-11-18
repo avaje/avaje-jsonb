@@ -4,7 +4,7 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.jackson.JacksonAdapter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.IOAdapter;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
 import java.io.*;
@@ -33,7 +33,7 @@ class DJsonb implements Jsonb {
   }
 
   @Override
-  public MetaNames properties(String... names) {
+  public PropertyNames properties(String... names) {
     return io.properties(names);
   }
 
