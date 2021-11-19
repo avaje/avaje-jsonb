@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.example.jmh.model.MyMathBigD;
-import org.example.jmh.model.MyMathTypes;
 import org.openjdk.jmh.annotations.*;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 @Warmup(iterations = 3)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-public class MathTypesTest {
+public class BigDecimalTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -76,7 +74,7 @@ public class MathTypesTest {
   }
 
   public static void main(String[] args) {
-    MathTypesTest test = new MathTypesTest();
+    BigDecimalTest test = new BigDecimalTest();
     test.setup();
 
     String m1 = test.toJson_objectMapper();
