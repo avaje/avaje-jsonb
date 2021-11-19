@@ -104,6 +104,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
+  public void rawValue(String value) throws IOException {
+    delegate.rawValue(value);
+  }
+
+  @Override
   public final void value(String value) throws IOException {
     delegate.value(value);
   }

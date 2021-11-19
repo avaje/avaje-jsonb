@@ -272,4 +272,5 @@ final class JavaTimeAdapters {
       return "JsonAdapter(UUID)";
     }
   };
+
 }

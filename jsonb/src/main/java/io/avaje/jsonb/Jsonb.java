@@ -92,6 +92,11 @@ public interface Jsonb {
     <T> Jsonb.Builder add(Type type, JsonAdapter<T> jsonAdapter);
 
     /**
+     * Set to true for BigDecimal and BigInteger to serialise as String values rather than number values.
+     */
+    Builder mathAsString(boolean mathAsString);
+
+    /**
      * Add a AdapterBuilder which provides a JsonAdapter to use for the given type.
      */
     Jsonb.Builder add(Type type, AdapterBuilder builder);

@@ -33,12 +33,13 @@ class CoreAdapterBuilder {
   private final ThreadLocal<LookupChain> lookupChainThreadLocal = new ThreadLocal<>();
   private final Map<Object, JsonAdapter<?>> adapterCache = new LinkedHashMap<>();
 
-  CoreAdapterBuilder(DJsonb context, List<JsonAdapter.Factory> userFactories) {
+  CoreAdapterBuilder(DJsonb context, List<JsonAdapter.Factory> userFactories, boolean mathAsString) {
     this.context = context;
     this.factories = new ArrayList<>();
     this.factories.addAll(userFactories);
     this.factories.add(BasicTypeAdapters.FACTORY);
     this.factories.add(JavaTimeAdapters.FACTORY);
+    this.factories.add(new MathAdapters(mathAsString));
     this.factories.add(CollectionAdapter.FACTORY);
     this.factories.add(MapAdapter.FACTORY);
     this.factories.add(ArrayAdapter.FACTORY);

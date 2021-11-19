@@ -240,6 +240,16 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
+  public void rawValue(String value) throws IOException {
+    if (value == null) {
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.writeRaw(value);
+    }
+  }
+
+  @Override
   public void jsonValue(Object value) throws IOException {
     if (value instanceof Map<?, ?>) {
       writeMap((Map<?, ?>) value);

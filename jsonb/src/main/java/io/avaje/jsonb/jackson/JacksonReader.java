@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import io.avaje.jsonb.JsonReader;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 final class JacksonReader implements JsonReader {
 
@@ -89,6 +90,11 @@ final class JacksonReader implements JsonReader {
   @Override
   public int nextInt() throws IOException {
     return parser.getValueAsInt();
+  }
+
+  @Override
+  public BigDecimal nextDecimal() throws IOException {
+    return parser.getDecimalValue();
   }
 
   @Override

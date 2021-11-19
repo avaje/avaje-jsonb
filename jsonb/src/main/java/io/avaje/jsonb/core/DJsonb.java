@@ -27,8 +27,8 @@ class DJsonb implements Jsonb {
   private final IOAdapter io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
 
-  DJsonb(List<JsonAdapter.Factory> factories, boolean failOnUnknown) {
-    this.builder = new CoreAdapterBuilder(this, factories);
+  DJsonb(List<JsonAdapter.Factory> factories, boolean failOnUnknown, boolean mathAsString) {
+    this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
     this.io = new JacksonAdapter(failOnUnknown); //TODO: Service load the ioAdapter implementation
   }
 
@@ -127,10 +127,17 @@ class DJsonb implements Jsonb {
 
     private final List<JsonAdapter.Factory> factories = new ArrayList<>();
     private boolean failOnUnknown;
+    private boolean mathAsString;
 
     @Override
     public Builder failOnUnknown(boolean failOnUnknown) {
       this.failOnUnknown = failOnUnknown;
+      return this;
+    }
+
+    @Override
+    public Builder mathAsString(boolean mathAsString) {
+      this.mathAsString = mathAsString;
       return this;
     }
 
@@ -160,7 +167,7 @@ class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(factories, failOnUnknown);
+      return new DJsonb(factories, failOnUnknown, mathAsString);
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
