@@ -32,23 +32,23 @@ final class BasicTypeAdapters {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public JsonAdapter<?> create(Type type, Jsonb jsonb) {
-      if (type == Boolean.TYPE) return BOOLEAN_JSON_ADAPTER;
-      if (type == Byte.TYPE) return BYTE_JSON_ADAPTER;
-      if (type == Character.TYPE) return CHARACTER_JSON_ADAPTER;
-      if (type == Double.TYPE) return DOUBLE_JSON_ADAPTER;
-      if (type == Float.TYPE) return FLOAT_JSON_ADAPTER;
-      if (type == Integer.TYPE) return INTEGER_JSON_ADAPTER;
-      if (type == Long.TYPE) return LONG_JSON_ADAPTER;
-      if (type == Short.TYPE) return SHORT_JSON_ADAPTER;
-      if (type == Boolean.class) return BOOLEAN_JSON_ADAPTER.nullSafe();
-      if (type == Byte.class) return BYTE_JSON_ADAPTER.nullSafe();
-      if (type == Character.class) return CHARACTER_JSON_ADAPTER.nullSafe();
-      if (type == Double.class) return DOUBLE_JSON_ADAPTER.nullSafe();
-      if (type == Float.class) return FLOAT_JSON_ADAPTER.nullSafe();
-      if (type == Integer.class) return INTEGER_JSON_ADAPTER.nullSafe();
-      if (type == Long.class) return LONG_JSON_ADAPTER.nullSafe();
-      if (type == Short.class) return SHORT_JSON_ADAPTER.nullSafe();
-      if (type == String.class) return new StrJsonAdapter().nullSafe();
+      if (type == Boolean.TYPE) return new BooleanAdapter();
+      if (type == Byte.TYPE) return new ByteAdapter();
+      if (type == Character.TYPE) return new CharacterAdapter();
+      if (type == Double.TYPE) return new DoubleAdapter();
+      if (type == Float.TYPE) return new FloatAdapter();
+      if (type == Integer.TYPE) return new IntegerAdapter();
+      if (type == Long.TYPE) return new LongAdapter();
+      if (type == Short.TYPE) return new ShortAdapter();
+      if (type == Boolean.class) return new BooleanAdapter().nullSafe();
+      if (type == Byte.class) return new ByteAdapter().nullSafe();
+      if (type == Character.class) return new CharacterAdapter().nullSafe();
+      if (type == Double.class) return new DoubleAdapter().nullSafe();
+      if (type == Float.class) return new FloatAdapter().nullSafe();
+      if (type == Integer.class) return new IntegerAdapter().nullSafe();
+      if (type == Long.class) return new LongAdapter().nullSafe();
+      if (type == Short.class) return new ShortAdapter().nullSafe();
+      if (type == String.class) return new StringAdapter().nullSafe();
       if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
 
       Class<?> rawType = Util.rawType(type);
@@ -59,7 +59,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Boolean> BOOLEAN_JSON_ADAPTER = new JsonAdapter<Boolean>() {
+  static final class BooleanAdapter extends JsonAdapter<Boolean> {
     @Override
     public Boolean fromJson(JsonReader reader) throws IOException {
       return reader.nextBoolean();
@@ -76,7 +76,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Byte> BYTE_JSON_ADAPTER = new JsonAdapter<Byte>() {
+  static final class ByteAdapter extends JsonAdapter<Byte> {
     @Override
     public Byte fromJson(JsonReader reader) throws IOException {
       return (byte) rangeCheckNextInt(reader, "a byte", -128, 255);
@@ -93,7 +93,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Character> CHARACTER_JSON_ADAPTER = new JsonAdapter<Character>() {
+  static final class CharacterAdapter extends JsonAdapter<Character> {
     @Override
     public Character fromJson(JsonReader reader) throws IOException {
       String value = reader.nextString();
@@ -115,7 +115,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Double> DOUBLE_JSON_ADAPTER = new JsonAdapter<Double>() {
+  static final class DoubleAdapter extends JsonAdapter<Double> {
     @Override
     public Double fromJson(JsonReader reader) throws IOException {
       return reader.nextDouble();
@@ -132,7 +132,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Float> FLOAT_JSON_ADAPTER = new JsonAdapter<Float>() {
+  static final class FloatAdapter extends JsonAdapter<Float> {
     @Override
     public Float fromJson(JsonReader reader) throws IOException {
       float value = (float) reader.nextDouble();
@@ -155,7 +155,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Integer> INTEGER_JSON_ADAPTER = new JsonAdapter<Integer>() {
+  static final class IntegerAdapter extends JsonAdapter<Integer> {
     @Override
     public Integer fromJson(JsonReader reader) throws IOException {
       return reader.nextInt();
@@ -172,7 +172,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Long> LONG_JSON_ADAPTER = new JsonAdapter<Long>() {
+  static final class LongAdapter extends JsonAdapter<Long> {
     @Override
     public Long fromJson(JsonReader reader) throws IOException {
       return reader.nextLong();
@@ -189,7 +189,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final JsonAdapter<Short> SHORT_JSON_ADAPTER = new JsonAdapter<Short>() {
+  static final class ShortAdapter extends JsonAdapter<Short> {
     @Override
     public Short fromJson(JsonReader reader) throws IOException {
       return (short) rangeCheckNextInt(reader, "a short", -32768, 32767);
@@ -206,7 +206,7 @@ final class BasicTypeAdapters {
     }
   };
 
-  static final class StrJsonAdapter extends JsonAdapter<String> {
+  static final class StringAdapter extends JsonAdapter<String> {
     @Override
     public String fromJson(JsonReader reader) throws IOException {
       return reader.nextString();
