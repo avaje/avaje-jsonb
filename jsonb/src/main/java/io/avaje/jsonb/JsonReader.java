@@ -18,6 +18,7 @@ package io.avaje.jsonb;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public interface JsonReader extends Closeable {
 
@@ -44,6 +45,8 @@ public interface JsonReader extends Closeable {
   double nextDouble() throws IOException;
 
   BigDecimal nextDecimal() throws IOException;
+
+  BigInteger nextBigInt() throws IOException;
 
   String nextString() throws IOException;
 

@@ -4,6 +4,7 @@ import io.avaje.jsonb.JsonReader;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -127,6 +128,14 @@ final class ObjectJsonReader implements JsonReader {
       return (BigDecimal) currentValue;
     }
     return new BigDecimal(currentValue.toString());
+  }
+
+  @Override
+  public BigInteger nextBigInt() {
+    if (currentValue instanceof BigInteger) {
+      return (BigInteger) currentValue;
+    }
+    return new BigInteger(currentValue.toString());
   }
 
   @Override

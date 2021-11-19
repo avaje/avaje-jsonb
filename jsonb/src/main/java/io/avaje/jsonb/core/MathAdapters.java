@@ -35,7 +35,7 @@ class MathAdapters implements JsonAdapter.Factory {
 
     @Override
     public void toJson(JsonWriter writer, BigDecimal value) throws IOException {
-      writer.rawValue(value.toString());
+      writer.rawValue("\"" + value.toString() + "\"");
     }
 
     @Override

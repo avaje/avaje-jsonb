@@ -6,6 +6,7 @@ import io.avaje.jsonb.JsonReader;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 final class JacksonReader implements JsonReader {
 
@@ -95,6 +96,11 @@ final class JacksonReader implements JsonReader {
   @Override
   public BigDecimal nextDecimal() throws IOException {
     return parser.getDecimalValue();
+  }
+
+  @Override
+  public BigInteger nextBigInt() throws IOException {
+    return parser.getBigIntegerValue();
   }
 
   @Override
