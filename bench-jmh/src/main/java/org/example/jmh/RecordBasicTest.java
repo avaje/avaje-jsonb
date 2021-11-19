@@ -70,7 +70,7 @@ public class RecordBasicTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_wideNames_jsonb_x() {
     try {
       return jsonbXWide.toJson(testDataWideNames);
@@ -79,7 +79,7 @@ public class RecordBasicTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_narrowNames_jsonb_x() {
     try {
       return jsonbXNarrow.toJson(testDataNarrowNames);
@@ -89,7 +89,7 @@ public class RecordBasicTest {
   }
 
   @Benchmark
-  public String toJson_wideNames_jsonb_standard() {
+  public String toJson_wideNames_jsonb() {
     try {
       return jsonbWideNames.toJson(testDataWideNames);
     } catch (IOException e) {
@@ -98,7 +98,7 @@ public class RecordBasicTest {
   }
 
   @Benchmark
-  public String toJson_narrowNames_jsonb_standard() {
+  public String toJson_narrowNames_jsonb() {
     try {
       return jsonbNarrowNames.toJson(testDataNarrowNames);
     } catch (IOException e) {
@@ -107,7 +107,7 @@ public class RecordBasicTest {
   }
 
 
-  //@Benchmark
+  @Benchmark
   public WideNamesRecord fromJson_wideNames_objectMapper() {
     try {
       return mapper.readValue(content, WideNamesRecord.class);
@@ -116,7 +116,7 @@ public class RecordBasicTest {
     }
   }
 
-  //@Benchmark
+  @Benchmark
   public WideNamesRecord fromJson_wideNames_jsonb() {
     try {
       return jsonbXWide.fromJson(content);
@@ -125,7 +125,7 @@ public class RecordBasicTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_wideNames_method() {
     try {
       SegmentedStringWriter sw = new SegmentedStringWriter(jsonFactory._getBufferRecycler());
@@ -168,7 +168,7 @@ public class RecordBasicTest {
     return v;
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_wideNames_method2() {
     try {
       SegmentedStringWriter sw = new SegmentedStringWriter(jsonFactory._getBufferRecycler());
@@ -205,11 +205,11 @@ public class RecordBasicTest {
     String m2 = test.toJson_wideNames_method2();
     String asJson1 = test.toJson_wideNames_objectMapper();
     String asJson2 = test.toJson_wideNames_jsonb_x();
-    String asJson3 = test.toJson_wideNames_jsonb_standard();
+    String asJson3 = test.toJson_wideNames_jsonb();
 
     String asJsonnarrow1 = test.toJson_narrowNames_objectMapper();
     String asJsonnarrow2 = test.toJson_narrowNames_jsonb_x();
-    String asJsonnarrow3 = test.toJson_narrowNames_jsonb_standard();
+    String asJsonnarrow3 = test.toJson_narrowNames_jsonb();
 
     System.out.println(asJson1);
     System.out.println(asJson2);

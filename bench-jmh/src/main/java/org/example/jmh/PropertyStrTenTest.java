@@ -52,7 +52,7 @@ public class PropertyStrTenTest {
     testData =       new SomePropertyData("firstNameProperty1", "lastNameProperty2", "anotherSimilarProperty3", "moreOrLessProperty4", "lastButNotLeastProperty5", "property6", "property7", "property8", "property9", "property10");
     loganTestData = new OtherPropertyData("firstNameProperty1", "lastNameProperty2", "anotherSimilarProperty3", "moreOrLessProperty4", "lastButNotLeastProperty5", "property6", "property7", "property8", "property9", "property10");
 
-    content = "{\"firstNameProperty1\":\"firstNameProperty1\",\"lastNameProperty2\":\"lastNameProperty2\",\"anotherSimilarProperty3\":\"anotherSimilarProperty3\",\"moreOrLessProperty4\":\"moreOrLessProperty4\",\"lastButNotLeastProperty5\":\"lastButNotLeastProperty5\",\"prop6\":\"property6\",\"prop7\":\"property7\",\"prop8\":\"property8\",\"prop9\":\"property9\",\"prop10\":\"property10\"}";
+    content = "{\"prop1\":\"firstNameProperty1\",\"prop2\":\"lastNameProperty2\",\"prop3\":\"anotherSimilarProperty3\",\"prop4\":\"moreOrLessProperty4\",\"prop5\":\"lastButNotLeastProperty5\",\"prop6\":\"property6\",\"prop7\":\"property7\",\"prop8\":\"property8\",\"prop9\":\"property9\",\"prop10\":\"property10\"}";
   }
 
   @Benchmark
@@ -64,7 +64,7 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_moshi() {
     return moshiAdapter.toJson(testData);
   }
@@ -96,7 +96,7 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_logan() {
     try {
       return LoganSquare.serialize(loganTestData);
@@ -105,7 +105,7 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public OtherPropertyData fromJson_logan() {
     try {
       return LoganSquare.parse(content, OtherPropertyData.class);
@@ -132,7 +132,7 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public SomePropertyData fromJson_moshi() {
     try {
       return moshiAdapter.fromJson(content);
@@ -166,6 +166,7 @@ public class PropertyStrTenTest {
 
     String asJson = test.toJson_jsonb_viewProp35();
     System.out.println(asJson);
+    SomePropertyData somePropertyData0 = test.fromJson_objectMapper();
     SomePropertyData somePropertyData1 = test.fromJson_jsonb();
     System.out.println(somePropertyData1);
   }
