@@ -4,7 +4,7 @@ import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 import org.example.jmh.model.NarrowNamesRecord;
 import org.example.jmh.model.WideNamesRecord;
 
@@ -21,7 +21,7 @@ public class MyCustomNarrowAdapter extends JsonAdapter<NarrowNamesRecord> {
   // lastButNotLeastProperty5 [java.lang.String] name:lastButNotLeastProperty5 constructor
 
   private final JsonAdapter<String> stringJsonAdapter;
-  private final MetaNames names;
+  private final PropertyNames names;
 
   public MyCustomNarrowAdapter(Jsonb jsonb) {
     this.stringJsonAdapter = jsonb.adapter(String.class);

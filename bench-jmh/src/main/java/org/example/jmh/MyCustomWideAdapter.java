@@ -4,7 +4,7 @@ import io.avaje.jsonb.*;
 import java.io.IOException;
 import java.util.Random;
 
-import io.avaje.jsonb.spi.MetaNames;
+import io.avaje.jsonb.spi.PropertyNames;
 import org.example.jmh.model.WideNamesRecord;
 
 public class MyCustomWideAdapter extends JsonAdapter<WideNamesRecord> {
@@ -17,7 +17,7 @@ public class MyCustomWideAdapter extends JsonAdapter<WideNamesRecord> {
   // lastButNotLeastProperty5 [java.lang.String] name:lastButNotLeastProperty5 constructor
 
   private final JsonAdapter<String> stringJsonAdapter;
-  private final MetaNames names;
+  private final PropertyNames names;
 
   public MyCustomWideAdapter(Jsonb jsonb) {
     this.stringJsonAdapter = jsonb.adapter(String.class);
