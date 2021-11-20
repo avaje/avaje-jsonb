@@ -15,10 +15,14 @@ public class Address {
     this.street = street;
   }
 
+  /**
+   * jsonb will use a default constructor if present.
+   * <p>
+   * This avoids the need for temporary variables in the fromJson() processing.
+   */
   public Address() {
     // intentionally blank
   }
-
 
   public Long getId() {
     return id;
