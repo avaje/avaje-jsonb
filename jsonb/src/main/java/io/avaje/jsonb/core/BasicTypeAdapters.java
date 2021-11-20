@@ -19,9 +19,12 @@ import io.avaje.jsonb.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 
@@ -49,6 +52,9 @@ final class BasicTypeAdapters {
       if (type == Long.class) return new LongAdapter().nullSafe();
       if (type == Short.class) return new ShortAdapter().nullSafe();
       if (type == String.class) return new StringAdapter().nullSafe();
+      if (type == UUID.class) return new UuidAdapter().nullSafe();
+      if (type == URL.class) return new UrlAdapter().nullSafe();
+      if (type == URI.class) return new UriAdapter().nullSafe();
       if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
 
       Class<?> rawType = Util.rawType(type);
@@ -58,6 +64,57 @@ final class BasicTypeAdapters {
       return null;
     }
   };
+
+  private static final class UuidAdapter extends JsonAdapter<UUID> {
+    @Override
+    public UUID fromJson(JsonReader reader) throws IOException {
+      return UUID.fromString(reader.nextString());
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, UUID value) throws IOException {
+      writer.value(value.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(UUID)";
+    }
+  }
+
+  private static final class UrlAdapter extends JsonAdapter<URL> {
+    @Override
+    public URL fromJson(JsonReader reader) throws IOException {
+      return new URL(reader.nextString());
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, URL value) throws IOException {
+      writer.value(value.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(URL)";
+    }
+  }
+
+  private static final class UriAdapter extends JsonAdapter<URI> {
+    @Override
+    public URI fromJson(JsonReader reader) throws IOException {
+      return URI.create(reader.nextString());
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, URI value) throws IOException {
+      writer.value(value.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(URI)";
+    }
+  }
 
   static final class BooleanAdapter extends JsonAdapter<Boolean> {
     @Override
@@ -74,7 +131,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Boolean)";
     }
-  };
+  }
+
+  ;
 
   static final class ByteAdapter extends JsonAdapter<Byte> {
     @Override
@@ -91,7 +150,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Byte)";
     }
-  };
+  }
+
+  ;
 
   static final class CharacterAdapter extends JsonAdapter<Character> {
     @Override
@@ -113,7 +174,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Character)";
     }
-  };
+  }
+
+  ;
 
   static final class DoubleAdapter extends JsonAdapter<Double> {
     @Override
@@ -130,7 +193,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Double)";
     }
-  };
+  }
+
+  ;
 
   static final class FloatAdapter extends JsonAdapter<Float> {
     @Override
@@ -153,7 +218,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Float)";
     }
-  };
+  }
+
+  ;
 
   static final class IntegerAdapter extends JsonAdapter<Integer> {
     @Override
@@ -170,7 +237,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Integer)";
     }
-  };
+  }
+
+  ;
 
   static final class LongAdapter extends JsonAdapter<Long> {
     @Override
@@ -187,7 +256,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Long)";
     }
-  };
+  }
+
+  ;
 
   static final class ShortAdapter extends JsonAdapter<Short> {
     @Override
@@ -204,7 +275,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(Short)";
     }
-  };
+  }
+
+  ;
 
   static final class StringAdapter extends JsonAdapter<String> {
     @Override
@@ -221,7 +294,9 @@ final class BasicTypeAdapters {
     public String toString() {
       return "JsonAdapter(String)";
     }
-  };
+  }
+
+  ;
 
   static int rangeCheckNextInt(JsonReader reader, String typeMessage, int min, int max) throws IOException {
     int value = reader.nextInt();

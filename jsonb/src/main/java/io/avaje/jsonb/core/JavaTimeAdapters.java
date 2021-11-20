@@ -5,6 +5,8 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.time.*;
 import java.util.UUID;
 
@@ -14,7 +16,6 @@ import java.util.UUID;
 final class JavaTimeAdapters {
 
   static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
-    if (type == UUID.class) return JavaTimeAdapters.UUID_ADAPTER.nullSafe();
     if (type == Instant.class) return JavaTimeAdapters.INSTANT_ADAPTER.nullSafe();
     if (type == LocalDate.class) return JavaTimeAdapters.LOCAL_DATE_ADAPTER.nullSafe();
     if (type == LocalDateTime.class) return JavaTimeAdapters.LOCAL_DATE_TIME_ADAPTER.nullSafe();
@@ -255,22 +256,4 @@ final class JavaTimeAdapters {
       return "JsonAdapter(YearMonth)";
     }
   };
-
-  private static final JsonAdapter<UUID> UUID_ADAPTER = new JsonAdapter<UUID>() {
-    @Override
-    public UUID fromJson(JsonReader reader) throws IOException {
-      return UUID.fromString(reader.nextString());
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, UUID value) throws IOException {
-      writer.value(value.toString());
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(UUID)";
-    }
-  };
-
 }

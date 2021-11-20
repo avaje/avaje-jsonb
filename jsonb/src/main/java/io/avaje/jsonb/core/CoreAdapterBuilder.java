@@ -93,7 +93,7 @@ class CoreAdapterBuilder {
           return result;
         }
       }
-      throw new IllegalArgumentException("No JsonAdapter for " + type);
+      throw new IllegalArgumentException("No JsonAdapter for " + type + ". Perhaps needs @Json or @Json.Import?");
     } catch (IllegalArgumentException e) {
       throw lookupChain.exceptionWithLookupStack(e);
     } finally {
