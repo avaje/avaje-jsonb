@@ -131,7 +131,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public BigInteger nextBigInt() {
+  public BigInteger nextBigInteger() {
     if (currentValue instanceof BigInteger) {
       return (BigInteger) currentValue;
     }

@@ -5,10 +5,7 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.time.*;
-import java.util.UUID;
 
 /**
  * Adds support for java time types.

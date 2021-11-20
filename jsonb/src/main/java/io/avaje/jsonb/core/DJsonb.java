@@ -2,10 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.jackson.JacksonAdapter;
-import io.avaje.jsonb.spi.BufferedJsonWriter;
-import io.avaje.jsonb.spi.IOAdapter;
-import io.avaje.jsonb.spi.PropertyNames;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.jsonb.spi.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -127,7 +124,7 @@ class DJsonb implements Jsonb {
 
     private final List<JsonAdapter.Factory> factories = new ArrayList<>();
     private boolean failOnUnknown;
-    private boolean mathAsString;
+    private boolean mathTypesAsString;
 
     @Override
     public Builder failOnUnknown(boolean failOnUnknown) {
@@ -136,8 +133,8 @@ class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder mathAsString(boolean mathAsString) {
-      this.mathAsString = mathAsString;
+    public Builder mathTypesAsString(boolean mathTypesAsString) {
+      this.mathTypesAsString = mathTypesAsString;
       return this;
     }
 
@@ -167,7 +164,7 @@ class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(factories, failOnUnknown, mathAsString);
+      return new DJsonb(factories, failOnUnknown, mathTypesAsString);
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
@@ -183,7 +180,7 @@ class DJsonb implements Jsonb {
     }
   }
 
-  private static boolean simpleMatch(Type type2, Type targetType2) {
-    return Util.typesMatch(type2, targetType2);
+  private static boolean simpleMatch(Type type, Type targetType) {
+    return Util.typesMatch(type, targetType);
   }
 }

@@ -1,6 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.*;
+import io.avaje.jsonb.JsonWriter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

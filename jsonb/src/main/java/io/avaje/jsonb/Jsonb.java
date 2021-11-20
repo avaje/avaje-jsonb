@@ -87,24 +87,24 @@ public interface Jsonb {
     Builder failOnUnknown(boolean failOnUnknown);
 
     /**
-     * Add a JsonAdapter to use for the given type.
-     */
-    <T> Jsonb.Builder add(Type type, JsonAdapter<T> jsonAdapter);
-
-    /**
      * Set to true for BigDecimal and BigInteger to serialise as String values rather than number values.
      */
-    Builder mathAsString(boolean mathAsString);
+    Builder mathTypesAsString(boolean mathTypesAsString);
+
+    /**
+     * Add a JsonAdapter to use for the given type.
+     */
+    <T> Builder add(Type type, JsonAdapter<T> jsonAdapter);
 
     /**
      * Add a AdapterBuilder which provides a JsonAdapter to use for the given type.
      */
-    Jsonb.Builder add(Type type, AdapterBuilder builder);
+    Builder add(Type type, AdapterBuilder builder);
 
     /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
-    Jsonb.Builder add(JsonAdapter.Factory factory);
+    Builder add(JsonAdapter.Factory factory);
 
     /**
      * Build and return the Jsonb instance with all the given adapters and factories registered.

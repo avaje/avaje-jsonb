@@ -99,7 +99,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public BigInteger nextBigInt() throws IOException {
+  public BigInteger nextBigInteger() throws IOException {
     return parser.getBigIntegerValue();
   }
 

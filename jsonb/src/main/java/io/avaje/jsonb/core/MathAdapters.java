@@ -17,7 +17,7 @@ class MathAdapters implements JsonAdapter.Factory {
 
   MathAdapters(boolean asString) {
     decimal = asString ? new DecimalString().nullSafe() : new DecimalNumber().nullSafe();
-    bigint = asString ? new BigIntString().nullSafe() : new BigIntLong().nullSafe();
+    bigint = asString ? new BigIntString().nullSafe() : new BigIntNumber().nullSafe();
   }
 
   @Override
@@ -74,24 +74,24 @@ class MathAdapters implements JsonAdapter.Factory {
 
     @Override
     public String toString() {
-      return "JsonAdapter(BigInt:String)";
+      return "JsonAdapter(BigInteger:String)";
     }
   }
 
-  private static final class BigIntLong extends JsonAdapter<BigInteger> {
+  private static final class BigIntNumber extends JsonAdapter<BigInteger> {
     @Override
     public BigInteger fromJson(JsonReader reader) throws IOException {
-      return BigInteger.valueOf(reader.nextLong());
+      return reader.nextBigInteger();
     }
 
     @Override
     public void toJson(JsonWriter writer, BigInteger value) throws IOException {
-      writer.value(value.longValueExact());
+      writer.rawValue(value.toString());
     }
 
     @Override
     public String toString() {
-      return "JsonAdapter(BigInt:Long)";
+      return "JsonAdapter(BigInteger)";
     }
   }
 

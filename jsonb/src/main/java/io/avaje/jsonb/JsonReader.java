@@ -46,7 +46,7 @@ public interface JsonReader extends Closeable {
 
   BigDecimal nextDecimal() throws IOException;
 
-  BigInteger nextBigInt() throws IOException;
+  BigInteger nextBigInteger() throws IOException;
 
   String nextString() throws IOException;
 

@@ -9,11 +9,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MathTest {
 
-  Jsonb jsonbMathAsString = Jsonb.newBuilder().mathAsString(true).build();
+  Jsonb jsonbMathAsString = Jsonb.newBuilder().mathTypesAsString(true).build();
   Jsonb jsonbMathAsNumber = Jsonb.newBuilder().build();
 
   @Test
@@ -50,25 +49,14 @@ class MathTest {
   }
 
   @Test
-  void mathAsString_false_bigInteger_ArithmeticException() {
-
-    assertThatThrownBy(() -> {
-      JsonType<BigInteger> type = jsonbMathAsNumber.type(BigInteger.class);
-      type.toJson(new BigInteger("12456789012345678901234567890"));
-    }).isInstanceOf(ArithmeticException.class)
-      .hasMessageContaining("BigInteger out of long range");
-
-  }
-
-  @Test
   void mathAsString_false_bigInteger() throws IOException {
 
     JsonType<BigInteger> type = jsonbMathAsNumber.type(BigInteger.class);
-    String asJson = type.toJson(new BigInteger("124567890123456789"));
+    String asJson = type.toJson(new BigInteger("12456789012345678901234567890"));
 
-    assertThat(asJson).isEqualTo("124567890123456789");
+    assertThat(asJson).isEqualTo("12456789012345678901234567890");
 
-    BigInteger fromJson = type.list().fromJson("[124567890123456789]").get(0);
-    assertThat(fromJson).isEqualTo(new BigInteger("124567890123456789"));
+    BigInteger fromJson = type.list().fromJson("[12456789012345678901234567890]").get(0);
+    assertThat(fromJson).isEqualTo(new BigInteger("12456789012345678901234567890"));
   }
 }

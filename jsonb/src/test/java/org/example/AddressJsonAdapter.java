@@ -1,9 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.PropertyNames;
-import io.avaje.jsonb.spi.ViewBuilder;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.jsonb.spi.*;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
