@@ -14,26 +14,6 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void indent(String indent) {
-    delegate.indent(indent);
-  }
-
-  @Override
-  public String indent() {
-    return delegate.indent();
-  }
-
-  @Override
-  public void lenient(boolean lenient) {
-    delegate.lenient(lenient);
-  }
-
-  @Override
-  public boolean lenient() {
-    return delegate.lenient();
-  }
-
-  @Override
   public void serializeNulls(boolean serializeNulls) {
     delegate.serializeNulls(serializeNulls);
   }

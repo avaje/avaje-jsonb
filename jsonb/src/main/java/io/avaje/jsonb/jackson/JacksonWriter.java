@@ -36,26 +36,6 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void indent(String indent) {
-
-  }
-
-  @Override
-  public String indent() {
-    return null;
-  }
-
-  @Override
-  public void lenient(boolean lenient) {
-
-  }
-
-  @Override
-  public boolean lenient() {
-    return false;
-  }
-
-  @Override
   public void serializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
   }

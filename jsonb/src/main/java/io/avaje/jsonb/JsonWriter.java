@@ -24,14 +24,6 @@ import java.math.BigDecimal;
 
 public interface JsonWriter extends Closeable, Flushable {
 
-  void indent(String indent);
-
-  String indent();
-
-  void lenient(boolean lenient);
-
-  boolean lenient();
-
   void serializeNulls(boolean serializeNulls);
 
   boolean serializeNulls();
