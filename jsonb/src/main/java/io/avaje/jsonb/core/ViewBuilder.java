@@ -5,7 +5,7 @@ import io.avaje.jsonb.JsonException;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,11 +24,18 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   private final MethodHandles.Lookup lookup = MethodHandles.lookup();
   private final Stack<Items> stack = new Stack<>();
   private final ViewDsl viewDsl;
+  private final Names names;
   private Items current;
   private Element resultElement;
 
   ViewBuilder(ViewDsl viewDsl) {
     this.viewDsl = viewDsl;
+    this.names = new Names();
+  }
+
+  private ViewBuilder(ViewDsl viewDsl, Names names) {
+    this.viewDsl = viewDsl;
+    this.names = names;
   }
 
   @Override
@@ -51,7 +58,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   }
 
   private void push(String name, MethodHandle mh) {
-    current = new Items(name, mh);
+    current = new Items(names, name, mh);
     stack.push(current);
   }
 
@@ -71,12 +78,11 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     try {
       if (viewDsl.contains(name)) {
         if (adapter.isViewBuilderAware()) {
-          ViewBuilderAware nested = adapter.viewBuild();
           viewDsl.push(name);
-          nested.build(this, name, methodHandle);
+          adapter.viewBuild().build(this, name, methodHandle);
           viewDsl.pop();
         } else {
-          current.add(new Scalar(name, adapter, methodHandle));
+          current.add(new Scalar(names.add(name), adapter, methodHandle));
         }
       }
     } catch (NoSuchMethodException | IllegalAccessException e) {
@@ -97,7 +103,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   @Override
   public void addArray(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) {
     try {
-      ViewBuilder nested = new ViewBuilder(viewDsl);
+      ViewBuilder nested = new ViewBuilder(viewDsl, names);
       adapter.viewBuild().build(nested);
       JsonView<Object> nestedView = nested.build();
       if (name == null) {
@@ -106,7 +112,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
         }
         resultElement = new CollectionElement(nestedView);
       } else {
-        current.add(new NestedCollection(nestedView, name, methodHandle));
+        current.add(new NestedCollection(nestedView, names.add(name), methodHandle));
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -114,11 +120,14 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   }
 
   <T> JsonView<T> build(DJsonb jsonb) {
-    return new DView<>(jsonb, resultElement);
+    return new DView<>(jsonb, resultElement, jsonb.properties(names.properties()));
   }
 
+  /**
+   * Build internal nested view.
+   */
   <T> JsonView<T> build() {
-    return new DView<>(null, resultElement);
+    return new DView<>(resultElement);
   }
 
   interface Element {
@@ -126,12 +135,29 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     void write(JsonWriter writer, Object object) throws IOException;
   }
 
+  static final class Names {
+
+    private final List<String> names = new ArrayList<>();
+    private int namePosition = -1;
+
+    int add(String name) {
+      names.add(name);
+      return ++namePosition;
+    }
+
+    String[] properties() {
+      return names.toArray(new String[0]);
+    }
+  }
+
   static final class Items {
+    private final Names names;
     private final String name;
     private final MethodHandle methodHandle;
     private final List<Element> items = new ArrayList<>();
 
-    Items(String name, MethodHandle mh) {
+    Items(Names names, String name, MethodHandle mh) {
+      this.names = names;
       this.name = name;
       this.methodHandle = mh;
     }
@@ -144,7 +170,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
       if (name == null) {
         return new ObjectElement(items);
       } else {
-        return new NestedObject(items, name, methodHandle);
+        return new NestedObject(items, names.add(name), methodHandle);
       }
     }
   }
@@ -152,11 +178,25 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   private static final class DView<T> implements JsonView<T> {
 
     private final DJsonb jsonb;
+    private final PropertyNames properties;
     private final Element element;
 
-    DView(DJsonb jsonb, Element element) {
+    /**
+     * Create top level view.
+     */
+    DView(DJsonb jsonb, Element element, PropertyNames properties) {
       this.jsonb = jsonb;
       this.element = element;
+      this.properties = properties;
+    }
+
+    /**
+     * Create nested view.
+     */
+    DView(Element element) {
+      this.element = element;
+      this.jsonb = null;
+      this.properties = null;
     }
 
     @Override
@@ -173,6 +213,9 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     @Override
     public void toJson(JsonWriter writer, T value) {
       try {
+        if (properties != null) {
+          writer.names(properties);
+        }
         element.write(writer, value);
       } catch (Throwable e) {
         throw JsonException.of(e);
@@ -182,7 +225,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     @Override
     public void toJson(Writer writer, T value) {
       try {
-        element.write(jsonb.writer(writer), value);
+        toJson(jsonb.writer(writer), value);
       } catch (Throwable e) {
         throw JsonException.of(e);
       }
@@ -191,7 +234,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     @Override
     public void toJson(OutputStream outputStream, T value) {
       try {
-        element.write(jsonb.writer(outputStream), value);
+        toJson(jsonb.writer(outputStream), value);
       } catch (Throwable e) {
         throw JsonException.of(e);
       }
@@ -201,12 +244,12 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static final class Scalar implements Element {
 
-    private final String name;
+    private final int namePosition;
     private final JsonAdapter adapter;
     private final MethodHandle methodHandle;
 
-    Scalar(String name, JsonAdapter adapter, MethodHandle methodHandle) {
-      this.name = name;
+    Scalar(int namePosition, JsonAdapter adapter, MethodHandle methodHandle) {
+      this.namePosition = namePosition;
       this.adapter = adapter;
       this.methodHandle = methodHandle;
     }
@@ -214,7 +257,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     @Override
     public void write(JsonWriter writer, Object object) {
       try {
-        writer.name(name);
+        writer.name(namePosition);
         adapter.toJson(writer, methodHandle.invoke(object));
       } catch (Throwable e) {
         throw JsonException.of(e);
@@ -246,12 +289,12 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
 
   private static final class NestedObject implements Element {
 
-    private final String name;
+    private final int namePosition;
     private final MethodHandle methodHandle;
     private final Element[] elements;
 
-    NestedObject(List<Element> elements, String name, MethodHandle methodHandle) {
-      this.name = name;
+    NestedObject(List<Element> elements, int namePosition, MethodHandle methodHandle) {
+      this.namePosition = namePosition;
       this.methodHandle = methodHandle;
       this.elements = elements.toArray(new Element[0]);
     }
@@ -259,7 +302,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     @Override
     public void write(JsonWriter writer, Object object) {
       try {
-        writer.name(name);
+        writer.name(namePosition);
         writer.beginObject();
         final Object nested = methodHandle.invoke(object);
         for (final Element element : elements) {
@@ -304,19 +347,19 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   private static final class NestedCollection implements Element {
 
     private final JsonView child;
-    private final String name;
+    private final int namePosition;
     private final MethodHandle methodHandle;
 
-    NestedCollection(JsonView child, String name, MethodHandle methodHandle) {
+    NestedCollection(JsonView child, int namePosition, MethodHandle methodHandle) {
       this.child = child;
-      this.name = name;
+      this.namePosition = namePosition;
       this.methodHandle = methodHandle;
     }
 
     @Override
     public void write(JsonWriter writer, Object object) {
       try {
-        writer.name(name);
+        writer.name(namePosition);
         final Collection<?> collection = (Collection<?>) methodHandle.invoke(object);
         if (collection.isEmpty()) {
           writer.emptyArray();

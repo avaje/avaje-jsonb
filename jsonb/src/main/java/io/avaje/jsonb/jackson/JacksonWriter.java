@@ -18,6 +18,7 @@ final class JacksonWriter implements JsonWriter {
   private String deferredName;
   private ArrayStack<JacksonNames> nameStack;
   private JacksonNames currentNames;
+  private boolean pushedNames;
   private int namePos = -1;
 
   JacksonWriter(JsonGenerator generator) {
@@ -99,7 +100,10 @@ final class JacksonWriter implements JsonWriter {
   @Override
   public void endObject() throws IOException {
     generator.writeEndObject();
-    currentNames = nameStack != null ? nameStack.pop() : null;
+    if (pushedNames) {
+      pushedNames = false;
+      currentNames = nameStack != null ? nameStack.pop() : null;
+    }
   }
 
   @Override
@@ -109,13 +113,20 @@ final class JacksonWriter implements JsonWriter {
 
   @Override
   public void names(PropertyNames nextNames) {
-    if (currentNames != null) {
-      if (nameStack == null) {
-        nameStack = new ArrayStack<>();
+    if (currentNames != nextNames) {
+      if (currentNames != null) {
+        pushCurrentNames();
       }
-      nameStack.push(currentNames);
+      currentNames = (JacksonNames)nextNames;
     }
-    this.currentNames = (JacksonNames)nextNames;
+  }
+
+  private void pushCurrentNames() {
+    if (nameStack == null) {
+      nameStack = new ArrayStack<>();
+    }
+    pushedNames = true;
+    nameStack.push(currentNames);
   }
 
   @Override
