@@ -107,7 +107,7 @@ abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter
   }
 
   @Override
-  public C fromJson(JsonReader reader) throws IOException {
+  public C fromJson(JsonReader reader) {
     C result = newCollection();
     reader.beginArray();
     while (reader.hasNextElement()) {
@@ -118,7 +118,7 @@ abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter
   }
 
   @Override
-  public void toJson(JsonWriter writer, C value) throws IOException {
+  public void toJson(JsonWriter writer, C value) {
     if (value.isEmpty()) {
       writer.emptyArray();
       return;

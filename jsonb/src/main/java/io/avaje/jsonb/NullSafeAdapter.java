@@ -28,7 +28,7 @@ final class NullSafeAdapter<T> extends JsonAdapter<T> {
   }
 
   @Override
-  public void toJson(JsonWriter writer, T value) throws IOException {
+  public void toJson(JsonWriter writer, T value) {
     if (value == null) {
       writer.nullValue();
     } else {
@@ -37,7 +37,7 @@ final class NullSafeAdapter<T> extends JsonAdapter<T> {
   }
 
   @Override
-  public T fromJson(JsonReader reader) throws IOException {
+  public T fromJson(JsonReader reader) {
     if (reader.peekIsNull()) {
       return reader.nextNull();
     } else {

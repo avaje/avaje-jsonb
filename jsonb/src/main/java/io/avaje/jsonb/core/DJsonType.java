@@ -42,53 +42,53 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
-  public String toJson(T value) throws IOException {
+  public String toJson(T value) {
     BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter();
     toJson(bufferedJsonWriter, value);
     return bufferedJsonWriter.result();
   }
 
   @Override
-  public void toJson(JsonWriter writer, T value) throws IOException {
+  public void toJson(JsonWriter writer, T value) {
     adapter.toJson(writer, value);
   }
 
   @Override
-  public void toJson(Writer writer, T value) throws IOException {
+  public void toJson(Writer writer, T value) {
     adapter.toJson(jsonb.writer(writer), value);
   }
 
   @Override
-  public void toJson(OutputStream outputStream, T value) throws IOException {
+  public void toJson(OutputStream outputStream, T value) {
     adapter.toJson(jsonb.writer(outputStream), value);
   }
 
   @Override
-  public T fromObject(Object value) throws IOException {
+  public T fromObject(Object value) {
     try (JsonReader reader = jsonb.objectReader(value)) {
       return adapter.fromJson(reader);
     }
   }
 
   @Override
-  public T fromJson(JsonReader reader) throws IOException {
+  public T fromJson(JsonReader reader) {
     return adapter.fromJson(reader);
   }
 
   @Override
-  public T fromJson(String content) throws IOException {
+  public T fromJson(String content) {
     try (JsonReader reader = jsonb.reader(content)) {
       return adapter.fromJson(reader);
     }
   }
 
   @Override
-  public T fromJson(Reader reader) throws IOException {
+  public T fromJson(Reader reader) {
     return adapter.fromJson(jsonb.reader(reader));
   }
 
   @Override
-  public T fromJson(InputStream inputStream) throws IOException {
+  public T fromJson(InputStream inputStream) {
     return adapter.fromJson(jsonb.reader(inputStream));
   }
 }

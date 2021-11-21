@@ -2,6 +2,7 @@ package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
+import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
@@ -26,33 +27,53 @@ public class JacksonAdapter implements IOAdapter {
   }
 
   @Override
-  public JsonReader reader(String json) throws IOException {
-    return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
+  public JsonReader reader(String json) {
+    try {
+      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public JsonReader reader(Reader reader) throws IOException {
-    return new JacksonReader(jsonFactory.createParser(reader), failOnUnknown);
+  public JsonReader reader(Reader reader) {
+    try {
+      return new JacksonReader(jsonFactory.createParser(reader), failOnUnknown);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public JsonReader reader(InputStream inputStream) throws IOException {
-    return new JacksonReader(jsonFactory.createParser(inputStream), failOnUnknown);
+  public JsonReader reader(InputStream inputStream) {
+    try {
+      return new JacksonReader(jsonFactory.createParser(inputStream), failOnUnknown);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public JsonWriter writer(Writer writer) throws IOException {
-    return new JacksonWriter(jsonFactory.createGenerator(writer));
+  public JsonWriter writer(Writer writer) {
+    try {
+      return new JacksonWriter(jsonFactory.createGenerator(writer));
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
 
   @Override
-  public JsonWriter writer(OutputStream outputStream) throws IOException {
-    return new JacksonWriter(jsonFactory.createGenerator(outputStream));
+  public JsonWriter writer(OutputStream outputStream) {
+    try {
+      return new JacksonWriter(jsonFactory.createGenerator(outputStream));
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public BufferedJsonWriter bufferedWriter() throws IOException {
+  public BufferedJsonWriter bufferedWriter() {
     SegmentedStringWriter sw = new SegmentedStringWriter(jsonFactory._getBufferRecycler());
     JsonWriter delegate = writer(sw);
     return new JacksonWriteBuffer(delegate, sw);

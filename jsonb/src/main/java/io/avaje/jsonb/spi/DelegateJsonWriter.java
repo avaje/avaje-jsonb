@@ -39,32 +39,32 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void beginArray() throws IOException {
+  public void beginArray() {
     delegate.beginArray();
   }
 
   @Override
-  public final void endArray() throws IOException {
+  public final void endArray() {
     delegate.endArray();
   }
 
   @Override
-  public final void emptyArray() throws IOException {
+  public final void emptyArray() {
     delegate.emptyArray();
   }
 
   @Override
-  public final  void beginObject() throws IOException {
+  public final  void beginObject() {
     delegate.beginObject();
   }
 
   @Override
-  public final void endObject() throws IOException {
+  public final void endObject() {
     delegate.endObject();
   }
 
   @Override
-  public final void name(String name) throws IOException {
+  public final void name(String name) {
     delegate.name(name);
   }
 
@@ -79,77 +79,77 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void nullValue() throws IOException {
+  public void nullValue() {
     delegate.nullValue();
   }
 
   @Override
-  public void rawValue(String value) throws IOException {
+  public void rawValue(String value) {
     delegate.rawValue(value);
   }
 
   @Override
-  public final void value(String value) throws IOException {
+  public final void value(String value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(boolean value) throws IOException {
+  public void value(boolean value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(int value) throws IOException {
+  public void value(int value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(long value) throws IOException {
+  public void value(long value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(double value) throws IOException {
+  public void value(double value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Boolean value) throws IOException {
+  public void value(Boolean value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Integer value) throws IOException {
+  public void value(Integer value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Long value) throws IOException {
+  public void value(Long value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Double value) throws IOException {
+  public void value(Double value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(BigDecimal value) throws IOException {
+  public void value(BigDecimal value) {
     delegate.value(value);
   }
 
   @Override
-  public void jsonValue(Object value) throws IOException {
+  public void jsonValue(Object value) {
     delegate.jsonValue(value);
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     delegate.close();
   }
 
   @Override
-  public void flush() throws IOException {
+  public void flush() {
     delegate.flush();
   }
 }

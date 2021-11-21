@@ -7,17 +7,17 @@ import java.io.*;
 
 public interface IOAdapter {
 
-  JsonReader reader(String json) throws IOException;
+  JsonReader reader(String json);
 
-  JsonReader reader(Reader reader) throws IOException;
+  JsonReader reader(Reader reader);
 
-  JsonReader reader(InputStream inputStream) throws IOException;
+  JsonReader reader(InputStream inputStream);
 
-  JsonWriter writer(Writer writer) throws IOException;
+  JsonWriter writer(Writer writer);
 
-  JsonWriter writer(OutputStream outputStream) throws IOException;
+  JsonWriter writer(OutputStream outputStream);
 
-  BufferedJsonWriter bufferedWriter() throws IOException;
+  BufferedJsonWriter bufferedWriter();
 
   PropertyNames properties(String... names);
 }

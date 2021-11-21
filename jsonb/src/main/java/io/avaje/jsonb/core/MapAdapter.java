@@ -43,11 +43,11 @@ final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
   }
 
   @Override
-  public void toJson(JsonWriter writer, Map<String, V> map) throws IOException {
+  public void toJson(JsonWriter writer, Map<String, V> map) {
     writer.beginObject();
     for (Map.Entry<String, V> entry : map.entrySet()) {
       if (entry.getKey() == null) {
-        throw new JsonDataException("Map key is null at " + writer.path());
+        throw new JsonIoException("Map key is null at " + writer.path());
       }
       writer.name(entry.getKey());
       valueAdapter.toJson(writer, entry.getValue());
@@ -56,7 +56,7 @@ final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
   }
 
   @Override
-  public Map<String, V> fromJson(JsonReader reader) throws IOException {
+  public Map<String, V> fromJson(JsonReader reader) {
     Map<String, V> result = new LinkedHashMap<>();
     reader.beginObject();
     while (reader.hasNextField()) {
@@ -64,7 +64,7 @@ final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
       V value = valueAdapter.fromJson(reader);
       V replaced = result.put(name, value);
       if (replaced != null) {
-        throw new JsonDataException(
+        throw new JsonIoException(
           "Map key '"
             + name
             + "' has multiple values at path "

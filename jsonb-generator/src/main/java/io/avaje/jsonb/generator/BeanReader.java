@@ -174,7 +174,7 @@ class BeanReader {
     String varName = Util.initLower(shortName);
     writer.eol();
     writer.append("  @Override").eol();
-    writer.append("  public void toJson(JsonWriter writer, %s %s) throws IOException {", shortName, varName).eol();
+    writer.append("  public void toJson(JsonWriter writer, %s %s) {", shortName, varName).eol();
     writer.append("    writer.beginObject();").eol();
     writer.append("    writer.names(names);").eol();
     if (hasSubTypes) {
@@ -216,7 +216,7 @@ class BeanReader {
     String varName = Util.initLower(shortName);
     writer.eol();
     writer.append("  @Override").eol();
-    writer.append("  public %s fromJson(JsonReader reader) throws IOException {", shortName, varName).eol();
+    writer.append("  public %s fromJson(JsonReader reader) {", shortName, varName).eol();
     boolean directLoad = (constructor == null && !hasSubTypes);
     if (directLoad) {
       // default public constructor

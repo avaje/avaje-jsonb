@@ -17,8 +17,8 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
@@ -67,12 +67,12 @@ final class BasicTypeAdapters {
 
   private static final class UuidAdapter extends JsonAdapter<UUID> {
     @Override
-    public UUID fromJson(JsonReader reader) throws IOException {
+    public UUID fromJson(JsonReader reader) {
       return UUID.fromString(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, UUID value) throws IOException {
+    public void toJson(JsonWriter writer, UUID value) {
       writer.value(value.toString());
     }
 
@@ -84,12 +84,16 @@ final class BasicTypeAdapters {
 
   private static final class UrlAdapter extends JsonAdapter<URL> {
     @Override
-    public URL fromJson(JsonReader reader) throws IOException {
-      return new URL(reader.nextString());
+    public URL fromJson(JsonReader reader) {
+      try {
+        return new URL(reader.nextString());
+      } catch (MalformedURLException e) {
+        throw new JsonException(e);
+      }
     }
 
     @Override
-    public void toJson(JsonWriter writer, URL value) throws IOException {
+    public void toJson(JsonWriter writer, URL value) {
       writer.value(value.toString());
     }
 
@@ -101,12 +105,12 @@ final class BasicTypeAdapters {
 
   private static final class UriAdapter extends JsonAdapter<URI> {
     @Override
-    public URI fromJson(JsonReader reader) throws IOException {
+    public URI fromJson(JsonReader reader) {
       return URI.create(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, URI value) throws IOException {
+    public void toJson(JsonWriter writer, URI value) {
       writer.value(value.toString());
     }
 
@@ -118,12 +122,12 @@ final class BasicTypeAdapters {
 
   static final class BooleanAdapter extends JsonAdapter<Boolean> {
     @Override
-    public Boolean fromJson(JsonReader reader) throws IOException {
+    public Boolean fromJson(JsonReader reader) {
       return reader.nextBoolean();
     }
 
     @Override
-    public void toJson(JsonWriter writer, Boolean value) throws IOException {
+    public void toJson(JsonWriter writer, Boolean value) {
       writer.value(value);
     }
 
@@ -137,12 +141,12 @@ final class BasicTypeAdapters {
 
   static final class ByteAdapter extends JsonAdapter<Byte> {
     @Override
-    public Byte fromJson(JsonReader reader) throws IOException {
+    public Byte fromJson(JsonReader reader) {
       return (byte) rangeCheckNextInt(reader, "a byte", -128, 255);
     }
 
     @Override
-    public void toJson(JsonWriter writer, Byte value) throws IOException {
+    public void toJson(JsonWriter writer, Byte value) {
       writer.value((long) (value.intValue() & 255));
     }
 
@@ -156,17 +160,17 @@ final class BasicTypeAdapters {
 
   static final class CharacterAdapter extends JsonAdapter<Character> {
     @Override
-    public Character fromJson(JsonReader reader) throws IOException {
+    public Character fromJson(JsonReader reader) {
       String value = reader.nextString();
       if (value.length() > 1) {
-        throw new JsonDataException(String.format("Expected %s but was %s at path %s", "a char", '"' + value + '"', reader.path()));
+        throw new JsonIoException(String.format("Expected %s but was %s at path %s", "a char", '"' + value + '"', reader.path()));
       } else {
         return value.charAt(0);
       }
     }
 
     @Override
-    public void toJson(JsonWriter writer, Character value) throws IOException {
+    public void toJson(JsonWriter writer, Character value) {
       writer.value(value.toString());
     }
 
@@ -180,12 +184,12 @@ final class BasicTypeAdapters {
 
   static final class DoubleAdapter extends JsonAdapter<Double> {
     @Override
-    public Double fromJson(JsonReader reader) throws IOException {
+    public Double fromJson(JsonReader reader) {
       return reader.nextDouble();
     }
 
     @Override
-    public void toJson(JsonWriter writer, Double value) throws IOException {
+    public void toJson(JsonWriter writer, Double value) {
       writer.value(value);
     }
 
@@ -199,17 +203,17 @@ final class BasicTypeAdapters {
 
   static final class FloatAdapter extends JsonAdapter<Float> {
     @Override
-    public Float fromJson(JsonReader reader) throws IOException {
+    public Float fromJson(JsonReader reader) {
       float value = (float) reader.nextDouble();
       if (Float.isInfinite(value)) { // !reader.isLenient() &&
-        throw new JsonDataException("JSON forbids NaN and infinities: " + value + " at path " + reader.path());
+        throw new JsonIoException("JSON forbids NaN and infinities: " + value + " at path " + reader.path());
       } else {
         return value;
       }
     }
 
     @Override
-    public void toJson(JsonWriter writer, Float value) throws IOException {
+    public void toJson(JsonWriter writer, Float value) {
       requireNonNull(value);
       writer.value(value);
     }
@@ -224,12 +228,12 @@ final class BasicTypeAdapters {
 
   static final class IntegerAdapter extends JsonAdapter<Integer> {
     @Override
-    public Integer fromJson(JsonReader reader) throws IOException {
+    public Integer fromJson(JsonReader reader) {
       return reader.nextInt();
     }
 
     @Override
-    public void toJson(JsonWriter writer, Integer value) throws IOException {
+    public void toJson(JsonWriter writer, Integer value) {
       writer.value(value);
     }
 
@@ -243,12 +247,12 @@ final class BasicTypeAdapters {
 
   static final class LongAdapter extends JsonAdapter<Long> {
     @Override
-    public Long fromJson(JsonReader reader) throws IOException {
+    public Long fromJson(JsonReader reader) {
       return reader.nextLong();
     }
 
     @Override
-    public void toJson(JsonWriter writer, Long value) throws IOException {
+    public void toJson(JsonWriter writer, Long value) {
       writer.value(value);
     }
 
@@ -262,12 +266,12 @@ final class BasicTypeAdapters {
 
   static final class ShortAdapter extends JsonAdapter<Short> {
     @Override
-    public Short fromJson(JsonReader reader) throws IOException {
+    public Short fromJson(JsonReader reader) {
       return (short) rangeCheckNextInt(reader, "a short", -32768, 32767);
     }
 
     @Override
-    public void toJson(JsonWriter writer, Short value) throws IOException {
+    public void toJson(JsonWriter writer, Short value) {
       writer.value((long) value.intValue());
     }
 
@@ -281,12 +285,12 @@ final class BasicTypeAdapters {
 
   static final class StringAdapter extends JsonAdapter<String> {
     @Override
-    public String fromJson(JsonReader reader) throws IOException {
+    public String fromJson(JsonReader reader) {
       return reader.nextString();
     }
 
     @Override
-    public void toJson(JsonWriter writer, String value) throws IOException {
+    public void toJson(JsonWriter writer, String value) {
       writer.value(value);
     }
 
@@ -298,12 +302,12 @@ final class BasicTypeAdapters {
 
   ;
 
-  static int rangeCheckNextInt(JsonReader reader, String typeMessage, int min, int max) throws IOException {
+  static int rangeCheckNextInt(JsonReader reader, String typeMessage, int min, int max) {
     int value = reader.nextInt();
     if (value >= min && value <= max) {
       return value;
     } else {
-      throw new JsonDataException(String.format("Expected %s but was %s at path %s", typeMessage, value, reader.path()));
+      throw new JsonIoException(String.format("Expected %s but was %s at path %s", typeMessage, value, reader.path()));
     }
   }
 
@@ -326,7 +330,7 @@ final class BasicTypeAdapters {
     }
 
     @Override
-    public Object fromJson(JsonReader reader) throws IOException {
+    public Object fromJson(JsonReader reader) {
       switch (reader.peek()) {
         case BEGIN_ARRAY:
           return this.listJsonAdapter.fromJson(reader);
@@ -346,7 +350,7 @@ final class BasicTypeAdapters {
     }
 
     @Override
-    public void toJson(JsonWriter writer, Object value) throws IOException {
+    public void toJson(JsonWriter writer, Object value) {
       Class<?> valueClass = value.getClass();
       if (valueClass == Object.class) {
         writer.beginObject();
@@ -377,13 +381,13 @@ final class BasicTypeAdapters {
     }
 
     @Override
-    public T fromJson(JsonReader reader) throws IOException {
+    public T fromJson(JsonReader reader) {
       String value = reader.nextString();
       return Enum.valueOf(enumType, value);
     }
 
     @Override
-    public void toJson(JsonWriter writer, T value) throws IOException {
+    public void toJson(JsonWriter writer, T value) {
       writer.value(value.name());
     }
 

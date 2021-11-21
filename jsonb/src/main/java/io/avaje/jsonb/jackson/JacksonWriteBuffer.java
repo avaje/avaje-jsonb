@@ -5,8 +5,6 @@ import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.DelegateJsonWriter;
 
-import java.io.IOException;
-
 final class JacksonWriteBuffer extends DelegateJsonWriter implements BufferedJsonWriter {
 
   private final SegmentedStringWriter buffer;
@@ -17,7 +15,7 @@ final class JacksonWriteBuffer extends DelegateJsonWriter implements BufferedJso
   }
 
   @Override
-  public String result() throws IOException {
+  public String result() {
     delegate.close();
     return buffer.getAndClear();
   }

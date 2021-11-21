@@ -29,12 +29,12 @@ class MathAdapters implements JsonAdapter.Factory {
 
   private static final class DecimalString extends JsonAdapter<BigDecimal> {
     @Override
-    public BigDecimal fromJson(JsonReader reader) throws IOException {
+    public BigDecimal fromJson(JsonReader reader) {
       return new BigDecimal(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, BigDecimal value) throws IOException {
+    public void toJson(JsonWriter writer, BigDecimal value) {
       writer.rawValue("\"" + value.toString() + "\"");
     }
 
@@ -46,12 +46,12 @@ class MathAdapters implements JsonAdapter.Factory {
 
   private static final class DecimalNumber extends JsonAdapter<BigDecimal> {
     @Override
-    public BigDecimal fromJson(JsonReader reader) throws IOException {
+    public BigDecimal fromJson(JsonReader reader) {
       return reader.nextDecimal();
     }
 
     @Override
-    public void toJson(JsonWriter writer, BigDecimal value) throws IOException {
+    public void toJson(JsonWriter writer, BigDecimal value) {
       writer.value(value);
     }
 
@@ -63,12 +63,12 @@ class MathAdapters implements JsonAdapter.Factory {
 
   private static final class BigIntString extends JsonAdapter<BigInteger> {
     @Override
-    public BigInteger fromJson(JsonReader reader) throws IOException {
+    public BigInteger fromJson(JsonReader reader) {
       return new BigInteger(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, BigInteger value) throws IOException {
+    public void toJson(JsonWriter writer, BigInteger value) {
       writer.value(value.toString());
     }
 
@@ -80,12 +80,12 @@ class MathAdapters implements JsonAdapter.Factory {
 
   private static final class BigIntNumber extends JsonAdapter<BigInteger> {
     @Override
-    public BigInteger fromJson(JsonReader reader) throws IOException {
+    public BigInteger fromJson(JsonReader reader) {
       return reader.nextBigInteger();
     }
 
     @Override
-    public void toJson(JsonWriter writer, BigInteger value) throws IOException {
+    public void toJson(JsonWriter writer, BigInteger value) {
       writer.rawValue(value.toString());
     }
 

@@ -34,12 +34,12 @@ final class JavaTimeAdapters {
    */
   private static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<Instant>() {
     @Override
-    public Instant fromJson(JsonReader reader) throws IOException {
+    public Instant fromJson(JsonReader reader) {
       return Instant.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, Instant value) throws IOException {
+    public void toJson(JsonWriter writer, Instant value) {
       writer.value(value.toString());
     }
 
@@ -51,12 +51,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<OffsetDateTime> OFFSET_DATE_TIME_ADAPTER = new JsonAdapter<OffsetDateTime>() {
     @Override
-    public OffsetDateTime fromJson(JsonReader reader) throws IOException {
+    public OffsetDateTime fromJson(JsonReader reader) {
       return OffsetDateTime.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, OffsetDateTime value) throws IOException {
+    public void toJson(JsonWriter writer, OffsetDateTime value) {
       writer.value(value.toString());
     }
 
@@ -68,12 +68,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<OffsetTime> OFFSET_TIME_ADAPTER = new JsonAdapter<OffsetTime>() {
     @Override
-    public OffsetTime fromJson(JsonReader reader) throws IOException {
+    public OffsetTime fromJson(JsonReader reader) {
       return OffsetTime.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, OffsetTime value) throws IOException {
+    public void toJson(JsonWriter writer, OffsetTime value) {
       writer.value(value.toString());
     }
 
@@ -85,12 +85,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<ZonedDateTime> ZONED_DATE_TIME_ADAPTER = new JsonAdapter<ZonedDateTime>() {
     @Override
-    public ZonedDateTime fromJson(JsonReader reader) throws IOException {
+    public ZonedDateTime fromJson(JsonReader reader) {
       return ZonedDateTime.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, ZonedDateTime value) throws IOException {
+    public void toJson(JsonWriter writer, ZonedDateTime value) {
       writer.value(value.toString());
     }
 
@@ -102,12 +102,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<ZoneOffset> ZONE_OFFSET_ADAPTER = new JsonAdapter<ZoneOffset>() {
     @Override
-    public ZoneOffset fromJson(JsonReader reader) throws IOException {
+    public ZoneOffset fromJson(JsonReader reader) {
       return ZoneOffset.of(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, ZoneOffset value) throws IOException {
+    public void toJson(JsonWriter writer, ZoneOffset value) {
       writer.value(value.toString());
     }
 
@@ -119,12 +119,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<ZoneId> ZONE_ID_ADAPTER = new JsonAdapter<ZoneId>() {
     @Override
-    public ZoneId fromJson(JsonReader reader) throws IOException {
+    public ZoneId fromJson(JsonReader reader) {
       return ZoneId.of(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, ZoneId value) throws IOException {
+    public void toJson(JsonWriter writer, ZoneId value) {
       writer.value(value.toString());
     }
 
@@ -136,12 +136,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<LocalDate> LOCAL_DATE_ADAPTER = new JsonAdapter<LocalDate>() {
     @Override
-    public LocalDate fromJson(JsonReader reader) throws IOException {
+    public LocalDate fromJson(JsonReader reader) {
       return LocalDate.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, LocalDate value) throws IOException {
+    public void toJson(JsonWriter writer, LocalDate value) {
       writer.value(value.toString());
     }
 
@@ -153,12 +153,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<LocalDateTime> LOCAL_DATE_TIME_ADAPTER = new JsonAdapter<LocalDateTime>() {
     @Override
-    public LocalDateTime fromJson(JsonReader reader) throws IOException {
+    public LocalDateTime fromJson(JsonReader reader) {
       return LocalDateTime.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, LocalDateTime value) throws IOException {
+    public void toJson(JsonWriter writer, LocalDateTime value) {
       writer.value(value.toString());
     }
 
@@ -170,12 +170,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<LocalTime> LOCAL_TIME_ADAPTER = new JsonAdapter<LocalTime>() {
     @Override
-    public LocalTime fromJson(JsonReader reader) throws IOException {
+    public LocalTime fromJson(JsonReader reader) {
       return LocalTime.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, LocalTime value) throws IOException {
+    public void toJson(JsonWriter writer, LocalTime value) {
       writer.value(value.toString());
     }
 
@@ -187,12 +187,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<MonthDay> MONTH_DAY_ADAPTER = new JsonAdapter<MonthDay>() {
     @Override
-    public MonthDay fromJson(JsonReader reader) throws IOException {
+    public MonthDay fromJson(JsonReader reader) {
       return MonthDay.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, MonthDay value) throws IOException {
+    public void toJson(JsonWriter writer, MonthDay value) {
       writer.value(value.toString());
     }
 
@@ -205,12 +205,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<Period> PERIOD_ADAPTER = new JsonAdapter<Period>() {
     @Override
-    public Period fromJson(JsonReader reader) throws IOException {
+    public Period fromJson(JsonReader reader) {
       return Period.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, Period value) throws IOException {
+    public void toJson(JsonWriter writer, Period value) {
       writer.value(value.toString());
     }
 
@@ -222,12 +222,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<Year> YEAR_ADAPTER = new JsonAdapter<Year>() {
     @Override
-    public Year fromJson(JsonReader reader) throws IOException {
+    public Year fromJson(JsonReader reader) {
       return Year.of(reader.nextInt());
     }
 
     @Override
-    public void toJson(JsonWriter writer, Year value) throws IOException {
+    public void toJson(JsonWriter writer, Year value) {
       writer.value(value.getValue());
     }
 
@@ -239,12 +239,12 @@ final class JavaTimeAdapters {
 
   private static final JsonAdapter<YearMonth> YEAR_MONTH_ADAPTER = new JsonAdapter<YearMonth>() {
     @Override
-    public YearMonth fromJson(JsonReader reader) throws IOException {
+    public YearMonth fromJson(JsonReader reader) {
       return YearMonth.parse(reader.nextString());
     }
 
     @Override
-    public void toJson(JsonWriter writer, YearMonth value) throws IOException {
+    public void toJson(JsonWriter writer, YearMonth value) {
       writer.value(value.toString());
     }
 

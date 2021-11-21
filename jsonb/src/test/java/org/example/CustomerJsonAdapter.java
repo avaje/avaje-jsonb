@@ -48,7 +48,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
   }
 
   @Override
-  public void toJson(JsonWriter writer, Customer customer) throws IOException {
+  public void toJson(JsonWriter writer, Customer customer) {
     writer.beginObject();
     writer.names(names);
     writer.name( 0);
@@ -65,7 +65,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
   }
 
   @Override
-  public Customer fromJson(JsonReader reader) throws IOException {
+  public Customer fromJson(JsonReader reader) {
 
     Integer id = null; boolean _set$id = false;
     String name = null; boolean _set$name = false;

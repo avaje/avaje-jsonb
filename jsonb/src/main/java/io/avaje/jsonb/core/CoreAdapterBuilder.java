@@ -213,13 +213,13 @@ class CoreAdapterBuilder {
     }
 
     @Override
-    public T fromJson(JsonReader reader) throws IOException {
+    public T fromJson(JsonReader reader) {
       if (adapter == null) throw new IllegalStateException("JsonAdapter isn't ready");
       return adapter.fromJson(reader);
     }
 
     @Override
-    public void toJson(JsonWriter writer, T value) throws IOException {
+    public void toJson(JsonWriter writer, T value) {
       if (adapter == null) throw new IllegalStateException("JsonAdapter isn't ready");
       adapter.toJson(writer, value);
     }

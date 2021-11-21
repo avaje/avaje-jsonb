@@ -34,50 +34,50 @@ public interface JsonWriter extends Closeable, Flushable {
 
   String path();
 
-  void beginArray() throws IOException;
+  void beginArray();
 
-  void endArray() throws IOException;
+  void endArray();
 
-  void emptyArray() throws IOException;
+  void emptyArray();
 
-  void beginObject() throws IOException;
+  void beginObject();
 
-  void endObject() throws IOException;
+  void endObject();
 
   void names(PropertyNames names);
 
   void name(int position);
 
-  void name(String name) throws IOException;
+  void name(String name);
 
-  void nullValue() throws IOException;
+  void nullValue();
 
-  void value(String value) throws IOException;
+  void value(String value);
 
-  void value(boolean value) throws IOException;
+  void value(boolean value);
 
-  void value(int value) throws IOException;
+  void value(int value);
 
-  void value(long value) throws IOException;
+  void value(long value);
 
-  void value(double value) throws IOException;
+  void value(double value);
 
-  void value(Boolean value) throws IOException;
+  void value(Boolean value);
 
-  void value(Integer value) throws IOException;
+  void value(Integer value);
 
-  void value(Long value) throws IOException;
+  void value(Long value);
 
-  void value(Double value) throws IOException;
+  void value(Double value);
 
-  void value(BigDecimal value) throws IOException;
+  void value(BigDecimal value);
 
-  void jsonValue(Object value) throws IOException;
+  void jsonValue(Object value);
 
-  void rawValue(String value) throws IOException;
+  void rawValue(String value);
 
-  void close() throws IOException;
+  void close();
 
-  void flush() throws IOException;
+  void flush();
 
 }

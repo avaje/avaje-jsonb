@@ -60,23 +60,23 @@ final class ObjectJsonReader implements JsonReader {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void beginObject() throws IOException {
+  public void beginObject() {
     Map<String, Object> map = (Map<String, Object>) currentValue;
     mapIterator = map.entrySet().iterator();
   }
 
   @Override
-  public void endObject() throws IOException {
+  public void endObject() {
     // do nothing (could maintain the current location for better errors?)
   }
 
   @Override
-  public boolean hasNextField() throws IOException {
+  public boolean hasNextField() {
     return mapIterator.hasNext();
   }
 
   @Override
-  public String nextField() throws IOException {
+  public String nextField() {
     final Map.Entry<String, Object> mapEntry = mapIterator.next();
     currentValue = mapEntry.getValue();
     return mapEntry.getKey();

@@ -51,27 +51,27 @@ public interface Jsonb {
   /**
    * Return the JsonReader used to read the given json content.
    */
-  JsonReader reader(String json) throws IOException;
+  JsonReader reader(String json);
 
   /**
    * Return the JsonReader used to read the json content from the given reader.
    */
-  JsonReader reader(Reader reader) throws IOException;
+  JsonReader reader(Reader reader);
 
   /**
    * Return the JsonReader used to read the json content from the given inputStream.
    */
-  JsonReader reader(InputStream inputStream) throws IOException;
+  JsonReader reader(InputStream inputStream);
 
   /**
    * Return the JsonWriter used to write json to the given writer.
    */
-  JsonWriter writer(Writer writer) throws IOException;
+  JsonWriter writer(Writer writer);
 
   /**
    * Return the JsonWriter used to write json to the given outputStream.
    */
-  JsonWriter writer(OutputStream outputStream) throws IOException;
+  JsonWriter writer(OutputStream outputStream);
 
   PropertyNames properties(String... names);
 

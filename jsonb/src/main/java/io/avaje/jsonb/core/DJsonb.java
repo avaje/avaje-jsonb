@@ -34,32 +34,32 @@ class DJsonb implements Jsonb {
     return io.properties(names);
   }
 
-  BufferedJsonWriter bufferedWriter() throws IOException {
+  BufferedJsonWriter bufferedWriter() {
     return io.bufferedWriter();
   }
 
   @Override
-  public JsonWriter writer(Writer writer) throws IOException {
+  public JsonWriter writer(Writer writer) {
     return io.writer(writer);
   }
 
   @Override
-  public JsonWriter writer(OutputStream outputStream) throws IOException {
+  public JsonWriter writer(OutputStream outputStream) {
     return io.writer(outputStream);
   }
 
   @Override
-  public JsonReader reader(Reader reader) throws IOException {
+  public JsonReader reader(Reader reader) {
     return io.reader(reader);
   }
 
   @Override
-  public JsonReader reader(InputStream inputStream) throws IOException {
+  public JsonReader reader(InputStream inputStream) {
     return io.reader(inputStream);
   }
 
   @Override
-  public JsonReader reader(String json) throws IOException {
+  public JsonReader reader(String json) {
     return io.reader(json);
   }
 

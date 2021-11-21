@@ -1,6 +1,7 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.PropertyNames;
 
@@ -26,13 +27,21 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void close() throws IOException {
-    generator.close();
+  public void close() {
+    try {
+      generator.close();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public void flush() throws IOException {
-    generator.flush();
+  public void flush() {
+    try {
+      generator.flush();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
@@ -61,28 +70,44 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void beginArray() throws IOException {
-    writeDeferredName();
-    generator.writeStartArray();
+  public void beginArray() {
+    try {
+      writeDeferredName();
+      generator.writeStartArray();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public void endArray() throws IOException {
-    generator.writeEndArray();
+  public void endArray() {
+    try {
+      generator.writeEndArray();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public void beginObject() throws IOException {
-    writeDeferredName();
-    generator.writeStartObject();
+  public void beginObject() {
+    try {
+      writeDeferredName();
+      generator.writeStartObject();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public void endObject() throws IOException {
-    generator.writeEndObject();
-    if (pushedNames) {
-      pushedNames = false;
-      currentNames = nameStack != null ? nameStack.pop() : null;
+  public void endObject() {
+    try {
+      generator.writeEndObject();
+      if (pushedNames) {
+        pushedNames = false;
+        currentNames = nameStack != null ? nameStack.pop() : null;
+      }
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
@@ -97,7 +122,7 @@ final class JacksonWriter implements JsonWriter {
       if (currentNames != null) {
         pushCurrentNames();
       }
-      currentNames = (JacksonNames)nextNames;
+      currentNames = (JacksonNames) nextNames;
     }
   }
 
@@ -125,11 +150,15 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void emptyArray() throws IOException {
+  public void emptyArray() {
     if (serializeEmpty) {
-      writeDeferredName();
-      generator.writeStartArray();
-      generator.writeEndArray();
+      try {
+        writeDeferredName();
+        generator.writeStartArray();
+        generator.writeEndArray();
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
     } else if (namePos >= 0) {
       namePos = -1;
     } else if (deferredName != null) {
@@ -138,110 +167,158 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void nullValue() throws IOException {
-    if (serializeNulls) {
-      writeDeferredName();
-      generator.writeNull();
+  public void nullValue() {
+    try {
+      if (serializeNulls) {
+        writeDeferredName();
+        generator.writeNull();
+      }
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
   @Override
-  public void value(String value) throws IOException {
+  public void value(String value) {
     if (value == null) {
       nullValue();
     } else {
-      writeDeferredName();
-      generator.writeString(value);
+      try {
+        writeDeferredName();
+        generator.writeString(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
     }
   }
 
   @Override
-  public void value(boolean value) throws IOException {
-    writeDeferredName();
-    generator.writeBoolean(value);
-  }
-
-
-  @Override
-  public void value(int value) throws IOException {
-    writeDeferredName();
-    generator.writeNumber(value);
-  }
-
-  @Override
-  public void value(long value) throws IOException {
-    writeDeferredName();
-    generator.writeNumber(value);
-  }
-
-  @Override
-  public void value(double value) throws IOException {
-    writeDeferredName();
-    generator.writeNumber(value);
-  }
-
-  @Override
-  public void value(Boolean value) throws IOException {
-    if (value == null) {
-      nullValue();
-    } else {
+  public void value(boolean value) {
+    try {
       writeDeferredName();
       generator.writeBoolean(value);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
+
   @Override
-  public void value(Integer value) throws IOException {
-    if (value == null) {
-      nullValue();
-    } else {
+  public void value(int value) {
+    try {
       writeDeferredName();
       generator.writeNumber(value);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
   @Override
-  public void value(Long value) throws IOException {
-    if (value == null) {
-      nullValue();
-    } else {
+  public void value(long value) {
+    try {
       writeDeferredName();
       generator.writeNumber(value);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
   @Override
-  public void value(Double value) throws IOException {
-    if (value == null) {
-      nullValue();
-    } else {
+  public void value(double value) {
+    try {
       writeDeferredName();
       generator.writeNumber(value);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
   @Override
-  public void value(BigDecimal value) throws IOException {
+  public void value(Boolean value) {
     if (value == null) {
       nullValue();
     } else {
-      writeDeferredName();
-      generator.writeNumber(value);
+      try {
+        writeDeferredName();
+        generator.writeBoolean(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
     }
   }
 
   @Override
-  public void rawValue(String value) throws IOException {
+  public void value(Integer value) {
     if (value == null) {
       nullValue();
     } else {
-      writeDeferredName();
-      generator.writeRaw(value);
+      try {
+        writeDeferredName();
+        generator.writeNumber(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
     }
   }
 
   @Override
-  public void jsonValue(Object value) throws IOException {
+  public void value(Long value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      try {
+        writeDeferredName();
+        generator.writeNumber(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
+    }
+  }
+
+  @Override
+  public void value(Double value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      try {
+        writeDeferredName();
+        generator.writeNumber(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
+    }
+  }
+
+  @Override
+  public void value(BigDecimal value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      try {
+        writeDeferredName();
+        generator.writeNumber(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
+    }
+  }
+
+  @Override
+  public void rawValue(String value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      try {
+        writeDeferredName();
+        generator.writeRaw(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
+    }
+  }
+
+  @Override
+  public void jsonValue(Object value) {
     if (value instanceof Map<?, ?>) {
       writeMap((Map<?, ?>) value);
     } else if (value instanceof List<?>) {
@@ -267,7 +344,7 @@ final class JacksonWriter implements JsonWriter {
     }
   }
 
-  private void writeList(List<?> value) throws IOException {
+  private void writeList(List<?> value) {
     beginArray();
     for (Object element : value) {
       jsonValue(element);
@@ -275,7 +352,7 @@ final class JacksonWriter implements JsonWriter {
     endArray();
   }
 
-  private void writeCollection(Collection<?> value) throws IOException {
+  private void writeCollection(Collection<?> value) {
     beginArray();
     for (Object element : value) {
       jsonValue(element);
@@ -283,7 +360,7 @@ final class JacksonWriter implements JsonWriter {
     endArray();
   }
 
-  private void writeMap(Map<?, ?> value) throws IOException {
+  private void writeMap(Map<?, ?> value) {
     beginObject();
     for (Map.Entry<?, ?> entry : value.entrySet()) {
       Object key = entry.getKey();

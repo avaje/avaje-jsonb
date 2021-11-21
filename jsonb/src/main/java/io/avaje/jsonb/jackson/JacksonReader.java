@@ -2,6 +2,7 @@ package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
 
 import java.io.IOException;
@@ -19,8 +20,12 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public void close() throws IOException {
-    parser.close();
+  public void close() {
+    try {
+      parser.close();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
@@ -31,14 +36,22 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public void skipValue() throws IOException {
-    parser.skipChildren();
+  public void skipValue() {
+    try {
+      parser.skipChildren();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public void beginArray() throws IOException {
-    if (parser.currentToken() == null) {
-      parser.nextToken();
+  public void beginArray() {
+    try {
+      if (parser.currentToken() == null) {
+        parser.nextToken();
+      }
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
@@ -48,9 +61,13 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public boolean hasNextElement() throws IOException {
-    JsonToken token = parser.nextToken();
-    return token != JsonToken.END_ARRAY;
+  public boolean hasNextElement() {
+    try {
+      JsonToken token = parser.nextToken();
+      return token != JsonToken.END_ARRAY;
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
@@ -59,16 +76,24 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public boolean hasNextField() throws IOException {
-    return parser.nextToken() == JsonToken.FIELD_NAME;
+  public boolean hasNextField() {
+    try {
+      return parser.nextToken() == JsonToken.FIELD_NAME;
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public String nextField() throws IOException {
-    String nextName = parser.getCurrentName();
-    // move to next token
-    parser.nextToken();
-    return nextName;
+  public String nextField() {
+    try {
+      String nextName = parser.getCurrentName();
+      // move to next token
+      parser.nextToken();
+      return nextName;
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
@@ -84,47 +109,79 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public boolean nextBoolean() throws IOException {
-    return parser.getValueAsBoolean();
+  public boolean nextBoolean() {
+    try {
+      return parser.getValueAsBoolean();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public int nextInt() throws IOException {
-    return parser.getValueAsInt();
+  public int nextInt() {
+    try {
+      return parser.getValueAsInt();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public BigDecimal nextDecimal() throws IOException {
-    return parser.getDecimalValue();
+  public BigDecimal nextDecimal() {
+    try {
+      return parser.getDecimalValue();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public BigInteger nextBigInteger() throws IOException {
-    return parser.getBigIntegerValue();
+  public BigInteger nextBigInteger() {
+    try {
+      return parser.getBigIntegerValue();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public long nextLong() throws IOException {
-    return parser.getValueAsLong();
+  public long nextLong() {
+    try {
+      return parser.getValueAsLong();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public double nextDouble() throws IOException {
-    return parser.getValueAsDouble();
+  public double nextDouble() {
+    try {
+      return parser.getValueAsDouble();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public String nextString() throws IOException {
-    return parser.getValueAsString();
+  public String nextString() {
+    try {
+      return parser.getValueAsString();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
   }
 
   @Override
-  public void beginObject() throws IOException {
+  public void beginObject() {
     if (parser.currentToken() == JsonToken.START_OBJECT) {
       return;
     }
-    if (parser.nextToken() != JsonToken.START_OBJECT) {
-      throw new IllegalStateException("Expected start object " + parser.getCurrentLocation() + " but got " + parser.currentToken());
+    try {
+      if (parser.nextToken() != JsonToken.START_OBJECT) {
+        throw new IllegalStateException("Expected start object " + parser.getCurrentLocation() + " but got " + parser.currentToken());
+      }
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 
@@ -136,10 +193,14 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public Token peek() throws IOException {
+  public Token peek() {
     JsonToken token = parser.currentToken();
     if (token == null) {
-      token = parser.nextToken();
+      try {
+        token = parser.nextToken();
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
     }
     switch (token) {
       case START_OBJECT:

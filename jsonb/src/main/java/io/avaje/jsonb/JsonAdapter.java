@@ -28,12 +28,12 @@ public abstract class JsonAdapter<T> {
   /**
    * Write the value to the writer.
    */
-  public abstract void toJson(JsonWriter writer, T value) throws IOException;
+  public abstract void toJson(JsonWriter writer, T value);
 
   /**
    * Read the type from the reader.
    */
-  public abstract T fromJson(JsonReader reader) throws IOException;
+  public abstract T fromJson(JsonReader reader);
 
   /**
    * Return a null safe version of this adapter.

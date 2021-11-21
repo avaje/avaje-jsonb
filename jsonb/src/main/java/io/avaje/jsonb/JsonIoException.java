@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Square, Inc.
+ * Copyright (C) 2015 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,18 @@
 package io.avaje.jsonb;
 
 /**
- * Thrown when the data being parsed is not encoded as valid JSON.
  */
-public class JsonException extends RuntimeException {
+public class JsonIoException extends JsonException {
 
-  public JsonException(String message) {
+  public JsonIoException(String message) {
     super(message);
   }
 
-  public JsonException(Throwable exception) {
-    super(exception);
+  public JsonIoException(Throwable cause) {
+    super(cause);
   }
 
-  public JsonException(String message, Throwable cause) {
+  public JsonIoException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  public static JsonException of(Throwable e) {
-    if (e instanceof JsonException) {
-      return (JsonException) e;
-    }
-    return new JsonException(e);
   }
 }

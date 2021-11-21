@@ -1,9 +1,13 @@
 package org.example;
 
-import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.*;
+import io.avaje.jsonb.JsonAdapter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.spi.ViewBuilder;
+import io.avaje.jsonb.spi.ViewBuilderAware;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -39,7 +43,7 @@ public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuil
   }
 
   @Override
-  public void toJson(JsonWriter writer, Address address) throws IOException {
+  public void toJson(JsonWriter writer, Address address) {
     writer.beginObject();
     writer.names(names);
     writer.name(0);
@@ -52,7 +56,7 @@ public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuil
   }
 
   @Override
-  public Address fromJson(JsonReader reader) throws IOException {
+  public Address fromJson(JsonReader reader) {
 
     Address address = new Address();
 

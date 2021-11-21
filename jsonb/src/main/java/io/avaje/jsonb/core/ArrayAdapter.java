@@ -48,7 +48,7 @@ final class ArrayAdapter extends JsonAdapter<Object> {
   }
 
   @Override
-  public Object fromJson(JsonReader reader) throws IOException {
+  public Object fromJson(JsonReader reader) {
     List<Object> list = new ArrayList<>();
     reader.beginArray();
     while (reader.hasNextElement()) {
@@ -63,7 +63,7 @@ final class ArrayAdapter extends JsonAdapter<Object> {
   }
 
   @Override
-  public void toJson(JsonWriter writer, Object value) throws IOException {
+  public void toJson(JsonWriter writer, Object value) {
     writer.beginArray();
     for (int i = 0, size = Array.getLength(value); i < size; i++) {
       elementAdapter.toJson(writer, Array.get(value, i));

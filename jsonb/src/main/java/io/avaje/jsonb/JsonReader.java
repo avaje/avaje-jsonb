@@ -16,39 +16,38 @@
 package io.avaje.jsonb;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public interface JsonReader extends Closeable {
 
-  void beginArray() throws IOException;
+  void beginArray();
 
   void endArray();
 
-  boolean hasNextElement() throws IOException;
+  boolean hasNextElement();
 
-  void beginObject() throws IOException;
+  void beginObject();
 
-  void endObject() throws IOException;
+  void endObject();
 
-  boolean hasNextField() throws IOException;
+  boolean hasNextField();
 
-  String nextField() throws IOException;
+  String nextField();
 
-  boolean nextBoolean() throws IOException;
+  boolean nextBoolean();
 
-  int nextInt() throws IOException;
+  int nextInt();
 
-  long nextLong() throws IOException;
+  long nextLong();
 
-  double nextDouble() throws IOException;
+  double nextDouble();
 
-  BigDecimal nextDecimal() throws IOException;
+  BigDecimal nextDecimal();
 
-  BigInteger nextBigInteger() throws IOException;
+  BigInteger nextBigInteger();
 
-  String nextString() throws IOException;
+  String nextString();
 
   boolean peekIsNull();
 
@@ -59,17 +58,17 @@ public interface JsonReader extends Closeable {
   /**
    * Return the current Token.
    */
-  Token peek() throws IOException;
+  Token peek();
 
   /**
    * Close the resources of the reader.
    */
-  void close() throws IOException;
+  void close();
 
   /**
    * Skip the next value.
    */
-  void skipValue() throws IOException;
+  void skipValue();
 
   /**
    * Reading json with an unmapped field, throw an Exception if failOnUnmapped is true.

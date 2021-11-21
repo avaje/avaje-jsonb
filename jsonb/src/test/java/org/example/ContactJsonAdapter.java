@@ -40,7 +40,7 @@ public class ContactJsonAdapter extends JsonAdapter<Contact> implements ViewBuil
   }
 
   @Override
-  public void toJson(JsonWriter writer, Contact customer) throws IOException {
+  public void toJson(JsonWriter writer, Contact customer) {
     writer.beginObject();
     writer.name("id");
     longAdapter.toJson(writer, customer.id());
@@ -52,7 +52,7 @@ public class ContactJsonAdapter extends JsonAdapter<Contact> implements ViewBuil
   }
 
   @Override
-  public Contact fromJson(JsonReader reader) throws IOException {
+  public Contact fromJson(JsonReader reader) {
 
     Long id = null;
     String firstName = null;
