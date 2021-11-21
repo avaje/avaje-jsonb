@@ -57,7 +57,7 @@ public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements View
   }
 
   @Override
-  public void toJson(JsonWriter writer, SomePropertyData somePropertyData) throws IOException {
+  public void toJson(JsonWriter writer, SomePropertyData somePropertyData) {
     writer.beginObject();
     writer.name("firstNameProperty1");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp1());
@@ -83,7 +83,7 @@ public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements View
   }
 
   @Override
-  public SomePropertyData fromJson(JsonReader reader) throws IOException {
+  public SomePropertyData fromJson(JsonReader reader) {
     SomePropertyData _$somePropertyData = new SomePropertyData();
 
     // read json

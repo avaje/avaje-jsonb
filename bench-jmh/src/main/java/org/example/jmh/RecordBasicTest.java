@@ -72,40 +72,23 @@ public class RecordBasicTest {
 
   //@Benchmark
   public String toJson_wideNames_jsonb_x() {
-    try {
-      return jsonbXWide.toJson(testDataWideNames);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbXWide.toJson(testDataWideNames);
   }
 
   //@Benchmark
   public String toJson_narrowNames_jsonb_x() {
-    try {
-      return jsonbXNarrow.toJson(testDataNarrowNames);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbXNarrow.toJson(testDataNarrowNames);
   }
 
   @Benchmark
   public String toJson_wideNames_jsonb() {
-    try {
-      return jsonbWideNames.toJson(testDataWideNames);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbWideNames.toJson(testDataWideNames);
   }
 
   @Benchmark
   public String toJson_narrowNames_jsonb() {
-    try {
-      return jsonbNarrowNames.toJson(testDataNarrowNames);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbNarrowNames.toJson(testDataNarrowNames);
   }
-
 
   @Benchmark
   public WideNamesRecord fromJson_wideNames_objectMapper() {
@@ -118,11 +101,7 @@ public class RecordBasicTest {
 
   @Benchmark
   public WideNamesRecord fromJson_wideNames_jsonb() {
-    try {
-      return jsonbXWide.fromJson(content);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbXWide.fromJson(content);
   }
 
   //@Benchmark
@@ -161,7 +140,7 @@ public class RecordBasicTest {
   final SerializedString p5 = key("lastButNotLeastProperty5");
 
   SerializedString key(String key) {
-    SerializedString v = new SerializedString("firstNameProperty1");
+    SerializedString v = new SerializedString(key);
     v.asQuotedUTF8();
     v.asQuotedChars();
     v.asQuotedChars();

@@ -57,11 +57,7 @@ public class NestSmallTest {
 
   @Benchmark
   public String toJson_jsonb() {
-    try {
-      return jsonbNestCust.toJson(testData);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbNestCust.toJson(testData);
   }
 
   @Benchmark
@@ -76,11 +72,7 @@ public class NestSmallTest {
 
   @Benchmark
   public NestCust fromJson_jsonb() {
-    try {
-      return jsonbNestCust.fromJson(content);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbNestCust.fromJson(content);
   }
 
   public static void main(String[] args) {

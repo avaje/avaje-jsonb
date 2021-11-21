@@ -48,11 +48,7 @@ public class BigDecimalTest {
 
   @Benchmark
   public String toJson_jsonb() {
-    try {
-      return jsonbType.toJson(testData);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbType.toJson(testData);
   }
 
   @Benchmark
@@ -66,11 +62,7 @@ public class BigDecimalTest {
 
   @Benchmark
   public MyMathBigD fromJson_jsonb() {
-    try {
-      return jsonbType.fromJson(content);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbType.fromJson(content);
   }
 
   public static void main(String[] args) {

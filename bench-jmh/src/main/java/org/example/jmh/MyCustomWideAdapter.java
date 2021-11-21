@@ -27,7 +27,7 @@ public class MyCustomWideAdapter extends JsonAdapter<WideNamesRecord> {
   }
 
   @Override
-  public void toJson(JsonWriter writer, WideNamesRecord myRecord) throws IOException {
+  public void toJson(JsonWriter writer, WideNamesRecord myRecord) {
     writer.beginObject();
     //writer.names(names);
     //writer.name(0);
@@ -45,7 +45,7 @@ public class MyCustomWideAdapter extends JsonAdapter<WideNamesRecord> {
   }
 
   @Override
-  public WideNamesRecord fromJson(JsonReader reader) throws IOException {
+  public WideNamesRecord fromJson(JsonReader reader) {
     // variables to read json values into, constructor params don't need _set$ flags
     String     _val$prop1 = null;
     String     _val$prop2 = null;

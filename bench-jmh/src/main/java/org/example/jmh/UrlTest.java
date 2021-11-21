@@ -54,11 +54,7 @@ public class UrlTest {
 
   @Benchmark
   public String url_toJson_jsonb() {
-    try {
-      return jsonbUrlType.toJson(urlTestData);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbUrlType.toJson(urlTestData);
   }
 
   @Benchmark
@@ -72,11 +68,7 @@ public class UrlTest {
 
   @Benchmark
   public UrlData url_fromJson_jsonb() {
-    try {
-      return jsonbUrlType.fromJson(urlContent);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbUrlType.fromJson(urlContent);
   }
 
 
@@ -91,11 +83,7 @@ public class UrlTest {
 
   @Benchmark
   public String uri_toJson_jsonb() {
-    try {
-      return jsonbUriType.toJson(uriTestData);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbUriType.toJson(uriTestData);
   }
 
   @Benchmark
@@ -109,11 +97,7 @@ public class UrlTest {
 
   @Benchmark
   public UriData uri_fromJson_jsonb() {
-    try {
-      return jsonbUriType.fromJson(uriContent);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbUriType.fromJson(uriContent);
   }
 
   public static void main(String[] args) throws MalformedURLException {

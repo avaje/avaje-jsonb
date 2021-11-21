@@ -71,11 +71,7 @@ public class PropertyStrTenTest {
 
   @Benchmark
   public String toJson_jsonb() {
-    try {
-      return jsonbType.toJson(testData);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbType.toJson(testData);
   }
 
   @Benchmark
@@ -143,20 +139,12 @@ public class PropertyStrTenTest {
 
   @Benchmark
   public SomePropertyData fromJson_jsonb() {
-    try {
-      return jsonbType.fromJson(content);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbType.fromJson(content);
   }
 
   //@Benchmark
   public SomePropertyData fromJson_base_reader() {
-    try {
-      return jsonbType.fromJson(new StringReader(content));
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return jsonbType.fromJson(new StringReader(content));
   }
 
 

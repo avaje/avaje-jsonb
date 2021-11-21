@@ -29,7 +29,7 @@ public class MyCustomNarrowAdapter extends JsonAdapter<NarrowNamesRecord> {
   }
 
   @Override
-  public void toJson(JsonWriter writer, NarrowNamesRecord myRecord) throws IOException {
+  public void toJson(JsonWriter writer, NarrowNamesRecord myRecord) {
     writer.beginObject();
     //writer.names(names);
     //writer.name(0);
@@ -51,7 +51,7 @@ public class MyCustomNarrowAdapter extends JsonAdapter<NarrowNamesRecord> {
   }
 
   @Override
-  public NarrowNamesRecord fromJson(JsonReader reader) throws IOException {
+  public NarrowNamesRecord fromJson(JsonReader reader) {
     // variables to read json values into, constructor params don't need _set$ flags
     String     _val$prop1 = null;
     String     _val$prop2 = null;
