@@ -1,9 +1,6 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonException;
-import io.avaje.jsonb.JsonView;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.PropertyNames;
 
@@ -197,43 +194,31 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
 
     @Override
     public String toJson(T value) {
-      try {
-        BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter();
-        toJson(bufferedJsonWriter, value);
-        return bufferedJsonWriter.result();
-      } catch (Throwable e) {
-        throw JsonException.of(e);
-      }
+      BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter();
+      toJson(bufferedJsonWriter, value);
+      return bufferedJsonWriter.result();
     }
 
     @Override
     public void toJson(JsonWriter writer, T value) {
+      if (properties != null) {
+        writer.names(properties);
+      }
       try {
-        if (properties != null) {
-          writer.names(properties);
-        }
         element.write(writer, value);
-      } catch (Throwable e) {
-        throw JsonException.of(e);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
       }
     }
 
     @Override
     public void toJson(Writer writer, T value) {
-      try {
-        toJson(jsonb.writer(writer), value);
-      } catch (Throwable e) {
-        throw JsonException.of(e);
-      }
+      toJson(jsonb.writer(writer), value);
     }
 
     @Override
     public void toJson(OutputStream outputStream, T value) {
-      try {
-        toJson(jsonb.writer(outputStream), value);
-      } catch (Throwable e) {
-        throw JsonException.of(e);
-      }
+      toJson(jsonb.writer(outputStream), value);
     }
   }
 
@@ -277,8 +262,8 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
           element.write(writer, object);
         }
         writer.endObject();
-      } catch (Throwable e) {
-        throw JsonException.of(e);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
       }
     }
   }
@@ -322,19 +307,15 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
 
     @Override
     public void write(JsonWriter writer, Object object) {
-      try {
-        final Collection<?> collection = (Collection<?>) object;
-        if (collection.isEmpty()) {
-          writer.emptyArray();
-        } else {
-          writer.beginArray();
-          for (final Object value : collection) {
-            child.toJson(writer, value);
-          }
-          writer.endArray();
+      final Collection<?> collection = (Collection<?>) object;
+      if (collection.isEmpty()) {
+        writer.emptyArray();
+      } else {
+        writer.beginArray();
+        for (final Object value : collection) {
+          child.toJson(writer, value);
         }
-      } catch (Throwable e) {
-        throw JsonException.of(e);
+        writer.endArray();
       }
     }
   }

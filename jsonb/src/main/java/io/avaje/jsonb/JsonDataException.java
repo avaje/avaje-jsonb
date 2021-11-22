@@ -15,15 +15,16 @@
  */
 package io.avaje.jsonb;
 
-import java.io.IOException;
-
 /**
- * Thrown when underlying IOException occurred during read or write.
+ * When unexpected data is being read or written.
  */
-public class JsonIoException extends JsonException {
+public class JsonDataException extends JsonException {
 
-  public JsonIoException(IOException cause) {
-    super(cause);
+  public JsonDataException(String message) {
+    super(message);
   }
 
+  public JsonDataException(Throwable e) {
+    super(e);
+  }
 }

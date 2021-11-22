@@ -30,39 +30,35 @@ import static java.util.Objects.requireNonNull;
 
 final class BasicTypeAdapters {
 
-  public static final JsonAdapter.Factory FACTORY = new JsonAdapter.Factory() {
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+    if (type == Boolean.TYPE) return new BooleanAdapter();
+    if (type == Byte.TYPE) return new ByteAdapter();
+    if (type == Character.TYPE) return new CharacterAdapter();
+    if (type == Double.TYPE) return new DoubleAdapter();
+    if (type == Float.TYPE) return new FloatAdapter();
+    if (type == Integer.TYPE) return new IntegerAdapter();
+    if (type == Long.TYPE) return new LongAdapter();
+    if (type == Short.TYPE) return new ShortAdapter();
+    if (type == Boolean.class) return new BooleanAdapter().nullSafe();
+    if (type == Byte.class) return new ByteAdapter().nullSafe();
+    if (type == Character.class) return new CharacterAdapter().nullSafe();
+    if (type == Double.class) return new DoubleAdapter().nullSafe();
+    if (type == Float.class) return new FloatAdapter().nullSafe();
+    if (type == Integer.class) return new IntegerAdapter().nullSafe();
+    if (type == Long.class) return new LongAdapter().nullSafe();
+    if (type == Short.class) return new ShortAdapter().nullSafe();
+    if (type == String.class) return new StringAdapter().nullSafe();
+    if (type == UUID.class) return new UuidAdapter().nullSafe();
+    if (type == URL.class) return new UrlAdapter().nullSafe();
+    if (type == URI.class) return new UriAdapter().nullSafe();
+    if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    @Override
-    public JsonAdapter<?> create(Type type, Jsonb jsonb) {
-      if (type == Boolean.TYPE) return new BooleanAdapter();
-      if (type == Byte.TYPE) return new ByteAdapter();
-      if (type == Character.TYPE) return new CharacterAdapter();
-      if (type == Double.TYPE) return new DoubleAdapter();
-      if (type == Float.TYPE) return new FloatAdapter();
-      if (type == Integer.TYPE) return new IntegerAdapter();
-      if (type == Long.TYPE) return new LongAdapter();
-      if (type == Short.TYPE) return new ShortAdapter();
-      if (type == Boolean.class) return new BooleanAdapter().nullSafe();
-      if (type == Byte.class) return new ByteAdapter().nullSafe();
-      if (type == Character.class) return new CharacterAdapter().nullSafe();
-      if (type == Double.class) return new DoubleAdapter().nullSafe();
-      if (type == Float.class) return new FloatAdapter().nullSafe();
-      if (type == Integer.class) return new IntegerAdapter().nullSafe();
-      if (type == Long.class) return new LongAdapter().nullSafe();
-      if (type == Short.class) return new ShortAdapter().nullSafe();
-      if (type == String.class) return new StringAdapter().nullSafe();
-      if (type == UUID.class) return new UuidAdapter().nullSafe();
-      if (type == URL.class) return new UrlAdapter().nullSafe();
-      if (type == URI.class) return new UriAdapter().nullSafe();
-      if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
-
-      Class<?> rawType = Util.rawType(type);
-      if (rawType.isEnum()) {
-        return new EnumJsonAdapter(rawType).nullSafe();
-      }
-      return null;
+    Class<?> rawType = Util.rawType(type);
+    if (rawType.isEnum()) {
+      return new EnumJsonAdapter(rawType).nullSafe();
     }
+    return null;
   };
 
   private static final class UuidAdapter extends JsonAdapter<UUID> {
@@ -88,7 +84,7 @@ final class BasicTypeAdapters {
       try {
         return new URL(reader.nextString());
       } catch (MalformedURLException e) {
-        throw new JsonException(e);
+        throw new JsonDataException(e);
       }
     }
 
@@ -159,7 +155,7 @@ final class BasicTypeAdapters {
     public Character fromJson(JsonReader reader) {
       String value = reader.nextString();
       if (value.length() > 1) {
-        throw new JsonIoException(String.format("Expected %s but was %s at path %s", "a char", '"' + value + '"', reader.path()));
+        throw new JsonDataException(String.format("Expected %s but was %s at path %s", "a char", '"' + value + '"', reader.path()));
       } else {
         return value.charAt(0);
       }
@@ -198,7 +194,7 @@ final class BasicTypeAdapters {
     public Float fromJson(JsonReader reader) {
       float value = (float) reader.nextDouble();
       if (Float.isInfinite(value)) { // !reader.isLenient() &&
-        throw new JsonIoException("JSON forbids NaN and infinities: " + value + " at path " + reader.path());
+        throw new JsonDataException("JSON forbids NaN and infinities: " + value + " at path " + reader.path());
       } else {
         return value;
       }
@@ -289,7 +285,7 @@ final class BasicTypeAdapters {
     if (value >= min && value <= max) {
       return value;
     } else {
-      throw new JsonIoException(String.format("Expected %s but was %s at path %s", typeMessage, value, reader.path()));
+      throw new JsonDataException(String.format("Expected %s but was %s at path %s", typeMessage, value, reader.path()));
     }
   }
 

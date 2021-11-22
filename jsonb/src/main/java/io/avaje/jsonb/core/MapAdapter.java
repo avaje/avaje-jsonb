@@ -47,7 +47,7 @@ final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
     writer.beginObject();
     for (Map.Entry<String, V> entry : map.entrySet()) {
       if (entry.getKey() == null) {
-        throw new JsonIoException("Map key is null at " + writer.path());
+        throw new JsonDataException("Map key is null at " + writer.path());
       }
       writer.name(entry.getKey());
       valueAdapter.toJson(writer, entry.getValue());
@@ -64,15 +64,7 @@ final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
       V value = valueAdapter.fromJson(reader);
       V replaced = result.put(name, value);
       if (replaced != null) {
-        throw new JsonIoException(
-          "Map key '"
-            + name
-            + "' has multiple values at path "
-            + reader.path()
-            + ": "
-            + replaced
-            + " and "
-            + value);
+        throw new JsonDataException(String.format("Map key '%s' has multiple values at path %s : %s and %s", name, reader.path(), replaced, value));
       }
     }
     reader.endObject();
