@@ -17,7 +17,6 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
@@ -59,6 +58,9 @@ public abstract class JsonAdapter<T> {
     throw new IllegalStateException("This adapter is not ViewBuilderAware");
   }
 
+  /**
+   * Factory for creating a JsonAdapter.
+   */
   public interface Factory {
 
     /**

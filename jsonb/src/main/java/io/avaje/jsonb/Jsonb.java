@@ -9,6 +9,25 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+/**
+ * Provides access to json adapters by type.
+ *
+ * <pre>{@code
+ *
+ *   Jsonb jsonb = Jsonb.newBuilder().build();
+ *
+ *   JsonType<Customer> customerType = jsonb.type(Customer.class);
+ *
+ *   Customer customer = ...;
+ *
+ *   // write json
+ *   String asJson = customerType.toJson(customer);
+ *
+ *   // read json
+ *   Customer customer = customerType.fromJson(asJson);
+ *
+ * }</pre>
+ */
 public interface Jsonb {
 
   /**
@@ -78,6 +97,12 @@ public interface Jsonb {
    */
   JsonWriter writer(OutputStream outputStream);
 
+  /**
+   * Return the property names as PropertyNames.
+   * <p>
+   * Provides the option of optimising the writing of json for property names
+   * by having them already escaped and encoded rather than as plain strings.
+   */
   PropertyNames properties(String... names);
 
   /**
