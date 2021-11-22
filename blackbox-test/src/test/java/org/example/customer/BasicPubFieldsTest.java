@@ -4,8 +4,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BasicPubFieldsTest {
@@ -14,7 +12,7 @@ class BasicPubFieldsTest {
   JsonType<BasicPubFields> type = jsonb.type(BasicPubFields.class);
 
   @Test
-  void toJson() throws IOException {
+  void toJson()  {
 
     BasicPubFields b = new BasicPubFields();
     b.one = "oneValue";
@@ -31,7 +29,7 @@ class BasicPubFieldsTest {
   }
 
   @Test
-  void fromJson() throws IOException {
+  void fromJson()  {
 
     BasicPubFields fromJson = type.fromJson("{\"one\":\"oneValue\",\"two\":43,\"three\":\"threeValue\",\"four\":\"fourValue\"}");
 

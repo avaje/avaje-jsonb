@@ -4,8 +4,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class VehicleTest {
@@ -14,7 +12,7 @@ class VehicleTest {
   JsonType<Vehicle> vehicleJsonType = jsonb.type(Vehicle.class);
 
   @Test
-  void truck_toJson() throws IOException {
+  void truck_toJson()  {
     Truck truck = new Truck(42);
     truck.name("bigTruck");
     truck.capacity(95);
@@ -24,7 +22,7 @@ class VehicleTest {
   }
 
   @Test
-  void car_toJson() throws IOException {
+  void car_toJson()  {
     Car car = new Car();
     car.id(42);
     car.name("bigTruck");
@@ -35,7 +33,7 @@ class VehicleTest {
   }
 
   @Test
-  void truck_fromJson() throws IOException {
+  void truck_fromJson()  {
 
     Vehicle vehicle = vehicleJsonType.fromJson("{\"@type\":\"TRUCK\",\"id\":42,\"name\":\"bigTruck\",\"capacity\":95}");
 
@@ -47,7 +45,7 @@ class VehicleTest {
   }
 
   @Test
-  void car_fromJson() throws IOException {
+  void car_fromJson()  {
 
     Vehicle vehicle = vehicleJsonType.fromJson("{\"@type\":\"Car\",\"id\":42,\"name\":\"myCar\",\"colour\":\"blue\"}");
 

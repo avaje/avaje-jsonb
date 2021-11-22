@@ -4,7 +4,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.*;
 import java.util.UUID;
 
@@ -16,7 +15,7 @@ class MyDateTimeTest {
   JsonType<MyDateTime> jsonType = jsonb.type(MyDateTime.class);
 
   @Test
-  void toJson_fromJson() throws IOException {
+  void toJson_fromJson()  {
 
     MyDateTime myDateTime = new MyDateTime(UUID.randomUUID(), Instant.now(),
       LocalDate.now(),

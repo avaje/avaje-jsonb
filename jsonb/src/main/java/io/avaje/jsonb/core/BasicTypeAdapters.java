@@ -137,8 +137,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  ;
-
   static final class ByteAdapter extends JsonAdapter<Byte> {
     @Override
     public Byte fromJson(JsonReader reader) {
@@ -155,8 +153,6 @@ final class BasicTypeAdapters {
       return "JsonAdapter(Byte)";
     }
   }
-
-  ;
 
   static final class CharacterAdapter extends JsonAdapter<Character> {
     @Override
@@ -180,8 +176,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  ;
-
   static final class DoubleAdapter extends JsonAdapter<Double> {
     @Override
     public Double fromJson(JsonReader reader) {
@@ -198,8 +192,6 @@ final class BasicTypeAdapters {
       return "JsonAdapter(Double)";
     }
   }
-
-  ;
 
   static final class FloatAdapter extends JsonAdapter<Float> {
     @Override
@@ -224,8 +216,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  ;
-
   static final class IntegerAdapter extends JsonAdapter<Integer> {
     @Override
     public Integer fromJson(JsonReader reader) {
@@ -242,8 +232,6 @@ final class BasicTypeAdapters {
       return "JsonAdapter(Integer)";
     }
   }
-
-  ;
 
   static final class LongAdapter extends JsonAdapter<Long> {
     @Override
@@ -262,8 +250,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  ;
-
   static final class ShortAdapter extends JsonAdapter<Short> {
     @Override
     public Short fromJson(JsonReader reader) {
@@ -281,8 +267,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  ;
-
   static final class StringAdapter extends JsonAdapter<String> {
     @Override
     public String fromJson(JsonReader reader) {
@@ -299,8 +283,6 @@ final class BasicTypeAdapters {
       return "JsonAdapter(String)";
     }
   }
-
-  ;
 
   static int rangeCheckNextInt(JsonReader reader, String typeMessage, int min, int max) {
     int value = reader.nextInt();

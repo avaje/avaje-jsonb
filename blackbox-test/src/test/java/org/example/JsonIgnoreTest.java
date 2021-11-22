@@ -5,8 +5,6 @@ import io.avaje.jsonb.Jsonb;
 import org.example.customer.Customer;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonIgnoreTest {
@@ -15,7 +13,7 @@ class JsonIgnoreTest {
   JsonType<Customer> jsonType = jsonb.type(Customer.class);
 
   @Test
-  void toJson() throws IOException {
+  void toJson() {
     var customer = new Customer().id(42L).mySecret1("s1").mySecret2("s2").mySecret3("s3");
 
     String asJson = jsonType.toJson(customer);
@@ -24,7 +22,7 @@ class JsonIgnoreTest {
   }
 
   @Test
-  void fromJson() throws IOException {
+  void fromJson() {
 
     String jsonContent = "{\"id\":42,\"mySecret1\":\"s1\",\"mySecret2\":\"s2\",\"mySecret3\":\"s3\"}";
 

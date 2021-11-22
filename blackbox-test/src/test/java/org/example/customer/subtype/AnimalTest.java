@@ -4,8 +4,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AnimalTest {
@@ -14,7 +12,7 @@ class AnimalTest {
   JsonType<Animal> animalJsonType = jsonb.type(Animal.class);
 
   @Test
-  void toJson_fromJson_cat() throws IOException {
+  void toJson_fromJson_cat()  {
     Cat cat = new Cat();
     cat.name("PussInBoots");
 
@@ -28,7 +26,7 @@ class AnimalTest {
   }
 
   @Test
-  void toJson_fromJson_dog() throws IOException {
+  void toJson_fromJson_dog()  {
     Dog dog = new Dog("Woof");
     dog.id(43);
 

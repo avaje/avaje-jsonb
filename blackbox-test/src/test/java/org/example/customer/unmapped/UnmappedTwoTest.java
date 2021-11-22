@@ -5,7 +5,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,7 @@ class UnmappedTwoTest {
   JsonType<UnmappedTwo> jsonType = jsonb.type(UnmappedTwo.class);
 
   @Test
-  void toJson_unmappedField_includedInJson() throws IOException {
+  void toJson_unmappedField_includedInJson()  {
 
     Map<String, Object> otherStuff = new LinkedHashMap<>();
     otherStuff.put("xone", 57);
@@ -35,7 +34,7 @@ class UnmappedTwoTest {
 
 
   @Test
-  void fromJson_unmapped() throws IOException {
+  void fromJson_unmapped()  {
 
     String jsonContent = "{\"id\":42,\"name\":\"foo\",\"xone\":57,\"xtwo\":{\"nm\":\"fred\"},\"xthree\":[\"a\",\"b\",\"c\"]}";
 

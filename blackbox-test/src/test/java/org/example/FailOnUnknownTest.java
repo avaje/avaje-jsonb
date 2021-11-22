@@ -5,15 +5,13 @@ import io.avaje.jsonb.Jsonb;
 import org.example.customer.Customer;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FailOnUnknownTest {
 
   @Test
-  void fromJson_default_ignoresUnknown() throws IOException {
+  void fromJson_default_ignoresUnknown() {
     String jsonContent = "{\"unknown\":\"foo\",\"unknownObject\":{\"a\":\"aval\"},\"unknownList\":[5,6,7],\"id\":42,\"name\":\"hello\"}";
 
     // default skips unknown

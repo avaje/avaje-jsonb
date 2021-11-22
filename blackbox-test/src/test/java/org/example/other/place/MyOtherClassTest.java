@@ -4,8 +4,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MyOtherClassTest {
@@ -14,7 +12,7 @@ class MyOtherClassTest {
   JsonType<MyOtherClass> jsonType = jsonb.type(MyOtherClass.class);
 
   @Test
-  void toFromJson() throws IOException {
+  void toFromJson() {
 
     MyOtherClass bean = new MyOtherClass("bazz");
     bean.some(42);

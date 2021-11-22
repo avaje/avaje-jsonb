@@ -3,8 +3,6 @@ package org.example.customer.inherit;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AinheritCTest {
@@ -12,7 +10,7 @@ class AinheritCTest {
   private final Jsonb jsonb = Jsonb.newBuilder().build();
 
   @Test
-  void toFromJson() throws IOException {
+  void toFromJson()  {
 
     AinheritC c = new AinheritC("foo");
     c.levelA = "aval";

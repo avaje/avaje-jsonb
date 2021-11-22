@@ -3,7 +3,6 @@ package org.example.customer;
 import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.util.*;
@@ -26,7 +25,7 @@ class CustomerTest {
   }
 
   @Test
-  void toJson() throws IOException {
+  void toJson()  {
 
     var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE).whenCreated(Instant.now());
     customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
@@ -61,7 +60,7 @@ class CustomerTest {
   }
 
   @Test
-  void fromObject() throws IOException {
+  void fromObject()  {
     var jsonb = Jsonb.newBuilder().build();
 
     var customerJson = jsonb.type(Customer.class);

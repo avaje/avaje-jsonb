@@ -4,14 +4,12 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MixedCSFTest {
 
   @Test
-  void toJson() throws IOException {
+  void toJson()  {
 
     MixedCSF mixed = new MixedCSF("one");
     mixed.two(42L);

@@ -4,10 +4,8 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WithNameTest {
 
@@ -15,7 +13,7 @@ class WithNameTest {
   JsonType<WithName> jsonType = jsonb.type(WithName.class);
 
   @Test
-  void toFrom() throws IOException {
+  void toFrom()  {
     WithName bean = new WithName("sim", "simPlus", 42);
 
     String asJson = jsonType.toJson(bean);

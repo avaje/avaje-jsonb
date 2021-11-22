@@ -5,7 +5,6 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -18,7 +17,7 @@ class IntegerTest {
   private final Jsonb jsonb = Jsonb.newBuilder().build();
 
   @Test
-  void fromObject() throws IOException {
+  void fromObject()  {
 
     JsonType<Integer> intJson = jsonb.type(Integer.TYPE);
 
@@ -28,7 +27,7 @@ class IntegerTest {
   }
 
   @Test
-  void list_fromObject() throws IOException {
+  void list_fromObject()  {
 
     JsonType<Integer> integerJson = jsonb.type(Integer.class);
     JsonType<List<Integer>> integerListJson = integerJson.list();
@@ -38,7 +37,7 @@ class IntegerTest {
   }
 
   @Test
-  void set_toFromJson() throws IOException {
+  void set_toFromJson()  {
 
     JsonType<Integer> integerJson = jsonb.type(Integer.class);
     JsonType<Set<Integer>> integerSetJson = integerJson.set();
@@ -55,7 +54,7 @@ class IntegerTest {
   }
 
   @Test
-  void set_fromObject() throws IOException {
+  void set_fromObject()  {
 
     JsonType<Set<Integer>> integerSetJson = jsonb.type(Integer.class).set();
 
@@ -64,7 +63,7 @@ class IntegerTest {
   }
 
   @Test
-  void set_viaTypes() throws IOException {
+  void set_viaTypes()  {
 
     JsonType<Set<Integer>> integerSetJson = jsonb.type(Types.setOf(Integer.class));
 
@@ -74,7 +73,7 @@ class IntegerTest {
 
 
   @Test
-  void array_viaTypes() throws IOException {
+  void array_viaTypes()  {
 
     var integerArrayJson = jsonb.type(Types.arrayOf(Integer.class));
 

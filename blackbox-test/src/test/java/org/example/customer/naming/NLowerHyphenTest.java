@@ -4,7 +4,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,7 +16,7 @@ class NLowerHyphenTest {
   JsonType<NLowHyp> jsonType = jsonb.type(NLowHyp.class);
 
   @Test
-  void upperUnderscore_toFrom() throws IOException {
+  void upperUnderscore_toFrom()  {
     NLowHyp bean = new NLowHyp("sim", "simPlus", 42);
 
     String asJson = jsonType.toJson(bean);
@@ -28,7 +27,7 @@ class NLowerHyphenTest {
   }
 
   @Test
-  void mapOfRecord() throws IOException {
+  void mapOfRecord()  {
 
     JsonType<Map<String, NLowHyp>> mapJsonType = jsonType.map();
 

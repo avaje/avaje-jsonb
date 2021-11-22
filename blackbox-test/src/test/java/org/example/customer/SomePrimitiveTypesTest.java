@@ -3,15 +3,13 @@ package org.example.customer;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SomePrimitiveTypesTest {
 
   @Test
-  void toJsonFromJson_primitives() throws IOException {
+  void toJsonFromJson_primitives() {
 
     SomePrimitiveTypes bean = new SomePrimitiveTypes(12, 13L, true, 14D, 'x', (byte) 43, (short) 15);
 
