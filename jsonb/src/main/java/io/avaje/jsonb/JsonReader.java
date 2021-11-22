@@ -21,38 +21,89 @@ import java.math.BigInteger;
 
 public interface JsonReader extends Closeable {
 
+  /**
+   * Read array begin.
+   */
   void beginArray();
 
+  /**
+   * Read array end.
+   */
   void endArray();
 
+  /**
+   * Return true if there is a next element.
+   */
   boolean hasNextElement();
 
+  /**
+   * Read begin object.
+   */
   void beginObject();
 
+  /**
+   * Read end object.
+   */
   void endObject();
 
+  /**
+   * Return true if there is a next field to be read.
+   */
   boolean hasNextField();
 
+  /**
+   * Return the next field.
+   */
   String nextField();
 
+  /**
+   * Read and return the next value as a boolean.
+   */
   boolean nextBoolean();
 
+  /**
+   * Read and return the next value as an int.
+   */
   int nextInt();
 
+  /**
+   * Read and return the next value as a long.
+   */
   long nextLong();
 
+  /**
+   * Read and return the next value as a double.
+   */
   double nextDouble();
 
+  /**
+   * Read and return the next value as a BigDecimal.
+   */
   BigDecimal nextDecimal();
 
+  /**
+   * Read and return the next value as a BigInteger.
+   */
   BigInteger nextBigInteger();
 
+  /**
+   * Read and return the next value as String.
+   */
   String nextString();
 
+  /**
+   * Return true if the next value is a null.
+   */
   boolean peekIsNull();
 
+  /**
+   * Return the next value as a null.
+   */
   <T> T nextNull();
 
+  /**
+   * Return the current path.
+   */
   String path();
 
   /**
