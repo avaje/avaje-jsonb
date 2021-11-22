@@ -1,3 +1,7 @@
+[![Build](https://github.com/avaje/avaje-jsonb/actions/workflows/build.yml/badge.svg)](https://github.com/avaje/avaje-jsonb/actions/workflows/build.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.avaje/avaje-jsonb.svg?label=Maven%20Central)](https://mvnrepository.com/artifact/io.avaje/avaje-jsonb)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/avaje/avaje-jsonb/blob/master/LICENSE)
+
 # avaje-jsonb
 
 json binding via apt source code generation
