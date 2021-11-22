@@ -14,7 +14,7 @@
 
   <packaging>pom</packaging>
   <name>jsonb parent</name>
-  <description>parent pom for mason</description>
+  <description>parent pom for jsonb</description>
 
   <scm>
     <developerConnection>scm:git:git@github.com:avaje/avaje-jsonb.git</developerConnection>
