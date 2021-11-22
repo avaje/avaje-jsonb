@@ -14,6 +14,7 @@ import org.openjdk.jmh.annotations.*;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,6 +39,7 @@ public class PropertyStrTenTest {
   private SomePropertyData testData;
   private OtherPropertyData loganTestData;
   private String content;
+  private byte[] contentAsBytes;
 
   @Setup
   public void setup() {
@@ -53,6 +55,7 @@ public class PropertyStrTenTest {
     loganTestData = new OtherPropertyData("firstNameProperty1", "lastNameProperty2", "anotherSimilarProperty3", "moreOrLessProperty4", "lastButNotLeastProperty5", "property6", "property7", "property8", "property9", "property10");
 
     content = "{\"prop1\":\"firstNameProperty1\",\"prop2\":\"lastNameProperty2\",\"prop3\":\"anotherSimilarProperty3\",\"prop4\":\"moreOrLessProperty4\",\"prop5\":\"lastButNotLeastProperty5\",\"prop6\":\"property6\",\"prop7\":\"property7\",\"prop8\":\"property8\",\"prop9\":\"property9\",\"prop10\":\"property10\"}";
+    contentAsBytes = content.getBytes(StandardCharsets.UTF_8);
   }
 
   @Benchmark
@@ -119,6 +122,15 @@ public class PropertyStrTenTest {
     }
   }
 
+  @Benchmark
+  public SomePropertyData fromJson_objectMapper_asBytes() {
+    try {
+      return mapper.readValue(contentAsBytes, SomePropertyData.class);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
   //@Benchmark
   public SomePropertyData fromJson_objectMapper_reader() {
     try {
@@ -142,11 +154,20 @@ public class PropertyStrTenTest {
     return jsonbType.fromJson(content);
   }
 
+  @Benchmark
+  public SomePropertyData fromJson_jsonb_asBytes() {
+    return jsonbType.fromJson(contentAsBytes);
+  }
+
+  @Benchmark
+  public SomePropertyData fromJson_jsonb_withTypeLookup() {
+    return jsonb.type(SomePropertyData.class).fromJson(content);
+  }
+
   //@Benchmark
   public SomePropertyData fromJson_base_reader() {
     return jsonbType.fromJson(new StringReader(content));
   }
-
 
   public static void main(String[] args) {
     PropertyStrTenTest test = new PropertyStrTenTest();
