@@ -18,7 +18,7 @@ package io.avaje.jsonb;
 import java.io.IOException;
 
 /**
- * Thrown when underlying IOException occurred during read or write.
+ * Thrown when underlying IOException occurred during read or write of json.
  */
 public class JsonIoException extends JsonException {
 

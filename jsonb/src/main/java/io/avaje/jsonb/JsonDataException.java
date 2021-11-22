@@ -16,7 +16,7 @@
 package io.avaje.jsonb;
 
 /**
- * When unexpected data is being read or written.
+ * Thrown when data being parsed is not encoded as valid json or attempting to write invalid json.
  */
 public class JsonDataException extends JsonException {
 
