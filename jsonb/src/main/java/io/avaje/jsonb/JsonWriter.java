@@ -19,9 +19,11 @@ import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.Closeable;
 import java.io.Flushable;
-import java.io.IOException;
 import java.math.BigDecimal;
 
+/**
+ * Writes json content.
+ */
 public interface JsonWriter extends Closeable, Flushable {
 
   /**

@@ -19,6 +19,9 @@ import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/**
+ * Reads json content as a stream of JSON tokens and content.
+ */
 public interface JsonReader extends Closeable {
 
   /**
