@@ -1,22 +1,104 @@
 # avaje-jsonb
 
-## json binding via apt source code generation
+json binding via apt source code generation
 
-#### Summary
 - Annotate java classes with `@Json` (or use `@Json.Import` for types we "don't own" or can't annotate)
-- Use `avaje-jsonb-generator` annotation processor to generate source code to convert to/from json
-- Use `avaje-jsonb` instead of Jackson ObjectMapper to convert to/from json
+- `avaje-jsonb-generator` annotation processor generates java source code to convert to/from json
+- Use `avaje-jsonb` instead of Jackson ObjectMapper to convert to/from json.
+- By default uses Jackson core under the hood
 
 
 ## Goals
 - Use Java annotation processing to generate java source for adapting JSON to/from java objects
-- Similar approach to that of Moshi, LoganSquare, dsl-json, ig-json-parser
+- Similar in approach to that of Moshi, LoganSquare, dsl-json, ig-json-parser
 - Constructors and accessors/getters/setters of any style should all "just work" (record type, constructors, 'fluid setters' all just work)
-- As an alternative approach to using ObjectMapper, GSON (source code generation approach vs largely reflection based approaches)
-- Base off Moshi in design and approach. Noting Moshi only does source code generation for Kotlin and looks to have slightly different goals.
-- Also noting that Moshi could be heading away from Java and to converting over to Kotlin.
-- Initially uses jackson-core for underlying parsing/generation (unlike Moshi).
-- Provide an abstraction allowing targeting of other parser/generators like JSONP/Yasson, GSON (a bit like the goal of Jakarta JSONB API)
+- As a source code generation style alternative to ObjectMapper, GSON (source code generation approach vs largely reflection based approaches)
+- Currently, uses jackson-core for underlying parsing/generation but ideally provides an abstraction allowing targeting of other parsers/generators like JSONP/Yasson, GSON (a bit like the goal of Jakarta JSONB API)
+- Provide support for dynamic json views (similar in style to that presented by [LinkedIn at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
+
+
+# Quick start
+
+## Step 1 - Add dependencies
+```xml
+<dependency>
+  <groupId>io.avaje</groupId>
+  <artifactId>avaje-jsonb</artifactId>
+  <version>0.3</version>
+</dependency>
+
+<!-- annotation processor -->
+<dependency>
+  <groupId>io.avaje</groupId>
+  <artifactId>avaje-jsonb-generator</artifactId>
+  <version>0.3</version>
+  <scope>provided</scope>
+</dependency>
+```
+
+## Step 2 - Add `@Json`
+
+Add `@Json` onto types we want to serialise.
+
+The `avaje-jsonb-generator` annotation processor will generate a JsonAdapter as java source code
+for each type annotated with `@Json`. These will be automatically registered with Jsonb
+when it is started using a service loader mechanism.
+
+For types we can not annotate with `@Json` we can instead use `@Json.Import`.
+```java
+@Json
+public class Customer {
+  ...
+}
+```
+```java
+@Json
+public record Address(String street, String suburb, String city) { }
+```
+
+## Step 3 - Use
+
+```java
+// build using defaults
+Jsonb jsonb = Jsonb.newBuilder().build();
+
+JsonType<Customer> customerType = jsonb.type(Customer.class);
+
+Customer customer = ...;
+
+// serialise to json
+String asJson =  customerType.toJson(customer);
+
+// deserialse from json
+Customer customer = customerType.fromJson(asJson);
+```
+
+## Step 4 - Use json views
+
+`avaje-jsonb` supports dynamic json views. This allows us to specify which specific properties
+to include when serialising to json.
+
+For example:
+
+```java
+Jsonb jsonb = Jsonb.newBuilder().build();
+
+JsonType<Customer> customerType = jsonb.type(Customer.class);
+
+// only including the id and name
+JsonView<Customer> idAndNameView = customerType.view("(id, name)");
+String asJson =  idAndNameView.toJson(customer);
+
+
+JsonView<Customer> myView =
+  customerType.view("(id, name, billingAddress(*), contacts(lastName, email))");
+
+// serialise to json the above specified properties only
+String asJson =  myView.toJson(customer);
+```
+People may recognise this json view syntax as being pretty much the syntax presented
+by [LinkedIn in at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
+
 
 ## Based off Moshi
 
@@ -40,6 +122,7 @@
 - Add Types.listOf(), Types.setOf(), Types.mapOf() helper methods
 - Provide an SPI with the view to target other json-p implementations JSONP/Yasson, GSON etc
 - More common java types with default built-in support - java.time types, java.util.UUID (need to flesh this out)
+- Add support for json views
 
 ## Related works
 - [moshi](https://github.com/square/moshi), [reddit - why use moshi over gson](https://www.reddit.com/r/androiddev/comments/684flw/why_use_moshi_over_gson/)
