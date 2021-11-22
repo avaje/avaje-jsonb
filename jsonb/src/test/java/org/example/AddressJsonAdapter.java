@@ -33,12 +33,11 @@ public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuil
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle mh) throws NoSuchMethodException, IllegalAccessException {
+  public void build(ViewBuilder builder, String name, MethodHandle mh) {
     builder.beginObject(name, mh);
-    MethodHandles.Lookup lookup = MethodHandles.lookup();
-    builder.add("street", stringAdapter, lookup.findVirtual(Address.class, "street", MethodType.methodType(String.class)));
-    builder.add("suburb", stringAdapter, lookup.findVirtual(Address.class, "suburb", MethodType.methodType(String.class)));
-    builder.add("city", stringAdapter, lookup.findVirtual(Address.class, "city", MethodType.methodType(String.class)));
+    builder.add("street", stringAdapter, builder.method(Address.class, "street", String.class));
+    builder.add("suburb", stringAdapter, builder.method(Address.class, "suburb", String.class));
+    builder.add("city", stringAdapter, builder.method(Address.class, "city", String.class));
     builder.endObject();
   }
 

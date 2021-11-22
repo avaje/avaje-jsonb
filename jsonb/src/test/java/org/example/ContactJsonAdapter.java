@@ -1,13 +1,13 @@
 package org.example;
 
-import io.avaje.jsonb.*;
+import io.avaje.jsonb.JsonAdapter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 
 public class ContactJsonAdapter extends JsonAdapter<Contact> implements ViewBuilderAware {
 
@@ -30,12 +30,11 @@ public class ContactJsonAdapter extends JsonAdapter<Contact> implements ViewBuil
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle mh) throws NoSuchMethodException, IllegalAccessException {
+  public void build(ViewBuilder builder, String name, MethodHandle mh) {
     builder.beginObject(name, mh);
-    MethodHandles.Lookup lookup = MethodHandles.lookup();
-    builder.add("id", longAdapter, lookup.findVirtual(Contact.class, "id", MethodType.methodType(Long.class)));
-    builder.add("firstName", stringAdapter, lookup.findVirtual(Contact.class, "firstName", MethodType.methodType(String.class)));
-    builder.add("lastName", stringAdapter, lookup.findVirtual(Contact.class, "lastName", MethodType.methodType(String.class)));
+    builder.add("id", longAdapter, builder.method(Contact.class, "id", Long.class));
+    builder.add("firstName", stringAdapter, builder.method(Contact.class, "firstName", String.class));
+    builder.add("lastName", stringAdapter, builder.method(Contact.class, "lastName", String.class));
     builder.endObject();
   }
 

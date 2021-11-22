@@ -102,7 +102,7 @@ abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) throws NoSuchMethodException, IllegalAccessException {
+  public void build(ViewBuilder builder, String name, MethodHandle handle) {
     builder.addArray(name, elementAdapter, handle);
   }
 

@@ -1,9 +1,10 @@
 package org.example;
 
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.*;
+import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.spi.ViewBuilder;
+import io.avaje.jsonb.spi.ViewBuilderAware;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.time.Instant;
 import java.util.List;
@@ -37,7 +38,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) throws NoSuchMethodException, IllegalAccessException {
+  public void build(ViewBuilder builder, String name, MethodHandle handle) {
     builder.beginObject(name, handle);
     builder.add("id", intAdapter, builder.method(Customer.class, "id", Integer.class));
     builder.add("name", stringAdapter, builder.method(Customer.class, "name", String.class));
