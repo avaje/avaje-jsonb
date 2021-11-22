@@ -54,6 +54,11 @@ public interface Jsonb {
   JsonReader reader(String json);
 
   /**
+   * Return the JsonReader used to read the given json content in bytes.
+   */
+  JsonReader reader(byte[] jsonBytes);
+
+  /**
    * Return the JsonReader used to read the json content from the given reader.
    */
   JsonReader reader(Reader reader);

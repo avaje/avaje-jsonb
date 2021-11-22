@@ -64,6 +64,11 @@ class DJsonb implements Jsonb {
   }
 
   @Override
+  public JsonReader reader(byte[] json) {
+    return io.reader(json);
+  }
+
+  @Override
   public <T> JsonType<T> type(Class<T> cls) {
     return typeWithCache(cls);
   }

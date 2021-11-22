@@ -4,7 +4,6 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.JsonWriter;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ class CustomerTest {
   final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"whenCreated\":";
 
   @Test
-  void toJson() throws IOException {
+  void toJson() {
 
     Jsonb jsonb = Jsonb.newBuilder().build();
 

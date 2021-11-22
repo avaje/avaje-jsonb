@@ -5,7 +5,7 @@ import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,21 +15,13 @@ class ContactTest {
   final String jsonStart = "{\"id\":44,\"firstName\":\"rob\",\"lastName\":\"foo\"";
 
   @Test
-  void toJson() throws IOException {
+  void toJson_fromJson() {
 
     Jsonb jsonb = Jsonb.newBuilder()
       .add(Contact.class, ContactJsonAdapter::new)
-//      .add((type, annotations, json) -> {
-//        if (type.equals(Contact.class)) {
-//          return new ContactJsonAdapter(json);
-//        }
-//        return null;
-//      })
       .build();
 
-
     Contact contact = new Contact(44L, "rob", "foo");
-
 
     JsonType<Contact> contactType = jsonb.type(Contact.class);
     String asJson = contactType.toJson(contact);
@@ -40,6 +32,10 @@ class ContactTest {
     assertThat(from2.firstName()).isEqualTo(contact.firstName());
     assertThat(from2.lastName()).isEqualTo(contact.lastName());
 
+    Contact from3 = contactType.fromJson(asJson.getBytes(StandardCharsets.UTF_8));
+    assertThat(from3.id()).isEqualTo(contact.id());
+    assertThat(from3.firstName()).isEqualTo(contact.firstName());
+    assertThat(from3.lastName()).isEqualTo(contact.lastName());
   }
 
 }

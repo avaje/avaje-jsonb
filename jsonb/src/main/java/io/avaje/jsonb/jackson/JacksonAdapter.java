@@ -36,6 +36,15 @@ public class JacksonAdapter implements IOAdapter {
   }
 
   @Override
+  public JsonReader reader(byte[] json) {
+    try {
+      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
+  }
+
+  @Override
   public JsonReader reader(Reader reader) {
     try {
       return new JacksonReader(jsonFactory.createParser(reader), failOnUnknown);

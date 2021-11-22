@@ -83,6 +83,13 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
+  public T fromJson(byte[] content) {
+    try (JsonReader reader = jsonb.reader(content)) {
+      return adapter.fromJson(reader);
+    }
+  }
+
+  @Override
   public T fromJson(Reader reader) {
     return adapter.fromJson(jsonb.reader(reader));
   }

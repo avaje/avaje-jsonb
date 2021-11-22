@@ -82,6 +82,11 @@ public interface JsonType<T> {
   T fromJson(String content);
 
   /**
+   * Read the return the value from the json content.
+   */
+  T fromJson(byte[] content);
+
+  /**
    * Read the return the value from the reader.
    */
   T fromJson(Reader reader);
