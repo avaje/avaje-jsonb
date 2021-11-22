@@ -17,7 +17,7 @@
   <description>parent pom for mason</description>
 
   <scm>
-    <developerConnection>scm:git:git@github.com:avaje/mason.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:avaje/avaje-jsonb.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
