@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.avaje</groupId>
@@ -10,7 +9,7 @@
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-parent</artifactId>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
 
   <packaging>pom</packaging>
   <name>jsonb parent</name>
@@ -18,7 +17,7 @@
 
   <scm>
     <developerConnection>scm:git:git@github.com:avaje/avaje-jsonb.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>avaje-jsonb-parent-0.2</tag>
   </scm>
 
   <properties>
