@@ -95,6 +95,13 @@ class BeanReader {
     writer.eol();
   }
 
+  void cascadeTypes(Set<String> types) {
+    for (FieldReader allField : allFields) {
+      if (allField.include()) {
+        allField.cascadeTypes(types);
+      }
+    }
+  }
 
   void writeFields(Append writer) {
     writer.append("  // naming convention %s", namingConvention).eol();

@@ -103,6 +103,12 @@ class FieldReader {
     genericType.addImports(importTypes);
   }
 
+  void cascadeTypes(Set<String> types) {
+    if (!unmapped) {
+      types.add(genericType.topType());
+    }
+  }
+
   void setterMethod(MethodReader setter) {
     this.setter = setter;
   }

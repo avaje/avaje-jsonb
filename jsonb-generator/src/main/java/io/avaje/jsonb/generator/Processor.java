@@ -7,16 +7,18 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Processor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
   private final ImportReader importReader = new ImportReader();
+  private final List<BeanReader> allReaders = new ArrayList<>();
+  private final Set<String> sourceTypes = new HashSet<>();
+
   private ProcessingContext context;
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
@@ -45,7 +47,7 @@ public class Processor extends AbstractProcessor {
   }
 
   /**
-   * Read the existing meta data from InjectModule (if found) and the factory bean (if exists).
+   * Read the existing metadata from the generated component (if exists).
    */
   private void readModule() {
     if (readModuleInfo) {
@@ -61,8 +63,49 @@ public class Processor extends AbstractProcessor {
     writeAdapters(round.getElementsAnnotatedWith(Json.class));
     writeAdaptersForImported(round.getElementsAnnotatedWith(Json.Import.class));
     initialiseComponent();
+    cascadeTypes();
     writeComponent(round.processingOver());
     return false;
+  }
+
+  private void cascadeTypes() {
+    while (!allReaders.isEmpty()) {
+      cascadeTypesInner();
+    }
+  }
+
+  private void cascadeTypesInner() {
+    ArrayList<BeanReader> copy = new ArrayList<>(allReaders);
+    allReaders.clear();
+
+    Set<String> extraTypes = new TreeSet<>();
+    for (BeanReader reader : copy) {
+      reader.cascadeTypes(extraTypes);
+    }
+    for (String type : extraTypes) {
+      if (!ignoreType(type)) {
+        TypeElement element = context.element(type);
+        if (cascadeElement(element)) {
+          writeAdapterForType(element);
+        }
+      }
+    }
+  }
+
+  private boolean cascadeElement(TypeElement element) {
+    return element.getKind() != ElementKind.ENUM
+      && !metaData.contains(adapterName(element));
+  }
+
+  private String adapterName(TypeElement element) {
+    return new AdapterName(element).fullName();
+  }
+
+  private boolean ignoreType(String type) {
+    return type.indexOf('.') == -1
+      || type.startsWith("java.")
+      || type.startsWith("javax.")
+      || sourceTypes.contains(type);
   }
 
   /**
@@ -70,8 +113,7 @@ public class Processor extends AbstractProcessor {
    */
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
     for (Element importedElement : importedElements) {
-      List<String> importTypes = importReader.read(importedElement);
-      for (String importType : importTypes) {
+      for (String importType : importReader.read(importedElement)) {
         TypeElement element = context.element(importType);
         if (element == null) {
           context.logError("Unable to find imported element " + importType);
@@ -122,8 +164,10 @@ public class Processor extends AbstractProcessor {
       SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader, context);
       metaData.add(beanWriter.fullName());
       beanWriter.write();
+      allReaders.add(beanReader);
+      sourceTypes.add(typeElement.getSimpleName().toString());
     } catch (IOException e) {
-      context.logError("Error writing JsonAdapter for " + beanReader, e);
+      context.logError("Error writing JsonAdapter for %s %s", beanReader, e);
     }
   }
 
