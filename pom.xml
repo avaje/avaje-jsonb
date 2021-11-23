@@ -30,6 +30,27 @@
     <module>blackbox-test</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <id>release</id>
+      <modules>
+        <module>jsonb</module>
+        <module>jsonb-generator</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>jsonb</module>
+        <module>jsonb-generator</module>
+        <module>blackbox-test</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <build>
     <plugins>
       <plugin>
