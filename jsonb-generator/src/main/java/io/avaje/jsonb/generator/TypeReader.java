@@ -67,9 +67,14 @@ class TypeReader {
   }
 
   private void readField(Element element, List<FieldReader> localFields) {
-    if (!element.getModifiers().contains(Modifier.TRANSIENT)) {
+    if (includeField(element)) {
       localFields.add(new FieldReader(element, namingConvention, currentSubType));
     }
+  }
+
+  private boolean includeField(Element element) {
+    return !element.getModifiers().contains(Modifier.TRANSIENT)
+      && !element.getModifiers().contains(Modifier.STATIC);
   }
 
   private void readConstructor(Element element, TypeElement type) {
