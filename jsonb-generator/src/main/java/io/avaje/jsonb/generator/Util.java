@@ -79,4 +79,18 @@ class Util {
     }
     return sb.toString();
   }
+
+  /**
+   * Return the base type given the JsonAdapter type.
+   * Remove the "jsonb" sub-package and the "JsonAdapter" suffix.
+   */
+  static String baseTypeOfAdapter(String adapterFullName) {
+    int posLast = adapterFullName.lastIndexOf('.');
+    int posPrior = adapterFullName.lastIndexOf('.', posLast - 1);
+    int nameEnd = adapterFullName.length() - 11; // "JsonAdapter".length();
+    if (posPrior == -1) {
+      return adapterFullName.substring(posLast + 1, nameEnd);
+    }
+    return adapterFullName.substring(0, posPrior) + adapterFullName.substring(posLast, nameEnd);
+  }
 }

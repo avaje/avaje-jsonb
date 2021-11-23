@@ -7,11 +7,20 @@ class ComponentMetaData {
   private final List<String> allTypes = new ArrayList<>();
   private String fullName;
 
+  @Override
+  public String toString() {
+    return allTypes.toString();
+  }
+
   /**
    * Ensure the component name has been initialised.
    */
   void initialiseFullName() {
     fullName();
+  }
+
+  boolean contains(String type) {
+    return allTypes.contains(type);
   }
 
   void add(String type) {
@@ -46,11 +55,9 @@ class ComponentMetaData {
    */
   Collection<String> allImports() {
     Set<String> packageImports = new TreeSet<>();
-    for (String allType : allTypes) {
-      String adapterPackage = Util.packageOf(allType);
-      packageImports.add(adapterPackage + ".*");
-      String typePackage = Util.packageOf(adapterPackage);
-      packageImports.add(typePackage + ".*");
+    for (String adapterFullName : allTypes) {
+      packageImports.add(Util.packageOf(adapterFullName) + ".*");
+      packageImports.add(Util.baseTypeOfAdapter(adapterFullName));
     }
     return packageImports;
   }
