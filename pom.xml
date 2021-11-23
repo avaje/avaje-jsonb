@@ -24,12 +24,6 @@
     <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
   </properties>
 
-<!--  <modules>-->
-<!--    <module>jsonb</module>-->
-<!--    <module>jsonb-generator</module>-->
-<!--    <module>blackbox-test</module>-->
-<!--  </modules>-->
-
   <profiles>
     <profile>
       <id>release</id>
