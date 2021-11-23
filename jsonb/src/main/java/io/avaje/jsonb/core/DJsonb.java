@@ -158,6 +158,12 @@ class DJsonb implements Jsonb {
     }
 
     @Override
+    public Builder add(Component component) {
+      component.register(this);
+      return this;
+    }
+
+    @Override
     public Builder add(JsonAdapter.Factory factory) {
       factories.add(factory);
       return this;

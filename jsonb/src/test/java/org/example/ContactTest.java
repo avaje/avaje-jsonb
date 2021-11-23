@@ -17,7 +17,8 @@ class ContactTest {
   void toJson_fromJson() {
 
     Jsonb jsonb = Jsonb.newBuilder()
-      .add(Contact.class, ContactJsonAdapter::new)
+      // a silly example exercising add of Jsonb.Component - don't do this yourself
+      .add(builder -> builder.add(Contact.class, ContactJsonAdapter::new))
       .build();
 
     Contact contact = new Contact(44L, "rob", "foo");

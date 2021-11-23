@@ -132,6 +132,11 @@ public interface Jsonb {
     Builder add(Type type, AdapterBuilder builder);
 
     /**
+     * Add a Component which can provide multiple JsonAdapters and or configuration.
+     */
+    Builder add(Jsonb.Component component);
+
+    /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
     Builder add(JsonAdapter.Factory factory);
