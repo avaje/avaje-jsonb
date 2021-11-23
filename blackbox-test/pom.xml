@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
   </parent>
 
   <artifactId>blackbox-test</artifactId>
@@ -23,13 +23,13 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <version>0.3</version>
     </dependency>
 
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb-generator</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <version>0.3</version>
       <scope>provided</scope>
     </dependency>
 
