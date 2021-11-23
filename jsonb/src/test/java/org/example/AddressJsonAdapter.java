@@ -9,8 +9,6 @@ import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 
 public class AddressJsonAdapter extends JsonAdapter<Address> implements ViewBuilderAware {
 

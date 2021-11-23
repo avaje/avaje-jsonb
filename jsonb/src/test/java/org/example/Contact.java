@@ -1,7 +1,5 @@
 package org.example;
 
-import java.util.UUID;
-
 public class Contact {
 
   private final Long id;

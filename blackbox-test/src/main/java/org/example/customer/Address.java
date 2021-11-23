@@ -40,11 +40,11 @@ public class Address {
     this.suburb = suburb;
   }
 
-  public String getCity() {
+  public String getcity() {
     return city;
   }
 
-  public void setCity(String city) {
+  public void setcity(String city) {
     this.city = city;
   }
 

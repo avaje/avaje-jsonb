@@ -16,6 +16,8 @@ class TypeReader {
   private final Map<String, FieldReader> allFieldMap = new HashMap<>();
   private final Map<String, MethodReader> maybeSetterMethods = new LinkedHashMap<>();
   private final Map<String, MethodReader> maybeGetterMethods = new LinkedHashMap<>();
+  private final Map<String, MethodReader> allGetterMethods = new LinkedHashMap<>();
+  private final Map<String, MethodReader> allSetterMethods = new LinkedHashMap<>();
 
   private final TypeSubTypeReader subTypes;
   private final TypeElement baseType;
@@ -106,16 +108,17 @@ class TypeReader {
     if (methodElement.getModifiers().contains(Modifier.PUBLIC)) {
       List<? extends VariableElement> parameters = methodElement.getParameters();
       final String methodKey = methodElement.getSimpleName().toString();
+      MethodReader methodReader = new MethodReader(context, methodElement, type).read();
       if (parameters.size() == 1) {
         if (!maybeSetterMethods.containsKey(methodKey)) {
-          MethodReader methodReader = new MethodReader(context, methodElement, type).read();
           maybeSetterMethods.put(methodKey, methodReader);
         }
+        allSetterMethods.put(methodKey.toLowerCase(), methodReader);
       } else if (parameters.size() == 0) {
         if (!maybeGetterMethods.containsKey(methodKey)) {
-          MethodReader methodReader = new MethodReader(context, methodElement, type).read();
           maybeGetterMethods.put(methodKey, methodReader);
         }
+        allGetterMethods.put(methodKey.toLowerCase(), methodReader);
       }
     }
   }
@@ -130,19 +133,37 @@ class TypeReader {
     }
   }
 
-
   private void matchFieldToSetter(FieldReader field) {
+    if (!matchFieldToSetter2(field, false)) {
+      if (!matchFieldToSetter2(field, true)) {
+        if (!field.isPublicField()) {
+          context.logError("Non public field " + field.fieldName() + " with no matching setter or constructor?");
+        }
+      }
+    }
+  }
+
+  private boolean matchFieldToSetter2(FieldReader field, boolean loose) {
     String name = field.fieldName();
-    MethodReader setter = maybeSetterMethods.get(name);
+    MethodReader setter = setterLookup(name, loose);
     if (setter != null) {
       field.setterMethod(setter);
+      return true;
     } else {
-      setter = maybeSetterMethods.get(setterName(name));
+      setter = setterLookup(setterName(name), loose);
       if (setter != null) {
         field.setterMethod(setter);
-      } else if (!field.isPublicField()) {
-        context.logError("Non public field " + name + " with no matching setter or constructor?");
+        return true;
       }
+    }
+    return false;
+  }
+
+  private MethodReader setterLookup(String name, boolean loose) {
+    if (loose) {
+      return allSetterMethods.get(name.toLowerCase());
+    } else {
+      return maybeSetterMethods.get(name);
     }
   }
 
@@ -153,24 +174,40 @@ class TypeReader {
   }
 
   private void matchFieldToGetter(FieldReader field) {
+    if (!matchFieldToGetter2(field, false)) {
+      if (!matchFieldToGetter2(field, true)) {
+        if (!field.isPublicField()) {
+          context.logError("Non public field " + field.fieldName() + " with no matching getter?");
+        }
+      }
+    }
+  }
+
+  private boolean matchFieldToGetter2(FieldReader field, boolean loose) {
     String name = field.fieldName();
-    MethodReader getter = maybeGetterMethods.get(name);
+    MethodReader getter = getterLookup(name, loose);
     if (getter != null) {
       field.getterMethod(getter);
-      return;
+      return true;
     }
-    getter = maybeGetterMethods.get(getterName(name));
+    getter = getterLookup(getterName(name), loose);
     if (getter != null) {
       field.getterMethod(getter);
-      return;
+      return true;
     }
-    getter = maybeGetterMethods.get(isGetterName(name));
+    getter = getterLookup(isGetterName(name), loose);
     if (getter != null) {
       field.getterMethod(getter);
-      return;
+      return true;
     }
-    if (!field.isPublicField()) {
-      context.logError("Non public field " + name + " with no matching getter?");
+    return false;
+  }
+
+  private MethodReader getterLookup(String name, boolean loose) {
+    if (!loose) {
+      return maybeGetterMethods.get(name);
+    } else {
+      return allGetterMethods.get(name.toLowerCase());
     }
   }
 
