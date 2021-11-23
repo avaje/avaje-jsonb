@@ -4,7 +4,6 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,4 +37,19 @@ class ContactTest {
     assertThat(from3.lastName()).isEqualTo(contact.lastName());
   }
 
+  @Test
+  void toJson_asBytes() {
+    Jsonb jsonb = Jsonb.newBuilder()
+      .add(Contact.class, ContactJsonAdapter::new)
+      .build();
+
+    Contact contact = new Contact(44L, "rob", "foo");
+
+    JsonType<Contact> contactType = jsonb.type(Contact.class);
+    String asJsonString = contactType.toJson(contact);
+    assertThat(asJsonString).isEqualTo("{\"id\":44,\"firstName\":\"rob\",\"lastName\":\"foo\"}");
+
+    byte[] asJsonBytes = contactType.toJsonBytes(contact);
+    assertThat(asJsonBytes).isEqualTo(asJsonString.getBytes(StandardCharsets.UTF_8));
+  }
 }

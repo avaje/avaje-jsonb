@@ -2,10 +2,12 @@ package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
+import io.avaje.jsonb.spi.BytesJsonWriter;
 import io.avaje.jsonb.spi.IOAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
 
@@ -83,8 +85,13 @@ public class JacksonAdapter implements IOAdapter {
 
   @Override
   public BufferedJsonWriter bufferedWriter() {
-    SegmentedStringWriter sw = new SegmentedStringWriter(jsonFactory._getBufferRecycler());
-    JsonWriter delegate = writer(sw);
-    return new JacksonWriteBuffer(delegate, sw);
+    SegmentedStringWriter buffer = new SegmentedStringWriter(jsonFactory._getBufferRecycler());
+    return new JacksonWriteBuffer(writer(buffer), buffer);
+  }
+
+  @Override
+  public BytesJsonWriter bufferedWriterAsBytes() {
+    ByteArrayBuilder buffer = new ByteArrayBuilder(jsonFactory._getBufferRecycler());
+    return new JacksonWriteAsBytes(writer(buffer), buffer);
   }
 }

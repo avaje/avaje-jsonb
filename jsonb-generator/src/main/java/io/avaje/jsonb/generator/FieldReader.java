@@ -181,7 +181,7 @@ class FieldReader {
     } else if (getter != null) {
       writer.append("%s.%s()%s", varName, getter.getName(), suffix);
     } else {
-      writer.append("FIXME: field is not public and has not getter ? ", varName);
+      writer.append("FIXME: field %s is not public and has not getter ? ", fieldName);
     }
   }
 

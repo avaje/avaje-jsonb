@@ -46,6 +46,11 @@ public interface IOAdapter {
   BufferedJsonWriter bufferedWriter();
 
   /**
+   * Return a JsonWriter to use for writing json to byte array.
+   */
+  BytesJsonWriter bufferedWriterAsBytes();
+
+  /**
    * Return PropertyNames given the names of properties.
    * <p>
    * The PropertyNames can prepare the names for writing such as

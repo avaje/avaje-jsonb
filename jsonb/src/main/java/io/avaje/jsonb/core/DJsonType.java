@@ -2,8 +2,12 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
+import io.avaje.jsonb.spi.BytesJsonWriter;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +50,13 @@ final class DJsonType<T> implements JsonType<T> {
     BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter();
     toJson(bufferedJsonWriter, value);
     return bufferedJsonWriter.result();
+  }
+
+  @Override
+  public byte[] toJsonBytes(T value) {
+    BytesJsonWriter bytesWriter = jsonb.bufferedWriterAsBytes();
+    toJson(bytesWriter, value);
+    return bytesWriter.result();
   }
 
   @Override

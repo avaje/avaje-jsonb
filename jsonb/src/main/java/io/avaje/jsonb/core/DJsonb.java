@@ -38,6 +38,10 @@ class DJsonb implements Jsonb {
     return io.bufferedWriter();
   }
 
+  BytesJsonWriter bufferedWriterAsBytes() {
+    return io.bufferedWriterAsBytes();
+  }
+
   @Override
   public JsonWriter writer(Writer writer) {
     return io.writer(writer);

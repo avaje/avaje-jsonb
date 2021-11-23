@@ -57,6 +57,11 @@ public interface JsonType<T> {
   String toJson(T value);
 
   /**
+   * Return the value as json content in bytes form.
+   */
+  byte[] toJsonBytes(T value);
+
+  /**
    * Write the value as json content to the given JsonWriter.
    */
   void toJson(JsonWriter writer, T value);
