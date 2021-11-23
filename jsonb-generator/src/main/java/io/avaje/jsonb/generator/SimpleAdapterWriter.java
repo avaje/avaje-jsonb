@@ -1,6 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
@@ -18,12 +17,10 @@ class SimpleAdapterWriter {
   SimpleAdapterWriter(BeanReader beanReader, ProcessingContext context) {
     this.beanReader = beanReader;
     this.context = context;
-    TypeElement origin = beanReader.getBeanType();
-    String originName = origin.getQualifiedName().toString();
-    this.shortName = origin.getSimpleName().toString();
-    String originPackage = Util.packageOf(originName);
-    this.adapterPackage = originPackage.equals("") ? "jsonb" : originPackage + ".jsonb";
-    this.adapterFullName = adapterPackage + "." + shortName + "JsonAdapter";
+    AdapterName adapterName = new AdapterName(beanReader.getBeanType());
+    this.shortName = adapterName.shortName();
+    this.adapterPackage = adapterName.adapterPackage();
+    this.adapterFullName = adapterName.fullName();
   }
 
   String fullName() {
