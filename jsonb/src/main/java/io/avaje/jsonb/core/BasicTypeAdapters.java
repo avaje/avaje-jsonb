@@ -17,20 +17,18 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
 final class BasicTypeAdapters {
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
     if (type == Boolean.TYPE) return new BooleanAdapter();
     if (type == Byte.TYPE) return new ByteAdapter();
@@ -56,7 +54,7 @@ final class BasicTypeAdapters {
 
     Class<?> rawType = Util.rawType(type);
     if (rawType.isEnum()) {
-      return new EnumJsonAdapter(rawType).nullSafe();
+      return createEnumAdapter(rawType);
     }
     return null;
   };
@@ -348,6 +346,120 @@ final class BasicTypeAdapters {
 
     public String toString() {
       return "JsonAdapter(Object)";
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static JsonAdapter<?> createEnumAdapter(Class<?> rawType) {
+    for (Method declaredMethod : rawType.getDeclaredMethods()) {
+      for (Annotation annotation : declaredMethod.getDeclaredAnnotations()) {
+        if (isJsonValue(annotation)) {
+          return enumMap(rawType, declaredMethod);
+        }
+      }
+    }
+    return new EnumJsonAdapter(rawType).nullSafe();
+  }
+
+  private static boolean isJsonValue(Annotation annotation) {
+    return Json.Value.class == annotation.annotationType()
+      || annotation.getClass().getCanonicalName().endsWith("JsonValue"); // e.g. Jackson annotation
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static JsonAdapter<?> enumMap(Class<?> type, Method method) {
+    Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
+    EnumType enumType1 = determineEnumType(method.getReturnType());
+    if (enumType1 == EnumType.INT) {
+      return new EnumIntValueMap(method, enumType);
+    }
+    return new EnumValueMap(method, enumType);
+  }
+
+  enum EnumType {INT, STRING}
+
+  private static EnumType determineEnumType(Class<?> returnType) {
+    return returnType == int.class ? EnumType.INT : EnumType.STRING;
+  }
+
+  static class EnumValueMap<T extends Enum<T>> extends JsonAdapter<T> {
+
+    private final Class<T> enumType;
+    private final Map<String, String> toValue = new HashMap<>();
+    private final Map<String, String> toName = new HashMap<>();
+
+    EnumValueMap(Method method, Class<T> enumType) {
+      this.enumType = enumType;
+      for (Enum<?> enumConstant : enumType.getEnumConstants()) {
+        try {
+          String val = String.valueOf(method.invoke(enumConstant));
+          toValue.put(enumConstant.name(), val);
+          toName.put(val, enumConstant.name());
+        } catch (Exception e) {
+          throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
+        }
+      }
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, T value) {
+      writer.value(toValue.get(value.name()));
+    }
+
+    @Override
+    public T fromJson(JsonReader reader) {
+      String value = reader.nextString();
+      String name = toName.get(value);
+      if (name == null) {
+        throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.path());
+      }
+      return Enum.valueOf(enumType, name);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(" + this.enumType.getName() + ")";
+    }
+  }
+
+  static class EnumIntValueMap<T extends Enum<T>> extends JsonAdapter<T> {
+
+    private final Class<T> enumType;
+    private final Map<String, Integer> toValue = new HashMap<>();
+    private final Map<Integer, String> toName = new HashMap<>();
+
+    EnumIntValueMap(Method method, Class<T> enumType) {
+      this.enumType = enumType;
+      for (Enum<?> enumConstant : enumType.getEnumConstants()) {
+        try {
+          Integer val = (Integer) method.invoke(enumConstant);
+          toValue.put(enumConstant.name(), val);
+          toName.put(val, enumConstant.name());
+        } catch (Exception e) {
+          throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
+        }
+      }
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, T value) {
+      int val = toValue.get(value.name());
+      writer.value(val);
+    }
+
+    @Override
+    public T fromJson(JsonReader reader) {
+      int value = reader.nextInt();
+      String name = toName.get(value);
+      if (name == null) {
+        throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.path());
+      }
+      return Enum.valueOf(enumType, name);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(" + this.enumType.getName() + ")";
     }
   }
 

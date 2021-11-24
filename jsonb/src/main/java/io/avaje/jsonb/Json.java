@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Marks a type for JSON support.
@@ -101,6 +102,39 @@ public @interface Json {
   }
 
   /**
+   * Mark a method on an Enum that provides the json value.
+   * <p>
+   * If the method returns an int type then it is mapped to json int, otherwise it is
+   * treated as providing json string values.
+   *
+   * <pre>{@code
+   *
+   *   public enum MyEnum {
+   *
+   *     ONE("one value"),
+   *     TWO("two value");
+   *
+   *     final String val;
+   *     MyEnum(String val) {
+   *       this.val = val;
+   *     }
+   *
+   *     // method provides the values used to serialise to and from json
+   *
+   *     @Json.Value
+   *     public String value() {
+   *       return val;
+   *     }
+   *   }
+   *
+   * }</pre>
+   */
+  @Retention(RUNTIME)
+  @Target({ElementType.METHOD})
+  @interface Value {
+  }
+
+  /**
    * Specify the subtypes that a given type can be represented as.
    * <p>
    * This is used on an interface type, abstract type or type with inheritance
@@ -162,4 +196,5 @@ public @interface Json {
     UpperUnderscore,
     UpperSpace
   }
+
 }
