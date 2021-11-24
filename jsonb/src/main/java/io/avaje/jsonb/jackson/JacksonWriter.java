@@ -172,6 +172,10 @@ final class JacksonWriter implements JsonWriter {
       if (serializeNulls) {
         writeDeferredName();
         generator.writeNull();
+      } else if (namePos >= 0) {
+        namePos = -1;
+      } else if (deferredName != null) {
+        deferredName = null;
       }
     } catch (IOException e) {
       throw new JsonIoException(e);
