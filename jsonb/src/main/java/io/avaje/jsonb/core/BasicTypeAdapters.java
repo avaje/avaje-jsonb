@@ -363,7 +363,7 @@ final class BasicTypeAdapters {
 
   private static boolean isJsonValue(Annotation annotation) {
     return Json.Value.class == annotation.annotationType()
-      || annotation.getClass().getCanonicalName().endsWith("JsonValue"); // e.g. Jackson annotation
+      || annotation.annotationType().getCanonicalName().endsWith("JsonValue"); // e.g. Jackson annotation
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
