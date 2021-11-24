@@ -136,11 +136,26 @@ class TypeReader {
   private void matchFieldToSetter(FieldReader field) {
     if (!matchFieldToSetter2(field, false)) {
       if (!matchFieldToSetter2(field, true)) {
-        if (!field.isPublicField()) {
-          context.logError("Non public field " + field.fieldName() + " with no matching setter or constructor?");
+        if (!matchFieldToSetterByParam(field)) {
+          if (!field.isPublicField()) {
+            context.logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+          }
         }
       }
     }
+  }
+
+  private boolean matchFieldToSetterByParam(FieldReader field) {
+    String fieldName = field.fieldName();
+    for (MethodReader methodReader : maybeSetterMethods.values()) {
+      List<MethodReader.MethodParam> params = methodReader.getParams();
+      MethodReader.MethodParam methodParam = params.get(0);
+      if (methodParam.name().equals(fieldName)) {
+        field.setterMethod(methodReader);
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean matchFieldToSetter2(FieldReader field, boolean loose) {
@@ -177,7 +192,7 @@ class TypeReader {
     if (!matchFieldToGetter2(field, false)) {
       if (!matchFieldToGetter2(field, true)) {
         if (!field.isPublicField()) {
-          context.logError("Non public field " + field.fieldName() + " with no matching getter?");
+          context.logError("Non public field " + baseType + " " + field.fieldName() + " with no matching getter ?");
         }
       }
     }

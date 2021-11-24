@@ -9,6 +9,7 @@ public class Address {
   private String street;
   private String suburb;
   private String city;
+  private String funky;
 
   public Address(Long id, String street) {
     this.id = id;
@@ -44,6 +45,9 @@ public class Address {
     return city;
   }
 
+  /**
+   * Intentionally does not match setter name by case - setcity vs setCity.
+   */
   public void setcity(String city) {
     this.city = city;
   }
@@ -54,5 +58,13 @@ public class Address {
 
   public void setStreet(String street) {
     this.street = street;
+  }
+
+  public String funky() {
+    return funky;
+  }
+
+  public void setterDetermineByArgName(String funky) {
+    this.funky = funky;
   }
 }
