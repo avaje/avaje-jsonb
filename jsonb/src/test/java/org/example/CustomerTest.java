@@ -15,10 +15,10 @@ class CustomerTest {
 
   final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"whenCreated\":";
 
+  Jsonb jsonb = Jsonb.newBuilder().add(new MyComponent()).build();
+
   @Test
   void toJson() {
-
-    Jsonb jsonb = Jsonb.newBuilder().build();
 
     Address billingAddress = new Address().street("street").suburb("suburb");
     Customer customer = new Customer().id(42).name("rob").whenCreated(Instant.now()).billingAddress(billingAddress);
@@ -55,8 +55,6 @@ class CustomerTest {
   @Test
   void jsonView() {
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
-
     JsonView<Customer> customerJsonView = jsonb.type(Customer.class).view("(id, name, billingAddress(street), contacts(id, lastName))");
 
     Address billingAddress = new Address().street("my street").suburb("my suburb");
@@ -70,8 +68,6 @@ class CustomerTest {
 
   @Test
   void jsonView_list() {
-
-    Jsonb jsonb = Jsonb.newBuilder().build();
 
     JsonView<List<Customer>> customerJsonView = jsonb.type(Customer.class).list().view("(id, name, contacts(*))");
 

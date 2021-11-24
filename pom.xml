@@ -21,6 +21,7 @@
   </scm>
 
   <properties>
+<!--    <java.version>11</java.version>-->
     <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
   </properties>
 

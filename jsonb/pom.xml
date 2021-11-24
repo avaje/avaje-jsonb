@@ -31,6 +31,19 @@
 
   <build>
     <plugins>
+<!--      <plugin>-->
+<!--        <artifactId>maven-surefire-plugin</artifactId>-->
+<!--        <version>3.0.0-M4</version>-->
+<!--        <configuration>-->
+<!--          <argLine>-->
+<!--            &#45;&#45;add-modules com.fasterxml.jackson.core-->
+<!--            &#45;&#45;add-opens io.avaje.jsonb/io.avaje.jsonb.core=ALL-UNNAMED-->
+<!--            &#45;&#45;add-opens io.avaje.jsonb/org.example=ALL-UNNAMED-->
+<!--            &#45;&#45;add-opens com.fasterxml.jackson.core/com.fasterxml.jackson.core.io=ALL-UNNAMED-->
+<!--          </argLine>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
+
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
