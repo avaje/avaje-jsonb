@@ -35,6 +35,11 @@ public interface JsonView<T> {
   String toJson(T value);
 
   /**
+   * Return the value as json content in bytes form.
+   */
+  byte[] toJsonBytes(T value);
+
+  /**
    * Write to the given writer.
    */
   void toJson(JsonWriter writer, T value);

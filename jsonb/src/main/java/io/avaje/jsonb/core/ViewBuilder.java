@@ -2,6 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
+import io.avaje.jsonb.spi.BytesJsonWriter;
 import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
@@ -194,9 +195,18 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
 
     @Override
     public String toJson(T value) {
-      BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter();
-      toJson(bufferedJsonWriter, value);
-      return bufferedJsonWriter.result();
+      try (BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter()) {
+        toJson(bufferedJsonWriter, value);
+        return bufferedJsonWriter.result();
+      }
+    }
+
+    @Override
+    public byte[] toJsonBytes(T value) {
+      try (BytesJsonWriter bytesWriter = jsonb.bufferedWriterAsBytes()) {
+        toJson(bytesWriter, value);
+        return bytesWriter.result();
+      }
     }
 
     @Override

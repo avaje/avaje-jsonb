@@ -47,16 +47,18 @@ final class DJsonType<T> implements JsonType<T> {
 
   @Override
   public String toJson(T value) {
-    BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter();
-    toJson(bufferedJsonWriter, value);
-    return bufferedJsonWriter.result();
+    try (BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter()) {
+      toJson(bufferedJsonWriter, value);
+      return bufferedJsonWriter.result();
+    }
   }
 
   @Override
   public byte[] toJsonBytes(T value) {
-    BytesJsonWriter bytesWriter = jsonb.bufferedWriterAsBytes();
-    toJson(bytesWriter, value);
-    return bytesWriter.result();
+    try (BytesJsonWriter bytesWriter = jsonb.bufferedWriterAsBytes()) {
+      toJson(bytesWriter, value);
+      return bytesWriter.result();
+    }
   }
 
   @Override
