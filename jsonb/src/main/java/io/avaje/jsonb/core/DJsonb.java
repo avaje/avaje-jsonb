@@ -4,12 +4,12 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.jackson.JacksonAdapter;
 import io.avaje.jsonb.spi.*;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.avaje.jsonb.core.Util.*;
@@ -23,6 +23,7 @@ class DJsonb implements Jsonb {
   private final CoreAdapterBuilder builder;
   private final IOAdapter io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<ViewKey,JsonView<?>> viewCache = new ConcurrentHashMap<>();
 
   DJsonb(List<JsonAdapter.Factory> factories, boolean failOnUnknown, boolean mathAsString) {
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
@@ -113,16 +114,40 @@ class DJsonb implements Jsonb {
     return new ObjectJsonReader(value);
   }
 
-  <T> JsonView<T> buildView(String dsl, JsonAdapter<T> adapter, Type type) {
-    ViewBuilderAware aware = adapter.viewBuild();
-    // TODO: should cache by dsl and type
-    try {
-      ViewDsl viewDsl =  ViewDsl.parse(dsl);
-      ViewBuilder viewBuilder = new ViewBuilder(viewDsl);
-      aware.build(viewBuilder);
-      return viewBuilder.build(this);
-    } catch (Throwable e) {
-      throw new IllegalStateException(e);
+  @SuppressWarnings("unchecked")
+  <T> JsonView<T> buildView(final String dsl, final JsonAdapter<T> adapter, final Type type) {
+    final ViewKey key = new ViewKey(dsl, type);
+    return (JsonView<T>) viewCache.computeIfAbsent(key, o -> {
+      try {
+        ViewBuilder viewBuilder = new ViewBuilder(ViewDsl.parse(dsl));
+        adapter.viewBuild().build(viewBuilder);
+        return viewBuilder.build(this);
+      } catch (Throwable e) {
+        throw new IllegalStateException(e);
+      }
+    });
+  }
+
+  static final class ViewKey {
+    private final String dsl;
+    private final Type type;
+
+    ViewKey(String dsl, Type type) {
+      this.dsl = dsl;
+      this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      ViewKey viewKey = (ViewKey) o;
+      return dsl.equals(viewKey.dsl) && type.equals(viewKey.type);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(dsl, type);
     }
   }
 

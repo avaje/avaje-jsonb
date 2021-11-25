@@ -53,6 +53,28 @@ class CustomerTest {
   }
 
   @Test
+  void jsonView_sameInstance() {
+    JsonView<Customer> v0 = jsonb.type(Customer.class).view("(id, name, billingAddress(street), contacts(id, lastName))");
+    JsonView<Customer> v1 = jsonb.type(Customer.class).view("(id, name, billingAddress(street), contacts(id, lastName))");
+
+    assertThat(v0).isSameAs(v1);
+  }
+
+  @Test
+  void jsonView_differentInstance_byDsl() {
+    JsonView<Customer> v0 = jsonb.type(Customer.class).view("(id, name)");
+    JsonView<Customer> v1 = jsonb.type(Customer.class).view("(id, name  )");
+    assertThat(v0).isNotSameAs(v1);
+  }
+
+  @Test
+  void jsonView_differentInstance_byType() {
+    JsonView<?> v0 = jsonb.type(Customer.class).view("(id, name)");
+    JsonView<?> v1 = jsonb.type(Contact.class).view("(id, name)");
+    assertThat(v0).isNotSameAs(v1);
+  }
+
+  @Test
   void jsonView() {
 
     JsonView<Customer> customerJsonView = jsonb.type(Customer.class).view("(id, name, billingAddress(street), contacts(id, lastName))");
