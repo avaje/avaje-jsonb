@@ -264,7 +264,20 @@ class TypeReader {
       // fallback to the single public constructor
       return allPublic.get(0);
     }
-    return null;
+    // find the largest constructor
+    int argCount = 0;
+    MethodReader largestConstructor = null;
+    for (MethodReader ctor : publicConstructors) {
+      if (ctor.isPublic()) {
+        int paramCount = ctor.getParams().size();
+        if (paramCount > argCount) {
+          largestConstructor = ctor;
+          argCount = paramCount;
+        }
+      }
+    }
+
+    return largestConstructor;
   }
 
   void process() {

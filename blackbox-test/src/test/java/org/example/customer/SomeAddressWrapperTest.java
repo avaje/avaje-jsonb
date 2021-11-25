@@ -18,10 +18,10 @@ class SomeAddressWrapperTest {
   void test_when_null() {
 
     var type = jsonb.type(SomeAddressWrapper.class);
-    String asJson = type.toJson(new SomeAddressWrapper(43L, null, Collections.emptyList()));
-    assertThat(asJson).isEqualTo("{\"id\":43}");
+    String asJson = type.toJson(new SomeAddressWrapper(43L, null, List.of("a", "b")));
+    assertThat(asJson).isEqualTo("{\"id\":43,\"tags\":[\"a\",\"b\"]}");
 
-    var myList = List.of( new SomeAddressWrapper(43L, null, Collections.emptyList()),  new SomeAddressWrapper(44L, null, Collections.emptyList()));
+    var myList = List.of( new SomeAddressWrapper(43L, null),  new SomeAddressWrapper(44L, null));
 
     String asJsonList = type.list().toJson(myList);
     assertThat(asJsonList).isEqualTo("[{\"id\":43},{\"id\":44}]");
@@ -59,7 +59,7 @@ class SomeAddressWrapperTest {
     Jsonb jsonb = Jsonb.newBuilder().serializeEmpty(true).build();
 
     var type = jsonb.type(SomeAddressWrapper.class);
-    String asJson = type.toJson(new SomeAddressWrapper(43L, null, Collections.emptyList()));
+    String asJson = type.toJson(new SomeAddressWrapper(43L, null));
     assertThat(asJson).isEqualTo("{\"id\":43,\"tags\":[]}");
   }
 
@@ -70,7 +70,7 @@ class SomeAddressWrapperTest {
     Jsonb jsonb = Jsonb.newBuilder().serializeNulls(true).serializeEmpty(true).build();
 
     var type = jsonb.type(SomeAddressWrapper.class);
-    String asJson = type.toJson(new SomeAddressWrapper(43L, null, Collections.emptyList()));
+    String asJson = type.toJson(new SomeAddressWrapper(43L, null));
     assertThat(asJson).isEqualTo("{\"id\":43,\"address\":null,\"tags\":[]}");
   }
 }
