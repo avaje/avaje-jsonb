@@ -5,12 +5,14 @@ import io.avaje.jsonb.spi.PropertyNames;
 
 final class JacksonNames implements PropertyNames {
 
+  private static final NameCache NAME_CACHE = new NameCache();
+
   private final SerializedString[] keys;
 
   JacksonNames(String[] names) {
     keys = new SerializedString[names.length];
     for (int i = 0; i < names.length; i++) {
-      keys[i] = keyOf(names[i]);
+      keys[i] = obtain(names[i]);
     }
   }
 
@@ -18,9 +20,7 @@ final class JacksonNames implements PropertyNames {
     return keys[pos];
   }
 
-  private SerializedString keyOf(String name) {
-    SerializedString key = new SerializedString(name);
-    key.asQuotedChars();
-    return key;
+  private static SerializedString obtain(String name) {
+    return NAME_CACHE.get(name);
   }
 }

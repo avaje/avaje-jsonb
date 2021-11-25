@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-class NameCache {
+final class NameCache {
 
   private final ConcurrentHashMap<String, SerializedString> keys = new ConcurrentHashMap<>();
 
