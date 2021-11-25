@@ -13,6 +13,9 @@ import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.*;
 
+/**
+ * Jackson Core implementation of IOAdapter.
+ */
 public class JacksonAdapter implements IOAdapter {
 
   private final JsonFactory jsonFactory;
@@ -20,6 +23,9 @@ public class JacksonAdapter implements IOAdapter {
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
 
+  /**
+   * Create with the given default configuration.
+   */
   public JacksonAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;

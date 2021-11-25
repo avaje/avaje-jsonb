@@ -19,6 +19,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+/**
+ * Utility methods for defining Types.
+ */
 public final class Util {
 
   static final Type[] EMPTY_TYPE_ARRAY = new Type[]{};

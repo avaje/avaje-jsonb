@@ -8,7 +8,32 @@ import java.util.Set;
 /**
  * Provides API to serialise a type to and from JSON.
  * <p>
- * JsonType provides the main API that is used to convert to and from json.
+ * JsonType provides the main API used to read and write json.
+ *
+ * <h4>fromJson</h4>
+ * <p>
+ * Read json content from: String, byte[], Reader, InputStream, JsonReader
+ * </p>
+ * <pre>{@code
+ *
+ *  JsonType<Customer> customerType = jsonb.type(Customer.class);
+ *
+ *  Customer customer = customerType.fromJson(content);
+ *
+ * }</pre>
+ *
+ * <h4>toJson</h4>
+ * <p>
+ * Write json content to: String, byte[], Writer, OutputStream, JsonWriter
+ * </p>
+ * <pre>{@code
+ *
+ *  JsonType<Customer> customerType = jsonb.type(Customer.class);
+ *
+ *  String asJson = customerType.toJson(customer);
+ *
+ * }</pre>
+ *
  * <p>
  * Moshi note: JsonType does not exist in Moshi and has been added to provide a
  * slightly nicer API to use than JsonAdapter.

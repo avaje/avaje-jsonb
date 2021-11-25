@@ -2,9 +2,11 @@ package io.avaje.jsonb.spi;
 
 import io.avaje.jsonb.JsonWriter;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
+/**
+ * Provides a delegating JsonWriter.
+ */
 public abstract class DelegateJsonWriter implements JsonWriter {
 
   protected final JsonWriter delegate;

@@ -12,19 +12,43 @@ import java.util.ServiceLoader;
 /**
  * Provides access to json adapters by type.
  *
+ * <h4>Initialise with defaults</h3>
+ *
+ * <pre>{@code
+ *   Jsonb jsonb = Jsonb.newBuilder().build();
+ * }</pre>
+ *
+ * <h4>Initialise with some configuration</h3>
+ *
+ * <pre>{@code
+ *   Jsonb jsonb = Jsonb.newBuilder()
+ *     .serializeNulls(true)
+ *     .serializeEmpty(true)
+ *     .failOnUnknown(true)
+ *     .build();
+ * }</pre>
+ *
+ * <h4>fromJson</h4>
+ * <p>
+ * Read json content from: String, byte[], Reader, InputStream, JsonReader
+ * </p>
  * <pre>{@code
  *
- *   Jsonb jsonb = Jsonb.newBuilder().build();
+ *  JsonType<Customer> customerType = jsonb.type(Customer.class);
  *
- *   JsonType<Customer> customerType = jsonb.type(Customer.class);
+ *  Customer customer = customerType.fromJson(content);
  *
- *   Customer customer = ...;
+ * }</pre>
  *
- *   // write json
- *   String asJson = customerType.toJson(customer);
+ * <h4>toJson</h4>
+ * <p>
+ * Write json content to: String, byte[], Writer, OutputStream, JsonWriter
+ * </p>
+ * <pre>{@code
  *
- *   // read json
- *   Customer customer = customerType.fromJson(asJson);
+ *  JsonType<Customer> customerType = jsonb.type(Customer.class);
+ *
+ *  String asJson = customerType.toJson(customer);
  *
  * }</pre>
  */
@@ -38,6 +62,16 @@ public interface Jsonb {
    * <p>
    * Note that JsonAdapter's that are generated are automatically registered via service
    * loading so there is no need to explicitly register those generated JsonAdapters.
+   *
+   * <pre>{@code
+   *
+   *   Jsonb jsonb = Jsonb.newBuilder()
+   *     .serializeNulls(true)
+   *     .serializeEmpty(true)
+   *     .failOnUnknown(true)
+   *     .build();
+   *
+   * }</pre>
    */
   static Builder newBuilder() {
     Iterator<Bootstrap> bootstrapService = ServiceLoader.load(Bootstrap.class).iterator();
