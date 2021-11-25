@@ -16,9 +16,13 @@ import java.io.*;
 public class JacksonAdapter implements IOAdapter {
 
   private final JsonFactory jsonFactory;
+  private final boolean serializeNulls;
+  private final boolean serializeEmpty;
   private final boolean failOnUnknown;
 
-  public JacksonAdapter(boolean failOnUnknown) {
+  public JacksonAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
+    this.serializeNulls = serializeNulls;
+    this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.jsonFactory = new JsonFactory();
   }
@@ -67,7 +71,7 @@ public class JacksonAdapter implements IOAdapter {
   @Override
   public JsonWriter writer(Writer writer) {
     try {
-      return new JacksonWriter(jsonFactory.createGenerator(writer));
+      return new JacksonWriter(jsonFactory.createGenerator(writer), serializeNulls, serializeEmpty);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -77,7 +81,7 @@ public class JacksonAdapter implements IOAdapter {
   @Override
   public JsonWriter writer(OutputStream outputStream) {
     try {
-      return new JacksonWriter(jsonFactory.createGenerator(outputStream));
+      return new JacksonWriter(jsonFactory.createGenerator(outputStream), serializeNulls, serializeEmpty);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }

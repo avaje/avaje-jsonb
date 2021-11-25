@@ -111,6 +111,20 @@ public interface Jsonb {
   interface Builder {
 
     /**
+     * Set to serialise null values or not.
+     * <p>
+     * Default is to not serialise nulls.
+     */
+    Builder serializeNulls(boolean serializeNulls);
+
+    /**
+     * Set to serialise empty collections or not.
+     * <p>
+     * Default is to not serialise empty collections.
+     */
+    Builder serializeEmpty(boolean serializeEmpty);
+
+    /**
      * Set failOnUnknown to true such that an exception is thrown when unknown
      * properties are read in the json content.
      */

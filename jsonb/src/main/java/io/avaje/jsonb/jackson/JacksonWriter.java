@@ -22,8 +22,10 @@ final class JacksonWriter implements JsonWriter {
   private boolean pushedNames;
   private int namePos = -1;
 
-  JacksonWriter(JsonGenerator generator) {
+  JacksonWriter(JsonGenerator generator, boolean serializeNulls, boolean serializeEmpty) {
     this.generator = generator;
+    this.serializeNulls = serializeNulls;
+    this.serializeEmpty = serializeEmpty;
   }
 
   @Override
