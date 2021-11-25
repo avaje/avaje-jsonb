@@ -105,7 +105,12 @@ class FieldReader {
 
   void cascadeTypes(Set<String> types) {
     if (!unmapped) {
-      types.add(genericType.topType());
+      String topType = genericType.topType();
+      if (topType.equals("java.util.List") || topType.equals("java.util.Set")) {
+        types.add(genericType.firstParamType());
+      } else {
+        types.add(topType);
+      }
     }
   }
 

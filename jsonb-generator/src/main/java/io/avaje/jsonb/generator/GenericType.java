@@ -179,4 +179,11 @@ class GenericType {
     }
     return "FIXME: Unhandled Container Type " + containerType;
   }
+
+  String firstParamType() {
+    if (params.isEmpty()) {
+      return "java.lang.Object";
+    }
+    return params.get(0).topType();
+  }
 }
