@@ -108,6 +108,8 @@ class FieldReader {
       String topType = genericType.topType();
       if (topType.equals("java.util.List") || topType.equals("java.util.Set")) {
         types.add(genericType.firstParamType());
+      } else if (topType.equals("java.util.Map")) {
+        types.add(genericType.secondParamType());
       } else {
         types.add(topType);
       }

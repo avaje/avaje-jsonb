@@ -181,9 +181,10 @@ class GenericType {
   }
 
   String firstParamType() {
-    if (params.isEmpty()) {
-      return "java.lang.Object";
-    }
-    return params.get(0).topType();
+    return params.isEmpty() ? "java.lang.Object" : params.get(0).topType();
+  }
+
+  String secondParamType() {
+    return params.size() != 2 ? "java.lang.Object" : params.get(1).topType();
   }
 }
