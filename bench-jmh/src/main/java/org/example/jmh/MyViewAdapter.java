@@ -41,7 +41,7 @@ public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements View
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) throws NoSuchMethodException, IllegalAccessException {
+  public void build(ViewBuilder builder, String name, MethodHandle handle) {
     builder.beginObject(name, handle);
     builder.add("firstNameProperty1", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp1", String.class));
     builder.add("lastNameProperty2", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp2", String.class));
