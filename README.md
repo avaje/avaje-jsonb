@@ -2,7 +2,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.avaje/avaje-jsonb.svg?label=Maven%20Central)](https://mvnrepository.com/artifact/io.avaje/avaje-jsonb)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/avaje/avaje-jsonb/blob/master/LICENSE)
 
-# avaje-jsonb
+# avaje-jsonb - [docs](https://github.com/avaje/avaje-jsonb/wiki)
 
 json binding via apt source code generation
 
@@ -11,6 +11,9 @@ json binding via apt source code generation
 - Use `avaje-jsonb` instead of Jackson ObjectMapper to convert to/from json.
 - By default uses Jackson core under the hood
 
+[Wiki documentation](https://github.com/avaje/avaje-jsonb/wiki)
+
+[Javadoc API documentation](https://avaje.io/apidocs/avaje-jsonb/io/avaje/jsonb/package-summary.html)
 
 ## Goals
 - Use Java annotation processing to generate java source for adapting JSON to/from java objects
@@ -28,14 +31,14 @@ json binding via apt source code generation
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb</artifactId>
-  <version>0.7</version>
+  <version>0.8</version>
 </dependency>
 
 <!-- annotation processor -->
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-generator</artifactId>
-  <version>0.7</version>
+  <version>0.8</version>
   <scope>provided</scope>
 </dependency>
 ```
