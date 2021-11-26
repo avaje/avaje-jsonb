@@ -20,6 +20,7 @@ import io.avaje.jsonb.spi.PropertyNames;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Writes json content.
@@ -149,23 +150,23 @@ public interface JsonWriter extends Closeable, Flushable {
   void value(BigDecimal value);
 
   /**
+   * Write a BigInteger value.
+   */
+  void value(BigInteger value);
+
+  /**
    * Write a value that could be any value.
    */
   void jsonValue(Object value);
 
   /**
-   * Write raw encoded json value.
+   * Flush the writer.
    */
-  void rawValue(String value);
+  void flush();
 
   /**
    * Close the writer.
    */
   void close();
-
-  /**
-   * Flush the writer.
-   */
-  void flush();
 
 }

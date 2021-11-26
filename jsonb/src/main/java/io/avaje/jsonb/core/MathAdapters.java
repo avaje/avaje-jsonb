@@ -5,7 +5,6 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,7 +34,7 @@ class MathAdapters implements JsonAdapter.Factory {
 
     @Override
     public void toJson(JsonWriter writer, BigDecimal value) {
-      writer.rawValue("\"" + value.toString() + "\"");
+      writer.value(value.toString());
     }
 
     @Override
@@ -86,7 +85,7 @@ class MathAdapters implements JsonAdapter.Factory {
 
     @Override
     public void toJson(JsonWriter writer, BigInteger value) {
-      writer.rawValue(value.toString());
+      writer.value(value);
     }
 
     @Override

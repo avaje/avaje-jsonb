@@ -7,6 +7,7 @@ import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -310,13 +311,13 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void rawValue(String value) {
+  public void value(BigInteger value) {
     if (value == null) {
       nullValue();
     } else {
       try {
         writeDeferredName();
-        generator.writeRaw(value);
+        generator.writeNumber(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }

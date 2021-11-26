@@ -3,6 +3,7 @@ package io.avaje.jsonb.spi;
 import io.avaje.jsonb.JsonWriter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Provides a delegating JsonWriter.
@@ -86,11 +87,6 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void rawValue(String value) {
-    delegate.rawValue(value);
-  }
-
-  @Override
   public final void value(String value) {
     delegate.value(value);
   }
@@ -137,6 +133,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
 
   @Override
   public void value(BigDecimal value) {
+    delegate.value(value);
+  }
+
+  @Override
+  public void value(BigInteger value) {
     delegate.value(value);
   }
 
