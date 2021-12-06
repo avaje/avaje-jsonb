@@ -25,13 +25,14 @@
     <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
   </properties>
 
+  <modules>
+    <module>jsonb</module>
+    <module>jsonb-generator</module>
+  </modules>
+
   <profiles>
     <profile>
       <id>release</id>
-      <modules>
-        <module>jsonb</module>
-        <module>jsonb-generator</module>
-      </modules>
     </profile>
     <profile>
       <id>default</id>
@@ -39,8 +40,6 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
-        <module>jsonb</module>
-        <module>jsonb-generator</module>
         <module>blackbox-test</module>
       </modules>
     </profile>
