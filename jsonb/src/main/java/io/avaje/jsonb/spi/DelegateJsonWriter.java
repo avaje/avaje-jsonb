@@ -37,6 +37,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
+  public void pretty(boolean pretty) {
+    delegate.pretty(pretty);
+  }
+
+  @Override
   public String path() {
     return delegate.path();
   }
@@ -144,6 +149,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   @Override
   public void jsonValue(Object value) {
     delegate.jsonValue(value);
+  }
+
+  @Override
+  public void writeRaw(char ch) {
+    delegate.writeRaw(ch);
   }
 
   @Override

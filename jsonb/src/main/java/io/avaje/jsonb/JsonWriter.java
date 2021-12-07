@@ -48,6 +48,11 @@ public interface JsonWriter extends Closeable, Flushable {
   boolean serializeEmpty();
 
   /**
+   * Set tp true to output json in pretty format.
+   */
+  void pretty(boolean pretty);
+
+  /**
    * Return the current path.
    */
   String path();
@@ -158,6 +163,12 @@ public interface JsonWriter extends Closeable, Flushable {
    * Write a value that could be any value.
    */
   void jsonValue(Object value);
+
+  /**
+   * Write raw content. This is typically used to write new line characters for
+   * {@code x-json-stream} content.
+   */
+  void writeRaw(char ch);
 
   /**
    * Flush the writer.

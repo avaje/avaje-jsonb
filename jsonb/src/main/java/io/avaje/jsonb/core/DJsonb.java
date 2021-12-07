@@ -83,6 +83,12 @@ class DJsonb implements Jsonb {
     return typeWithCache(type);
   }
 
+  @Override
+  public <T> JsonType<T> typeOf(Object first) {
+    requireNonNull(first);
+    return type((Type)first.getClass());
+  }
+
   @SuppressWarnings("unchecked")
   private <T> JsonType<T> typeWithCache(Type type) {
     return (JsonType<T>) typeCache.computeIfAbsent(type, _type -> new DJsonType<>(this, _type, adapter(_type)));

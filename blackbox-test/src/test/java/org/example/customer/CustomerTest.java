@@ -13,9 +13,10 @@ class CustomerTest {
 
   final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\",\"whenCreated\":";
 
+  Jsonb jsonb = Jsonb.newBuilder().build();
+
   @Test
   void toJson_view() {
-    Jsonb jsonb = Jsonb.newBuilder().build();
     JsonView<Customer> customerJsonView = jsonb.type(Customer.class).view("(id, name)");
 
     var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE).whenCreated(Instant.now());
@@ -31,7 +32,6 @@ class CustomerTest {
     customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
     customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
     JsonType<Customer> customerType = jsonb.type(Customer.class);
     String asJson = customerType.toJson(customer);
     assertThat(asJson).startsWith(jsonStart);
@@ -61,7 +61,6 @@ class CustomerTest {
 
   @Test
   void fromObject()  {
-    var jsonb = Jsonb.newBuilder().build();
 
     var customerJson = jsonb.type(Customer.class);
 
@@ -99,7 +98,6 @@ class CustomerTest {
 
     Object customerAsObject = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
     String asJson = jsonb.type(Object.class).toJson(customerAsObject);
     assertThat(asJson).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
 
@@ -107,5 +105,79 @@ class CustomerTest {
     assertThat(from1.id()).isEqualTo(42L);
     assertThat(from1.name()).isEqualTo("rob");
     assertThat(from1.status()).isEqualTo(Customer.Status.ACTIVE);
+  }
+
+  @Test
+  void toJson_pretty() {
+    StringWriter stringWriter = new StringWriter();
+    try (JsonWriter writer = jsonb.writer(stringWriter)) {
+      writer.pretty(true);
+      Customer customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+      jsonb.type(Customer.class).toJson(writer, customer);
+    }
+    assertThat(stringWriter.toString()).isEqualTo("""
+      {
+        "id" : 42,
+        "name" : "rob",
+        "status" : "ACTIVE"
+      }""");
+  }
+
+  @Test
+  void toJsonStream() {
+
+    var customers = List.of(
+      new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE),
+      new Customer().id(43L).name("job").status(Customer.Status.NEW),
+      new Customer().id(44L).name("bob").status(Customer.Status.ACTIVE));
+
+    JsonType<Customer> type = jsonb.type(Customer.class);
+    StringWriter writer = new StringWriter();
+
+    try (JsonWriter jsonWriter = jsonb.writer(writer)) {
+      jsonWriter.pretty(false);
+      for (Customer customer : customers) {
+        type.toJson(jsonWriter, customer);
+        jsonWriter.writeRaw('\n');
+      }
+    }
+    String streamJson = writer.toString();
+    assertThat(streamJson).isEqualTo(
+      "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}\n" +
+      " {\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
+      " {\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
+  }
+
+  @Test
+  void toJsonStream_viaMethod() {
+    var customers = List.of(
+      new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE),
+      new Customer().id(43L).name("job").status(Customer.Status.NEW),
+      new Customer().id(44L).name("bob").status(Customer.Status.ACTIVE));
+
+    StringWriter writer = new StringWriter();
+    try (JsonWriter jsonWriter = jsonb.writer(writer)) {
+      toStream(customers.iterator(), jsonWriter);
+    }
+
+    String streamJson = writer.toString();
+    assertThat(streamJson).isEqualTo(
+      "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}\n" +
+      " {\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
+      " {\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
+  }
+
+  <T> void toStream(Iterator<T> iterator, JsonWriter jsonWriter) {
+    if (iterator.hasNext()) {
+      jsonWriter.pretty(false);
+      T first = iterator.next();
+      JsonType<T> type = jsonb.typeOf(first);
+      type.toJson(jsonWriter, first);
+      jsonWriter.writeRaw('\n');
+      while (iterator.hasNext()) {
+        type.toJson(jsonWriter, iterator.next());
+        jsonWriter.writeRaw('\n');
+      }
+    }
   }
 }

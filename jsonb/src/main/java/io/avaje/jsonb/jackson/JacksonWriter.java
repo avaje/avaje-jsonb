@@ -48,6 +48,15 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
+  public void pretty(boolean pretty) {
+    if (!pretty) {
+      generator.setPrettyPrinter(null);
+    } else {
+      generator.useDefaultPrettyPrinter();
+    }
+  }
+
+  @Override
   public void serializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
   }
@@ -321,6 +330,15 @@ final class JacksonWriter implements JsonWriter {
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
+    }
+  }
+
+  @Override
+  public void writeRaw(char ch) {
+    try {
+      generator.writeRaw(ch);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
     }
   }
 

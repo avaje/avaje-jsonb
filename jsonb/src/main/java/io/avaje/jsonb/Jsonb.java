@@ -4,7 +4,10 @@ import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.Bootstrap;
 import io.avaje.jsonb.spi.PropertyNames;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -114,6 +117,17 @@ public interface Jsonb {
    * are ArrayList, LinkedHashMap, String, boolean, and double.
    */
   <T> JsonType<T> type(Type type);
+
+  /**
+   * Return the JsonType for the given value using the values class.
+   * <p>
+   * This is a helper method that supports returning an inferred generic type.
+   *
+   * @param value The value of the given type
+   * @param <T>   The inferred generic parameter type
+   * @return JsonType for the given value
+   */
+  <T> JsonType<T> typeOf(Object value);
 
   /**
    * Return the JsonAdapter used to read and write json for the given class.
