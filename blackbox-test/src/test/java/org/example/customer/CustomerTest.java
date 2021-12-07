@@ -93,4 +93,19 @@ class CustomerTest {
     contactMap.put("lastName", ln);
     return contactMap;
   }
+
+  @Test
+  void toJson_viaTypeObject()  {
+
+    Object customerAsObject = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+
+    Jsonb jsonb = Jsonb.newBuilder().build();
+    String asJson = jsonb.type(Object.class).toJson(customerAsObject);
+    assertThat(asJson).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
+
+    Customer from1 = jsonb.type(Customer.class).fromJson(asJson);
+    assertThat(from1.id()).isEqualTo(42L);
+    assertThat(from1.name()).isEqualTo("rob");
+    assertThat(from1.status()).isEqualTo(Customer.Status.ACTIVE);
+  }
 }

@@ -81,4 +81,15 @@ class IntegerTest {
     Integer[] fromJson = (Integer[]) integerArrayJson.fromJson(asJson);
     assertThat(fromJson).containsExactly(41, 42);
   }
+
+  @Test
+  void toJson_viaTypeObject()  {
+
+    Set<Integer> integers = new LinkedHashSet<>();
+    integers.add(52);
+    integers.add(55);
+
+    String asJson = jsonb.type(Object.class).toJson(integers);
+    assertThat(asJson).isEqualTo("[52,55]");
+  }
 }

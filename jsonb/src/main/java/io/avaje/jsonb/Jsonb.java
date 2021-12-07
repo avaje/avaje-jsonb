@@ -83,11 +83,35 @@ public interface Jsonb {
 
   /**
    * Return the JsonType used to read and write json for the given class.
+   *
+   * <h3>Using Object.class</h3>
+   * <p>
+   * We can use <code>type(Object.class)</code> when we don't know the specific type that is being
+   * written toJson or read fromJson.
+   * <p>
+   * When using <code>Object.class</code> and writing <code>toJson()</code> then the underlying JsonAdapter
+   * is determined dynamically based on the type of the object value passed in.
+   * <p>
+   * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
+   * the result are determined dynamically based on the JSON types being read and the resulting java types
+   * are ArrayList, LinkedHashMap, String, boolean, and double.
    */
   <T> JsonType<T> type(Class<T> cls);
 
   /**
    * Return the JsonType used to read and write json for the given type.
+   *
+   * <h3>Using Object.class</h3>
+   * <p>
+   * We can use <code>type(Object.class)</code> when we don't know the specific type that is being
+   * written toJson or read fromJson.
+   * <p>
+   * When using <code>Object.class</code> and writing <code>toJson()</code> then the underlying JsonAdapter
+   * is determined dynamically based on the type of the object value passed in.
+   * <p>
+   * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
+   * the result are determined dynamically based on the JSON types being read and the resulting java types
+   * are ArrayList, LinkedHashMap, String, boolean, and double.
    */
   <T> JsonType<T> type(Type type);
 
