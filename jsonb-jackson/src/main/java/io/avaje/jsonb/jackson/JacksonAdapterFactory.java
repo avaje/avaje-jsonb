@@ -8,7 +8,7 @@ import io.avaje.jsonb.spi.IOAdapterFactory;
  * <p>
  * Uses jackson code to do the underlying json parsing and generation.
  */
-public class JacksonFactory implements IOAdapterFactory {
+public class JacksonAdapterFactory implements IOAdapterFactory {
 
   @Override
   public IOAdapter create(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
