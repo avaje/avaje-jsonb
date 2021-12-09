@@ -1,4 +1,4 @@
-package io.avaje.json.jakarta;
+package io.avaje.jsonb.jakarta;
 
 import io.avaje.jsonb.JsonReader;
 import jakarta.json.stream.JsonParser;

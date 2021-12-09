@@ -1,4 +1,4 @@
-package io.avaje.json.jakarta;
+package io.avaje.jsonb.jakarta;
 
 import io.avaje.jsonb.spi.PropertyNames;
 
