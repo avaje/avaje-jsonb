@@ -27,7 +27,12 @@ class DJsonb implements Jsonb {
 
   DJsonb(List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
-    this.io = new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown); //TODO: Service load the ioAdapter implementation
+    Iterator<IOAdapterFactory> iterator = ServiceLoader.load(IOAdapterFactory.class).iterator();
+    if (iterator.hasNext()) {
+      this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
+    } else {
+      this.io = new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown);
+    }
   }
 
   @Override

@@ -1,0 +1,54 @@
+package org.example;
+
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class MyCustomerTest {
+
+  @Test
+  void toJson_fromJson() {
+
+    Jsonb jsonb = Jsonb.newBuilder().build();
+
+    MyCustomer myCustomer = new MyCustomer(42, "rob", "foo");
+    JsonType<MyCustomer> type = jsonb.type(MyCustomer.class);
+
+    String asJson = type.toJson(myCustomer);
+    assertThat(asJson).isEqualTo("{\"id\":42,\"name\":\"rob\",\"notes\":\"foo\"}");
+
+    MyCustomer fromJson = type.fromJson(asJson);
+
+    assertThat(fromJson.id()).isEqualTo(myCustomer.id());
+    assertThat(fromJson.name()).isEqualTo(myCustomer.name());
+    assertThat(fromJson.notes()).isEqualTo(myCustomer.notes());
+  }
+
+  @Test
+  void list_toJson_fromJson() {
+
+    Jsonb jsonb = Jsonb.newBuilder().build();
+
+    List<MyCustomer> customers = new ArrayList<>();
+    customers.add(new MyCustomer(42, "rob", "foo"));
+    customers.add(new MyCustomer(43, "bob", "bar"));
+
+    JsonType<MyCustomer> type = jsonb.type(MyCustomer.class);
+
+    String asJson = type.list().toJson(customers);
+    assertThat(asJson).isEqualTo("[{\"id\":42,\"name\":\"rob\",\"notes\":\"foo\"},{\"id\":43,\"name\":\"bob\",\"notes\":\"bar\"}]");
+
+    List<MyCustomer> fromJson = type.list().fromJson(asJson);
+
+    assertThat(fromJson).hasSize(2);
+    MyCustomer first = fromJson.get(0);
+    assertThat(first.id()).isEqualTo(42);
+    assertThat(first.name()).isEqualTo("rob");
+    assertThat(first.notes()).isEqualTo("foo");
+  }
+}

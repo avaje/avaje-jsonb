@@ -28,6 +28,7 @@
   <modules>
     <module>jsonb</module>
     <module>jsonb-generator</module>
+    <module>jsonb-jakarta</module>
   </modules>
 
   <profiles>
