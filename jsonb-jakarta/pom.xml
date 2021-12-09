@@ -10,6 +10,7 @@
   </parent>
 
   <artifactId>avaje-jsonb-jakarta</artifactId>
+  <name>jsonb-jakarta</name>
 
   <dependencies>
     <dependency>

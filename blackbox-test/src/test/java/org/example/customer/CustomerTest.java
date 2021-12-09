@@ -138,7 +138,7 @@ class CustomerTest {
       jsonWriter.pretty(false);
       for (Customer customer : customers) {
         type.toJson(jsonWriter, customer);
-        jsonWriter.writeRaw('\n');
+        jsonWriter.writeNewLine();
       }
     }
     String streamJson = writer.toString();
@@ -173,10 +173,10 @@ class CustomerTest {
       T first = iterator.next();
       JsonType<T> type = jsonb.typeOf(first);
       type.toJson(jsonWriter, first);
-      jsonWriter.writeRaw('\n');
+      jsonWriter.writeNewLine();
       while (iterator.hasNext()) {
         type.toJson(jsonWriter, iterator.next());
-        jsonWriter.writeRaw('\n');
+        jsonWriter.writeNewLine();
       }
     }
   }

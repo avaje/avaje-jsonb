@@ -334,9 +334,9 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void writeRaw(char ch) {
+  public void writeNewLine() {
     try {
-      generator.writeRaw(ch);
+      generator.writeRaw('\n');
     } catch (IOException e) {
       throw new JsonIoException(e);
     }

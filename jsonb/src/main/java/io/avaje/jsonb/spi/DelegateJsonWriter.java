@@ -152,8 +152,8 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void writeRaw(char ch) {
-    delegate.writeRaw(ch);
+  public void writeNewLine() {
+    delegate.writeNewLine();
   }
 
   @Override
