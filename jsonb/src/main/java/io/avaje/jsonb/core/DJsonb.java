@@ -1,7 +1,6 @@
 package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.jackson.JacksonAdapter;
 import io.avaje.jsonb.spi.*;
 
 import java.io.InputStream;
@@ -31,7 +30,7 @@ class DJsonb implements Jsonb {
     if (iterator.hasNext()) {
       this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
     } else {
-      this.io = new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown);
+      throw new IllegalStateException("Missing dependency on avaje-jsonb-jackson or avaje-jsonb-jakarta? No IOAdapterFactory service found.");
     }
   }
 

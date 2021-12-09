@@ -16,7 +16,7 @@ import java.io.*;
 /**
  * Jackson Core implementation of IOAdapter.
  */
-public class JacksonAdapter implements IOAdapter {
+class JacksonAdapter implements IOAdapter {
 
   private final JsonFactory jsonFactory;
   private final boolean serializeNulls;

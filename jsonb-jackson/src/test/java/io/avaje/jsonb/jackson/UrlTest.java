@@ -1,4 +1,4 @@
-package io.avaje.jsonb.core;
+package io.avaje.jsonb.jackson;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
