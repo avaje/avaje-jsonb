@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.jackson.JacksonIOAdapter;
 import org.example.jmh.model.NarrowNamesRecord;
 import org.example.jmh.model.WideNamesRecord;
 import org.openjdk.jmh.annotations.*;
@@ -28,7 +29,7 @@ public class RecordBasicTest {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonFactory jsonFactory = new JsonFactory();
 
-  private static final Jsonb jsonbX = Jsonb.newBuilder()
+  private static final Jsonb jsonbX = Jsonb.newBuilder().adapter(new JacksonIOAdapter())
     .add(WideNamesRecord.class, MyCustomWideAdapter::new)
     .add(NarrowNamesRecord.class, MyCustomNarrowAdapter::new)
     .build();
@@ -36,7 +37,7 @@ public class RecordBasicTest {
   private static final JsonType<WideNamesRecord> jsonbXWide = jsonbX.type(WideNamesRecord.class);
   private static final JsonType<NarrowNamesRecord> jsonbXNarrow = jsonbX.type(NarrowNamesRecord.class);
 
-  private static final Jsonb jsonbStandard = Jsonb.newBuilder().build();
+  private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
   private static final JsonType<WideNamesRecord> jsonbWideNames = jsonbStandard.type(WideNamesRecord.class);
   private static final JsonType<NarrowNamesRecord> jsonbNarrowNames = jsonbStandard.type(NarrowNamesRecord.class);
 

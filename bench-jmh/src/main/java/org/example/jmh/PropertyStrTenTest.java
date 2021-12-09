@@ -7,6 +7,8 @@ import com.squareup.moshi.Moshi;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.jackson.JacksonIOAdapter;
+import io.avaje.jsonb.jakarta.JakartaIOAdapter;
 import org.example.jmh.model.OtherPropertyData;
 import org.example.jmh.model.SomePropertyData;
 import org.openjdk.jmh.annotations.*;
@@ -29,7 +31,10 @@ public class PropertyStrTenTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  private static final Jsonb jsonb = Jsonb.newBuilder().build();
+  private static final Jsonb jakartaJsonb = Jsonb.newBuilder().adapter(new JakartaIOAdapter()).build();
+  private static final JsonType<SomePropertyData> jakartaJsonbType = jakartaJsonb.type(SomePropertyData.class);
+
+  private static final Jsonb jsonb = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
   private static final JsonType<SomePropertyData> jsonbType = jsonb.type(SomePropertyData.class);
   private JsonView<SomePropertyData> allView;
   private JsonView<SomePropertyData> prop35View;
@@ -44,7 +49,7 @@ public class PropertyStrTenTest {
   @Setup
   public void setup() {
 
-    Jsonb viewAwareJsonb = Jsonb.newBuilder().add(SomePropertyData.class, MyViewAdapter::new).build();
+    Jsonb viewAwareJsonb = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).add(SomePropertyData.class, MyViewAdapter::new).build();
     JsonType<SomePropertyData> viewAwareType = viewAwareJsonb.type(SomePropertyData.class);
     allView = viewAwareType.view("(*)");
     prop35View = viewAwareType.view("(anotherSimilarProperty3, lastButNotLeastProperty5)");
@@ -75,6 +80,11 @@ public class PropertyStrTenTest {
   @Benchmark
   public String toJson_jsonb() {
     return jsonbType.toJson(testData);
+  }
+
+  @Benchmark
+  public String toJson_jsonb_jaka() {
+    return jakartaJsonbType.toJson(testData);
   }
 
   @Benchmark
@@ -155,8 +165,18 @@ public class PropertyStrTenTest {
   }
 
   @Benchmark
+  public SomePropertyData fromJson_jsonb_jak() {
+    return jakartaJsonbType.fromJson(content);
+  }
+
+  @Benchmark
   public SomePropertyData fromJson_jsonb_asBytes() {
     return jsonbType.fromJson(contentAsBytes);
+  }
+
+  @Benchmark
+  public SomePropertyData fromJson_jsonb_asBytes_jak() {
+    return jakartaJsonbType.fromJson(contentAsBytes);
   }
 
   @Benchmark

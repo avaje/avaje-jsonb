@@ -37,7 +37,12 @@
     </dependency>
     <dependency>
       <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonb</artifactId>
+      <artifactId>avaje-jsonb-jackson</artifactId>
+      <version>${avaje-jsonb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsonb-jakarta</artifactId>
       <version>${avaje-jsonb.version}</version>
     </dependency>
     <dependency>

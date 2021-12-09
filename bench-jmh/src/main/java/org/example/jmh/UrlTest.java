@@ -3,6 +3,7 @@ package org.example.jmh;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.jackson.JacksonIOAdapter;
 import org.example.jmh.model.UriData;
 import org.example.jmh.model.UrlData;
 import org.openjdk.jmh.annotations.*;
@@ -26,7 +27,7 @@ public class UrlTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  private static final Jsonb jsonb = Jsonb.newBuilder().build();
+  private static final Jsonb jsonb = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
   private static final JsonType<UrlData> jsonbUrlType = jsonb.type(UrlData.class);
   private static final JsonType<UriData> jsonbUriType = jsonb.type(UriData.class);
 
