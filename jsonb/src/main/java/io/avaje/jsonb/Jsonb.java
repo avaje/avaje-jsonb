@@ -2,6 +2,7 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.Bootstrap;
+import io.avaje.jsonb.spi.IOAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.InputStream;
@@ -206,6 +207,15 @@ public interface Jsonb {
      * Set to true for BigDecimal and BigInteger to serialise as String values rather than number values.
      */
     Builder mathTypesAsString(boolean mathTypesAsString);
+
+    /**
+     * Explicitly set the adapter to use.
+     * <p>
+     * When not set the IOAdapter is service loaded using {@link io.avaje.jsonb.spi.IOAdapterFactory}.
+     *
+     * @param adapter The adapter to use
+     */
+    Builder adapter(IOAdapter adapter);
 
     /**
      * Add a JsonAdapter to use for the given type.

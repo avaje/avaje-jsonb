@@ -12,6 +12,6 @@ public class JacksonFactory implements IOAdapterFactory {
 
   @Override
   public IOAdapter create(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
-    return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown);
+    return new JacksonIOAdapter(serializeNulls, serializeEmpty, failOnUnknown);
   }
 }

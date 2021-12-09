@@ -2,6 +2,7 @@ package org.example;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.jakarta.JakartaIOAdapter;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ class MyCustomerTest {
   @Test
   void list_toJson_fromJson() {
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.newBuilder().adapter(new JakartaIOAdapter()).build();
 
     List<MyCustomer> customers = new ArrayList<>();
     customers.add(new MyCustomer(42, "rob", "foo"));

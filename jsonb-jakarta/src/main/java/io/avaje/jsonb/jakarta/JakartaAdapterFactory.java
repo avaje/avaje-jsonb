@@ -10,7 +10,7 @@ public final class JakartaAdapterFactory implements IOAdapterFactory {
 
   @Override
   public IOAdapter create(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
-    return new JakartaJsonAdapter(serializeNulls, serializeEmpty, failOnUnknown);
+    return new JakartaIOAdapter(serializeNulls, serializeEmpty, failOnUnknown);
   }
 
 }

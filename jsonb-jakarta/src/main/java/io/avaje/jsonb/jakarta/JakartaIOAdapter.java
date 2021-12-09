@@ -12,16 +12,26 @@ import jakarta.json.stream.JsonParser;
 
 import java.io.*;
 
-final class JakartaJsonAdapter implements IOAdapter {
+public final class JakartaIOAdapter implements IOAdapter {
 
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
 
-  JakartaJsonAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
+  /**
+   * Create with the given configuration.
+   */
+  public JakartaIOAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
+  }
+
+  /**
+   * Create with default configuration - no serialization of nulls or empty and not fail on unknown.
+   */
+  public JakartaIOAdapter() {
+    this(false, false, false);
   }
 
   @Override

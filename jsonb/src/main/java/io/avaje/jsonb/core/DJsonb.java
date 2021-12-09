@@ -24,13 +24,17 @@ class DJsonb implements Jsonb {
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ViewKey,JsonView<?>> viewCache = new ConcurrentHashMap<>();
 
-  DJsonb(List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
+  DJsonb(IOAdapter adapter, List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
-    Iterator<IOAdapterFactory> iterator = ServiceLoader.load(IOAdapterFactory.class).iterator();
-    if (iterator.hasNext()) {
-      this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
+    if (adapter != null) {
+      this.io = adapter;
     } else {
-      throw new IllegalStateException("Missing dependency on avaje-jsonb-jackson or avaje-jsonb-jakarta? No IOAdapterFactory service found.");
+      Iterator<IOAdapterFactory> iterator = ServiceLoader.load(IOAdapterFactory.class).iterator();
+      if (iterator.hasNext()) {
+        this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
+      } else {
+        throw new IllegalStateException("Missing dependency on avaje-jsonb-jackson or avaje-jsonb-jakarta? No IOAdapterFactory service found.");
+      }
     }
   }
 
@@ -171,6 +175,7 @@ class DJsonb implements Jsonb {
     private boolean mathTypesAsString;
     private boolean serializeNulls;
     private boolean serializeEmpty;
+    private IOAdapter adapter;
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -193,6 +198,12 @@ class DJsonb implements Jsonb {
     @Override
     public Builder mathTypesAsString(boolean mathTypesAsString) {
       this.mathTypesAsString = mathTypesAsString;
+      return this;
+    }
+
+    @Override
+    public Builder adapter(IOAdapter adapter) {
+      this.adapter = adapter;
       return this;
     }
 
@@ -228,7 +239,7 @@ class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString);
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {

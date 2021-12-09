@@ -2,13 +2,14 @@ package org.example.customer;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.jackson.JacksonIOAdapter;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BasicPubFieldsTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
   JsonType<BasicPubFields> type = jsonb.type(BasicPubFields.class);
 
   @Test
