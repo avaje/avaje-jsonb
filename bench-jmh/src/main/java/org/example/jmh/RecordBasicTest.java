@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.jackson.JacksonIOAdapter;
+import io.avaje.jsonb.jakarta.JakartaIOAdapter;
 import org.example.jmh.model.NarrowNamesRecord;
 import org.example.jmh.model.WideNamesRecord;
 import org.openjdk.jmh.annotations.*;
@@ -40,6 +41,10 @@ public class RecordBasicTest {
   private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
   private static final JsonType<WideNamesRecord> jsonbWideNames = jsonbStandard.type(WideNamesRecord.class);
   private static final JsonType<NarrowNamesRecord> jsonbNarrowNames = jsonbStandard.type(NarrowNamesRecord.class);
+
+  private static final Jsonb jakartaJsonb = Jsonb.newBuilder().adapter(new JakartaIOAdapter()).build();
+  private static final JsonType<WideNamesRecord> jakartaJsonbWideNames = jakartaJsonb.type(WideNamesRecord.class);
+  private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNames = jakartaJsonb.type(NarrowNamesRecord.class);
 
   private NarrowNamesRecord testDataNarrowNames;
   private WideNamesRecord testDataWideNames;
@@ -82,16 +87,26 @@ public class RecordBasicTest {
   }
 
   @Benchmark
-  public String toJson_wideNames_jsonb() {
+  public String toJson_wideNames_jsonb_jackson() {
     return jsonbWideNames.toJson(testDataWideNames);
   }
 
   @Benchmark
-  public String toJson_narrowNames_jsonb() {
+  public String toJson_wideNames_jsonb_jakarta() {
+    return jakartaJsonbWideNames.toJson(testDataWideNames);
+  }
+
+  @Benchmark
+  public String toJson_narrowNames_jsonb_jackson() {
     return jsonbNarrowNames.toJson(testDataNarrowNames);
   }
 
   @Benchmark
+  public String toJson_narrowNames_jsonb_jakarta() {
+    return jakartaJsonbNarrowNames.toJson(testDataNarrowNames);
+  }
+
+  //@Benchmark
   public WideNamesRecord fromJson_wideNames_objectMapper() {
     try {
       return mapper.readValue(content, WideNamesRecord.class);
@@ -100,7 +115,7 @@ public class RecordBasicTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public WideNamesRecord fromJson_wideNames_jsonb() {
     return jsonbXWide.fromJson(content);
   }
@@ -185,11 +200,11 @@ public class RecordBasicTest {
     String m2 = test.toJson_wideNames_method2();
     String asJson1 = test.toJson_wideNames_objectMapper();
     String asJson2 = test.toJson_wideNames_jsonb_x();
-    String asJson3 = test.toJson_wideNames_jsonb();
+    String asJson3 = test.toJson_wideNames_jsonb_jackson();
 
     String asJsonnarrow1 = test.toJson_narrowNames_objectMapper();
     String asJsonnarrow2 = test.toJson_narrowNames_jsonb_x();
-    String asJsonnarrow3 = test.toJson_narrowNames_jsonb();
+    String asJsonnarrow3 = test.toJson_narrowNames_jsonb_jackson();
 
     System.out.println(asJson1);
     System.out.println(asJson2);

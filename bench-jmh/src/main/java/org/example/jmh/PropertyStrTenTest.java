@@ -78,16 +78,16 @@ public class PropertyStrTenTest {
   }
 
   @Benchmark
-  public String toJson_jsonb() {
+  public String toJson_jsonb_jackson() {
     return jsonbType.toJson(testData);
   }
 
   @Benchmark
-  public String toJson_jsonb_jaka() {
+  public String toJson_jsonb_jakarta() {
     return jakartaJsonbType.toJson(testData);
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_jsonb_viewAll() {
     try {
       return allView.toJson(testData);
@@ -96,7 +96,7 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_jsonb_viewProp35() {
     try {
       return prop35View.toJson(testData);
@@ -132,7 +132,7 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public SomePropertyData fromJson_objectMapper_asBytes() {
     try {
       return mapper.readValue(contentAsBytes, SomePropertyData.class);
@@ -160,13 +160,23 @@ public class PropertyStrTenTest {
   }
 
   @Benchmark
-  public SomePropertyData fromJson_jsonb() {
+  public SomePropertyData fromJson_jsonb_jackson() {
     return jsonbType.fromJson(content);
   }
 
   @Benchmark
-  public SomePropertyData fromJson_jsonb_jak() {
+  public SomePropertyData fromJson_jsonb_jackson_reader() {
+    return jsonbType.fromJson(new StringReader(content));
+  }
+
+  @Benchmark
+  public SomePropertyData fromJson_jsonb_jakarta() {
     return jakartaJsonbType.fromJson(content);
+  }
+
+  @Benchmark
+  public SomePropertyData fromJson_jsonb_jakarta_reader() {
+    return jakartaJsonbType.fromJson(new StringReader(content));
   }
 
   @Benchmark
@@ -175,11 +185,11 @@ public class PropertyStrTenTest {
   }
 
   @Benchmark
-  public SomePropertyData fromJson_jsonb_asBytes_jak() {
+  public SomePropertyData fromJson_jsonb_asBytes_jakarta() {
     return jakartaJsonbType.fromJson(contentAsBytes);
   }
 
-  @Benchmark
+ //@Benchmark
   public SomePropertyData fromJson_jsonb_withTypeLookup() {
     return jsonb.type(SomePropertyData.class).fromJson(content);
   }
@@ -195,9 +205,13 @@ public class PropertyStrTenTest {
 
     String asJson = test.toJson_jsonb_viewProp35();
     System.out.println(asJson);
-    SomePropertyData somePropertyData0 = test.fromJson_objectMapper();
-    SomePropertyData somePropertyData1 = test.fromJson_jsonb();
-    System.out.println(somePropertyData1);
+    //SomePropertyData somePropertyData0 = test.fromJson_objectMapper();
+    SomePropertyData somePropertyData1 = test.fromJson_jsonb_jackson();
+    for (int i = 0; i < 100_000_000; i++) {
+      SomePropertyData somePropertyData2 = test.fromJson_jsonb_jakarta();
+    }
+
+    //System.out.println(somePropertyData1);
   }
 
 }
