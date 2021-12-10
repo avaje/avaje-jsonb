@@ -35,7 +35,7 @@ class SkipTest {
 
   @Test
   void skipArray() {
-    String extraArray = "{\"id\":42,\"extra\":[34,234:998],\"name\":\"rob\",\"notes\":\"foo\"}";
+    String extraArray = "{\"id\":42,\"extra\":[34,234,998],\"name\":\"rob\",\"notes\":\"foo\"}";
 
     MyCustomer fromJson = type.fromJson(extraArray);
 

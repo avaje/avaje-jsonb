@@ -6,7 +6,7 @@ import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
 import io.avaje.jsonb.spi.IOAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
-import jakarta.json.Json;
+import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonParser;
 
@@ -17,6 +17,7 @@ public final class JakartaIOAdapter implements IOAdapter {
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
+  private final JsonProvider provider;
 
   /**
    * Create with the given configuration.
@@ -25,6 +26,7 @@ public final class JakartaIOAdapter implements IOAdapter {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
+    this.provider = JsonProvider.provider();
   }
 
   /**
@@ -45,22 +47,22 @@ public final class JakartaIOAdapter implements IOAdapter {
 
   @Override
   public JsonReader reader(String json) {
-    return reader(Json.createParser(new StringReader(json)));
+    return reader(provider.createParser(new StringReader(json)));
   }
 
   @Override
   public JsonReader reader(byte[] json) {
-    return reader(Json.createParser(new ByteArrayInputStream(json)));
+    return reader(provider.createParser(new ByteArrayInputStream(json)));
   }
 
   @Override
   public JsonReader reader(Reader reader) {
-    return reader(Json.createParser(reader));
+    return reader(provider.createParser(reader));
   }
 
   @Override
   public JsonReader reader(InputStream inputStream) {
-    return reader(Json.createParser(inputStream));
+    return reader(provider.createParser(inputStream));
   }
 
   private JsonWriter writer(JsonGenerator generator) {
@@ -69,26 +71,26 @@ public final class JakartaIOAdapter implements IOAdapter {
 
   @Override
   public JsonWriter writer(Writer writer) {
-    return writer(Json.createGenerator(writer));
+    return writer(provider.createGenerator(writer));
   }
 
   @Override
   public JsonWriter writer(OutputStream outputStream) {
-    return writer(Json.createGenerator(outputStream));
+    return writer(provider.createGenerator(outputStream));
   }
 
   @Override
   public BufferedJsonWriter bufferedWriter() {
     // review this, no buffer recycling option?
     StringWriter sw = new StringWriter(200);
-    return new PBufferedJsonWriter(writer(Json.createGenerator(sw)), sw);
+    return new PBufferedJsonWriter(writer(provider.createGenerator(sw)), sw);
   }
 
   @Override
   public BytesJsonWriter bufferedWriterAsBytes() {
     // review this, no buffer recycling option?
     ByteArrayOutputStream buffer = new ByteArrayOutputStream(200);
-    return new PBytesJsonWriter(writer(Json.createGenerator(buffer)), buffer);
+    return new PBytesJsonWriter(writer(provider.createGenerator(buffer)), buffer);
   }
 
 }
