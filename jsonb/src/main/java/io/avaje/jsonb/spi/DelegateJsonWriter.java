@@ -17,37 +17,37 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void serializeNulls(boolean serializeNulls) {
+  public final void serializeNulls(boolean serializeNulls) {
     delegate.serializeNulls(serializeNulls);
   }
 
   @Override
-  public boolean serializeNulls() {
+  public final boolean serializeNulls() {
     return delegate.serializeNulls();
   }
 
   @Override
-  public boolean serializeEmpty() {
+  public final boolean serializeEmpty() {
     return delegate.serializeEmpty();
   }
 
   @Override
-  public void serializeEmpty(boolean serializeEmpty) {
+  public final void serializeEmpty(boolean serializeEmpty) {
     delegate.serializeEmpty(serializeEmpty);
   }
 
   @Override
-  public void pretty(boolean pretty) {
+  public final void pretty(boolean pretty) {
     delegate.pretty(pretty);
   }
 
   @Override
-  public String path() {
+  public final String path() {
     return delegate.path();
   }
 
   @Override
-  public void beginArray() {
+  public final void beginArray() {
     delegate.beginArray();
   }
 
@@ -77,17 +77,17 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void names(PropertyNames names) {
+  public final void names(PropertyNames names) {
     delegate.names(names);
   }
 
   @Override
-  public void name(int position) {
+  public final void name(int position) {
     delegate.name(position);
   }
 
   @Override
-  public void nullValue() {
+  public final void nullValue() {
     delegate.nullValue();
   }
 
@@ -97,63 +97,68 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public void value(boolean value) {
+  public final void value(boolean value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(int value) {
+  public final void value(int value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(long value) {
+  public final void value(long value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(double value) {
+  public final void value(double value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Boolean value) {
+  public final void value(Boolean value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Integer value) {
+  public final void value(Integer value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Long value) {
+  public final void value(Long value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(Double value) {
+  public final void value(Double value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(BigDecimal value) {
+  public final void value(BigDecimal value) {
     delegate.value(value);
   }
 
   @Override
-  public void value(BigInteger value) {
+  public final void value(BigInteger value) {
     delegate.value(value);
   }
 
   @Override
-  public void jsonValue(Object value) {
+  public final void jsonValue(Object value) {
     delegate.jsonValue(value);
   }
 
   @Override
-  public void writeNewLine() {
+  public final void writeNewLine() {
     delegate.writeNewLine();
+  }
+
+  @Override
+  public final void flush() {
+    delegate.flush();
   }
 
   @Override
@@ -161,8 +166,4 @@ public abstract class DelegateJsonWriter implements JsonWriter {
     delegate.close();
   }
 
-  @Override
-  public void flush() {
-    delegate.flush();
-  }
 }
