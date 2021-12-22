@@ -28,6 +28,9 @@ class MyCustomerTest {
     assertThat(fromJson.id()).isEqualTo(myCustomer.id());
     assertThat(fromJson.name()).isEqualTo(myCustomer.name());
     assertThat(fromJson.notes()).isEqualTo(myCustomer.notes());
+
+    String asJson2 = type.toJson(myCustomer);
+    assertThat(asJson2).isEqualTo("{\"id\":42,\"name\":\"rob\",\"notes\":\"foo\"}");
   }
 
   @Test

@@ -18,6 +18,7 @@ public final class JakartaIOAdapter implements IOAdapter {
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
   private final JsonProvider provider;
+  private final BufferRecycler bufferRecycler;
 
   /**
    * Create with the given configuration.
@@ -27,6 +28,14 @@ public final class JakartaIOAdapter implements IOAdapter {
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.provider = JsonProvider.provider();
+    this.bufferRecycler = init();
+  }
+
+  private BufferRecycler init() {
+    if (!Boolean.getBoolean("avaje.jsonb.disableThreadLocalBuffering")) {
+      return BufferRecycleProvider.provide();
+    }
+    return new BufferRecyclerAtomic();
   }
 
   /**
@@ -38,7 +47,11 @@ public final class JakartaIOAdapter implements IOAdapter {
 
   @Override
   public PropertyNames properties(String... names) {
-    return new DPropertyNames(names);
+    JsonGenerator.Key[] keys = new JsonGenerator.Key[names.length];
+    for (int i = 0; i < names.length; i++) {
+      keys[i] = provider.createGeneratorKey(names[i]);
+    }
+    return new DPropertyNames(keys);
   }
 
   private JsonReader reader(JsonParser parser) {
@@ -81,15 +94,26 @@ public final class JakartaIOAdapter implements IOAdapter {
 
   @Override
   public BufferedJsonWriter bufferedWriter() {
-    // review this, no buffer recycling option?
-    StringWriter sw = new StringWriter(200);
-    return new PBufferedJsonWriter(writer(provider.createGenerator(sw)), sw);
+    final TextBufferWriter bufferWriter = new TextBufferWriter(new TextBuffer(bufferRecycler));
+    return new TextBufferJsonWriter(writer(provider.createGenerator(bufferWriter)), bufferWriter);
+
+    //
+//    // review this, no buffer recycling option?
+//    //final SBWriter buffer = new SBWriter(100);
+//    return new PBufferedJsonWriter3(writer(provider.createGenerator(bufferWriter)), bufferWriter);
+
+//    // review this, no buffer recycling option?
+//    final SBWriter buffer = new SBWriter(100);
+//    return new PBufferedJsonWriter2(writer(provider.createGenerator(buffer)), buffer);
+//
+//    //final SBWriterPool.Buffer buffer = writerPool.take();
+//    return new PBufferedJsonWriter(writer(provider.createGenerator(buffer.writer())), buffer);
   }
 
   @Override
   public BytesJsonWriter bufferedWriterAsBytes() {
     // review this, no buffer recycling option?
-    ByteArrayOutputStream buffer = new ByteArrayOutputStream(200);
+    final ByteArrayOutputStream buffer = new ByteArrayOutputStream(200);
     return new PBytesJsonWriter(writer(provider.createGenerator(buffer)), buffer);
   }
 
