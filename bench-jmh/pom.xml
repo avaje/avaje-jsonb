@@ -31,11 +31,6 @@
       <version>${jmh.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.eclipse</groupId>
-      <artifactId>yasson</artifactId>
-      <version>${yasson.version}</version>
-    </dependency>
-    <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb-jackson</artifactId>
       <version>${avaje-jsonb.version}</version>
@@ -54,8 +49,22 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.5</version>
+      <version>2.13.0</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.eclipse</groupId>-->
+<!--      <artifactId>yasson</artifactId>-->
+<!--      <version>${yasson.version}</version>-->
+<!--    </dependency>-->
+
+    <dependency>
+      <groupId>com.dslplatform</groupId>
+      <artifactId>dsl-json</artifactId>
+      <version>1.9.9</version>
+    </dependency>
+
+<!--    implementation group: 'com.dslplatform', name: '', version: "${dslJsonVersion}"-->
+<!--    annotationProcessor group: 'com.dslplatform', name: 'dsl-json-java8', version: "${dslJsonVersion}"-->
 
     <dependency>
       <groupId>com.google.code.gson</groupId>

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.jackson.JacksonIOAdapter;
 import io.avaje.jsonb.jakarta.JakartaIOAdapter;
@@ -14,6 +15,7 @@ import org.example.jmh.model.WideNamesRecord;
 import org.openjdk.jmh.annotations.*;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +48,15 @@ public class RecordBasicTest {
   private static final JsonType<WideNamesRecord> jakartaJsonbWideNames = jakartaJsonb.type(WideNamesRecord.class);
   private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNames = jakartaJsonb.type(NarrowNamesRecord.class);
 
+
+  private static final Jsonb jakartaJsonbBase = Jsonb.newBuilder().adapter(new JakartaIOAdapter())
+    .add(WideNamesRecord.class, MyCustomWideAdapter::new)
+    .add(NarrowNamesRecord.class, MyCustomNarrowAdapter::new)
+    .build();
+
+  private static final JsonType<WideNamesRecord> jakartaJsonbWideNamesBase = jakartaJsonbBase.type(WideNamesRecord.class);
+  private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNamesBase = jakartaJsonbBase.type(NarrowNamesRecord.class);
+
   private NarrowNamesRecord testDataNarrowNames;
   private WideNamesRecord testDataWideNames;
   private String content;
@@ -67,7 +78,7 @@ public class RecordBasicTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_narrowNames_objectMapper() {
     try {
       return mapper.writeValueAsString(testDataNarrowNames);
@@ -92,18 +103,28 @@ public class RecordBasicTest {
   }
 
   @Benchmark
-  public String toJson_wideNames_jsonb_jakarta() {
+  public String toJson_wideNames_jsonb_jakarta_preparedKey() {
     return jakartaJsonbWideNames.toJson(testDataWideNames);
   }
 
   @Benchmark
+  public String toJson_wideNames_jsonb_jakarta_normalKey() {
+    return jakartaJsonbWideNamesBase.toJson(testDataWideNames);
+  }
+
+  //@Benchmark
   public String toJson_narrowNames_jsonb_jackson() {
     return jsonbNarrowNames.toJson(testDataNarrowNames);
   }
 
-  @Benchmark
-  public String toJson_narrowNames_jsonb_jakarta() {
+  //@Benchmark
+  public String toJson_narrowNames_jsonb_jakarta_preparedKey() {
     return jakartaJsonbNarrowNames.toJson(testDataNarrowNames);
+  }
+
+  //@Benchmark
+  public String toJson_narrowNames_jsonb_jakarta_normalKey() {
+    return jakartaJsonbNarrowNamesBase.toJson(testDataNarrowNames);
   }
 
   //@Benchmark
@@ -205,6 +226,12 @@ public class RecordBasicTest {
     String asJsonnarrow1 = test.toJson_narrowNames_objectMapper();
     String asJsonnarrow2 = test.toJson_narrowNames_jsonb_x();
     String asJsonnarrow3 = test.toJson_narrowNames_jsonb_jackson();
+    String asJsonnarrow3a = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+    String asJsonnarrow3b = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+    String asJsonnarrow3c = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+    String asJsonnarrow3d = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+    String asJsonnarrow3e = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+    String asJsonnarrow3f = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
 
     System.out.println(asJson1);
     System.out.println(asJson2);
