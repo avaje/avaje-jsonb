@@ -42,6 +42,11 @@
     </dependency>
     <dependency>
       <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsonb-diesel</artifactId>
+      <version>${avaje-jsonb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb-generator</artifactId>
       <version>${avaje-jsonb.version}</version>
       <scope>provided</scope>

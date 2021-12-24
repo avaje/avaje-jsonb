@@ -10,20 +10,20 @@ class EscapeTest {
 
   @Test
   void hello() {
-    assertThat(asString(Escape.quoteEscape("Hello"))).isEqualTo("Hello");
+    assertThat(asString(Escape.quoteEscape("Hello"))).isEqualTo("\"Hello\"");
   }
 
   @Test
   void quote() {
-    assertThat(asString(Escape.quoteEscape("H\"ello"))).isEqualTo("H\"ello");
+    assertThat(asString(Escape.quoteEscape("H\"ello"))).isEqualTo("\"H\\\"ello\"");
   }
 
   @Test
   void escape() {
-    assertThat(asString(Escape.quoteEscape("a\\b"))).isEqualTo("a\\\\b");
-    assertThat(asString(Escape.quoteEscape("a\nb"))).isEqualTo("a\\nb");
-    assertThat(asString(Escape.quoteEscape("a\tb"))).isEqualTo("a\\tb");
-    assertThat(asString(Escape.quoteEscape("a\bb"))).isEqualTo("a\\bb");
+    assertThat(asString(Escape.quoteEscape("a\\z"))).isEqualTo("\"a\\\\z\"");
+    assertThat(asString(Escape.quoteEscape("a\nz"))).isEqualTo("\"a\\nz\"");
+    assertThat(asString(Escape.quoteEscape("a\tz"))).isEqualTo("\"a\\tz\"");
+    assertThat(asString(Escape.quoteEscape("a\bz"))).isEqualTo("\"a\\bz\"");
   }
 
   private String asString(byte[] helloBytes) {

@@ -7,16 +7,57 @@ import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FooWriterTest {
+class JsonWriterTest {
+
+  @Test
+  void recycle() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JsonGenerator generator = Recycle.generator(os);
+
+    writeHello(generator, "hello");
+
+    String asJson = os.toString(StandardCharsets.UTF_8);
+    assertThat(asJson).isEqualTo("{\"one\":\"hello\"}");
+
+    ByteArrayOutputStream os1 = new ByteArrayOutputStream();
+    JsonGenerator generator1 = Recycle.generator(os1);
+
+    writeHello(generator1, "hi");
+
+    String asJson1 = os1.toString(StandardCharsets.UTF_8);
+    assertThat(asJson1).isEqualTo("{\"one\":\"hi\"}");
+  }
+
+  @Test
+  void recycle_toString() {
+
+    JsonGenerator generator = Recycle.generator();
+    writeHello(generator, "hello");
+    assertThat(generator.toString()).isEqualTo("{\"one\":\"hello\"}");
+
+    JsonGenerator generator1 = Recycle.generator();
+    writeHello(generator1, "hi");
+    assertThat(generator1.toString()).isEqualTo("{\"one\":\"hi\"}");
+  }
+
+  private void writeHello(JsonGenerator generator, String message) {
+    JsonWriteAdapter fw = new JsonWriteAdapter(generator, true, true);
+
+    fw.beginObject();
+    fw.name("one");
+    fw.value(message);
+    fw.endObject();
+    fw.close();
+  }
 
   @Test
   void basic() {
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     JGenerator dJsonWriter = new JGenerator();
-    dJsonWriter.reset(os);
+    dJsonWriter.prepare(os);
 
-    FooWriter fw = new FooWriter(dJsonWriter, true, true);
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, true, true);
 
     fw.beginArray();
     fw.beginObject();
@@ -49,11 +90,11 @@ class FooWriterTest {
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     JGenerator dJsonWriter = new JGenerator();
-    dJsonWriter.reset(os);
+    dJsonWriter.prepare(os);
 
-    FooWriter fw = new FooWriter(dJsonWriter, true, true);
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, true, true);
 
-    DNames names = DNames.of("one", "size", "active","flags");
+    JsonNames names = JsonNames.of("one", "size", "active","flags");
 
     fw.beginArray();
 

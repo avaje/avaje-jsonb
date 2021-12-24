@@ -17,7 +17,7 @@ final class NumberConverter {
 
   static void writeInt(final int value, final JGenerator sw) {
     final byte[] buf = sw.ensureCapacity(11);
-    final int position = sw.size();
+    final int position = sw.position();
     int current = serializeInt(buf, position, value);
     sw.advance(current - position);
   }
@@ -26,9 +26,7 @@ final class NumberConverter {
     int i;
     if (value < 0) {
       if (value == Integer.MIN_VALUE) {
-        for (int x = 0; x < MIN_INT.length; x++) {
-          buf[pos + x] = MIN_INT[x];
-        }
+        System.arraycopy(MIN_INT, 0, buf, pos, MIN_INT.length);
         return pos + MIN_INT.length;
       }
       i = -value;
@@ -88,7 +86,7 @@ final class NumberConverter {
 
   static void writeLong(final long value, final JGenerator sw) {
     final byte[] buf = sw.ensureCapacity(21);
-    final int position = sw.size();
+    final int position = sw.position();
     int current = serializeLong(buf, position, value);
     sw.advance(current - position);
   }
@@ -97,9 +95,7 @@ final class NumberConverter {
     long i;
     if (value < 0) {
       if (value == Long.MIN_VALUE) {
-        for (int x = 0; x < MIN_LONG.length; x++) {
-          buf[pos + x] = MIN_LONG[x];
-        }
+        System.arraycopy(MIN_LONG, 0, buf, pos, MIN_LONG.length);
         return pos + MIN_LONG.length;
       }
       i = -value;

@@ -26,4 +26,11 @@ public class JsonIoException extends JsonException {
     super(cause);
   }
 
+  public JsonIoException(String message, IOException cause) {
+    super(message, cause);
+  }
+
+  public JsonIoException(String message) {
+    super(message);
+  }
 }

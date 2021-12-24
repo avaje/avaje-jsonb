@@ -7,6 +7,7 @@ import com.squareup.moshi.Moshi;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.diesel.DieselAdapter;
 import io.avaje.jsonb.jackson.JacksonIOAdapter;
 import io.avaje.jsonb.jakarta.JakartaIOAdapter;
 import org.example.jmh.model.OtherPropertyData;
@@ -30,6 +31,9 @@ import java.util.concurrent.TimeUnit;
 public class PropertyStrTenTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();
+
+  private static final Jsonb dieselJsonb = Jsonb.newBuilder().adapter(new DieselAdapter(false, false, false)).build();
+  private static final JsonType<SomePropertyData> dieselJsonbType = dieselJsonb.type(SomePropertyData.class);
 
   private static final Jsonb jakartaJsonb = Jsonb.newBuilder().adapter(new JakartaIOAdapter()).build();
   private static final JsonType<SomePropertyData> jakartaJsonbType = jakartaJsonb.type(SomePropertyData.class);
@@ -87,6 +91,11 @@ public class PropertyStrTenTest {
     return jakartaJsonbType.toJson(testData);
   }
 
+  @Benchmark
+  public String toJson_jsonb_diesel() {
+    return dieselJsonbType.toJson(testData);
+  }
+
   //@Benchmark
   public String toJson_jsonb_viewAll() {
     try {
@@ -123,7 +132,7 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+//  @Benchmark
   public SomePropertyData fromJson_objectMapper() {
     try {
       return mapper.readValue(content, SomePropertyData.class);
@@ -159,32 +168,32 @@ public class PropertyStrTenTest {
     }
   }
 
-  @Benchmark
+//  @Benchmark
   public SomePropertyData fromJson_jsonb_jackson() {
     return jsonbType.fromJson(content);
   }
 
-  @Benchmark
+//  @Benchmark
   public SomePropertyData fromJson_jsonb_jackson_reader() {
     return jsonbType.fromJson(new StringReader(content));
   }
 
-  @Benchmark
+//  @Benchmark
   public SomePropertyData fromJson_jsonb_jakarta() {
     return jakartaJsonbType.fromJson(content);
   }
 
-  @Benchmark
+//  @Benchmark
   public SomePropertyData fromJson_jsonb_jakarta_reader() {
     return jakartaJsonbType.fromJson(new StringReader(content));
   }
 
-  @Benchmark
+//  @Benchmark
   public SomePropertyData fromJson_jsonb_asBytes() {
     return jsonbType.fromJson(contentAsBytes);
   }
 
-  @Benchmark
+//  @Benchmark
   public SomePropertyData fromJson_jsonb_asBytes_jakarta() {
     return jakartaJsonbType.fromJson(contentAsBytes);
   }
@@ -203,15 +212,20 @@ public class PropertyStrTenTest {
     PropertyStrTenTest test = new PropertyStrTenTest();
     test.setup();
 
-    String asJson = test.toJson_jsonb_viewProp35();
-    System.out.println(asJson);
-    //SomePropertyData somePropertyData0 = test.fromJson_objectMapper();
-    SomePropertyData somePropertyData1 = test.fromJson_jsonb_jackson();
-    for (int i = 0; i < 100_000_000; i++) {
-      SomePropertyData somePropertyData2 = test.fromJson_jsonb_jakarta();
-    }
+    String s0 = test.toJson_jsonb_diesel();
+    String s1 = test.toJson_jsonb_jackson();
+    String s2 = test.toJson_jsonb_jakarta();
+    String s3 = test.toJson_objectMapper();
 
-    //System.out.println(somePropertyData1);
+//    String asJson = test.toJson_jsonb_viewProp35();
+//    System.out.println(asJson);
+//    //SomePropertyData somePropertyData0 = test.fromJson_objectMapper();
+//    SomePropertyData somePropertyData1 = test.fromJson_jsonb_jackson();
+//    for (int i = 0; i < 100_000_000; i++) {
+//      SomePropertyData somePropertyData2 = test.fromJson_jsonb_jakarta();
+//    }
+
+    System.out.println(s3);
   }
 
 }

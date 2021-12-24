@@ -1,7 +1,11 @@
 package io.avaje.jsonb.diesel;
 
+import io.avaje.jsonb.JsonIoException;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -25,35 +29,36 @@ import java.util.Arrays;
  * For maximum performance JsonWriter instances should be reused (to avoid allocation of new byte[] buffer instances).
  * They should not be shared across threads (concurrently) so for Thread reuse it's best to use patterns such as ThreadLocal.
  */
-final class JGenerator {
+final class JGenerator implements JsonGenerator {
 
   private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
-  static final byte[] NULL = "null".getBytes(StandardCharsets.UTF_8);
-  static final byte[] TRUE = "true".getBytes(StandardCharsets.UTF_8);
-  static final byte[] FALSE = "false".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] NULL = "null".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] TRUE = "true".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] FALSE = "false".getBytes(StandardCharsets.UTF_8);
 
-  static final byte OBJECT_START = '{';
-  static final byte OBJECT_END = '}';
-  static final byte ARRAY_START = '[';
-  static final byte ARRAY_END = ']';
-  static final byte NEWLINE = '\n';
-  static final byte COMMA = ',';
-  static final byte SEMI = ':';
-  static final byte QUOTE = '"';
-  static final byte ESCAPE = '\\';
+  private static final byte OBJECT_START = '{';
+  private static final byte OBJECT_END = '}';
+  private static final byte ARRAY_START = '[';
+  private static final byte ARRAY_END = ']';
+  private static final byte NEWLINE = '\n';
+  private static final byte COMMA = ',';
+  private static final byte SEMI = ':';
+  private static final byte QUOTE = '"';
+  private static final byte ESCAPE = '\\';
 
   private static final int OP_START = 1;
   private static final int OP_FIELD = 3;
   private static final int OP_END = 4;
 
+  private final Grisu3.FastDtoaBuilder doubleBuilder = new Grisu3.FastDtoaBuilder();
+  private byte[] buffer;
+  private OutputStream target;
   private int lastOp;
   private int position;
   private long flushed;
-  private OutputStream target;
-  private byte[] buffer;
 
-  private final Grisu3.FastDtoaBuilder doubleBuilder = new Grisu3.FastDtoaBuilder();
+  private String jsonString;
 
   JGenerator() {
     this(512);
@@ -67,16 +72,16 @@ final class JGenerator {
     this.buffer = buffer;
   }
 
-  /**
-   * Resets the writer - specifies the target stream and sets the position in buffer to 0.
-   * If stream is set to null, JsonWriter will work in growing byte[] buffer mode (entire response will be buffered in memory).
-   *
-   * @param stream sets/clears the target stream
-   */
-  public void reset(OutputStream stream) {
+  JsonGenerator prepare(OutputStream targetStream) {
+    target = targetStream;
+    lastOp = 0;
     position = 0;
-    target = stream;
     flushed = 0;
+    return this;
+  }
+
+  int position() {
+    return position;
   }
 
   byte[] ensureCapacity(final int free) {
@@ -95,7 +100,7 @@ final class JGenerator {
       try {
         target.write(buffer, 0, size);
       } catch (IOException ex) {
-        throw new SerializationException("Unable to write to target stream.", ex);
+        throw new JsonIoException("Unable to write to target stream.", ex);
       }
       position = 0;
       flushed += size;
@@ -114,7 +119,7 @@ final class JGenerator {
     buffer[position++] = value;
   }
 
-  private void write(final String value) {
+  private void writeString(final String value) {
     final int len = value.length();
     if (position + (len << 2) + (len << 1) + 2 >= buffer.length) {
       enlargeOrFlush(position, (len << 2) + (len << 1) + 2);
@@ -321,7 +326,7 @@ final class JGenerator {
           _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
           _result[cur++] = (byte) (0x80 | (cp & 0x3F));
         } else {
-          throw new SerializationException("Unknown unicode codepoint in string! " + Integer.toHexString(cp));
+          throw new JsonIoException("Unknown unicode codepoint in string! " + Integer.toHexString(cp));
         }
       }
     }
@@ -384,123 +389,109 @@ final class JGenerator {
     return new String(buffer, 0, position, UTF_8);
   }
 
-//  /**
-//   * Current position in the buffer. When stream is not used, this is also equivalent
-//   * to the size of the resulting JSON in bytes
-//   *
-//   * @return position in the populated buffer
-//   */
-//  public final int size() {
-//    return position;
-//  }
-//
-//  /**
-//   * Total bytes currently flushed to stream
-//   *
-//   * @return bytes flushed
-//   */
-//  public final long flushed() {
-//    return flushed;
-//  }
-//
-//  /**
-//   * Resets the writer - same as calling reset(OutputStream = null)
-//   */
-//  public final void reset() {
-//    reset(null);
-//  }
+  @Override
+  public byte[] toByteArray() {
+    if (target != null) {
+      throw new IllegalStateException("Method is not available when targeting stream");
+    }
+    return Arrays.copyOf(buffer, position);
+  }
 
-
+  @Override
   public void flush() {
     if (target != null && position != 0) {
       try {
         target.write(buffer, 0, position);
       } catch (IOException ex) {
-        throw new SerializationException("Unable to write to target stream.", ex);
+        throw new JsonIoException("Unable to write to target stream.", ex);
       }
       flushed += position;
       position = 0;
     }
   }
 
+  @Override
   public void close() throws IOException {
-    if (target != null && position != 0) {
-      target.write(buffer, 0, position);
-      position = 0;
-      flushed = 0;
+    flush();
+    if (target != null) {
+      target.flush();
     }
+//    if (target != null && position != 0) {
+//      target.write(buffer, 0, position);
+//      position = 0;
+//      flushed = 0;
+//    }
   }
 
   private void prefixName() {
     if (lastOp == OP_END) {
-      writeByte(JGenerator.COMMA);
+      writeByte(COMMA);
     }
     lastOp = OP_FIELD;
   }
 
   private void prefixValue() {
     if (lastOp == OP_END) {
-      writeByte(JGenerator.COMMA);
+      writeByte(COMMA);
     }
     lastOp = OP_END;
   }
 
+  @Override
   public void writeStartObject() {
     if (lastOp == OP_END) {
-      writeByte(JGenerator.COMMA);
+      writeByte(COMMA);
     }
     writeByte(OBJECT_START);
     lastOp = OP_START;
   }
 
+  @Override
   public void writeEndObject() {
     writeByte(OBJECT_END);
     lastOp = OP_END;
   }
 
+  @Override
   public void writeStartArray() {
     writeByte(ARRAY_START);
     lastOp = OP_START;
   }
 
+  @Override
   public void writeEndArray() {
     writeByte(ARRAY_END);
     lastOp = OP_END;
   }
 
-  public void writeFieldName(String name) {
+  @Override
+  public void writeName(String name) {
     prefixName();
-    write(name);
-    writeByte(JGenerator.SEMI);
+    writeString(name);
+    writeByte(SEMI);
   }
 
-  public void writeFieldName(byte[] escapedName) {
+  @Override
+  public void writeName(byte[] escapedName) {
     prefixName();
     writeAscii(escapedName);
-    writeByte(JGenerator.SEMI);
+    writeByte(SEMI);
   }
 
+  @Override
   public void writeBinary(final byte[] value) {
     prefixValue();
     writeBase64(value);
   }
 
+  @Override
   public void writeNull() {
     prefixValue();
     writeAscii(NULL);
-//    if ((position + 4) >= buffer.length) {
-//      enlargeOrFlush(position, 0);
-//    }
-//    final int s = position;
-//    final byte[] _result = buffer;
-//    _result[s] = 'n';
-//    _result[s + 1] = 'u';
-//    _result[s + 2] = 'l';
-//    _result[s + 3] = 'l';
-//    position += 4;
   }
 
-  public void writeBoolean(boolean value) {
+  @Override
+  public void write(boolean value) {
     prefixValue();
     if (value) {
       writeAscii(TRUE);
@@ -509,21 +500,43 @@ final class JGenerator {
     }
   }
 
-  public void writeNumber(int value) {
+  @Override
+  public void write(int value) {
     prefixValue();
     NumberConverter.writeInt(value, this);
   }
 
-  public void writeNumber(long value) {
+  @Override
+  public void write(long value) {
     prefixValue();
     NumberConverter.writeLong(value, this);
   }
 
-  public void writeValue(String value) {
+  @Override
+  public void write(double value) {
     prefixValue();
-    write(value);
+    writeDouble(value);
   }
 
+  @Override
+  public void write(BigInteger value) {
+    prefixValue();
+    writeAscii(value.toString());
+  }
+
+  @Override
+  public void write(BigDecimal value) {
+    prefixValue();
+    writeAscii(value.toString());
+  }
+
+  @Override
+  public void write(String value) {
+    prefixValue();
+    writeString(value);
+  }
+
+  @Override
   public void writeNewLine() {
     writeByte(NEWLINE);
   }

@@ -9,7 +9,7 @@ import java.math.BigInteger;
 @CompiledJson
 public class MyDslData {
 
-  @JsonAttribute(name = "\"foo\"")
+  @JsonAttribute(name = "foo")
   boolean abool;
   int aint;
   long along;

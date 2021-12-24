@@ -11,18 +11,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class FooWriter implements JsonWriter {
+class JsonWriteAdapter implements JsonWriter {
 
-  final JGenerator generator;
+  final JsonGenerator generator;
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
-  private ArrayStack<DNames> nameStack;
-  private DNames currentNames;
+  private ArrayStack<JsonNames> nameStack;
+  private JsonNames currentNames;
   private boolean pushedNames;
   private int namePos = -1;
 
-  FooWriter(JGenerator generator, boolean serializeNulls, boolean serializeEmpty) {
+  JsonWriteAdapter(JsonGenerator generator, boolean serializeNulls, boolean serializeEmpty) {
     this.generator = generator;
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
@@ -39,11 +39,7 @@ public class FooWriter implements JsonWriter {
 
   @Override
   public void flush() {
-//    try {
-      generator.flush();
-//    } catch (Throwable e) {
-//      throw new JsonIoException(e);
-//    }
+    generator.flush();
   }
 
   @Override
@@ -92,11 +88,7 @@ public class FooWriter implements JsonWriter {
 
   @Override
   public void endArray() {
-    //try {
-      generator.writeEndArray();
-    //} catch (IOException e) {
-    //  throw new JsonIoException(e);
-    //}
+    generator.writeEndArray();
   }
 
   @Override
@@ -111,15 +103,11 @@ public class FooWriter implements JsonWriter {
 
   @Override
   public void endObject() {
-    //try {
-      generator.writeEndObject();
-      if (pushedNames) {
-        pushedNames = false;
-        currentNames = nameStack != null ? nameStack.pop() : null;
-      }
-    //} catch (IOException e) {
-    //  throw new JsonIoException(e);
-    //}
+    generator.writeEndObject();
+    if (pushedNames) {
+      pushedNames = false;
+      currentNames = nameStack != null ? nameStack.pop() : null;
+    }
   }
 
   @Override
@@ -133,7 +121,7 @@ public class FooWriter implements JsonWriter {
       if (currentNames != null) {
         pushCurrentNames();
       }
-      currentNames = (DNames) nextNames;
+      currentNames = (JsonNames) nextNames;
     }
   }
 
@@ -152,10 +140,10 @@ public class FooWriter implements JsonWriter {
 
   void writeDeferredName() throws IOException {
     if (namePos > -1) {
-      generator.writeFieldName(currentNames.key(namePos));
+      generator.writeName(currentNames.key(namePos));
       namePos = -1;
     } else if (deferredName != null) {
-      generator.writeFieldName(deferredName);
+      generator.writeName(deferredName);
       deferredName = null;
     }
   }
@@ -200,7 +188,7 @@ public class FooWriter implements JsonWriter {
     } else {
       try {
         writeDeferredName();
-        generator.writeValue(value);
+        generator.write(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
@@ -211,7 +199,7 @@ public class FooWriter implements JsonWriter {
   public void value(boolean value) {
     try {
       writeDeferredName();
-      generator.writeBoolean(value);
+      generator.write(value);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -222,7 +210,7 @@ public class FooWriter implements JsonWriter {
   public void value(int value) {
     try {
       writeDeferredName();
-      generator.writeNumber(value);
+      generator.write(value);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -232,7 +220,7 @@ public class FooWriter implements JsonWriter {
   public void value(long value) {
     try {
       writeDeferredName();
-      generator.writeNumber(value);
+      generator.write(value);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -242,7 +230,7 @@ public class FooWriter implements JsonWriter {
   public void value(double value) {
     try {
       writeDeferredName();
-      generator.writeDouble(value);
+      generator.write(value);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -255,7 +243,7 @@ public class FooWriter implements JsonWriter {
     } else {
       try {
         writeDeferredName();
-        generator.writeBoolean(value);
+        generator.write(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
@@ -269,7 +257,7 @@ public class FooWriter implements JsonWriter {
     } else {
       try {
         writeDeferredName();
-        generator.writeNumber(value);
+        generator.write(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
@@ -283,7 +271,7 @@ public class FooWriter implements JsonWriter {
     } else {
       try {
         writeDeferredName();
-        generator.writeNumber(value);
+        generator.write(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
@@ -297,7 +285,7 @@ public class FooWriter implements JsonWriter {
     } else {
       try {
         writeDeferredName();
-        generator.writeDouble(value);
+        generator.write(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
@@ -311,7 +299,7 @@ public class FooWriter implements JsonWriter {
     } else {
       try {
         writeDeferredName();
-        generator.writeDouble(value.doubleValue());
+        generator.write(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
@@ -325,7 +313,7 @@ public class FooWriter implements JsonWriter {
     } else {
       try {
         writeDeferredName();
-        generator.writeNumber(value.longValueExact());
+        generator.write(value);
       } catch (IOException e) {
         throw new JsonIoException(e);
       }
