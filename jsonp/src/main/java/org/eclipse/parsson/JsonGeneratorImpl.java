@@ -316,48 +316,6 @@ class JsonGeneratorImpl implements JsonGenerator {
     }
 
     @Override
-    public JsonGenerator write(JsonValue value) {
-        switch (value.getValueType()) {
-            case ARRAY:
-                JsonArray array = (JsonArray)value;
-                writeStartArray();
-                for(JsonValue child: array) {
-                    write(child);
-                }
-                writeEnd();
-                break;
-            case OBJECT:
-                JsonObject object = (JsonObject)value;
-                writeStartObject();
-                for(Map.Entry<String, JsonValue> member: object.entrySet()) {
-                    write(member.getKey(), member.getValue());
-                }
-                writeEnd();
-                break;
-            case STRING:
-                JsonString str = (JsonString)value;
-                write(str.getString());
-                break;
-            case NUMBER:
-                JsonNumber number = (JsonNumber)value;
-                writeValue(number.toString());
-                //popFieldContext();
-                break;
-            case TRUE:
-                write(true);
-                break;
-            case FALSE:
-                write(false);
-                break;
-            case NULL:
-                writeNull();
-                break;
-        }
-
-        return this;
-    }
-
-    @Override
     public JsonGenerator writeStartArray() {
         if (currentScope == Scope.IN_OBJECT && startObject) {
             throw new JsonGenerationException(JsonMessages.GENERATOR_ILLEGAL_METHOD(currentScope));
@@ -393,49 +351,6 @@ class JsonGeneratorImpl implements JsonGenerator {
     }
 
     @Override
-    public JsonGenerator write(String name, JsonValue value) {
-        if (currentScope != Scope.IN_OBJECT) {
-            throw new JsonGenerationException(JsonMessages.GENERATOR_ILLEGAL_METHOD(currentScope));
-        }
-        switch (value.getValueType()) {
-            case ARRAY:
-                JsonArray array = (JsonArray)value;
-                writeStartArray(name);
-                for(JsonValue child: array) {
-                    write(child);
-                }
-                writeEnd();
-                break;
-            case OBJECT:
-                JsonObject object = (JsonObject)value;
-                writeStartObject(name);
-                for(Map.Entry<String, JsonValue> member: object.entrySet()) {
-                    write(member.getKey(), member.getValue());
-                }
-                writeEnd();
-                break;
-            case STRING:
-                JsonString str = (JsonString)value;
-                write(name, str.getChars());
-                break;
-            case NUMBER:
-                JsonNumber number = (JsonNumber)value;
-                writeValue(name, number.toString());
-                break;
-            case TRUE:
-                write(name, true);
-                break;
-            case FALSE:
-                write(name, false);
-                break;
-            case NULL:
-                writeNull(name);
-                break;
-        }
-        return this;
-    }
-
-    @Override
     public JsonGenerator write(String value) {
         //checkContextForValue();
         writeArrayComma();
@@ -443,7 +358,6 @@ class JsonGeneratorImpl implements JsonGenerator {
         //popFieldContext();
         return this;
     }
-
 
     @Override
     public JsonGenerator write(int value) {

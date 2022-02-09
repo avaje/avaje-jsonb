@@ -32,57 +32,6 @@ import java.io.StringReader;
 public class RFC7159Test {
 
     @Test
-    public void testCreatValues() {
-        JsonArrayBuilder builder = Json.createArrayBuilder();
-        JsonArray array = builder.add(Json.createValue("someString"))
-                                 .add(Json.createValue(100))
-                                 .add(Json.createValue(12345.6789))
-                                 .build();
-        builder = Json.createArrayBuilder();
-        JsonArray expected = builder.add("someString")
-                                    .add(100)
-                                    .add(12345.6789)
-                                    .build();
-        assertEquals(expected, array);
-    }
-
-    @Test
-    public void testReadValues() {
-        JsonReader reader = Json.createReader(new StringReader("\"someString\""));
-        JsonArrayBuilder builder = Json.createArrayBuilder();
-        builder.add(reader.readValue());
-        reader = Json.createReader(new StringReader("100"));
-        builder.add(reader.readValue());
-        reader = Json.createReader(new StringReader("12345.6789"));
-        builder.add(reader.readValue());
-        JsonArray array = builder.build();
-        builder = Json.createArrayBuilder();
-        JsonArray expected = builder.add("someString")
-                                    .add(100)
-                                    .add(12345.6789)
-                                    .build();
-        assertEquals(expected, array);
-    }
-
-    @Test
-    public void testWriteValues() {
-        StringWriter stringWriter = new StringWriter();
-        JsonWriter writer = Json.createWriter(stringWriter);
-        writer.write(Json.createValue("someString"));
-        assertEquals("\"someString\"", stringWriter.toString());
-
-        stringWriter = new StringWriter();
-        writer = Json.createWriter(stringWriter);
-        writer.write(Json.createValue(100));
-        assertEquals("100", stringWriter.toString());
-
-        stringWriter = new StringWriter();
-        writer = Json.createWriter(stringWriter);
-        writer.write(Json.createValue(12345.6789));
-        assertEquals("12345.6789", stringWriter.toString());
-    }
-
-    @Test
     public void testGeneratorValues() {
         StringWriter stringWriter = new StringWriter();
         JsonGenerator generator = Json.createGenerator(stringWriter);

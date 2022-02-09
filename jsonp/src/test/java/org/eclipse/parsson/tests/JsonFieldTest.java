@@ -19,16 +19,11 @@ package org.eclipse.parsson.tests;
 import junit.framework.TestCase;
 
 import jakarta.json.Json;
-import jakarta.json.JsonBuilderFactory;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonObjectBuilder;
-import jakarta.json.JsonValue;
 import jakarta.json.stream.JsonGenerationException;
 import jakarta.json.stream.JsonGenerator;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.concurrent.Callable;
 
 /**
  * Test for writing json field names without values.

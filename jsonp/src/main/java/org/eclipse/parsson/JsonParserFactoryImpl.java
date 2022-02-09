@@ -18,8 +18,6 @@ package org.eclipse.parsson;
 
 import org.eclipse.parsson.api.BufferPool;
 
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
 import jakarta.json.stream.JsonParserFactory;
 import jakarta.json.stream.JsonParser;
 import java.io.InputStream;
@@ -55,17 +53,8 @@ class JsonParserFactoryImpl implements JsonParserFactory {
     }
 
     @Override
-    public JsonParser createParser(JsonArray array) {
-        return new JsonStructureParser(array);
-    }
-
-    @Override
     public Map<String, ?> getConfigInUse() {
         return config;
     }
 
-    @Override
-    public JsonParser createParser(JsonObject object) {
-        return new JsonStructureParser(object);
-    }
 }

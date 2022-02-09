@@ -25,7 +25,6 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
-import jakarta.json.JsonObject;
 import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonParser;
 
@@ -43,8 +42,9 @@ public class Issue25Test {
                     while (parser.hasNext()) {
                         JsonParser.Event event = parser.next();
                         if (event == JsonParser.Event.START_OBJECT) {
-                            JsonObject object = parser.getObject();
-                            object.toString();
+                          parser.skipObject();
+                            //JsonObject object = parser.getObject();
+                            //object.toString();
                         }
                     }
                     parser.close();
@@ -65,11 +65,12 @@ public class Issue25Test {
                     while (parser.hasNext()) {
                         JsonParser.Event event = parser.next();
                         if (event == JsonParser.Event.START_OBJECT) {
-                            JsonObject object = parser.getObject();
-                            object.toString();
+                          parser.skipObject();
+                            //JsonObject object = parser.getObject();
+                            //object.toString();
                         }
                     }
-                    // Closing 
+                    // Closing
                     parser.close();
                 }
             }

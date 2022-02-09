@@ -16,8 +16,6 @@
 
 package jakarta.json.stream;
 
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
@@ -30,7 +28,7 @@ import java.util.Map;
  *
  * <p>
  * The class {@link jakarta.json.Json Json} also provides methods to create
- * {@link JsonParser} instances, but using {@code JsonParserFactory} is 
+ * {@link JsonParser} instances, but using {@code JsonParserFactory} is
  * preferred when creating multiple parser instances as shown in the following
  * example:
  *
@@ -77,22 +75,6 @@ public interface JsonParserFactory {
      * @return the created JSON parser
      */
     JsonParser createParser(InputStream in, Charset charset);
-
-    /**
-     * Creates a JSON parser from the specified JSON object.
-     *
-     * @param obj a JSON object
-     * @return the created JSON parser
-     */
-    JsonParser createParser(JsonObject obj);
-
-    /**
-     * Creates a JSON parser from the specified JSON array.
-     *
-     * @param array a JSON array
-     * @return the created JSON parser
-     */
-    JsonParser createParser(JsonArray array);
 
     /**
      * Returns a read-only map of supported provider specific configuration

@@ -23,10 +23,7 @@ package jakarta.json.stream;
  *
  * <p>All the information provided by a {@code JsonLocation} is optional. For
  * example, a provider may only report line numbers. Also, there may not be any
- * location information for an input source. For example, if a
- * {@code JsonParser} is created using
- * {@link jakarta.json.JsonArray JsonArray} input source, all the methods in
- * this class return -1.
+ * location information for an input source.
  * @see JsonParser
  * @see JsonParsingException
  */

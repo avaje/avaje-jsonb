@@ -21,8 +21,6 @@ import jakarta.json.stream.JsonLocation;
 import jakarta.json.stream.JsonParser;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonValue;
 
 /**
  * Defines string formatting method for each constant in the resource file
@@ -101,14 +99,6 @@ final class JsonMessages {
         return localize("parser.invalid.token", token, location, expectedTokens);
     }
 
-    static String PARSER_STATE_ERR(JsonValue.ValueType type) {
-        return localize("parser.state.err", type);
-    }
-
-    static String PARSER_SCOPE_ERR(JsonValue value) {
-        return localize("parser.scope.err", value);
-    }
-
     static String PARSER_INPUT_ENC_DETECT_FAILED() {
         return localize("parser.input.enc.detect.failed");
     }
@@ -116,7 +106,7 @@ final class JsonMessages {
     static String PARSER_INPUT_ENC_DETECT_IOERR() {
         return localize("parser.input.enc.detect.ioerr");
     }
-    
+
     static String DUPLICATE_KEY(String name) {
         return localize("parser.duplicate.key", name);
     }
@@ -201,14 +191,6 @@ final class JsonMessages {
     // json pointer messages
     static String POINTER_FORMAT_INVALID() {
         return localize("pointer.format.invalid");
-    }
-
-    static String POINTER_MAPPING_MISSING(JsonObject object, String key) {
-        return localize("pointer.mapping.missing", object, key);
-    }
-
-    static String POINTER_REFERENCE_INVALID(JsonValue.ValueType type) {
-        return localize("pointer.reference.invalid", type.name());
     }
 
     static String POINTER_ARRAY_INDEX_ERR(String token) {

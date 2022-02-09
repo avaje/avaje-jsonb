@@ -36,17 +36,6 @@ public class JsonParserSkipTest extends TestCase {
         }
     }
 
-    public void testSkipArrayStructure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createArrayBuilder()
-                        .add(Json.createArrayBuilder())
-                        .add(Json.createArrayBuilder()
-                                .add(Json.createArrayBuilder()))
-                        .build())) {
-            testSkipArray(parser);
-        }
-    }
-
     private static void testSkipArray(JsonParser parser) {
         assertEquals(JsonParser.Event.START_ARRAY, parser.next());
         parser.skipArray();
@@ -55,18 +44,6 @@ public class JsonParserSkipTest extends TestCase {
 
     public void testSkipArrayInObjectReader() {
         try (JsonParser parser = Json.createParser(new StringReader("{\"array\":[[],[[]]],\"object\":\"value2\"}"))) {
-            testSkipArrayInObject(parser);
-        }
-    }
-
-    public void testSkipArrayInObjectStructure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createObjectBuilder().add("array", Json.createArrayBuilder()
-                        .add(Json.createArrayBuilder())
-                        .add(Json.createArrayBuilder()
-                                .add(Json.createArrayBuilder()))
-                ).add("object", "value2")
-                        .build())) {
             testSkipArrayInObject(parser);
         }
     }
@@ -85,17 +62,6 @@ public class JsonParserSkipTest extends TestCase {
 
     public void testSkipObjectReader() {
         try (JsonParser parser = Json.createParser(new StringReader("{\"array\":[],\"objectToSkip\":{\"huge key\":\"huge value\"},\"simple\":2}"))) {
-            testSkipObject(parser);
-        }
-    }
-
-    public void testSkipObjectStructure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createObjectBuilder()
-                        .add("array", Json.createArrayBuilder().build())
-                        .add("objectToSkip", Json.createObjectBuilder().add("huge key", "huge value"))
-                        .add("simple", 2)
-                        .build())) {
             testSkipObject(parser);
         }
     }

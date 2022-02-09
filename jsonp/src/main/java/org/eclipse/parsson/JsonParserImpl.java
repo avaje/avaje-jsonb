@@ -28,16 +28,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import jakarta.json.JsonArray;
-import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonException;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonObjectBuilder;
-import jakarta.json.JsonValue;
 import jakarta.json.stream.JsonLocation;
 import jakarta.json.stream.JsonParser;
 import jakarta.json.stream.JsonParsingException;
@@ -154,152 +147,6 @@ public class JsonParserImpl implements JsonParser {
     }
 
     @Override
-    public JsonArray getArray() {
-        if (currentEvent != Event.START_ARRAY) {
-            throw new IllegalStateException(
-                JsonMessages.PARSER_GETARRAY_ERR(currentEvent));
-        }
-        return getArray(new JsonArrayBuilderImpl(bufferPool));
-    }
-
-    @Override
-    public JsonObject getObject() {
-        if (currentEvent != Event.START_OBJECT) {
-            throw new IllegalStateException(
-                JsonMessages.PARSER_GETOBJECT_ERR(currentEvent));
-        }
-        return getObject(new JsonObjectBuilderImpl(bufferPool, rejectDuplicateKeys, config));
-    }
-
-    @Override
-    public JsonValue getValue() {
-        switch (currentEvent) {
-            case START_ARRAY:
-                return getArray(new JsonArrayBuilderImpl(bufferPool));
-            case START_OBJECT:
-                return getObject(new JsonObjectBuilderImpl(bufferPool, rejectDuplicateKeys, config));
-            case KEY_NAME:
-            case VALUE_STRING:
-                return new JsonStringImpl(getCharSequence());
-            case VALUE_NUMBER:
-                if (isDefinitelyInt()) {
-                    return JsonNumberImpl.getJsonNumber(getInt());
-                } else if (isDefinitelyLong()) {
-                    return JsonNumberImpl.getJsonNumber(getLong());
-                }
-                return JsonNumberImpl.getJsonNumber(getBigDecimal());
-            case VALUE_TRUE:
-                return JsonValue.TRUE;
-            case VALUE_FALSE:
-                return JsonValue.FALSE;
-            case VALUE_NULL:
-                return JsonValue.NULL;
-            case END_ARRAY:
-            case END_OBJECT:
-            default:
-                throw new IllegalStateException(JsonMessages.PARSER_GETVALUE_ERR(currentEvent));
-        }
-    }
-
-    @Override
-    public Stream<JsonValue> getArrayStream() {
-        if (currentEvent != Event.START_ARRAY) {
-            throw new IllegalStateException(
-                JsonMessages.PARSER_GETARRAY_ERR(currentEvent));
-        }
-        Spliterator<JsonValue> spliterator =
-                new Spliterators.AbstractSpliterator<JsonValue>(Long.MAX_VALUE, Spliterator.ORDERED) {
-            @Override
-            public Spliterator<JsonValue> trySplit() {
-                return null;
-            }
-            @Override
-            public boolean tryAdvance(Consumer<? super JsonValue> action) {
-                if (action == null) {
-                    throw new NullPointerException();
-                }
-                if (! hasNext()) {
-                    return false;
-                }
-                if (next() == JsonParser.Event.END_ARRAY) {
-                    return false;
-                }
-                action.accept(getValue());
-                return true;
-            }
-        };
-        return StreamSupport.stream(spliterator, false);
-    }
-
-    @Override
-    public Stream<Map.Entry<String, JsonValue>> getObjectStream() {
-        if (currentEvent != Event.START_OBJECT) {
-            throw new IllegalStateException(
-                JsonMessages.PARSER_GETOBJECT_ERR(currentEvent));
-        }
-        Spliterator<Map.Entry<String, JsonValue>> spliterator =
-                new Spliterators.AbstractSpliterator<Map.Entry<String, JsonValue>>(Long.MAX_VALUE, Spliterator.ORDERED) {
-            @Override
-            public Spliterator<Map.Entry<String,JsonValue>> trySplit() {
-                return null;
-            }
-            @Override
-            public boolean tryAdvance(Consumer<? super Map.Entry<String, JsonValue>> action) {
-                if (action == null) {
-                    throw new NullPointerException();
-                }
-                if (! hasNext()) {
-                    return false;
-                }
-                JsonParser.Event e = next();
-                if (e == JsonParser.Event.END_OBJECT) {
-                    return false;
-                }
-                if (e != JsonParser.Event.KEY_NAME) {
-                    throw new JsonException(JsonMessages.INTERNAL_ERROR());
-                }
-                String key = getString();
-                if (! hasNext()) {
-                    throw new JsonException(JsonMessages.INTERNAL_ERROR());
-                }
-                next();
-                JsonValue value = getValue();
-                action.accept(new AbstractMap.SimpleImmutableEntry<>(key, value));
-                return true;
-            }
-        };
-        return StreamSupport.stream(spliterator, false);
-    }
-
-    @Override
-    public Stream<JsonValue> getValueStream() {
-        if (! (currentContext instanceof NoneContext)) {
-            throw new IllegalStateException(
-                JsonMessages.PARSER_GETVALUESTREAM_ERR());
-        }
-        Spliterator<JsonValue> spliterator =
-                new Spliterators.AbstractSpliterator<JsonValue>(Long.MAX_VALUE, Spliterator.ORDERED) {
-            @Override
-            public Spliterator<JsonValue> trySplit() {
-                return null;
-            }
-            @Override
-            public boolean tryAdvance(Consumer<? super JsonValue> action) {
-                if (action == null) {
-                    throw new NullPointerException();
-                }
-                if (! hasNext()) {
-                    return false;
-                }
-                next();
-                action.accept(getValue());
-                return true;
-            }
-        };
-        return StreamSupport.stream(spliterator, false);
-    }
-
-    @Override
     public void skipArray() {
         if (currentEvent == Event.START_ARRAY) {
             currentContext.skip();
@@ -317,17 +164,6 @@ public class JsonParserImpl implements JsonParser {
         }
     }
 
-    private JsonArray getArray(JsonArrayBuilder builder) {
-        while(hasNext()) {
-            JsonParser.Event e = next();
-            if (e == JsonParser.Event.END_ARRAY) {
-                return builder.build();
-            }
-            builder.add(getValue());
-        }
-        throw parsingException(JsonToken.EOF, "[CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL, SQUARECLOSE]");
-    }
-
     private CharSequence getCharSequence() {
       if (currentEvent == Event.KEY_NAME || currentEvent == Event.VALUE_STRING
               || currentEvent == Event.VALUE_NUMBER) {
@@ -335,19 +171,6 @@ public class JsonParserImpl implements JsonParser {
       }
       throw new IllegalStateException(JsonMessages.PARSER_GETSTRING_ERR(currentEvent));
   }
-
-    private JsonObject getObject(JsonObjectBuilder builder) {
-        while(hasNext()) {
-            JsonParser.Event e = next();
-            if (e == JsonParser.Event.END_OBJECT) {
-                return builder.build();
-            }
-            String key = getString();
-            next();
-            builder.add(key, getValue());
-        }
-        throw parsingException(JsonToken.EOF, "[STRING, CURLYCLOSE]");
-    }
 
     @Override
     public JsonLocation getLocation() {

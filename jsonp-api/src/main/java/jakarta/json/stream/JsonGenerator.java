@@ -16,8 +16,6 @@
 
 package jakarta.json.stream;
 
-import jakarta.json.JsonValue;
-
 import java.io.Closeable;
 import java.io.Flushable;
 import java.math.BigDecimal;
@@ -230,21 +228,6 @@ public interface JsonGenerator extends Flushable, /*Auto*/Closeable {
     JsonGenerator writeStartArray(String name);
 
     /**
-     * Writes a JSON name/value pair in the current object context.
-     *
-     * @param name  a name in the JSON name/value pair to be written in
-     *              current JSON object
-     * @param value a value in the JSON name/value pair to be written in
-     *              current JSON object
-     * @return this generator
-     * @throws jakarta.json.JsonException if an i/o error occurs (IOException
-     *                                    would be cause of JsonException)
-     * @throws JsonGenerationException    if this method is not called within an
-     *                                    object context
-     */
-    JsonGenerator write(String name, JsonValue value);
-
-    /**
      * Writes a JSON name/string value pair in the current object context.
      * The specified value is written as JSON string value.
      *
@@ -396,18 +379,18 @@ public interface JsonGenerator extends Flushable, /*Auto*/Closeable {
      */
     JsonGenerator writeEnd();
 
-    /**
-     * Writes the specified value as a JSON value within
-     * the current array, field or root context.
-     *
-     * @param value a value to be written in current JSON array
-     * @return this generator
-     * @throws jakarta.json.JsonException if an i/o error occurs (IOException
-     *                                    would be cause of JsonException)
-     * @throws JsonGenerationException    if this method is not called within an
-     *                                    array, root or field context.
-     */
-    JsonGenerator write(JsonValue value);
+//    /**
+//     * Writes the specified value as a JSON value within
+//     * the current array, field or root context.
+//     *
+//     * @param value a value to be written in current JSON array
+//     * @return this generator
+//     * @throws jakarta.json.JsonException if an i/o error occurs (IOException
+//     *                                    would be cause of JsonException)
+//     * @throws JsonGenerationException    if this method is not called within an
+//     *                                    array, root or field context.
+//     */
+//    JsonGenerator write(JsonValue value);
 
     /**
      * Writes the specified value as a JSON string value within
@@ -433,7 +416,6 @@ public interface JsonGenerator extends Flushable, /*Auto*/Closeable {
      *                                    would be cause of JsonException)
      * @throws JsonGenerationException    if this method is not called within an
      *                                    array, root or field context.
-     * @see jakarta.json.JsonNumber
      */
     JsonGenerator write(BigDecimal value);
 
@@ -448,7 +430,6 @@ public interface JsonGenerator extends Flushable, /*Auto*/Closeable {
      *                                    would be cause of JsonException)
      * @throws JsonGenerationException    if this method is not called within an
      *                                    array, root or field context.
-     * @see jakarta.json.JsonNumber
      */
     JsonGenerator write(BigInteger value);
 

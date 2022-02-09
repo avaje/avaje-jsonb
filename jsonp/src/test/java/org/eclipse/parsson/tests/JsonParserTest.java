@@ -123,21 +123,6 @@ public class JsonParserTest extends TestCase {
         }
     }
 
-    public void testEmptyArrayStructure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createArrayBuilder().build())) {
-            testEmptyArray(parser);
-        }
-    }
-
-    public void testEmptyArrayStructureWithConfig() {
-        Map<String, ?> config = new HashMap<>();
-        try (JsonParser parser = Json.createParserFactory(config).createParser(
-                Json.createArrayBuilder().build())) {
-            testEmptyArray(parser);
-        }
-    }
-
     @SuppressWarnings("UnusedDeclaration")
     static void testEmptyArray(JsonParser parser) {
         while (parser.hasNext()) {
@@ -148,13 +133,6 @@ public class JsonParserTest extends TestCase {
 
     public void testEmptyArrayReaderIterator() {
         try (JsonParser parser = Json.createParser(new StringReader("[]"))) {
-            testEmptyArrayIterator(parser);
-        }
-    }
-
-    public void testEmptyArrayStructureIterator() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createArrayBuilder().build())) {
             testEmptyArrayIterator(parser);
         }
     }
@@ -184,13 +162,6 @@ public class JsonParserTest extends TestCase {
         }
     }
 
-    public void testEmptyArrayIterator2Structure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createArrayBuilder().build())) {
-            testEmptyArrayIterator2(parser);
-        }
-    }
-
     static void testEmptyArrayIterator2(JsonParser parser) {
         assertEquals(Event.START_ARRAY, parser.next());
         assertEquals(Event.END_ARRAY, parser.next());
@@ -203,13 +174,6 @@ public class JsonParserTest extends TestCase {
 
     public void testEmptyArrayIterator3Reader() {
         try (JsonParser parser = Json.createParser(new StringReader("[]"))) {
-            testEmptyArrayIterator3(parser);
-        }
-    }
-
-    public void testEmptyArrayIterator3Structure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createArrayBuilder().build())) {
             testEmptyArrayIterator3(parser);
         }
     }
@@ -240,21 +204,6 @@ public class JsonParserTest extends TestCase {
         }
     }
 
-    public void testEmptyObjectStructure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createObjectBuilder().build())) {
-            testEmptyObject(parser);
-        }
-    }
-
-    public void testEmptyObjectStructureWithConfig() {
-        Map<String, ?> config = new HashMap<>();
-        try (JsonParser parser = Json.createParserFactory(config).createParser(
-                Json.createObjectBuilder().build())) {
-            testEmptyObject(parser);
-        }
-    }
-
     @SuppressWarnings("UnusedDeclaration")
     static void testEmptyObject(JsonParser parser) {
         while (parser.hasNext()) {
@@ -265,13 +214,6 @@ public class JsonParserTest extends TestCase {
 
     public void testEmptyObjectIteratorReader() {
         try (JsonParser parser = Json.createParser(new StringReader("{}"))) {
-            testEmptyObjectIterator(parser);
-        }
-    }
-
-    public void testEmptyObjectIteratorStructure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createObjectBuilder().build())) {
             testEmptyObjectIterator(parser);
         }
     }
@@ -301,13 +243,6 @@ public class JsonParserTest extends TestCase {
         }
     }
 
-    public void testEmptyObjectIterator2Structure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createObjectBuilder().build())) {
-            testEmptyObjectIterator2(parser);
-        }
-    }
-
     static void testEmptyObjectIterator2(JsonParser parser) {
         assertEquals(Event.START_OBJECT, parser.next());
         assertEquals(Event.END_OBJECT, parser.next());
@@ -321,13 +256,6 @@ public class JsonParserTest extends TestCase {
 
     public void testEmptyObjectIterator3Reader() {
         try (JsonParser parser = Json.createParser(new StringReader("{}"))) {
-            testEmptyObjectIterator3(parser);
-        }
-    }
-
-    public void testEmptyObjectIterator3Structure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createObjectBuilder().build())) {
             testEmptyObjectIterator3(parser);
         }
     }
@@ -347,13 +275,6 @@ public class JsonParserTest extends TestCase {
 
     public void testWikiIteratorReader() throws Exception {
         try (JsonParser parser = Json.createParser(wikiReader())) {
-            testWikiIterator(parser);
-        }
-    }
-
-    public void testWikiIteratorStructure() throws Exception {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                JsonBuilderTest.buildPerson())) {
             testWikiIterator(parser);
         }
     }
@@ -381,13 +302,6 @@ public class JsonParserTest extends TestCase {
 
     public void testWikiReader() throws Exception {
         try (JsonParser parser = Json.createParser(wikiReader())) {
-            testWiki(parser);
-        }
-    }
-
-    public void testWikiStructure() throws Exception {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                JsonBuilderTest.buildPerson())) {
             testWiki(parser);
         }
     }
@@ -469,17 +383,6 @@ public class JsonParserTest extends TestCase {
         }
     }
 
-    public void testNestedArrayStructure() {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                Json.createArrayBuilder()
-                        .add(Json.createArrayBuilder())
-                        .add(Json.createArrayBuilder()
-                                .add(Json.createArrayBuilder()))
-                        .build())) {
-            testNestedArray(parser);
-        }
-    }
-
     static void testNestedArray(JsonParser parser) {
         assertEquals(Event.START_ARRAY, parser.next());
         assertEquals(Event.START_ARRAY, parser.next());
@@ -495,13 +398,6 @@ public class JsonParserTest extends TestCase {
 
     public void testExceptionsReader() throws Exception {
         try (JsonParser parser = Json.createParser(wikiReader())) {
-            testExceptions(parser);
-        }
-    }
-
-    public void testExceptionsStructure() throws Exception {
-        try (JsonParser parser = Json.createParserFactory(null).createParser(
-                JsonBuilderTest.buildPerson())) {
             testExceptions(parser);
         }
     }
@@ -581,27 +477,6 @@ public class JsonParserTest extends TestCase {
 
     }
 
-    public void testBigDecimalGetString() {
-        JsonParserFactory f = Json.createParserFactory(null);
-        JsonObject obj = Json.createObjectBuilder().add("a", BigDecimal.ONE).build();
-        try (JsonParser parser = f.createParser(obj)) {
-            parser.next();
-            parser.next();
-            parser.next();
-            assertEquals("Fails for BigDecimal=1", "1", parser.getString());
-        }
-    }
-
-    public void testIntGetString() {
-        JsonParserFactory f = Json.createParserFactory(null);
-        JsonObject obj = Json.createObjectBuilder().add("a", 5).build();
-        try (JsonParser parser = f.createParser(obj)) {
-            parser.next();
-            parser.next();
-            parser.next();
-            assertEquals("Fails for int=5", "5", parser.getString());
-        }
-    }
     static class MyBufferPool implements BufferPool {
         private boolean takeCalled;
         private boolean recycleCalled;
