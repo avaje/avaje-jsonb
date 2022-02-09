@@ -208,41 +208,6 @@ public class JsonProviderImpl extends JsonProvider {
     }
 
     @Override
-    public JsonPointer createPointer(String jsonPointer) {
-        return new JsonPointerImpl(jsonPointer);
-    }
-
-    @Override
-    public JsonPatchBuilder createPatchBuilder() {
-        return new JsonPatchBuilderImpl();
-    }
-
-    @Override
-    public JsonPatchBuilder createPatchBuilder(JsonArray array) {
-        return new JsonPatchBuilderImpl(array);
-    }
-
-    @Override
-    public JsonPatch createPatch(JsonArray array) {
-        return new JsonPatchImpl(array);
-    }
-
-    @Override
-    public JsonPatch createDiff(JsonStructure source, JsonStructure target) {
-        return new JsonPatchImpl(JsonPatchImpl.diff(source, target));
-    }
-
-    @Override
-    public JsonMergePatch createMergePatch(JsonValue patch) {
-        return new JsonMergePatchImpl(patch);
-    }
-
-    @Override
-    public JsonMergePatch createMergeDiff(JsonValue source, JsonValue target) {
-        return new JsonMergePatchImpl(JsonMergePatchImpl.diff(source, target));
-    }
-
-    @Override
     public JsonString createValue(String value) {
         return new JsonStringImpl(value);
     }

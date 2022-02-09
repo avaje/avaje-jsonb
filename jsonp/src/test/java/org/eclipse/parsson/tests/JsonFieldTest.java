@@ -173,13 +173,6 @@ public class JsonFieldTest extends TestCase {
         assertEquals("{\"f1Name\":null}", writeValue(JsonGenerator::writeNull));
     }
 
-    public void  testWriteJsonValue() {
-        JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("first", "value");
-        final JsonObject build = builder.build();
-        assertEquals("{\"f1Name\":\"value\"}", writeValue((gen)->gen.write(build.getValue("/first"))));
-    }
-
     private String writeValue(WriteValueFunction writeValueCallback) {
         StringWriter sw = new StringWriter();
         JsonGenerator generator = Json.createGenerator(sw);

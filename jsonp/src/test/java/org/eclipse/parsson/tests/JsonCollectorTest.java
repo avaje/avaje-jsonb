@@ -19,10 +19,8 @@ package org.eclipse.parsson.tests;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
-import jakarta.json.JsonPatchBuilder;
 import jakarta.json.JsonValue;
 import jakarta.json.stream.JsonCollectors;
 import org.eclipse.parsson.JsonUtil;
@@ -126,40 +124,4 @@ public class JsonCollectorTest {
         assertEquals(result,expected);
     }
 
-    static int index; //for keeping track of the array index
-    @Test
-    public void testQueryAndPatch() {
-        /*
-         * Query and patch: Increment the ages of contacts with an age entry
-         * PatchBuilder is used for building the necessary JsonPatch.
-         */
-        index = -1;
-        JsonPatchBuilder builder = Json.createPatchBuilder();
-        contacts.getValuesAs(JsonObject.class).stream()
-            .peek(p->index++)
-            .filter(p->p.containsKey("age"))
-            .forEach(p-> builder.replace("/"+index+"/age", p.getInt("age")+1));
-        JsonArray result = builder.build().apply(contacts);
-
-        JsonValue expected = (JsonArray) JsonUtil.toJson(
-        "[                                 " +
-        "  { 'name': 'Duke',               " +
-        "    'age': 19,                    " +
-        "    'gender': 'M',                " +
-        "    'phones': {                   " +
-        "       'home': '650-123-4567',    " +
-        "       'mobile': '650-234-5678'}}," +
-        "  { 'name': 'Jane',               " +
-        "    'age': 24,                    " +
-        "    'gender': 'F',                " +
-        "    'phones': {                   " +
-        "       'mobile': '707-999-5555'}}," +
-        "  { 'name': 'Joanna',             " +
-        "    'gender': 'F',                " +
-        "    'phones': {                   " +
-        "       'mobile': '505-333-4444'}} " +
-        " ]");
- 
-        assertEquals(expected, result);
-    }
 }

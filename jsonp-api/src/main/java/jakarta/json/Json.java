@@ -308,105 +308,6 @@ public final class Json {
         return JsonProvider.provider().createObjectBuilder(map);
     }
 
-    /**
-     * Creates JSON Pointer (<a href="http://tools.ietf.org/html/rfc6901">RFC 6901</a>)
-     * from given {@code jsonPointer} string.
-     * <ul>
-     *     <li>An empty {@code jsonPointer} string defines a reference to the target itself.</li>
-     *     <li>If the {@code jsonPointer} string is non-empty, it must be a sequence of '{@code /}' prefixed tokens.</li>
-     * </ul>
-     *
-     * @param jsonPointer the valid escaped JSON Pointer string
-     * @throws NullPointerException if {@code jsonPointer} is {@code null}
-     * @throws JsonException if {@code jsonPointer} is not a valid JSON Pointer
-     * @return a JSON Pointer
-     *
-     * @since 1.1
-     */
-    public static JsonPointer createPointer(String jsonPointer) {
-        return JsonProvider.provider().createPointer(jsonPointer);
-    }
-
-    /**
-     * Creates a JSON Patch builder (<a href="http://tools.ietf.org/html/rfc6902">RFC 6902</a>).
-     *
-     * @return a JSON Patch builder
-     *
-     * @since 1.1
-     */
-    public static JsonPatchBuilder createPatchBuilder() {
-        return JsonProvider.provider().createPatchBuilder();
-    }
-
-    /**
-     * Creates a JSON Patch builder
-     * (<a href="http://tools.ietf.org/html/rfc6902">RFC 6902</a>),
-     * initialized with the specified operations.
-     *
-     * @param array the initial patch operations
-     * @return a JSON Patch builder
-     *
-     * @since 1.1
-     */
-    public static JsonPatchBuilder createPatchBuilder(JsonArray array) {
-        return JsonProvider.provider().createPatchBuilder(array);
-    }
-
-    /**
-     * Creates a JSON Patch (<a href="http://tools.ietf.org/html/rfc6902">RFC 6902</a>)
-     * from the specified operations.
-     *
-     * @param array patch operations
-     * @return a JSON Patch
-     *
-     * @since 1.1
-     */
-    public static JsonPatch createPatch(JsonArray array) {
-        return JsonProvider.provider().createPatch(array);
-    }
-
-    /**
-     * Generates a JSON Patch (<a href="http://tools.ietf.org/html/rfc6902">RFC 6902</a>)
-     * from the source and target {@code JsonStructure}.
-     * The generated JSON Patch need not be unique.
-     *
-     * @param source the source
-     * @param target the target, must be the same type as the source
-     * @return a JSON Patch which when applied to the source, yields the target
-     *
-     * @since 1.1
-     */
-    public static JsonPatch createDiff(JsonStructure source, JsonStructure target) {
-        return JsonProvider.provider().createDiff(source, target);
-    }
-
-    /**
-     * Creates JSON Merge Patch (<a href="http://tools.ietf.org/html/rfc7396">RFC 7396</a>)
-     * from specified {@code JsonValue}.
-     *
-     * @param patch the patch
-     * @return a JSON Merge Patch
-     *
-     * @since 1.1
-     */
-    public static JsonMergePatch createMergePatch(JsonValue patch) {
-        return JsonProvider.provider().createMergePatch(patch);
-    }
-
-    /**
-     * Generates a JSON Merge Patch (<a href="http://tools.ietf.org/html/rfc7396">RFC 7396</a>)
-     * from the source and target {@code JsonValue}s
-     * which when applied to the {@code source}, yields the {@code target}.
-     *
-     * @param source the source
-     * @param target the target
-     * @return a JSON Merge Patch
-     *
-     * @since 1.1
-     */
-    public static JsonMergePatch createMergeDiff(JsonValue source, JsonValue target) {
-        return JsonProvider.provider().createMergeDiff(source, target);
-    }
 
     /**
      * Creates a builder factory for creating {@link JsonArrayBuilder}
@@ -502,7 +403,7 @@ public final class Json {
      *
      * @param pointer the JSON-pointer string to encode
      * @return encoded JSON-pointer string
-     * 
+     *
      * @since 1.1
      */
     public static String encodePointer(String pointer) {
@@ -515,7 +416,7 @@ public final class Json {
      *
      * @param escaped the JSON-pointer string to decode
      * @return decoded JSON-pointer string
-     *     
+     *
      * @since 1.1
      */
     public static String decodePointer(String escaped) {
