@@ -49,7 +49,8 @@ public final class JsonParserImpl implements JsonParser {
 
     private final Deque<Context> stack = new ArrayDeque<>();
     private final JsonTokenizer tokenizer;
-    private boolean closed = false;
+    private boolean closed;
+    private boolean eof;
 
     public JsonParserImpl(Reader reader, BufferPool bufferPool) {
         this(reader, bufferPool, false, Collections.emptyMap());
@@ -78,19 +79,16 @@ public final class JsonParserImpl implements JsonParser {
 
     @Override
     public String getString() {
-        if (currentEvent == Event.KEY_NAME || currentEvent == Event.VALUE_STRING
-                || currentEvent == Event.VALUE_NUMBER) {
+        if (currentEvent == Event.KEY_NAME || currentEvent == Event.VALUE_STRING  || currentEvent == Event.VALUE_NUMBER) {
             return tokenizer.getValue();
         }
-        throw new IllegalStateException(
-                JsonMessages.PARSER_GETSTRING_ERR(currentEvent));
+        throw new IllegalStateException(JsonMessages.PARSER_GETSTRING_ERR(currentEvent));
     }
 
     @Override
     public boolean isIntegralNumber() {
         if (currentEvent != Event.VALUE_NUMBER) {
-            throw new IllegalStateException(
-                    JsonMessages.PARSER_ISINTEGRALNUMBER_ERR(currentEvent));
+            throw new IllegalStateException(JsonMessages.PARSER_ISINTEGRALNUMBER_ERR(currentEvent));
         }
         return tokenizer.isIntegral();
     }
@@ -98,8 +96,7 @@ public final class JsonParserImpl implements JsonParser {
     @Override
     public int getInt() {
         if (currentEvent != Event.VALUE_NUMBER) {
-            throw new IllegalStateException(
-                    JsonMessages.PARSER_GETINT_ERR(currentEvent));
+            throw new IllegalStateException(JsonMessages.PARSER_GETINT_ERR(currentEvent));
         }
         return tokenizer.getInt();
     }
@@ -107,8 +104,7 @@ public final class JsonParserImpl implements JsonParser {
     @Override
     public long getLong() {
         if (currentEvent != Event.VALUE_NUMBER) {
-            throw new IllegalStateException(
-                    JsonMessages.PARSER_GETLONG_ERR(currentEvent));
+            throw new IllegalStateException(JsonMessages.PARSER_GETLONG_ERR(currentEvent));
         }
         return tokenizer.getLong();
     }
@@ -116,10 +112,35 @@ public final class JsonParserImpl implements JsonParser {
     @Override
     public BigDecimal getBigDecimal() {
         if (currentEvent != Event.VALUE_NUMBER) {
-            throw new IllegalStateException(
-                    JsonMessages.PARSER_GETBIGDECIMAL_ERR(currentEvent));
+            throw new IllegalStateException(JsonMessages.PARSER_GETBIGDECIMAL_ERR(currentEvent));
         }
         return tokenizer.getBigDecimal();
+    }
+
+    @Override
+    public JsonLocation getLocation() {
+      return tokenizer.getLocation();
+    }
+
+    public JsonLocation getLastCharLocation() {
+      return tokenizer.getLastCharLocation();
+    }
+
+    @Override
+    public Event currentEvent() {
+      return currentEvent;
+    }
+
+    @Override
+    public void close() {
+      if (!closed) {
+        try {
+          tokenizer.close();
+          closed = true;
+        } catch (IOException e) {
+          throw new JsonException(JsonMessages.PARSER_TOKENIZER_CLOSE_IO(), e);
+        }
+      }
     }
 
     @Override
@@ -185,16 +206,7 @@ public final class JsonParserImpl implements JsonParser {
       } while (!(token == JsonToken.SQUARECLOSE && depth == 0));
     }
 
-    @Override
-    public JsonLocation getLocation() {
-        return tokenizer.getLocation();
-    }
 
-    public JsonLocation getLastCharLocation() {
-        return tokenizer.getLastCharLocation();
-    }
-
-    boolean eof;
     @Override
     public boolean hasNext() {
         if (stack.isEmpty() && (currentEvent != null && currentEvent.compareTo(Event.KEY_NAME) > 0)) {
@@ -218,23 +230,6 @@ public final class JsonParserImpl implements JsonParser {
             throw new NoSuchElementException();
         }
         return currentEvent = currentContext.getNextEvent();
-    }
-
-    @Override
-    public Event currentEvent() {
-        return currentEvent;
-    }
-
-    @Override
-    public void close() {
-        if (!closed) {
-            try {
-                tokenizer.close();
-                closed = true;
-            } catch (IOException e) {
-                throw new JsonException(JsonMessages.PARSER_TOKENIZER_CLOSE_IO(), e);
-            }
-        }
     }
 
     private abstract class Context {
