@@ -163,9 +163,12 @@ public class JsonParserTest extends TestCase {
     }
 
     static void testEmptyArrayIterator2(JsonParser parser) {
+        assertTrue(parser.hasNext());
         assertEquals(Event.START_ARRAY, parser.next());
+        assertTrue(parser.hasNext());
         assertEquals(Event.END_ARRAY, parser.next());
         try {
+            assertFalse(parser.hasNext());
             parser.next();
             fail("Should have thrown a NoSuchElementException");
         } catch (NoSuchElementException ne) {
@@ -179,7 +182,9 @@ public class JsonParserTest extends TestCase {
     }
 
     static void testEmptyArrayIterator3(JsonParser parser) {
+        assertTrue(parser.hasNext());
         assertEquals(Event.START_ARRAY, parser.next());
+        assertTrue(parser.hasNext());
         assertEquals(Event.END_ARRAY, parser.next());
         assertEquals(false, parser.hasNext());
         try {
@@ -244,11 +249,14 @@ public class JsonParserTest extends TestCase {
     }
 
     static void testEmptyObjectIterator2(JsonParser parser) {
+        assertTrue(parser.hasNext());
         assertEquals(Event.START_OBJECT, parser.next());
+        assertTrue(parser.hasNext());
         assertEquals(Event.END_OBJECT, parser.next());
         try {
-            parser.next();
-            fail("Should have thrown a NoSuchElementException");
+            assertFalse(parser.hasNext());
+          Event next = parser.next();
+          fail("Should have thrown a NoSuchElementException");
         } catch (NoSuchElementException ne) {
         }
     }
@@ -261,7 +269,9 @@ public class JsonParserTest extends TestCase {
     }
 
     static void testEmptyObjectIterator3(JsonParser parser) {
+        assertTrue(parser.hasNext());
         assertEquals(Event.START_OBJECT, parser.next());
+        assertTrue(parser.hasNext());
         assertEquals(Event.END_OBJECT, parser.next());
         assertEquals(false, parser.hasNext());
         try {

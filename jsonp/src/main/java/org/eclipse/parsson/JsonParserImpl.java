@@ -22,9 +22,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import jakarta.json.JsonException;
 import jakarta.json.stream.JsonLocation;
@@ -41,12 +39,15 @@ import org.eclipse.parsson.api.BufferPool;
  * @author Jitendra Kotamraju
  * @author Kin-man Chung
  */
-public class JsonParserImpl implements JsonParser {
+public final class JsonParserImpl implements JsonParser {
 
-    private Context currentContext = new NoneContext();
+    private final Context contextNone = new NoneContext();
+    private final Context contextObject = new ObjectContext();
+    private final Context contextArray = new ArrayContext();
+    private Context currentContext = contextNone;
     private Event currentEvent;
 
-    private final Stack stack = new Stack();
+    private final Deque<Context> stack = new ArrayDeque<>();
     private final JsonTokenizer tokenizer;
     private boolean closed = false;
 
@@ -132,11 +133,11 @@ public class JsonParserImpl implements JsonParser {
     @Override
     public void skipChildren() {
       if (currentEvent == Event.START_ARRAY) {
-        currentContext.skip();
+        skipChildrenArray();
         currentContext = stack.pop();
         currentEvent = Event.END_ARRAY;
       } else if (currentEvent == Event.START_OBJECT) {
-        currentContext.skip();
+        skipChildrenObject();
         currentContext = stack.pop();
         currentEvent = Event.END_OBJECT;
       }
@@ -145,7 +146,7 @@ public class JsonParserImpl implements JsonParser {
     @Override
     public void skipArray() {
         if (currentEvent == Event.START_ARRAY) {
-            currentContext.skip();
+            skipChildrenArray();
             currentContext = stack.pop();
             currentEvent = Event.END_ARRAY;
         }
@@ -154,10 +155,42 @@ public class JsonParserImpl implements JsonParser {
     @Override
     public void skipObject() {
         if (currentEvent == Event.START_OBJECT) {
-            currentContext.skip();
+            skipChildrenObject();
             currentContext = stack.pop();
             currentEvent = Event.END_OBJECT;
         }
+    }
+
+    void skipChildrenObject() {
+      JsonToken token;
+      int depth = 1;
+      do {
+        token = tokenizer.nextToken();
+        switch (token) {
+          case CURLYCLOSE:
+            depth--;
+            break;
+          case CURLYOPEN:
+            depth++;
+            break;
+        }
+      } while (!(token == JsonToken.CURLYCLOSE && depth == 0));
+    }
+
+    void skipChildrenArray() {
+      JsonToken token;
+      int depth = 1;
+      do {
+        token = tokenizer.nextToken();
+        switch (token) {
+          case SQUARECLOSE:
+            depth--;
+            break;
+          case SQUAREOPEN:
+            depth++;
+            break;
+        }
+      } while (!(token == JsonToken.SQUARECLOSE && depth == 0));
     }
 
     private CharSequence getCharSequence() {
@@ -177,17 +210,19 @@ public class JsonParserImpl implements JsonParser {
         return tokenizer.getLastCharLocation();
     }
 
+    boolean eof;
     @Override
     public boolean hasNext() {
         if (stack.isEmpty() && (currentEvent != null && currentEvent.compareTo(Event.KEY_NAME) > 0)) {
             JsonToken token = tokenizer.nextToken();
             if (token != JsonToken.EOF) {
-                throw new JsonParsingException(JsonMessages.PARSER_EXPECTED_EOF(token),
-                        getLastCharLocation());
+                throw new JsonParsingException(JsonMessages.PARSER_EXPECTED_EOF(token),getLastCharLocation());
             }
+            eof = true;
             return false;
         } else if (!stack.isEmpty() && !tokenizer.hasNextToken()) {
             currentEvent = currentContext.getNextEvent();
+            eof = true;
             return false;
         }
         return true;
@@ -195,7 +230,7 @@ public class JsonParserImpl implements JsonParser {
 
     @Override
     public Event next() {
-        if (!hasNext()) {
+        if (eof) {
             throw new NoSuchElementException();
         }
         return currentEvent = currentContext.getNextEvent();
@@ -218,38 +253,33 @@ public class JsonParserImpl implements JsonParser {
         }
     }
 
-    // Using the optimized stack impl as we don't require other things
-    // like iterator etc.
-    private static final class Stack {
-        private Context head;
-
-        private void push(Context context) {
-            context.next = head;
-            head = context;
-        }
-
-        private Context pop() {
-            if (head == null) {
-                throw new NoSuchElementException();
-            }
-            Context temp = head;
-            head = head.next;
-            return temp;
-        }
-
-        private Context peek() {
-            return head;
-        }
-
-        private boolean isEmpty() {
-            return head == null;
-        }
-    }
+//    // Using the optimized stack impl as we don't require other things
+//    // like iterator etc.
+//    private static final class Stack {
+//        private Context head;
+//
+//        private void push(Context context) {
+//            context.next = head;
+//            head = context;
+//        }
+//
+//        private Context pop() {
+//            if (head == null) {
+//                throw new NoSuchElementException();
+//            }
+//            Context temp = head;
+//            head = head.next;
+//            return temp;
+//        }
+//
+//        private boolean isEmpty() {
+//            return head == null;
+//        }
+//    }
 
     private abstract class Context {
-        Context next;
+        //Context next;
         abstract Event getNextEvent();
-        abstract void skip();
     }
 
     private final class NoneContext extends Context {
@@ -259,32 +289,25 @@ public class JsonParserImpl implements JsonParser {
             JsonToken token = tokenizer.nextToken();
             if (token == JsonToken.CURLYOPEN) {
                 stack.push(currentContext);
-                currentContext = new ObjectContext();
+                currentContext = contextObject;
                 return Event.START_OBJECT;
             } else if (token == JsonToken.SQUAREOPEN) {
                 stack.push(currentContext);
-                currentContext = new ArrayContext();
+                currentContext = contextArray;
                 return Event.START_ARRAY;
             } else if (token.isValue()) {
                 return token.getEvent();
             }
             throw parsingException(token, "[CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]");
         }
-
-        @Override
-        void skip() {
-            // no-op
-        }
     }
 
     private JsonParsingException parsingException(JsonToken token, String expectedTokens) {
         JsonLocation location = getLastCharLocation();
-        return new JsonParsingException(
-                JsonMessages.PARSER_INVALID_TOKEN(token, location, expectedTokens), location);
+        return new JsonParsingException(JsonMessages.PARSER_INVALID_TOKEN(token, location, expectedTokens), location);
     }
 
     private final class ObjectContext extends Context {
-        private boolean firstValue = true;
 
         /*
          * Some more things could be optimized. For example, instead
@@ -316,11 +339,11 @@ public class JsonParserImpl implements JsonParser {
                     return token.getEvent();
                 } else if (token == JsonToken.CURLYOPEN) {
                     stack.push(currentContext);
-                    currentContext = new ObjectContext();
+                    currentContext = contextObject;
                     return Event.START_OBJECT;
                 } else if (token == JsonToken.SQUAREOPEN) {
                     stack.push(currentContext);
-                    currentContext = new ArrayContext();
+                    currentContext = contextArray;
                     return Event.START_ARRAY;
                 }
                 throw parsingException(token, "[CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]");
@@ -330,13 +353,8 @@ public class JsonParserImpl implements JsonParser {
                     currentContext = stack.pop();
                     return Event.END_OBJECT;
                 }
-                if (firstValue) {
-                    firstValue = false;
-                } else {
-                    if (token != JsonToken.COMMA) {
-                        throw parsingException(token, "[COMMA]");
-                    }
-                    token = tokenizer.nextToken();
+                if (token == JsonToken.COMMA) {
+                  token = tokenizer.nextToken();
                 }
                 if (token == JsonToken.STRING) {
                     return Event.KEY_NAME;
@@ -345,27 +363,9 @@ public class JsonParserImpl implements JsonParser {
             }
         }
 
-        @Override
-        void skip() {
-            JsonToken token;
-            int depth = 1;
-            do {
-                token = tokenizer.nextToken();
-                switch (token) {
-                    case CURLYCLOSE:
-                        depth--;
-                        break;
-                    case CURLYOPEN:
-                        depth++;
-                        break;
-                }
-            } while (!(token == JsonToken.CURLYCLOSE && depth == 0));
-        }
-
     }
 
     private final class ArrayContext extends Context {
-        private boolean firstValue = true;
 
         // Handle 1. ]   2. value   3. ,value
         @Override
@@ -383,43 +383,21 @@ public class JsonParserImpl implements JsonParser {
                 currentContext = stack.pop();
                 return Event.END_ARRAY;
             }
-            if (firstValue) {
-                firstValue = false;
-            } else {
-                if (token != JsonToken.COMMA) {
-                    throw parsingException(token, "[COMMA]");
-                }
-                token = tokenizer.nextToken();
+            if (token == JsonToken.COMMA) {
+              token = tokenizer.nextToken();
             }
             if (token.isValue()) {
                 return token.getEvent();
             } else if (token == JsonToken.CURLYOPEN) {
                 stack.push(currentContext);
-                currentContext = new ObjectContext();
+                currentContext = contextObject;
                 return Event.START_OBJECT;
             } else if (token == JsonToken.SQUAREOPEN) {
                 stack.push(currentContext);
-                currentContext = new ArrayContext();
+                currentContext = contextArray;
                 return Event.START_ARRAY;
             }
             throw parsingException(token, "[CURLYOPEN, SQUAREOPEN, STRING, NUMBER, TRUE, FALSE, NULL]");
-        }
-
-        @Override
-        void skip() {
-            JsonToken token;
-            int depth = 1;
-            do {
-                token = tokenizer.nextToken();
-                switch (token) {
-                    case SQUARECLOSE:
-                        depth--;
-                        break;
-                    case SQUAREOPEN:
-                        depth++;
-                        break;
-                }
-            } while (!(token == JsonToken.SQUARECLOSE && depth == 0));
         }
     }
 
