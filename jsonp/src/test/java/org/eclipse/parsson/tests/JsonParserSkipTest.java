@@ -79,4 +79,22 @@ public class JsonParserSkipTest extends TestCase {
         assertEquals(JsonParser.Event.END_OBJECT, parser.next());
         assertEquals(false, parser.hasNext());
     }
+
+  public void testSkipValue() {
+    try (JsonParser parser = Json.createParser(new StringReader("{\"array\":[1,2,3],\"objectToSkip\":{\"huge key\":\"huge value\"},\"simple\":2}"))) {
+      assertEquals(JsonParser.Event.START_OBJECT, parser.next());
+      assertEquals(JsonParser.Event.KEY_NAME, parser.next());
+      assertEquals(JsonParser.Event.START_ARRAY, parser.next());
+      parser.skipChildren();
+      //assertEquals(JsonParser.Event.END_ARRAY, parser.next());
+      assertEquals(JsonParser.Event.KEY_NAME, parser.next());
+      assertEquals(JsonParser.Event.START_OBJECT, parser.next());
+      parser.skipChildren();
+      assertEquals(JsonParser.Event.KEY_NAME, parser.next());
+      parser.skipChildren();
+      assertEquals(JsonParser.Event.VALUE_NUMBER, parser.next());
+      assertEquals(JsonParser.Event.END_OBJECT, parser.next());
+      assertEquals(false, parser.hasNext());
+    }
+  }
 }

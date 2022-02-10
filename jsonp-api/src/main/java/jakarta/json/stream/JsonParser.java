@@ -346,6 +346,11 @@ public interface JsonParser extends /*Auto*/Closeable {
     }
 
     /**
+     * Skip the children of the current ARRAY or OBJECT, otherwise do nothing.
+     */
+    void skipChildren();
+
+    /**
      * Closes this parser and frees any resources associated with the
      * parser. This method closes the underlying input source.
      *

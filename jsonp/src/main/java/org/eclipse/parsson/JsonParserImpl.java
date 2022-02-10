@@ -22,19 +22,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 
 import jakarta.json.JsonException;
 import jakarta.json.stream.JsonLocation;
 import jakarta.json.stream.JsonParser;
 import jakarta.json.stream.JsonParsingException;
-import jakarta.json.stream.JsonParser.Event;
 
 import org.eclipse.parsson.JsonTokenizer.JsonToken;
 import org.eclipse.parsson.api.BufferPool;
@@ -48,9 +43,6 @@ import org.eclipse.parsson.api.BufferPool;
  */
 public class JsonParserImpl implements JsonParser {
 
-    private final BufferPool bufferPool;
-    private final boolean rejectDuplicateKeys;
-    private final Map<String, ?> config;
     private Context currentContext = new NoneContext();
     private Event currentEvent;
 
@@ -63,9 +55,6 @@ public class JsonParserImpl implements JsonParser {
     }
 
     public JsonParserImpl(Reader reader, BufferPool bufferPool, boolean rejectDuplicateKeys, Map<String, ?> config) {
-        this.bufferPool = bufferPool;
-        this.rejectDuplicateKeys = rejectDuplicateKeys;
-        this.config = config;
         tokenizer = new JsonTokenizer(reader, bufferPool);
     }
 
@@ -74,9 +63,6 @@ public class JsonParserImpl implements JsonParser {
     }
 
     public JsonParserImpl(InputStream in, BufferPool bufferPool, boolean rejectDuplicateKeys, Map<String, ?> config) {
-        this.bufferPool = bufferPool;
-        this.rejectDuplicateKeys = rejectDuplicateKeys;
-        this.config = config;
         UnicodeDetectingInputStream uin = new UnicodeDetectingInputStream(in);
         tokenizer = new JsonTokenizer(new InputStreamReader(uin, uin.getCharset()), bufferPool);
     }
@@ -86,9 +72,6 @@ public class JsonParserImpl implements JsonParser {
     }
 
     public JsonParserImpl(InputStream in, Charset encoding, BufferPool bufferPool, boolean rejectDuplicateKeys, Map<String, ?> config) {
-        this.bufferPool = bufferPool;
-        this.rejectDuplicateKeys = rejectDuplicateKeys;
-        this.config = config;
         tokenizer = new JsonTokenizer(new InputStreamReader(in, encoding), bufferPool);
     }
 
@@ -144,6 +127,19 @@ public class JsonParserImpl implements JsonParser {
                     JsonMessages.PARSER_GETBIGDECIMAL_ERR(currentEvent));
         }
         return tokenizer.getBigDecimal();
+    }
+
+    @Override
+    public void skipChildren() {
+      if (currentEvent == Event.START_ARRAY) {
+        currentContext.skip();
+        currentContext = stack.pop();
+        currentEvent = Event.END_ARRAY;
+      } else if (currentEvent == Event.START_OBJECT) {
+        currentContext.skip();
+        currentContext = stack.pop();
+        currentEvent = Event.END_OBJECT;
+      }
     }
 
     @Override
