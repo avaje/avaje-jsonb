@@ -104,14 +104,6 @@ public final class JsonParserImpl implements JsonParser {
         return tokenizer.getInt();
     }
 
-    boolean isDefinitelyInt() {
-        return tokenizer.isDefinitelyInt();
-    }
-
-    boolean isDefinitelyLong() {
-        return tokenizer.isDefinitelyLong();
-    }
-
     @Override
     public long getLong() {
         if (currentEvent != Event.VALUE_NUMBER) {
@@ -193,14 +185,6 @@ public final class JsonParserImpl implements JsonParser {
       } while (!(token == JsonToken.SQUARECLOSE && depth == 0));
     }
 
-    private CharSequence getCharSequence() {
-      if (currentEvent == Event.KEY_NAME || currentEvent == Event.VALUE_STRING
-              || currentEvent == Event.VALUE_NUMBER) {
-          return tokenizer.getCharSequence();
-      }
-      throw new IllegalStateException(JsonMessages.PARSER_GETSTRING_ERR(currentEvent));
-  }
-
     @Override
     public JsonLocation getLocation() {
         return tokenizer.getLocation();
@@ -252,30 +236,6 @@ public final class JsonParserImpl implements JsonParser {
             }
         }
     }
-
-//    // Using the optimized stack impl as we don't require other things
-//    // like iterator etc.
-//    private static final class Stack {
-//        private Context head;
-//
-//        private void push(Context context) {
-//            context.next = head;
-//            head = context;
-//        }
-//
-//        private Context pop() {
-//            if (head == null) {
-//                throw new NoSuchElementException();
-//            }
-//            Context temp = head;
-//            head = head.next;
-//            return temp;
-//        }
-//
-//        private boolean isEmpty() {
-//            return head == null;
-//        }
-//    }
 
     private abstract class Context {
         //Context next;
