@@ -50,7 +50,6 @@ public final class JsonParserImpl implements JsonParser {
     private final Deque<Context> stack = new ArrayDeque<>();
     private final JsonTokenizer tokenizer;
     private boolean closed;
-    private boolean eof;
 
     public JsonParserImpl(Reader reader, BufferPool bufferPool) {
         this(reader, bufferPool, false, Collections.emptyMap());
@@ -214,11 +213,9 @@ public final class JsonParserImpl implements JsonParser {
             if (token != JsonToken.EOF) {
                 throw new JsonParsingException(JsonMessages.PARSER_EXPECTED_EOF(token),getLastCharLocation());
             }
-            eof = true;
             return false;
         } else if (!stack.isEmpty() && !tokenizer.hasNextToken()) {
             currentEvent = currentContext.getNextEvent();
-            eof = true;
             return false;
         }
         return true;
@@ -226,7 +223,7 @@ public final class JsonParserImpl implements JsonParser {
 
     @Override
     public Event next() {
-        if (eof) {
+        if (!hasNext()) {
             throw new NoSuchElementException();
         }
         return currentEvent = currentContext.getNextEvent();
