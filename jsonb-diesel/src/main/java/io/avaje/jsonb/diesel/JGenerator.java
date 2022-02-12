@@ -503,13 +503,13 @@ final class JGenerator implements JsonGenerator {
   @Override
   public void write(int value) {
     prefixValue();
-    NumberConverter.writeInt(value, this);
+    NumberWriter.writeInt(value, this);
   }
 
   @Override
   public void write(long value) {
     prefixValue();
-    NumberConverter.writeLong(value, this);
+    NumberWriter.writeLong(value, this);
   }
 
   @Override

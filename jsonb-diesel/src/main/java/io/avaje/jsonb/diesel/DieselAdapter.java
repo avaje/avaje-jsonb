@@ -2,12 +2,10 @@ package io.avaje.jsonb.diesel;
 
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.diesel.read.JReader;
 import io.avaje.jsonb.spi.*;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -20,28 +18,20 @@ public class DieselAdapter implements IOAdapter {
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
 
-//  /**
-//   * Create with the given default configuration.
-//   */
-//  public DieselAdapter() {
-//    this(false, false, false, new JsonFactory());
-//  }
-//
-//  /**
-//   * Create with the given default configuration.
-//   */
-//  public DieselAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
-//    this(serializeNulls, serializeEmpty, failOnUnknown, new JsonFactory());
-//  }
+  /**
+   * Create with the given default configuration.
+   */
+  public DieselAdapter() {
+    this(false, false, false);
+  }
 
   /**
    * Create additionally providing the jsonFactory.
    */
-  public DieselAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {//}, JsonFactory jsonFactory) {
+  public DieselAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
-    //this.jsonFactory = jsonFactory;
   }
 
   @Override
@@ -51,22 +41,13 @@ public class DieselAdapter implements IOAdapter {
 
   @Override
   public JsonReader reader(String json) {
-    return null;
-//    try {
-//      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
-//    } catch (IOException e) {
-//      throw new JsonIoException(e);
-//    }
+    return reader(json.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
   public JsonReader reader(byte[] json) {
-    return null;
-//    try {
-//      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
-//    } catch (IOException e) {
-//      throw new JsonIoException(e);
-//    }
+    JReader reader1 = Recycle.reader(json);
+    return new JsonReadAdapter(reader1);
   }
 
   @Override
@@ -81,13 +62,12 @@ public class DieselAdapter implements IOAdapter {
 
   @Override
   public JsonReader reader(InputStream inputStream) {
-    return null;
-//
-//    try {
-//      return new JacksonReader(jsonFactory.createParser(inputStream), failOnUnknown);
-//    } catch (IOException e) {
-//      throw new JsonIoException(e);
-//    }
+    try {
+      JReader reader1 = Recycle.reader(inputStream);
+      return new JsonReadAdapter(reader1);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   @Override

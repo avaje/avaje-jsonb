@@ -1,6 +1,6 @@
 package io.avaje.jsonb.diesel;
 
-final class NumberConverter {
+final class NumberWriter {
 
   private static final byte MINUS = '-';
   private static final byte[] MIN_INT = "-2147483648".getBytes();

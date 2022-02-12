@@ -1,5 +1,6 @@
 package org.example.jmh;
 
+import com.dslplatform.json.DslJson;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -16,9 +17,11 @@ import org.example.jmh.model.SomePropertyData;
 import org.example.jmh.model.WideNamesRecord;
 import org.openjdk.jmh.annotations.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -64,18 +67,57 @@ public class RecordBasicTest {
   private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNamesBase = jakartaJsonbBase.type(NarrowNamesRecord.class);
 
   private NarrowNamesRecord testDataNarrowNames;
-  private WideNamesRecord testDataWideNames;
+  private WideNamesRecord testDataWideNames, testDataWideNames2;
   private String content;
+
+  private final DslJson<Object> dsl = new DslJson<>();
 
   @Setup
   public void setup() {
     //testData = new MyRecord("property1property1property1property1", "property2property2property2property2", "property3property3property3property3", "property4property4property4property4", "property5property5property5property5");
     testDataWideNames = new WideNamesRecord("1", "2", "3", "4", "5");
+    testDataWideNames2 = new WideNamesRecord("property1property1property1property1", "property2property2property2property2", "property3property3property3property3", "property4property4property4property4", "property5property5property5property5");
     testDataNarrowNames = new NarrowNamesRecord("property1property1property1property1", "property2property2property2property2", "property3property3property3property3", "property4property4property4property4", "property5property5property5property5");
     content = "{\"firstNameProperty1\":\"property1property1property1property1\",\"lastNameProperty2\":\"property2property2property2property2\",\"anotherSimilarProperty3\":\"property3property3property3property3\",\"moreOrLessProperty4\":\"property4property4property4property4\",\"lastButNotLeastProperty5\":\"property5property5property5property5\"}";
   }
 
-  @Benchmark
+  //@Benchmark
+  public String toJson_wideNames2_dsl() throws IOException {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    dsl.serialize(testDataWideNames2, os);
+    return os.toString(StandardCharsets.UTF_8);
+  }
+
+  //@Benchmark
+  public String toJson_wideNames2_objectMapper() {
+    try {
+      return mapper.writeValueAsString(testDataWideNames2);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  //@Benchmark
+  public String toJson_wideNames2_jsonb_diesel() {
+    return dieselJsonbWideNames.toJson(testDataWideNames2);
+  }
+
+  //@Benchmark
+  public String toJson_wideNames2_jsonb_jackson() {
+    return jsonbWideNames.toJson(testDataWideNames2);
+  }
+
+
+  // ---------------------------------------------
+
+  //@Benchmark
+  public String toJson_wideNames_dsl() throws IOException {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    dsl.serialize(testDataWideNames, os);
+    return os.toString(StandardCharsets.UTF_8);
+  }
+
+  //@Benchmark
   public String toJson_wideNames_objectMapper() {
     try {
       return mapper.writeValueAsString(testDataWideNames);
@@ -84,7 +126,36 @@ public class RecordBasicTest {
     }
   }
 
-  @Benchmark
+  //@Benchmark
+  public String toJson_wideNames_jsonb_diesel() {
+    return dieselJsonbWideNames.toJson(testDataWideNames);
+  }
+
+  //@Benchmark
+  public String toJson_wideNames_jsonb_jackson() {
+    return jsonbWideNames.toJson(testDataWideNames);
+  }
+
+  //@Benchmark
+  public String toJson_wideNames_jsonb_jakarta_preparedKey() {
+    return jakartaJsonbWideNames.toJson(testDataWideNames);
+  }
+
+  //@Benchmark
+  public String toJson_wideNames_jsonb_jakarta_normalKey() {
+    return jakartaJsonbWideNamesBase.toJson(testDataWideNames);
+  }
+
+  // ---------------------------------------------------------
+
+  //@Benchmark
+  public String toJson_narrowNames_dsl() throws IOException {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    dsl.serialize(testDataNarrowNames, os);
+    return os.toString(StandardCharsets.UTF_8);
+  }
+
+  //@Benchmark
   public String toJson_narrowNames_objectMapper() {
     try {
       return mapper.writeValueAsString(testDataNarrowNames);
@@ -93,32 +164,12 @@ public class RecordBasicTest {
     }
   }
 
-  @Benchmark
-  public String toJson_wideNames_jsonb_diesel() {
-    return dieselJsonbWideNames.toJson(testDataWideNames);
-  }
-
-  @Benchmark
+  //@Benchmark
   public String toJson_narrowNames_jsonb_diesel() {
     return dieselJsonbNarrowNames.toJson(testDataNarrowNames);
   }
 
-  @Benchmark
-  public String toJson_wideNames_jsonb_jackson() {
-    return jsonbWideNames.toJson(testDataWideNames);
-  }
-
-  @Benchmark
-  public String toJson_wideNames_jsonb_jakarta_preparedKey() {
-    return jakartaJsonbWideNames.toJson(testDataWideNames);
-  }
-
-  @Benchmark
-  public String toJson_wideNames_jsonb_jakarta_normalKey() {
-    return jakartaJsonbWideNamesBase.toJson(testDataWideNames);
-  }
-
-  @Benchmark
+  //@Benchmark
   public String toJson_narrowNames_jsonb_jackson() {
     return jsonbNarrowNames.toJson(testDataNarrowNames);
   }
@@ -133,7 +184,9 @@ public class RecordBasicTest {
     return jakartaJsonbNarrowNamesBase.toJson(testDataNarrowNames);
   }
 
-  //@Benchmark
+  // -------------------------------------------
+
+  @Benchmark
   public WideNamesRecord fromJson_wideNames_objectMapper() {
     try {
       return mapper.readValue(content, WideNamesRecord.class);
@@ -142,9 +195,21 @@ public class RecordBasicTest {
     }
   }
 
-  //@Benchmark
-  public WideNamesRecord fromJson_wideNames_jsonb() {
-    return jsonbXWide.fromJson(content);
+  @Benchmark
+  public WideNamesRecord fromJson_wideNames_jsonb_jackson() {
+    return jsonbWideNames.fromJson(content);
+  }
+
+  @Benchmark
+  public WideNamesRecord fromJson_wideNames_jsonb_jakarta() {
+    return jakartaJsonbWideNames.fromJson(content);
+  }
+
+
+  @Benchmark
+  public WideNamesRecord fromJson_wideNames_dsl() throws IOException {
+    byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
+    return dsl.deserialize(WideNamesRecord.class, bytes, bytes.length);
   }
 
   //@Benchmark
@@ -219,29 +284,33 @@ public class RecordBasicTest {
     writer.writeEndObject();
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     RecordBasicTest test = new RecordBasicTest();
     test.setup();
 
-    String m1 = test.toJson_wideNames_method();
-    String m2 = test.toJson_wideNames_method2();
-    String asJson1 = test.toJson_wideNames_objectMapper();
-    String asJson2 = test.toJson_wideNames_jsonb_diesel();
-    String asJson3 = test.toJson_wideNames_jsonb_jackson();
+    WideNamesRecord wideNamesRecord = test.fromJson_wideNames_dsl();
 
-    String asJsonnarrow1 = test.toJson_narrowNames_objectMapper();
-    String asJsonnarrow2 = test.toJson_narrowNames_jsonb_diesel();
-    String asJsonnarrow3 = test.toJson_narrowNames_jsonb_jackson();
-    String asJsonnarrow3a = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
-    String asJsonnarrow3b = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
-    String asJsonnarrow3c = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
-    String asJsonnarrow3d = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
-    String asJsonnarrow3e = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
-    String asJsonnarrow3f = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
 
-    System.out.println(asJson1);
-    System.out.println(asJson2);
-    WideNamesRecord from1 = test.fromJson_wideNames_jsonb();
+//    String m1 = test.toJson_wideNames_method();
+//    String m2 = test.toJson_wideNames_method2();
+//    String asJson1 = test.toJson_wideNames_objectMapper();
+//    String asJson2 = test.toJson_wideNames_jsonb_diesel();
+//    String asJson3 = test.toJson_wideNames_jsonb_jackson();
+//
+//    String asJsonnarrow1 = test.toJson_narrowNames_objectMapper();
+//    String asJsonnarrow2 = test.toJson_narrowNames_jsonb_diesel();
+//    String asJsonnarrow3 = test.toJson_narrowNames_jsonb_jackson();
+//    String asJsonnarrow3a = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+//    String asJsonnarrow3b = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+//    String asJsonnarrow3c = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+//    String asJsonnarrow3d = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+//    String asJsonnarrow3e = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+//    String asJsonnarrow3f = test.toJson_narrowNames_jsonb_jakarta_preparedKey();
+//
+//    System.out.println(asJson1);
+//    System.out.println(asJson2);
+    WideNamesRecord from0 = test.fromJson_wideNames_jsonb_jakarta();
+    WideNamesRecord from1 = test.fromJson_wideNames_jsonb_jackson();
     WideNamesRecord from2 = test.fromJson_wideNames_objectMapper();
     System.out.println("" + from1 + from2);
   }

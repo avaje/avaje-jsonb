@@ -3,8 +3,7 @@ package org.example.jmh;
 import com.dslplatform.json.DslJson;
 import org.example.jmh.model.SomePropertyData;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class DslMain {
@@ -24,7 +23,11 @@ public class DslMain {
     String asJson = os.toString(StandardCharsets.UTF_8);
 
 
+    StringReader se = new StringReader(asJson);
+    ByteArrayInputStream is = new ByteArrayInputStream(asJson.getBytes(StandardCharsets.UTF_8));
 
+    SomePropertyData result = dsl.deserialize(SomePropertyData.class, is);
+    System.out.println("here");
 
   }
 }

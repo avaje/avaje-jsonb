@@ -148,13 +148,14 @@ final class JakartaJsonReader implements JsonReader {
 
   @Override
   public void skipValue() {
-    if (currenEvent == JsonParser.Event.START_ARRAY) {
-      parser.skipArray();
-    } else if (currenEvent == JsonParser.Event.START_OBJECT){
-      parser.skipObject();
-    } else {
-      parser.getValue();
-    }
+    parser.skipChildren();
+//    if (currenEvent == JsonParser.Event.START_ARRAY) {
+//      parser.skipArray();
+//    } else if (currenEvent == JsonParser.Event.START_OBJECT){
+//      parser.skipObject();
+//    } else {
+//      parser.getValue();
+//    }
   }
 
   @Override
