@@ -1,5 +1,7 @@
 package io.avaje.jsonb.diesel.read;
 
+import io.avaje.jsonb.diesel.JsonNames;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +53,12 @@ public final class JReader {
 
   private final byte[] originalBuffer;
   private final int originalBufferLenWithExtraSpace;
+
+  private JsonNames names;
+
+  public void names(JsonNames names) {
+    this.names = names;
+  }
 
   public enum ErrorInfo {
     WITH_STACK_TRACE,
@@ -535,6 +543,15 @@ public final class JReader {
 
   public int readInt() throws IOException {
     return NumIntReader.deserializeInt(this);
+  }
+
+  public boolean readBool() throws IOException {
+    if (wasTrue()) {
+      return true;
+    } else if (wasFalse()) {
+      return false;
+    }
+    throw newParseErrorAt("Found invalid boolean value", 0);
   }
 
   /**
@@ -1031,7 +1048,7 @@ public final class JReader {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
     }
-    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, "UTF-8");
+    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
   }
 
   private byte skipString() throws IOException {
@@ -1136,6 +1153,24 @@ public final class JReader {
 //    return Base64.decodeFast(buffer, start, currentIndex - 1);
 //  }
 
+  public String nextField() throws IOException {
+    if (names != null) {
+      int hash = fillName();
+      String key = names.lookup(hash);
+      if (key == null) {
+        throw new IllegalStateException("key lookup error");
+      }
+     // if (getNextToken() != ':') throw newParseError("Expecting ':' after attribute name");
+      getNextToken();
+      return key;
+    }
+
+    //return getLastName();
+    return readKey();
+  }
+
+  private final StringCache keyCache = new SimpleStringCache();
+
   /**
    * Read key value of JSON input.
    * If key cache is used, it will be looked up from there.
@@ -1145,8 +1180,8 @@ public final class JReader {
    */
   public final String readKey() throws IOException {
     final int len = parseString();
-    //final String key = keyCache != null ? keyCache.get(chars, len) : new String(chars, 0, len);
-    final String key = new String(chars, 0, len);
+    final String key = keyCache != null ? keyCache.get(chars, len) : new String(chars, 0, len);
+    //final String key = new String(chars, 0, len);
     if (getNextToken() != ':') throw newParseError("Expecting ':' after attribute name");
     getNextToken();
     return key;
@@ -1317,6 +1352,7 @@ public final class JReader {
    * @throws IOException it's not object end
    */
   public final void endObject() throws IOException {
+    this.names = null;
     if (last == '}') {
       return;
     }

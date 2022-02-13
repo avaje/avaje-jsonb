@@ -71,7 +71,7 @@ public class PropertyStrTenTest {
     contentAsBytes = content.getBytes(StandardCharsets.UTF_8);
   }
 
-  @Benchmark
+  //@Benchmark
   public String toJson_objectMapper() {
     try {
       return mapper.writeValueAsString(testData);

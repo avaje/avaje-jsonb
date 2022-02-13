@@ -3,6 +3,7 @@ package io.avaje.jsonb.diesel;
 import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.diesel.read.JReader;
+import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,6 +15,11 @@ public class JsonReadAdapter implements JsonReader {
 
   public JsonReadAdapter(JReader reader) {
     this.reader = reader;
+  }
+
+  @Override
+  public void names(PropertyNames names) {
+    reader.names((JsonNames)names);
   }
 
   @Override
@@ -85,9 +91,7 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public String nextField() {
     try {
-      int i = reader.fillName();
-      String nextName = reader.getLastName();
-      return nextName;
+      return reader.nextField();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -96,7 +100,7 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public boolean nextBoolean() {
     try {
-      return reader.wasFalse() ? false : reader.wasTrue();
+      return reader.readBool();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -105,7 +109,7 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public int nextInt() {
     try {
-      reader.getNextToken();
+      //reader.getNextToken();
       return reader.readInt();
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -135,10 +139,10 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public String nextString() {
     try {
-      byte nextToken = reader.getNextToken();
-      if (nextToken != '"') {
-        throw new RuntimeException("expected quote");
-      }
+      //byte nextToken = reader.getNextToken();
+      //if (nextToken != '"') {
+      //  throw new RuntimeException("expected quote");
+      //}
       return reader.readString();
     } catch (IOException e) {
       throw new RuntimeException(e);

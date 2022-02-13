@@ -1,6 +1,7 @@
 package io.avaje.jsonb.jakarta;
 
 import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.spi.PropertyNames;
 import jakarta.json.stream.JsonParser;
 
 import java.math.BigDecimal;
@@ -15,6 +16,11 @@ final class JakartaJsonReader implements JsonReader {
   JakartaJsonReader(JsonParser parser, boolean failOnUnknown) {
     this.parser = parser;
     this.failOnUnknown = failOnUnknown;
+  }
+
+  @Override
+  public void names(PropertyNames names) {
+    // ignore
   }
 
   @Override
