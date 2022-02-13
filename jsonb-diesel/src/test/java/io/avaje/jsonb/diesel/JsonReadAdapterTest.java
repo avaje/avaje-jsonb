@@ -1,7 +1,6 @@
 package io.avaje.jsonb.diesel;
 
 import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.diesel.read.JReader;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -16,7 +15,7 @@ class JsonReadAdapterTest {
 
     char[] ch = new char[1000];
     byte[] by = new byte[1000];
-    JReader jr = new JReader(ch, by, 0, JReader.ErrorInfo.MINIMAL, JReader.DoublePrecision.DEFAULT, JReader.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
+    JsonParser jr = new JsonParser(ch, by, 0, JsonParser.ErrorInfo.MINIMAL, JsonParser.DoublePrecision.DEFAULT, JsonParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
 
     String input = "{\"name\":\"roberto\", \"age\": 42 , \"notes\" :\"fooFooFoo\"}";
     byte[] bytes = input.getBytes(StandardCharsets.UTF_8);

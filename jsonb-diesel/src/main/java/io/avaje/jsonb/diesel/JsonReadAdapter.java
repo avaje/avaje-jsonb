@@ -2,7 +2,6 @@ package io.avaje.jsonb.diesel;
 
 import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.diesel.read.JReader;
 import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
@@ -11,9 +10,9 @@ import java.math.BigInteger;
 
 public class JsonReadAdapter implements JsonReader {
 
-  private final JReader reader;
+  private final JsonParser reader;
 
-  public JsonReadAdapter(JReader reader) {
+  public JsonReadAdapter(JsonParser reader) {
     this.reader = reader;
   }
 

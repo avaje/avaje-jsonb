@@ -1,7 +1,4 @@
-package io.avaje.jsonb.diesel.read;
-
-import io.avaje.jsonb.diesel.ArrayStack;
-import io.avaje.jsonb.diesel.JsonNames;
+package io.avaje.jsonb.diesel;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -13,7 +10,7 @@ import java.util.*;
 
 /**
  */
-public final class JReader {
+final class JsonParser {
 
   private static final boolean[] WHITESPACE = new boolean[256];
   private static final Charset utf8 = StandardCharsets.UTF_8;
@@ -40,7 +37,6 @@ public final class JReader {
   private int length;
   private final char[] tmp;
 
-//  public final TContext context;
   byte[] buffer;
   char[] chars;
 
@@ -51,7 +47,6 @@ public final class JReader {
 
 //  private final StringCache keyCache;
 //  private final StringCache valuesCache;
-//  private final TypeLookup typeLookup;
 
   private final byte[] originalBuffer;
   private final int originalBufferLenWithExtraSpace;
@@ -60,14 +55,14 @@ public final class JReader {
   private JsonNames currentNames;
   private boolean pushedNames;
 
-  public enum ErrorInfo {
+  enum ErrorInfo {
     WITH_STACK_TRACE,
     DESCRIPTION_AND_POSITION,
     DESCRIPTION_ONLY,
     MINIMAL
   }
 
-  public enum DoublePrecision {
+  enum DoublePrecision {
     EXACT(0),
     HIGH(1),
     DEFAULT(3),
@@ -80,7 +75,7 @@ public final class JReader {
     }
   }
 
-  public enum UnknownNumberParsing {
+  enum UnknownNumberParsing {
     LONG_AND_BIGDECIMAL,
     LONG_AND_DOUBLE,
     BIGDECIMAL,
@@ -94,14 +89,12 @@ public final class JReader {
   final int maxNumberDigits;
   private final int maxStringBuffer;
 
-  public JReader(
+  JsonParser(
     final char[] tmp,
     final byte[] buffer,
     final int length,
-//    @Nullable final TContext context,
 //    @Nullable final StringCache keyCache,
 //    @Nullable final StringCache valuesCache,
-//    @Nullable final TypeLookup typeLookup,
     final ErrorInfo errorInfo,
     final DoublePrecision doublePrecision,
     final UnknownNumberParsing unknownNumbers,
@@ -111,11 +104,9 @@ public final class JReader {
     this.buffer = buffer;
     this.length = length;
     this.bufferLenWithExtraSpace = buffer.length - 38; //currently maximum padding is for uuid
-//    this.context = context;
     this.chars = tmp;
 //    this.keyCache = keyCache;
 //    this.valuesCache = valuesCache;
-//    this.typeLookup = typeLookup;
     this.errorInfo = errorInfo;
     this.doublePrecision = doublePrecision;
     this.unknownNumbers = unknownNumbers;
@@ -126,33 +117,11 @@ public final class JReader {
     this.originalBufferLenWithExtraSpace = bufferLenWithExtraSpace;
   }
 
-
-//  JReader(
-//    final byte[] buffer,
-//    final int length,
-//    final char[] tmp,
-//    final ErrorInfo errorInfo,
-//    final DoublePrecision doublePrecision,
-//    final UnknownNumberParsing unknownNumbers,
-//    final int maxNumberDigits,
-//    final int maxStringBuffer) {
-//    this(tmp, buffer, length, errorInfo, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer);
-//    if (tmp == null) {
-//      throw new IllegalArgumentException("tmp buffer provided as null.");
-//    }
-//    if (length > buffer.length) {
-//      throw new IllegalArgumentException("length can't be longer than buffer.length");
-//    } else if (length < buffer.length) {
-//      buffer[length] = '\0';
-//    }
-//  }
-
-
   /**
    * Reset reader after processing input
    * It will release reference to provided byte[] or InputStream input
    */
-  public void reset() {
+  void reset() {
     this.buffer = this.originalBuffer;
     this.bufferLenWithExtraSpace = this.originalBufferLenWithExtraSpace;
     currentIndex = 0;
@@ -170,7 +139,7 @@ public final class JReader {
    * @return itself
    * @throws IOException unable to read from stream
    */
-  public JReader process(final InputStream stream) throws IOException {
+  JsonParser process(final InputStream stream) throws IOException {
     this.currentPosition = 0;
     this.currentIndex = 0;
     this.stream = stream;
@@ -192,7 +161,7 @@ public final class JReader {
    * @param newLength length of buffer which can be used
    * @return itself
    */
-  public JReader process(final byte[] newBuffer, final int newLength) {
+  JsonParser process(final byte[] newBuffer, final int newLength) {
     if (newBuffer != null) {
       this.buffer = newBuffer;
       this.bufferLenWithExtraSpace = buffer.length - 38; //currently maximum padding is for uuid
@@ -207,7 +176,7 @@ public final class JReader {
     return this;
   }
 
-  public void names(JsonNames nextNames) {
+  void names(JsonNames nextNames) {
     if (currentNames != nextNames) {
       if (currentNames != null) {
         pushCurrentNames();
@@ -308,15 +277,11 @@ public final class JReader {
    *
    * @return which was the last byte read
    */
-  public final byte last() {
+  byte last() {
     return last;
   }
 
-  public String positionDescription() {
-    return positionDescription(0);
-  }
-
-  public String positionDescription(int offset) {
+  String positionDescription(int offset) {
     final StringBuilder error = new StringBuilder(60);
     positionDescription(offset, error);
     return error.toString();
@@ -440,28 +405,6 @@ public final class JReader {
     return currentIndex;
   }
 
-//  /**
-//   * will be removed. not used anymore
-//   *
-//   * @return parsed chars from a number
-//   */
-//  @Deprecated
-//  public final char[] readNumber() {
-//    tokenStart = currentIndex - 1;
-//    tmp[0] = (char) last;
-//    int i = 1;
-//    int ci = currentIndex;
-//    byte bb = last;
-//    while (i < tmp.length && ci < length) {
-//      bb = buffer[ci++];
-//      if (bb == ',' || bb == '}' || bb == ']') break;
-//      tmp[i++] = (char) bb;
-//    }
-//    currentIndex += i - 1;
-//    last = bb;
-//    return tmp;
-//  }
-
   int scanNumber() {
     tokenStart = currentIndex - 1;
     int i = 1;
@@ -499,38 +442,30 @@ public final class JReader {
     }
     return true;
   }
-
-//  final int findNonWhitespace(final int end) {
-//    final byte[] _buf = buffer;
-//    for (int i = end - 1; i > 0; i--) {
-//      if (!WHITESPACE[_buf[i] + 128]) return i + 1;
+//
+//  /**
+//   * Read simple ascii string. Will not use values cache to create instance.
+//   *
+//   * @return parsed string
+//   * @throws ParsingException unable to parse string
+//   */
+//  private String readSimpleString() throws ParsingException {
+//    if (last != '"') throw newParseError("Expecting '\"' for string start");
+//    int i = 0;
+//    int ci = currentIndex;
+//    try {
+//      while (i < tmp.length) {
+//        final byte bb = buffer[ci++];
+//        if (bb == '"') break;
+//        tmp[i++] = (char) bb;
+//      }
+//    } catch (ArrayIndexOutOfBoundsException ignore) {
+//      throw newParseErrorAt("JSON string was not closed with a double quote", 0);
 //    }
-//    return 0;
+//    if (ci > length) throw newParseErrorAt("JSON string was not closed with a double quote", 0);
+//    currentIndex = ci;
+//    return new String(tmp, 0, i);
 //  }
-
-  /**
-   * Read simple ascii string. Will not use values cache to create instance.
-   *
-   * @return parsed string
-   * @throws ParsingException unable to parse string
-   */
-  private String readSimpleString() throws ParsingException {
-    if (last != '"') throw newParseError("Expecting '\"' for string start");
-    int i = 0;
-    int ci = currentIndex;
-    try {
-      while (i < tmp.length) {
-        final byte bb = buffer[ci++];
-        if (bb == '"') break;
-        tmp[i++] = (char) bb;
-      }
-    } catch (ArrayIndexOutOfBoundsException ignore) {
-      throw newParseErrorAt("JSON string was not closed with a double quote", 0);
-    }
-    if (ci > length) throw newParseErrorAt("JSON string was not closed with a double quote", 0);
-    currentIndex = ci;
-    return new String(tmp, 0, i);
-  }
 
   /**
    * Read simple "ascii string" into temporary buffer.
@@ -557,23 +492,23 @@ public final class JReader {
   }
 
   public int readInt() throws IOException {
-    return NumReader.deserializeInt(this);
+    return NumberParser.deserializeInt(this);
   }
 
   public long readLong() throws IOException {
-    return NumReader.deserializeLong(this);
+    return NumberParser.deserializeLong(this);
   }
 
   public short readShort() throws IOException {
-    return NumReader.deserializeShort(this);
+    return NumberParser.deserializeShort(this);
   }
 
   public double readDouble() throws IOException {
-    return NumReader.deserializeDouble(this);
+    return NumberParser.deserializeDouble(this);
   }
 
   public BigDecimal readDecimal() throws IOException {
-    return NumReader.deserializeDecimal(this);
+    return NumberParser.deserializeDecimal(this);
   }
 
   public boolean readBool() throws IOException {
@@ -840,15 +775,15 @@ public final class JReader {
     return hash;
   }
 
-  public final int fillNameWeakHash() throws IOException {
-    final int hash = calcWeakHash();
-    if (read() != ':') {
-      if (!wasWhiteSpace() || getNextToken() != ':') {
-        throw newParseError("Expecting ':' after attribute name");
-      }
-    }
-    return hash;
-  }
+//  public final int fillNameWeakHash() throws IOException {
+//    final int hash = calcWeakHash();
+//    if (read() != ':') {
+//      if (!wasWhiteSpace() || getNextToken() != ':') {
+//        throw newParseError("Expecting ':' after attribute name");
+//      }
+//    }
+//    return hash;
+//  }
 
   public final int calcHash() throws IOException {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
@@ -892,66 +827,66 @@ public final class JReader {
     return (int) hash;
   }
 
-  public final int calcWeakHash() throws IOException {
-    if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
-    tokenStart = currentIndex;
-    int ci = currentIndex;
-    int hash = 0;
-    if (stream != null) {
-      while (ci < readLimit) {
-        byte b = buffer[ci];
-        if (b == '\\') {
-          if (ci == readLimit - 1) {
-            return calcWeakHashAndCopyName(hash, ci);
-          }
-          b = buffer[++ci];
-        } else if (b == '"') {
-          break;
-        }
-        ci++;
-        hash += b;
-      }
-      if (ci >= readLimit) {
-        return calcWeakHashAndCopyName(hash, ci);
-      }
-      nameEnd = currentIndex = ci + 1;
-    } else {
-      //TODO: use length instead!? this will read data after used buffer size
-      while (ci < buffer.length) {
-        byte b = buffer[ci++];
-        if (b == '\\') {
-          if (ci == buffer.length) throw newParseError("Expecting '\"' for attribute name end");
-          b = buffer[ci++];
-        } else if (b == '"') {
-          break;
-        }
-        hash += b;
-      }
-      nameEnd = currentIndex = ci;
-    }
-    return hash;
-  }
-
-  public final int getLastHash() {
-    long hash = 0x811c9dc5;
-    if (stream != null && nameEnd == -1) {
-      int i = 0;
-      while (i < lastNameLen) {
-        final byte b = (byte)chars[i++];
-        hash ^= b;
-        hash *= 0x1000193;
-      }
-    } else {
-      int i = tokenStart;
-      int end = nameEnd - 1;
-      while (i < end) {
-        final byte b = buffer[i++];
-        hash ^= b;
-        hash *= 0x1000193;
-      }
-    }
-    return (int)hash;
-  }
+//  public final int calcWeakHash() throws IOException {
+//    if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
+//    tokenStart = currentIndex;
+//    int ci = currentIndex;
+//    int hash = 0;
+//    if (stream != null) {
+//      while (ci < readLimit) {
+//        byte b = buffer[ci];
+//        if (b == '\\') {
+//          if (ci == readLimit - 1) {
+//            return calcWeakHashAndCopyName(hash, ci);
+//          }
+//          b = buffer[++ci];
+//        } else if (b == '"') {
+//          break;
+//        }
+//        ci++;
+//        hash += b;
+//      }
+//      if (ci >= readLimit) {
+//        return calcWeakHashAndCopyName(hash, ci);
+//      }
+//      nameEnd = currentIndex = ci + 1;
+//    } else {
+//      //TODO: use length instead!? this will read data after used buffer size
+//      while (ci < buffer.length) {
+//        byte b = buffer[ci++];
+//        if (b == '\\') {
+//          if (ci == buffer.length) throw newParseError("Expecting '\"' for attribute name end");
+//          b = buffer[ci++];
+//        } else if (b == '"') {
+//          break;
+//        }
+//        hash += b;
+//      }
+//      nameEnd = currentIndex = ci;
+//    }
+//    return hash;
+//  }
+//
+//  public final int getLastHash() {
+//    long hash = 0x811c9dc5;
+//    if (stream != null && nameEnd == -1) {
+//      int i = 0;
+//      while (i < lastNameLen) {
+//        final byte b = (byte)chars[i++];
+//        hash ^= b;
+//        hash *= 0x1000193;
+//      }
+//    } else {
+//      int i = tokenStart;
+//      int end = nameEnd - 1;
+//      while (i < end) {
+//        final byte b = buffer[i++];
+//        hash ^= b;
+//        hash *= 0x1000193;
+//      }
+//    }
+//    return (int)hash;
+//  }
 
   private int lastNameLen;
 
@@ -986,89 +921,89 @@ public final class JReader {
     throw newParseErrorAt("JSON string was not closed with a double quote", (int)startPosition);
   }
 
-  private int calcWeakHashAndCopyName(int hash, int ci) throws IOException {
-    int soFar = ci - tokenStart;
-    long startPosition = currentPosition - soFar;
-    while (chars.length < soFar) {
-      chars = Arrays.copyOf(chars, chars.length * 2);
-    }
-    int i = 0;
-    for (; i < soFar; i++) {
-      chars[i] = (char) buffer[i + tokenStart];
-    }
-    currentIndex = ci;
-    do {
-      byte b = read();
-      if (b == '\\') {
-        b = read();
-      } else if (b == '"') {
-        nameEnd = -1;
-        lastNameLen = i;
-        return hash;
-      }
-      if (i == chars.length) {
-        chars = Arrays.copyOf(chars, chars.length * 2);
-      }
-      chars[i++] = (char) b;
-      hash += b;
-    } while (!isEndOfStream());
-    //TODO: check offset
-    throw newParseErrorAt("JSON string was not closed with a double quote", (int)startPosition);
-  }
-
-  public final boolean wasLastName(final String name) {
-    if (stream != null && nameEnd == -1) {
-      if (name.length() != lastNameLen) {
-        return false;
-      }
-      for (int i = 0; i < name.length(); i++) {
-        if (name.charAt(i) != chars[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-    if (name.length() != nameEnd - tokenStart - 1) {
-      return false;
-    }
-    //TODO: not correct with escaping
-    for (int i = 0; i < name.length(); i++) {
-      if (name.charAt(i) != buffer[tokenStart + i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public final boolean wasLastName(final byte[] name) {
-    if (stream != null && nameEnd == -1) {
-      if (name.length != lastNameLen) {
-        return false;
-      }
-      for (int i = 0; i < name.length; i++) {
-        if (name[i] != chars[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-    if (name.length != nameEnd - tokenStart - 1) {
-      return false;
-    }
-    for (int i = 0; i < name.length; i++) {
-      if (name[i] != buffer[tokenStart + i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public final String getLastName() throws IOException {
-    if (stream != null && nameEnd == -1) {
-      return new String(chars, 0, lastNameLen);
-    }
-    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
-  }
+//  private int calcWeakHashAndCopyName(int hash, int ci) throws IOException {
+//    int soFar = ci - tokenStart;
+//    long startPosition = currentPosition - soFar;
+//    while (chars.length < soFar) {
+//      chars = Arrays.copyOf(chars, chars.length * 2);
+//    }
+//    int i = 0;
+//    for (; i < soFar; i++) {
+//      chars[i] = (char) buffer[i + tokenStart];
+//    }
+//    currentIndex = ci;
+//    do {
+//      byte b = read();
+//      if (b == '\\') {
+//        b = read();
+//      } else if (b == '"') {
+//        nameEnd = -1;
+//        lastNameLen = i;
+//        return hash;
+//      }
+//      if (i == chars.length) {
+//        chars = Arrays.copyOf(chars, chars.length * 2);
+//      }
+//      chars[i++] = (char) b;
+//      hash += b;
+//    } while (!isEndOfStream());
+//    //TODO: check offset
+//    throw newParseErrorAt("JSON string was not closed with a double quote", (int)startPosition);
+//  }
+//
+//  public final boolean wasLastName(final String name) {
+//    if (stream != null && nameEnd == -1) {
+//      if (name.length() != lastNameLen) {
+//        return false;
+//      }
+//      for (int i = 0; i < name.length(); i++) {
+//        if (name.charAt(i) != chars[i]) {
+//          return false;
+//        }
+//      }
+//      return true;
+//    }
+//    if (name.length() != nameEnd - tokenStart - 1) {
+//      return false;
+//    }
+//    //TODO: not correct with escaping
+//    for (int i = 0; i < name.length(); i++) {
+//      if (name.charAt(i) != buffer[tokenStart + i]) {
+//        return false;
+//      }
+//    }
+//    return true;
+//  }
+//
+//  public final boolean wasLastName(final byte[] name) {
+//    if (stream != null && nameEnd == -1) {
+//      if (name.length != lastNameLen) {
+//        return false;
+//      }
+//      for (int i = 0; i < name.length; i++) {
+//        if (name[i] != chars[i]) {
+//          return false;
+//        }
+//      }
+//      return true;
+//    }
+//    if (name.length != nameEnd - tokenStart - 1) {
+//      return false;
+//    }
+//    for (int i = 0; i < name.length; i++) {
+//      if (name[i] != buffer[tokenStart + i]) {
+//        return false;
+//      }
+//    }
+//    return true;
+//  }
+//
+//  public final String getLastName() throws IOException {
+//    if (stream != null && nameEnd == -1) {
+//      return new String(chars, 0, lastNameLen);
+//    }
+//    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
+//  }
 
   private byte skipString() throws IOException {
     byte c = read();

@@ -223,9 +223,11 @@ public class PropertyStrTenTest {
     return jsonbType.fromJson(new StringReader(content));
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     PropertyStrTenTest test = new PropertyStrTenTest();
     test.setup();
+
+    SomePropertyData d3 = test.fromJson_dsl();
 
     SomePropertyData d0 = test.fromJson_jsonb_diesel();
     SomePropertyData d1 = test.fromJson_jsonb_jackson();

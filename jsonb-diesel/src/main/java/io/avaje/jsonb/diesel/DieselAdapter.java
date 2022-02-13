@@ -2,7 +2,6 @@ package io.avaje.jsonb.diesel;
 
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.diesel.read.JReader;
 import io.avaje.jsonb.spi.*;
 
 import java.io.*;
@@ -46,7 +45,7 @@ public class DieselAdapter implements IOAdapter {
 
   @Override
   public JsonReader reader(byte[] json) {
-    JReader reader1 = Recycle.reader(json);
+    JsonParser reader1 = Recycle.reader(json);
     return new JsonReadAdapter(reader1);
   }
 
@@ -63,7 +62,7 @@ public class DieselAdapter implements IOAdapter {
   @Override
   public JsonReader reader(InputStream inputStream) {
     try {
-      JReader reader1 = Recycle.reader(inputStream);
+      JsonParser reader1 = Recycle.reader(inputStream);
       return new JsonReadAdapter(reader1);
     } catch (IOException e) {
       throw new UncheckedIOException(e);

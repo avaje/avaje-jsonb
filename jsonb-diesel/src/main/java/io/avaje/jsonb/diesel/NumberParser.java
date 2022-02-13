@@ -1,9 +1,9 @@
-package io.avaje.jsonb.diesel.read;
+package io.avaje.jsonb.diesel;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
-final class NumReader {
+final class NumberParser {
 
 //  public final static Short SHORT_ZERO = 0;
 //  public final static Integer INT_ZERO = 0;
@@ -25,7 +25,7 @@ final class NumReader {
     1e60, 1e61, 1e62, 1e63, 1e64, 1e65
   };
 
-  public static short deserializeShort(final JReader reader) throws IOException {
+  static short deserializeShort(final JsonParser reader) throws IOException {
     if (reader.last() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -48,7 +48,7 @@ final class NumReader {
     return (short)value;
   }
 
-  public static int deserializeInt(final JReader reader) throws IOException {
+  static int deserializeInt(final JsonParser reader) throws IOException {
     if (reader.last() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -75,7 +75,7 @@ final class NumReader {
     }
   }
 
-  private static int parsePositiveInt(final byte[] buf, final JReader reader, final int start, final int end, final int offset) throws IOException {
+  private static int parsePositiveInt(final byte[] buf, final JsonParser reader, final int start, final int end, final int offset) throws IOException {
     int value = 0;
     int i = start + offset;
     if (i == end) numberException(reader, start, end, "Digit not found");
@@ -97,7 +97,7 @@ final class NumReader {
     return value;
   }
 
-  private static int parseNegativeInt(final byte[] buf, final JReader reader, final int start, final int end) throws IOException {
+  private static int parseNegativeInt(final byte[] buf, final JsonParser reader, final int start, final int end) throws IOException {
     int value = 0;
     int i = start + 1;
     if (i == end) numberException(reader, start, end, "Digit not found");
@@ -118,7 +118,7 @@ final class NumReader {
     return value;
   }
 
-  private static BigDecimal parseNumberGeneric(final char[] buf, final int len, final JReader reader, final boolean withQuotes) throws ParsingException {
+  private static BigDecimal parseNumberGeneric(final char[] buf, final int len, final JsonParser reader, final boolean withQuotes) throws ParsingException {
     int end = len;
     while (end > 0 && Character.isWhitespace(buf[end - 1])) {
       end--;
@@ -137,7 +137,7 @@ final class NumReader {
     }
   }
 
-  static void numberException(final JReader reader, final int start, final int end, String message) throws ParsingException {
+  static void numberException(final JsonParser reader, final int start, final int end, String message) throws ParsingException {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
       throw reader.newParseErrorWith("Too many digits detected in number", len, "", "Too many digits detected in number", end, "");
@@ -145,7 +145,7 @@ final class NumReader {
     throw reader.newParseErrorWith("Error parsing number", len, "", message, null, ". Error parsing number");
   }
 
-  static void numberException(final JReader reader, final int start, final int end, String message, Object messageArgument) throws ParsingException {
+  static void numberException(final JsonParser reader, final int start, final int end, String message, Object messageArgument) throws ParsingException {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
       throw reader.newParseErrorWith("Too many digits detected in number", len, "", "Too many digits detected in number", end, "");
@@ -154,7 +154,7 @@ final class NumReader {
   }
 
 
-  public static long deserializeLong(final JReader reader) throws IOException {
+  static long deserializeLong(final JsonParser reader) throws IOException {
     if (reader.last() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -216,7 +216,7 @@ final class NumReader {
     return value;
   }
 
-  private static long parseLongGeneric(final JReader reader, final int start, final int end) throws IOException {
+  private static long parseLongGeneric(final JsonParser reader, final int start, final int end) throws IOException {
     final int len = end - start;
     final char[] buf = reader.prepareBuffer(start, len);
     if (len > 0 && buf[len - 1] == '.') numberException(reader, start, end, "Number ends with a dot");
@@ -235,7 +235,7 @@ final class NumReader {
     }
   }
 
-  private static NumberInfo readLongNumber(final JReader reader, final int start) throws IOException {
+  private static NumberInfo readLongNumber(final JsonParser reader, final int start) throws IOException {
     int len = reader.length() - start;
     char[] result = reader.prepareBuffer(start, len);
     while (reader.length() == reader.getCurrentIndex()) {
@@ -255,7 +255,7 @@ final class NumReader {
     return new NumberInfo(result, len);
   }
 
-  public static double deserializeDouble(final JReader reader) throws IOException {
+  static double deserializeDouble(final JsonParser reader) throws IOException {
     if (reader.last() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -271,7 +271,7 @@ final class NumReader {
     return parseDouble(buf, reader, start, end, 0);
   }
 
-  private static double parseDouble(final byte[] buf, final JReader reader, final int start, final int end, final int offset) throws IOException {
+  private static double parseDouble(final byte[] buf, final JsonParser reader, final int start, final int end, final int offset) throws IOException {
     if (end - start - offset > reader.doubleLengthLimit) {
       if (end == reader.length()) {
         final NumberInfo tmp = readLongNumber(reader, start + offset);
@@ -349,7 +349,7 @@ final class NumReader {
       else if (ch == 'e' || ch == 'E') {
         return doubleExponent(reader, value, i - decPos,0, buf, start, end, offset, i);
       }
-      if (reader.doublePrecision == JReader.DoublePrecision.HIGH) {
+      if (reader.doublePrecision == JsonParser.DoublePrecision.HIGH) {
         return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
       }
       int decimals = 0;
@@ -393,8 +393,8 @@ final class NumReader {
     return Double.longBitsToDouble(bits + missing);
   }
 
-  private static double doubleExponent(JReader reader, final long whole, final int decimals, double fraction, byte[] buf, int start, int end, int offset, int i) throws IOException {
-    if (reader.doublePrecision == JReader.DoublePrecision.EXACT) {
+  private static double doubleExponent(JsonParser reader, final long whole, final int decimals, double fraction, byte[] buf, int start, int end, int offset, int i) throws IOException {
+    if (reader.doublePrecision == JsonParser.DoublePrecision.EXACT) {
       return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
     }
     byte ch;
@@ -411,7 +411,7 @@ final class NumReader {
       if (exp == 0 || whole == 0) return whole;
       else if (exp > 0 && exp < POW_10.length) return whole * POW_10[exp - 1];
       else if (exp < 0 && -exp < POW_10.length) return whole / POW_10[-exp - 1];
-      else if (reader.doublePrecision != JReader.DoublePrecision.HIGH) {
+      else if (reader.doublePrecision != JsonParser.DoublePrecision.HIGH) {
         if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
         else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
       }
@@ -419,7 +419,7 @@ final class NumReader {
       if (exp == 0) return whole + fraction;
       else if (exp > 0 && exp < POW_10.length) return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
       else if (exp < 0 && -exp < POW_10.length) return fraction / POW_10[-exp - 1] + whole / POW_10[-exp - 1];
-      else if (reader.doublePrecision != JReader.DoublePrecision.HIGH) {
+      else if (reader.doublePrecision != JsonParser.DoublePrecision.HIGH) {
         if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
         else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
       }
@@ -427,7 +427,7 @@ final class NumReader {
     return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
   }
 
-  private static double parseDoubleGeneric(final char[] buf, final int len, final JReader reader, final boolean withQuotes) throws IOException {
+  private static double parseDoubleGeneric(final char[] buf, final int len, final JsonParser reader, final boolean withQuotes) throws IOException {
     int end = len;
     while (end > 0 && Character.isWhitespace(buf[end - 1])) {
       end--;
@@ -446,7 +446,7 @@ final class NumReader {
     }
   }
 
-  public static BigDecimal deserializeDecimal(final JReader reader) throws IOException {
+  static BigDecimal deserializeDecimal(final JsonParser reader) throws IOException {
     if (reader.last() == '"') {
       final int len = reader.parseString();
       return parseNumberGeneric(reader.chars, len, reader, true);
@@ -469,7 +469,7 @@ final class NumReader {
     return parsePositiveDecimal(buf, reader, start, end);
   }
 
-  private static BigDecimal parsePositiveDecimal(final byte[] buf, final JReader reader, final int start, final int end) throws IOException {
+  private static BigDecimal parsePositiveDecimal(final byte[] buf, final JsonParser reader, final int start, final int end) throws IOException {
     long value = 0;
     byte ch = ' ';
     int i = start;
@@ -536,7 +536,7 @@ final class NumReader {
     return BigDecimal.valueOf(value);
   }
 
-  private static BigDecimal parseNegativeDecimal(final byte[] buf, final JReader reader, final int start, final int end) throws IOException {
+  private static BigDecimal parseNegativeDecimal(final byte[] buf, final JsonParser reader, final int start, final int end) throws IOException {
     long value = 0;
     byte ch = ' ';
     int i = start + 1;
@@ -603,29 +603,29 @@ final class NumReader {
     return BigDecimal.valueOf(value);
   }
 
-  private static final BigDecimal BD_MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
-  private static final BigDecimal BD_MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
-
-  private static Number bigDecimalOrDouble(BigDecimal num, JReader.UnknownNumberParsing unknownNumbers) {
-    return unknownNumbers == JReader.UnknownNumberParsing.LONG_AND_BIGDECIMAL
-      ? num
-      : num.doubleValue();
-  }
-
-  private static Number tryLongFromBigDecimal(final char[] buf, final int len, JReader reader) throws IOException {
-    final BigDecimal num = parseNumberGeneric(buf, len, reader, false);
-    if (num.scale() == 0 && num.precision() <= 19) {
-      if (num.signum() == 1) {
-        if (num.compareTo(BD_MAX_LONG) <= 0) {
-          return num.longValue();
-        }
-      } else if (num.compareTo(BD_MIN_LONG) >= 0) {
-        return num.longValue();
-      }
-    }
-    return bigDecimalOrDouble(num, reader.unknownNumbers);
-  }
-
+//  private static final BigDecimal BD_MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
+//  private static final BigDecimal BD_MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
+//
+//  private static Number bigDecimalOrDouble(BigDecimal num, JsonParser.UnknownNumberParsing unknownNumbers) {
+//    return unknownNumbers == JsonParser.UnknownNumberParsing.LONG_AND_BIGDECIMAL
+//      ? num
+//      : num.doubleValue();
+//  }
+//
+//  private static Number tryLongFromBigDecimal(final char[] buf, final int len, JsonParser reader) throws IOException {
+//    final BigDecimal num = parseNumberGeneric(buf, len, reader, false);
+//    if (num.scale() == 0 && num.precision() <= 19) {
+//      if (num.signum() == 1) {
+//        if (num.compareTo(BD_MAX_LONG) <= 0) {
+//          return num.longValue();
+//        }
+//      } else if (num.compareTo(BD_MIN_LONG) >= 0) {
+//        return num.longValue();
+//      }
+//    }
+//    return bigDecimalOrDouble(num, reader.unknownNumbers);
+//  }
+//
 //  public static Number deserializeNumber(final JReader reader) throws IOException {
 //    if (reader.unknownNumbers == JReader.UnknownNumberParsing.BIGDECIMAL) return deserializeDecimal(reader);
 //    else if (reader.unknownNumbers == JReader.UnknownNumberParsing.DOUBLE) return deserializeDouble(reader);
