@@ -4,18 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.avaje</groupId>
-        <artifactId>avaje-jsonp-parent</artifactId>
+        <groupId>org.avaje.experiment</groupId>
+        <artifactId>experiment-jsonp-parent</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>avaje-jsonp</artifactId>
+    <artifactId>experiment-jsonp</artifactId>
 
     <dependencies>
 
         <dependency>
-            <groupId>io.avaje</groupId>
-            <artifactId>avaje-jsonp-api</artifactId>
+            <groupId>org.avaje.experiment</groupId>
+            <artifactId>experiment-jsonp-api</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
 

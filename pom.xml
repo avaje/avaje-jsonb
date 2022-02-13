@@ -10,14 +10,46 @@
         <version>3.4</version>
     </parent>
 
-    <groupId>io.avaje</groupId>
-    <artifactId>avaje-jsonp-parent</artifactId>
+    <groupId>org.avaje.experiment</groupId>
+    <artifactId>experiment-jsonp-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <scm>
+        <developerConnection>scm:git:git@github.com:avaje/avaje-jsonb.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <modules>
         <module>jsonp-api</module>
         <module>jsonp</module>
     </modules>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.9</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>${nexus.staging.autoReleaseAfterClose}</autoReleaseAfterClose>
+                </configuration>
+<!--                <dependencies>-->
+<!--                    &lt;!&ndash;-->
+<!--                      TODO:-->
+<!--                        Remove after OSSRH-66257, NEXUS-26993 are fixed,-->
+<!--                        possibly via https://github.com/sonatype/nexus-maven-plugins/pull/91-->
+<!--                    &ndash;&gt;-->
+<!--                    <dependency>-->
+<!--                        <groupId>com.thoughtworks.xstream</groupId>-->
+<!--                        <artifactId>xstream</artifactId>-->
+<!--                        <version>1.4.15</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
+            </plugin>
+        </plugins>
+    </build>
 </project>
