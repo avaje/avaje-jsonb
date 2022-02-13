@@ -1,10 +1,12 @@
 package io.avaje.jsonb.diesel.read;
 
+import io.avaje.jsonb.diesel.ArrayStack;
 import io.avaje.jsonb.diesel.JsonNames;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -39,8 +41,8 @@ public final class JReader {
   private final char[] tmp;
 
 //  public final TContext context;
-  protected byte[] buffer;
-  protected char[] chars;
+  byte[] buffer;
+  char[] chars;
 
   private InputStream stream;
   private int readLimit;
@@ -54,11 +56,9 @@ public final class JReader {
   private final byte[] originalBuffer;
   private final int originalBufferLenWithExtraSpace;
 
-  private JsonNames names;
-
-  public void names(JsonNames names) {
-    this.names = names;
-  }
+  private ArrayStack<JsonNames> nameStack;
+  private JsonNames currentNames;
+  private boolean pushedNames;
 
   public enum ErrorInfo {
     WITH_STACK_TRACE,
@@ -87,11 +87,11 @@ public final class JReader {
     DOUBLE
   }
 
-  protected final ErrorInfo errorInfo;
-  protected final DoublePrecision doublePrecision;
-  protected final int doubleLengthLimit;
-  protected final UnknownNumberParsing unknownNumbers;
-  protected final int maxNumberDigits;
+  final ErrorInfo errorInfo;
+  final DoublePrecision doublePrecision;
+  final int doubleLengthLimit;
+  final UnknownNumberParsing unknownNumbers;
+  final int maxNumberDigits;
   private final int maxStringBuffer;
 
   public JReader(
@@ -127,25 +127,25 @@ public final class JReader {
   }
 
 
-  JReader(
-    final byte[] buffer,
-    final int length,
-    final char[] tmp,
-    final ErrorInfo errorInfo,
-    final DoublePrecision doublePrecision,
-    final UnknownNumberParsing unknownNumbers,
-    final int maxNumberDigits,
-    final int maxStringBuffer) {
-    this(tmp, buffer, length, errorInfo, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer);
-    if (tmp == null) {
-      throw new IllegalArgumentException("tmp buffer provided as null.");
-    }
-    if (length > buffer.length) {
-      throw new IllegalArgumentException("length can't be longer than buffer.length");
-    } else if (length < buffer.length) {
-      buffer[length] = '\0';
-    }
-  }
+//  JReader(
+//    final byte[] buffer,
+//    final int length,
+//    final char[] tmp,
+//    final ErrorInfo errorInfo,
+//    final DoublePrecision doublePrecision,
+//    final UnknownNumberParsing unknownNumbers,
+//    final int maxNumberDigits,
+//    final int maxStringBuffer) {
+//    this(tmp, buffer, length, errorInfo, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer);
+//    if (tmp == null) {
+//      throw new IllegalArgumentException("tmp buffer provided as null.");
+//    }
+//    if (length > buffer.length) {
+//      throw new IllegalArgumentException("length can't be longer than buffer.length");
+//    } else if (length < buffer.length) {
+//      buffer[length] = '\0';
+//    }
+//  }
 
 
   /**
@@ -170,7 +170,7 @@ public final class JReader {
    * @return itself
    * @throws IOException unable to read from stream
    */
-  public final JReader process(final InputStream stream) throws IOException {
+  public JReader process(final InputStream stream) throws IOException {
     this.currentPosition = 0;
     this.currentIndex = 0;
     this.stream = stream;
@@ -192,7 +192,7 @@ public final class JReader {
    * @param newLength length of buffer which can be used
    * @return itself
    */
-  public final JReader process(final byte[] newBuffer, final int newLength) {
+  public JReader process(final byte[] newBuffer, final int newLength) {
     if (newBuffer != null) {
       this.buffer = newBuffer;
       this.bufferLenWithExtraSpace = buffer.length - 38; //currently maximum padding is for uuid
@@ -207,12 +207,27 @@ public final class JReader {
     return this;
   }
 
+  public void names(JsonNames nextNames) {
+    if (currentNames != nextNames) {
+      if (currentNames != null) {
+        pushCurrentNames();
+      }
+      currentNames = nextNames;
+    }
+  }
+
+  private void pushCurrentNames() {
+    if (nameStack == null) {
+      nameStack = new ArrayStack<>();
+    }
+    pushedNames = true;
+    nameStack.push(currentNames);
+  }
+
   /**
    * Valid length of the input buffer.
-   *
-   * @return size of JSON input
    */
-  public final int length() {
+  int length() {
     return length;
   }
 
@@ -250,7 +265,7 @@ public final class JReader {
    * @return next byte
    * @throws IOException when end of JSON input
    */
-  public final byte read() throws IOException {
+  private byte read() throws IOException {
     if (stream != null && currentIndex > readLimit) {
       prepareNextBlock();
     }
@@ -277,7 +292,7 @@ public final class JReader {
     return available;
   }
 
-  final boolean isEndOfStream() throws IOException {
+  boolean isEndOfStream() throws IOException {
     if (stream == null) {
       return length == currentIndex;
     }
@@ -334,11 +349,11 @@ public final class JReader {
   private final StringBuilder error = new StringBuilder(0);
   private final Formatter errorFormatter = new Formatter(error);
 
-  public final ParsingException newParseError(final String description) {
+  public ParsingException newParseError(final String description) {
     return newParseError(description, 0);
   }
 
-  public final ParsingException newParseError(final String description, final int positionOffset) {
+  public ParsingException newParseError(final String description, final int positionOffset) {
     if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, false);
     error.setLength(0);
     error.append(description);
@@ -350,7 +365,7 @@ public final class JReader {
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  public final ParsingException newParseErrorAt(final String description, final int positionOffset) {
+  public ParsingException newParseErrorAt(final String description, final int positionOffset) {
     if (errorInfo == ErrorInfo.MINIMAL || errorInfo == ErrorInfo.DESCRIPTION_ONLY) {
       return ParsingException.create(description, false);
     }
@@ -361,7 +376,7 @@ public final class JReader {
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  public final ParsingException newParseErrorAt(final String description, final int positionOffset, final Exception cause) {
+  public ParsingException newParseErrorAt(final String description, final int positionOffset, final Exception cause) {
     if (cause == null) throw new IllegalArgumentException("cause can't be null");
     if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, cause, false);
     error.setLength(0);
@@ -380,7 +395,7 @@ public final class JReader {
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  public final ParsingException newParseErrorFormat(final String shortDescription, final int positionOffset, final String longDescriptionFormat, Object... arguments) {
+  public ParsingException newParseErrorFormat(final String shortDescription, final int positionOffset, final String longDescriptionFormat, Object... arguments) {
     if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(shortDescription, false);
     error.setLength(0);
     errorFormatter.format(longDescriptionFormat, arguments);
@@ -390,12 +405,12 @@ public final class JReader {
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  public final ParsingException newParseErrorWith(
+  public ParsingException newParseErrorWith(
     final String description, Object argument) {
     return newParseErrorWith(description, 0, "", description, argument, "");
   }
 
-  public final ParsingException newParseErrorWith(
+  public ParsingException newParseErrorWith(
     final String shortDescription,
     final int positionOffset,
     final String longDescriptionPrefix,
@@ -417,37 +432,37 @@ public final class JReader {
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  public final int getTokenStart() {
+  int getTokenStart() {
     return tokenStart;
   }
 
-  public final int getCurrentIndex() {
+  int getCurrentIndex() {
     return currentIndex;
   }
 
-  /**
-   * will be removed. not used anymore
-   *
-   * @return parsed chars from a number
-   */
-  @Deprecated
-  public final char[] readNumber() {
-    tokenStart = currentIndex - 1;
-    tmp[0] = (char) last;
-    int i = 1;
-    int ci = currentIndex;
-    byte bb = last;
-    while (i < tmp.length && ci < length) {
-      bb = buffer[ci++];
-      if (bb == ',' || bb == '}' || bb == ']') break;
-      tmp[i++] = (char) bb;
-    }
-    currentIndex += i - 1;
-    last = bb;
-    return tmp;
-  }
+//  /**
+//   * will be removed. not used anymore
+//   *
+//   * @return parsed chars from a number
+//   */
+//  @Deprecated
+//  public final char[] readNumber() {
+//    tokenStart = currentIndex - 1;
+//    tmp[0] = (char) last;
+//    int i = 1;
+//    int ci = currentIndex;
+//    byte bb = last;
+//    while (i < tmp.length && ci < length) {
+//      bb = buffer[ci++];
+//      if (bb == ',' || bb == '}' || bb == ']') break;
+//      tmp[i++] = (char) bb;
+//    }
+//    currentIndex += i - 1;
+//    last = bb;
+//    return tmp;
+//  }
 
-  public final int scanNumber() {
+  int scanNumber() {
     tokenStart = currentIndex - 1;
     int i = 1;
     int ci = currentIndex;
@@ -462,7 +477,7 @@ public final class JReader {
     return tokenStart;
   }
 
-  final char[] prepareBuffer(final int start, final int len) throws ParsingException {
+  char[] prepareBuffer(final int start, final int len) throws ParsingException {
     if (len > maxNumberDigits) {
       throw newParseErrorWith("Too many digits detected in number", len, "", "Too many digits detected in number", len, "");
     }
@@ -477,7 +492,7 @@ public final class JReader {
     return _tmp;
   }
 
-  final boolean allWhitespace(final int start, final int end) {
+  boolean allWhitespace(final int start, final int end) {
     final byte[] _buf = buffer;
     for (int i = start; i < end; i++) {
       if (!WHITESPACE[_buf[i] + 128]) return false;
@@ -485,13 +500,13 @@ public final class JReader {
     return true;
   }
 
-  final int findNonWhitespace(final int end) {
-    final byte[] _buf = buffer;
-    for (int i = end - 1; i > 0; i--) {
-      if (!WHITESPACE[_buf[i] + 128]) return i + 1;
-    }
-    return 0;
-  }
+//  final int findNonWhitespace(final int end) {
+//    final byte[] _buf = buffer;
+//    for (int i = end - 1; i > 0; i--) {
+//      if (!WHITESPACE[_buf[i] + 128]) return i + 1;
+//    }
+//    return 0;
+//  }
 
   /**
    * Read simple ascii string. Will not use values cache to create instance.
@@ -499,7 +514,7 @@ public final class JReader {
    * @return parsed string
    * @throws ParsingException unable to parse string
    */
-  public final String readSimpleString() throws ParsingException {
+  private String readSimpleString() throws ParsingException {
     if (last != '"') throw newParseError("Expecting '\"' for string start");
     int i = 0;
     int ci = currentIndex;
@@ -524,7 +539,7 @@ public final class JReader {
    * @return temporary buffer
    * @throws ParsingException unable to parse string
    */
-  public final char[] readSimpleQuote() throws ParsingException {
+  char[] readSimpleQuote() throws ParsingException {
     if (last != '"') throw newParseError("Expecting '\"' for string start");
     int ci = tokenStart = currentIndex;
     try {
@@ -542,7 +557,23 @@ public final class JReader {
   }
 
   public int readInt() throws IOException {
-    return NumIntReader.deserializeInt(this);
+    return NumReader.deserializeInt(this);
+  }
+
+  public long readLong() throws IOException {
+    return NumReader.deserializeLong(this);
+  }
+
+  public short readShort() throws IOException {
+    return NumReader.deserializeShort(this);
+  }
+
+  public double readDouble() throws IOException {
+    return NumReader.deserializeDouble(this);
+  }
+
+  public BigDecimal readDecimal() throws IOException {
+    return NumReader.deserializeDecimal(this);
   }
 
   public boolean readBool() throws IOException {
@@ -563,25 +594,13 @@ public final class JReader {
    * @return parsed string
    * @throws IOException error reading string input
    */
-  public final String readString() throws IOException {
+  public String readString() throws IOException {
     final int len = parseString();
     //return valuesCache == null ? new String(chars, 0, len) : valuesCache.get(chars, len);
     return new String(chars, 0, len);
   }
 
-//  public final StringBuilder appendString(StringBuilder builder) throws IOException {
-//    final int len = parseString();
-//    builder.append(chars, 0, len);
-//    return builder;
-//  }
-//
-//  public final StringBuffer appendString(StringBuffer buffer) throws IOException {
-//    final int len = parseString();
-//    buffer.append(chars, 0, len);
-//    return buffer;
-//  }
-
-  final int parseString() throws IOException {
+  int parseString() throws IOException {
     final int startIndex = currentIndex;
     if (last != '"') throw newParseError("Expecting '\"' for string start");
     else if (currentIndex == length) throw newParseErrorAt("Premature end of JSON string", 0);
@@ -793,7 +812,7 @@ public final class JReader {
    * @return next non-whitespace byte in the JSON input
    * @throws IOException unable to get next byte (end of stream, ...)
    */
-  public final byte getNextToken() throws IOException {
+  public byte getNextToken() throws IOException {
     read();
     if (WHITESPACE[last + 128]) {
       while (wasWhiteSpace()) {
@@ -1123,19 +1142,6 @@ public final class JReader {
     return last;
   }
 
-//  /**
-//   * will be removed
-//   *
-//   * @return not used anymore
-//   * @throws IOException throws if invalid JSON detected
-//   */
-//  @Deprecated
-//  public String readNext() throws IOException {
-//    final int start = currentIndex - 1;
-//    skip();
-//    return new String(buffer, start, currentIndex - start - 1, "UTF-8");
-//  }
-
 //  public final byte[] readBase64() throws IOException {
 //    if (stream != null && Base64.findEnd(buffer, currentIndex) == buffer.length) {
 //      final int len = parseString();
@@ -1154,18 +1160,13 @@ public final class JReader {
 //  }
 
   public String nextField() throws IOException {
-    if (names != null) {
+    if (pushedNames) {
       int hash = fillName();
-      String key = names.lookup(hash);
-      if (key == null) {
-        throw new IllegalStateException("key lookup error");
-      }
-     // if (getNextToken() != ':') throw newParseError("Expecting ':' after attribute name");
-      getNextToken();
+      String key = currentNames.lookup(hash);
+      if (key == null) throw newParseError("Attribute key lookup failed");
+      getNextToken(); // position to read the value/next
       return key;
     }
-
-    //return getLastName();
     return readKey();
   }
 
@@ -1173,12 +1174,8 @@ public final class JReader {
 
   /**
    * Read key value of JSON input.
-   * If key cache is used, it will be looked up from there.
-   *
-   * @return parsed key value
-   * @throws IOException unable to parse string input
    */
-  public final String readKey() throws IOException {
+  private String readKey() throws IOException {
     final int len = parseString();
     final String key = keyCache != null ? keyCache.get(chars, len) : new String(chars, 0, len);
     //final String key = new String(chars, 0, len);
@@ -1187,44 +1184,15 @@ public final class JReader {
     return key;
   }
 
-//  /**
-//   * Custom objects can be deserialized based on the implementation specified through this interface.
-//   * Annotation processor creates custom deserializers at compile time and registers them into DslJson.
-//   *
-//   * @param <T> type
-//   */
-//  public interface ReadObject<T> {
-//    @Nullable
-//    T read(JsonReader reader) throws IOException;
-//  }
-//
-//  /**
-//   * Existing instances can be provided as target for deserialization.
-//   * Annotation processor creates custom deserializers at compile time and registers them into DslJson.
-//   *
-//   * @param <T> type
-//   */
-//  public interface BindObject<T> {
-//    T bind(JsonReader reader, T instance) throws IOException;
-//  }
-//
-//  public interface ReadJsonObject<T extends JsonObject> {
-//    @Nullable
-//    T deserialize(JsonReader reader) throws IOException;
-//  }
-
   /**
    * Checks if 'null' value is at current position.
-   * This means last read byte was 'n' and 'ull' are next three bytes.
-   * If last byte was n but next three are not 'ull' it will throw since that is not a valid JSON construct.
-   *
-   * @return true if 'null' value is at current position
-   * @throws ParsingException invalid 'null' value detected
    */
-  public final boolean wasNull() throws ParsingException {
+  public boolean wasNull() throws ParsingException {
     if (last == 'n') {
-      if (currentIndex + 2 < length && buffer[currentIndex] == 'u'
-        && buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 'l') {
+      if (currentIndex + 2 < length
+        && buffer[currentIndex] == 'u'
+        && buffer[currentIndex + 1] == 'l'
+        && buffer[currentIndex + 2] == 'l') {
         currentIndex += 3;
         last = 'l';
         return true;
@@ -1236,16 +1204,13 @@ public final class JReader {
 
   /**
    * Checks if 'true' value is at current position.
-   * This means last read byte was 't' and 'rue' are next three bytes.
-   * If last byte was t but next three are not 'rue' it will throw since that is not a valid JSON construct.
-   *
-   * @return true if 'true' value is at current position
-   * @throws ParsingException invalid 'true' value detected
    */
-  public final boolean wasTrue() throws ParsingException {
+  private boolean wasTrue() throws ParsingException {
     if (last == 't') {
-      if (currentIndex + 2 < length && buffer[currentIndex] == 'r'
-        && buffer[currentIndex + 1] == 'u' && buffer[currentIndex + 2] == 'e') {
+      if (currentIndex + 2 < length
+        && buffer[currentIndex] == 'r'
+        && buffer[currentIndex + 1] == 'u'
+        && buffer[currentIndex + 2] == 'e') {
         currentIndex += 3;
         last = 'e';
         return true;
@@ -1257,16 +1222,13 @@ public final class JReader {
 
   /**
    * Checks if 'false' value is at current position.
-   * This means last read byte was 'f' and 'alse' are next four bytes.
-   * If last byte was f but next four are not 'alse' it will throw since that is not a valid JSON construct.
-   *
-   * @return true if 'false' value is at current position
-   * @throws ParsingException invalid 'false' value detected
    */
-  public final boolean wasFalse() throws ParsingException {
+  private boolean wasFalse() throws ParsingException {
     if (last == 'f') {
-      if (currentIndex + 3 < length && buffer[currentIndex] == 'a'
-        && buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 's'
+      if (currentIndex + 3 < length
+        && buffer[currentIndex] == 'a'
+        && buffer[currentIndex + 1] == 'l'
+        && buffer[currentIndex + 2] == 's'
         && buffer[currentIndex + 3] == 'e') {
         currentIndex += 4;
         last = 'e';
@@ -1278,480 +1240,48 @@ public final class JReader {
   }
 
   /**
-   * Will advance to next token and check if it's comma
-   *
-   * @throws IOException it's not comma
+   * Ensure array start
    */
-  public final void comma() throws IOException {
-    if (getNextToken() != ',') {
-      if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
-      throw newParseError("Expecting ','");
-    }
-  }
-
-  /**
-   * Will advance to next token and check if it's semicolon
-   *
-   * @throws IOException it's not semicolon
-   */
-  public final void semicolon() throws IOException {
-    if (getNextToken() != ':') {
-      if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
-      throw newParseError("Expecting ':'");
-    }
-  }
-
-  /**
-   * Will advance to next token and check if it's array start
-   *
-   * @throws IOException it's not array start
-   */
-  public final void startArray() throws IOException {
-    if (last == '[') {
-      return;
-    }
-    if (getNextToken() != '[') {
+  public void startArray() throws IOException {
+    if (last != '[' && getNextToken() != '[') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '[' as array start");
     }
   }
 
   /**
-   * Will advance to next token and check if it's array end
-   *
-   * @throws IOException it's not array end
+   * Ensure array end
    */
-  public final void endArray() throws IOException {
-    if (last == ']') {
-      return;
-    }
-    if (getNextToken() != ']') {
+  public void endArray() throws IOException {
+    if (last != ']' && getNextToken() != ']') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting ']' as array end");
     }
   }
 
   /**
-   * Will advance to next token and check if it's object start
-   *
-   * @throws IOException it's not object start
+   * Ensure object start
    */
-  public final void startObject() throws IOException {
-    if (last == '{') {
-      return;
-    }
-    if (getNextToken() != '{') {
+  public void startObject() throws IOException {
+    if (last != '{' && getNextToken() != '{') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '{' as object start");
     }
   }
 
   /**
-   * Will advance to next token and check it it's object end
-   *
-   * @throws IOException it's not object end
+   * Ensure object end
    */
-  public final void endObject() throws IOException {
-    this.names = null;
-    if (last == '}') {
-      return;
+  public void endObject() throws IOException {
+    if (pushedNames) {
+      pushedNames = false;
+      currentNames = nameStack != null ? nameStack.pop() : null;
     }
-    if (getNextToken() != '}') {
+    if (last != '}' && getNextToken() != '}') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '}' as object end");
     }
   }
 
-  public final void startAttribute(final String name) throws IOException {
-    do {
-      if (getNextToken() != '"') throw newParseError("Expecting '\"' as attribute start");
-      fillNameWeakHash();
-      if (wasLastName(name)) return;
-      getNextToken();
-    } while (skip() == ',');
-    throw newParseErrorWith("Unable to find attribute", name);
-  }
-
-  /**
-   * Check if the last read token is an array end
-   *
-   * @throws IOException it's not array end
-   */
-  public final void checkArrayEnd() throws IOException {
-    if (last != ']') {
-      if (currentIndex >= length) throw newParseErrorAt("Unexpected end of JSON in collection", 0, eof);
-      throw newParseError("Expecting ']' as array end");
-    }
-  }
-
-  /**
-   * Check if the last read token is an object end
-   *
-   * @throws IOException it's not object end
-   */
-  public final void checkObjectEnd() throws IOException {
-    if (last != '}') {
-      if (currentIndex >= length) throw newParseErrorAt("Unexpected end of JSON in object", 0, eof);
-      throw newParseError("Expecting '}' as object end");
-    }
-  }
-
-//  @Nullable
-//  private Object readNull(final Class<?> manifest) throws IOException {
-//    if (!wasNull()) throw newParseErrorAt("Expecting 'null' as null constant", 0);
-//    if (manifest.isPrimitive()) {
-//      if (manifest == int.class) return 0;
-//      else if (manifest == long.class) return 0L;
-//      else if (manifest == short.class) return (short)0;
-//      else if (manifest == byte.class) return (byte)0;
-//      else if (manifest == float.class) return 0f;
-//      else if (manifest == double.class) return 0d;
-//      else if (manifest == boolean.class) return false;
-//      else if (manifest == char.class) return '\0';
-//    }
-//    return null;
-//  }
-//
-//  /**
-//   * Will advance to next token and read the JSON into specified type
-//   *
-//   * @param manifest type to read into
-//   * @param <T> type
-//   * @return new instance from input JSON
-//   * @throws IOException unable to process JSON
-//   */
-//  @SuppressWarnings("unchecked")
-//  @Nullable
-//  public final <T> T next(final Class<T> manifest) throws IOException {
-//    if (manifest == null) throw new IllegalArgumentException("manifest can't be null");
-//    if (typeLookup == null) throw new ConfigurationException("typeLookup is not defined for this JsonReader. Unable to lookup specified type " + manifest);
-//    if (this.getNextToken() == 'n') {
-//      return (T)readNull(manifest);
-//    }
-//    final ReadObject<T> reader = typeLookup.tryFindReader(manifest);
-//    if (reader == null) {
-//      throw new ConfigurationException("Reader not found for " + manifest + ". Check if reader was registered");
-//    }
-//    return reader.read(this);
-//  }
-//
-//  /**
-//   * Will advance to next token and read the JSON into specified type
-//   *
-//   * @param reader reader to use
-//   * @param <T> type
-//   * @return new instance from input JSON
-//   * @throws IOException unable to process JSON
-//   */
-//  @Nullable
-//  public final <T> T next(final ReadObject<T> reader) throws IOException {
-//    if (reader == null) throw new IllegalArgumentException("reader can't be null");
-//    if (this.getNextToken() == 'n') {
-//      if (!wasNull()) throw newParseErrorAt("Expecting 'null' as null constant", 0);
-//      return null;
-//    }
-//    return reader.read(this);
-//  }
-//
-//  /**
-//   * Will advance to next token and bind the JSON to provided instance
-//   *
-//   * @param manifest type to read into
-//   * @param instance instance to bind
-//   * @param <T> type
-//   * @return bound instance
-//   * @throws IOException unable to process JSON
-//   */
-//  @SuppressWarnings("unchecked")
-//  @Nullable
-//  public final <T> T next(final Class<T> manifest, final T instance) throws IOException {
-//    if (manifest == null) throw new IllegalArgumentException("manifest can't be null");
-//    if (instance == null) throw new IllegalArgumentException("instance can't be null");
-//    if (typeLookup == null) throw new ConfigurationException("typeLookup is not defined for this JsonReader. Unable to lookup specified type " + manifest);
-//    if (this.getNextToken() == 'n') {
-//      return (T)readNull(manifest);
-//    }
-//    final BindObject<T> binder = typeLookup.tryFindBinder(manifest);
-//    if (binder == null) throw new ConfigurationException("Binder not found for " + manifest + ". Check if binder was registered");
-//    return binder.bind(this, instance);
-//  }
-//
-//  /**
-//   * Will advance to next token and bind the JSON to provided instance
-//   *
-//   * @param binder binder to use
-//   * @param instance instance to bind
-//   * @param <T> type
-//   * @return bound instance
-//   * @throws IOException unable to process JSON
-//   */
-//  @SuppressWarnings("unchecked")
-//  @Nullable
-//  public final <T> T next(final BindObject<T> binder, final T instance) throws IOException {
-//    if (binder == null) throw new IllegalArgumentException("binder can't be null");
-//    if (instance == null) throw new IllegalArgumentException("instance can't be null");
-//    if (this.getNextToken() == 'n') {
-//      if (!wasNull()) throw newParseErrorAt("Expecting 'null' as null constant", 0);
-//      return null;
-//    }
-//    return binder.bind(this, instance);
-//  }
-//
-//  @Nullable
-//  public final <T> ArrayList<T> readCollection(final ReadObject<T> readObject) throws IOException {
-//    if (wasNull()) return null;
-//    if (last != '[') throw newParseError("Expecting '[' as collection start");
-//    if (getNextToken() == ']') return new ArrayList<T>(0);
-//    final ArrayList<T> res = new ArrayList<T>(4);
-//    res.add(readObject.read(this));
-//    while (getNextToken() == ',') {
-//      getNextToken();
-//      res.add(readObject.read(this));
-//    }
-//    checkArrayEnd();
-//    return res;
-//  }
-//
-//  @Nullable
-//  public final <T> LinkedHashSet<T> readSet(final ReadObject<T> readObject) throws IOException {
-//    if (wasNull()) return null;
-//    if (last != '[') throw newParseError("Expecting '[' as set start");
-//    if (getNextToken() == ']') return new LinkedHashSet<T>(0);
-//    final LinkedHashSet<T> res = new LinkedHashSet<T>(4);
-//    res.add(readObject.read(this));
-//    while (getNextToken() == ',') {
-//      getNextToken();
-//      res.add(readObject.read(this));
-//    }
-//    checkArrayEnd();
-//    return res;
-//  }
-//
-//  @Nullable
-//  public final <K, V> LinkedHashMap<K, V> readMap(final ReadObject<K> readKey, final ReadObject<V> readValue) throws IOException {
-//    if (wasNull()) return null;
-//    if (last != '{') throw newParseError("Expecting '{' as map start");
-//    if (getNextToken() == '}') return new LinkedHashMap<K, V>(0);
-//    final LinkedHashMap<K, V> res = new LinkedHashMap<K, V>(4);
-//    K key = readKey.read(this);
-//    if (key == null) throw newParseErrorAt("Null detected as key", 0);
-//    if (getNextToken() != ':') throw newParseError("Expecting ':' after key attribute");
-//    getNextToken();
-//    V value = readValue.read(this);
-//    res.put(key, value);
-//    while (getNextToken() == ',') {
-//      getNextToken();
-//      key = readKey.read(this);
-//      if (key == null) throw newParseErrorAt("Null detected as key", 0);
-//      if (getNextToken() != ':') throw newParseError("Expecting ':' after key attribute");
-//      getNextToken();
-//      value = readValue.read(this);
-//      res.put(key, value);
-//    }
-//    checkObjectEnd();
-//    return res;
-//  }
-//
-//  @Nullable
-//  public final <T> T[] readArray(final ReadObject<T> readObject, final T[] emptyArray) throws IOException {
-//    if (wasNull()) return null;
-//    if (last != '[') throw newParseError("Expecting '[' as array start");
-//    if (getNextToken() == ']') return emptyArray;
-//    final ArrayList<T> res = new ArrayList<T>(4);
-//    res.add(readObject.read(this));
-//    while (getNextToken() == ',') {
-//      getNextToken();
-//      res.add(readObject.read(this));
-//    }
-//    checkArrayEnd();
-//    return res.toArray(emptyArray);
-//  }
-//
-//  public final <T, S extends T> ArrayList<T> deserializeCollection(final ReadObject<S> readObject) throws IOException {
-//    final ArrayList<T> res = new ArrayList<T>(4);
-//    deserializeCollection(readObject, res);
-//    return res;
-//  }
-//
-//  public final <T, S extends T> void deserializeCollection(final ReadObject<S> readObject, final Collection<T> res) throws IOException {
-//    res.add(readObject.read(this));
-//    while (getNextToken() == ',') {
-//      getNextToken();
-//      res.add(readObject.read(this));
-//    }
-//    checkArrayEnd();
-//  }
-//
-//  public final <T, S extends T> ArrayList<T> deserializeNullableCollection(final ReadObject<S> readObject) throws IOException {
-//    final ArrayList<T> res = new ArrayList<T>(4);
-//    deserializeNullableCollection(readObject, res);
-//    return res;
-//  }
-//
-//  public final <T, S extends T> void deserializeNullableCollection(final ReadObject<S> readObject, final Collection<T> res) throws IOException {
-//    if (wasNull()) {
-//      res.add(null);
-//    } else {
-//      res.add(readObject.read(this));
-//    }
-//    while (getNextToken() == ',') {
-//      getNextToken();
-//      if (wasNull()) {
-//        res.add(null);
-//      } else {
-//        res.add(readObject.read(this));
-//      }
-//    }
-//    checkArrayEnd();
-//  }
-//
-//  public final <T extends JsonObject> ArrayList<T> deserializeCollection(final ReadJsonObject<T> readObject) throws IOException {
-//    final ArrayList<T> res = new ArrayList<T>(4);
-//    deserializeCollection(readObject, res);
-//    return res;
-//  }
-//
-//  public final <T extends JsonObject> void deserializeCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
-//    if (last == '{') {
-//      getNextToken();
-//      res.add(readObject.deserialize(this));
-//    } else throw newParseError("Expecting '{' as collection start");
-//    while (getNextToken() == ',') {
-//      if (getNextToken() == '{') {
-//        getNextToken();
-//        res.add(readObject.deserialize(this));
-//      } else throw newParseError("Expecting '{' as object start within a collection");
-//    }
-//    checkArrayEnd();
-//  }
-//
-//  public final <T extends JsonObject> ArrayList<T> deserializeNullableCollection(final ReadJsonObject<T> readObject) throws IOException {
-//    final ArrayList<T> res = new ArrayList<T>(4);
-//    deserializeNullableCollection(readObject, res);
-//    return res;
-//  }
-//
-//  public final <T extends JsonObject> void deserializeNullableCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
-//    if (last == '{') {
-//      getNextToken();
-//      res.add(readObject.deserialize(this));
-//    } else if (wasNull()) {
-//      res.add(null);
-//    } else throw newParseError("Expecting '{' as collection start");
-//    while (getNextToken() == ',') {
-//      if (getNextToken() == '{') {
-//        getNextToken();
-//        res.add(readObject.deserialize(this));
-//      } else if (wasNull()) {
-//        res.add(null);
-//      } else throw newParseError("Expecting '{' as object start within a collection");
-//    }
-//    checkArrayEnd();
-//  }
-//
-//  public final <T> Iterator<T> iterateOver(final JsonReader.ReadObject<T> reader) {
-//    return new WithReader<T>(reader, this);
-//  }
-//
-//  public final <T extends JsonObject> Iterator<T> iterateOver(final JsonReader.ReadJsonObject<T> reader) {
-//    return new WithObjectReader<T>(reader, this);
-//  }
-//
-//  private static class WithReader<T> implements Iterator<T> {
-//    private final JsonReader.ReadObject<T> reader;
-//    private final JsonReader json;
-//
-//    private boolean hasNext;
-//
-//    WithReader(JsonReader.ReadObject<T> reader, JsonReader json) {
-//      this.reader = reader;
-//      this.json = json;
-//      hasNext = true;
-//    }
-//
-//    @Override
-//    public boolean hasNext() {
-//      return hasNext;
-//    }
-//
-//    @Override
-//    public void remove() {
-//    }
-//
-//    @Nullable
-//    @Override
-//    public T next() {
-//      try {
-//        byte nextToken = json.last();
-//        final T instance;
-//        if (nextToken == 'n') {
-//          if (!json.wasNull()) throw json.newParseErrorAt("Expecting 'null' as null constant", 0);
-//          instance = null;
-//        } else {
-//          instance = reader.read(json);
-//        }
-//        hasNext = json.getNextToken() == ',';
-//        if (hasNext) {
-//          json.getNextToken();
-//        } else {
-//          if (json.last() != ']') throw json.newParseError("Expecting ']' for iteration end");
-//          //TODO: ideally we should release stream bound to reader
-//        }
-//        return instance;
-//      } catch (IOException e) {
-//        throw new SerializationException(e);
-//      }
-//    }
-//  }
-//
-//  private static class WithObjectReader<T extends JsonObject> implements Iterator<T> {
-//    private final JsonReader.ReadJsonObject<T> reader;
-//    private final JsonReader json;
-//
-//    private boolean hasNext;
-//
-//    WithObjectReader(JsonReader.ReadJsonObject<T> reader, JsonReader json) {
-//      this.reader = reader;
-//      this.json = json;
-//      hasNext = true;
-//    }
-//
-//    @Override
-//    public boolean hasNext() {
-//      return hasNext;
-//    }
-//
-//    @Override
-//    public void remove() {
-//    }
-//
-//    @Nullable
-//    @Override
-//    public T next() {
-//      try {
-//        byte nextToken = json.last();
-//        final T instance;
-//        if (nextToken == 'n') {
-//          if (!json.wasNull()) throw json.newParseErrorAt("Expecting 'null' as null constant", 0);
-//          instance = null;
-//        } else if (nextToken == '{') {
-//          json.getNextToken();
-//          instance = reader.deserialize(json);
-//        } else {
-//          throw json.newParseError("Expecting '{' for object start in iteration");
-//        }
-//        hasNext = json.getNextToken() == ',';
-//        if (hasNext) {
-//          json.getNextToken();
-//        } else {
-//          if (json.last() != ']') throw json.newParseError("Expecting ']' for iteration end");
-//          //TODO: ideally we should release stream bound to reader
-//        }
-//        return instance;
-//      } catch (IOException e) {
-//        throw new SerializationException(e);
-//      }
-//    }
-//  }
 }
 

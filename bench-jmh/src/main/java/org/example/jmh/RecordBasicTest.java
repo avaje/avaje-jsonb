@@ -205,6 +205,11 @@ public class RecordBasicTest {
     return jakartaJsonbWideNames.fromJson(content);
   }
 
+  @Benchmark
+  public WideNamesRecord fromJson_wideNames_jsonb_diesel() {
+    return dieselJsonbWideNames.fromJson(content);
+  }
+
 
   @Benchmark
   public WideNamesRecord fromJson_wideNames_dsl() throws IOException {

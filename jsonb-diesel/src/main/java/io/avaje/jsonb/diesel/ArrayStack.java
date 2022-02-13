@@ -6,14 +6,14 @@ import java.util.List;
 /**
  * Stack based on ArrayList.
  */
-final class ArrayStack<E> {
+public final class ArrayStack<E> {
 
   private final List<E> list;
 
   /**
    * Creates an empty Stack.
    */
-  ArrayStack() {
+  public ArrayStack() {
     this.list = new ArrayList<>();
   }
 
@@ -25,14 +25,14 @@ final class ArrayStack<E> {
   /**
    * Pushes an item onto the top of this stack.
    */
-  void push(E item) {
+  public void push(E item) {
     list.add(item);
   }
 
   /**
    * Removes the object at the top of this stack or null if it's empty.
    */
-  E pop() {
+  public E pop() {
     int len = list.size();
     return len == 0 ? null : list.remove(len - 1);
   }

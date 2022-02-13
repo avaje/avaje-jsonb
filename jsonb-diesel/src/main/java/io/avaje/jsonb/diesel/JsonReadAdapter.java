@@ -11,7 +11,7 @@ import java.math.BigInteger;
 
 public class JsonReadAdapter implements JsonReader {
 
-  final JReader reader;
+  private final JReader reader;
 
   public JsonReadAdapter(JReader reader) {
     this.reader = reader;
@@ -34,9 +34,7 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public void endArray() {
     try {
-      if (reader.last() != ']') {
-        reader.endArray();
-      }
+      reader.endArray();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -109,7 +107,6 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public int nextInt() {
     try {
-      //reader.getNextToken();
       return reader.readInt();
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -118,17 +115,29 @@ public class JsonReadAdapter implements JsonReader {
 
   @Override
   public long nextLong() {
-    return 0;
+    try {
+      return reader.readLong();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public double nextDouble() {
-    return 0;
+    try {
+      return reader.readDouble();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public BigDecimal nextDecimal() {
-    return null;
+    try {
+      return reader.readDecimal();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -139,10 +148,6 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public String nextString() {
     try {
-      //byte nextToken = reader.getNextToken();
-      //if (nextToken != '"') {
-      //  throw new RuntimeException("expected quote");
-      //}
       return reader.readString();
     } catch (IOException e) {
       throw new RuntimeException(e);
