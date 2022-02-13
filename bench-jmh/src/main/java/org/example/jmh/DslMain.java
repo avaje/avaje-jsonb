@@ -1,9 +1,11 @@
 package org.example.jmh;
 
 import com.dslplatform.json.DslJson;
+import com.dslplatform.json.JsonReader;
 import org.example.jmh.model.SomePropertyData;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
 public class DslMain {
@@ -26,6 +28,8 @@ public class DslMain {
     StringReader se = new StringReader(asJson);
     ByteArrayInputStream is = new ByteArrayInputStream(asJson.getBytes(StandardCharsets.UTF_8));
 
+    JsonReader.ReadObject<BigInteger> reader = dsl.tryFindReader(BigInteger.class);
+    reader.read(null);
     SomePropertyData result = dsl.deserialize(SomePropertyData.class, is);
     System.out.println("here");
 

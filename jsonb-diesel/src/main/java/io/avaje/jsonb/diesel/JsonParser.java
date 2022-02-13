@@ -998,12 +998,12 @@ final class JsonParser {
 //    return true;
 //  }
 //
-//  public final String getLastName() throws IOException {
-//    if (stream != null && nameEnd == -1) {
-//      return new String(chars, 0, lastNameLen);
-//    }
-//    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
-//  }
+  public String getLastName() throws IOException {
+    if (stream != null && nameEnd == -1) {
+      return new String(chars, 0, lastNameLen);
+    }
+    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
+  }
 
   private byte skipString() throws IOException {
     byte c = read();
@@ -1022,42 +1022,13 @@ final class JsonParser {
    * @return next non-whitespace byte
    * @throws IOException unable to read next byte (end of stream, invalid JSON, ...)
    */
-  public final byte skip() throws IOException {
+  public byte skip() throws IOException {
     if (last == '"') return skipString();
     if (last == '{') {
-      byte nextToken = getNextToken();
-      if (nextToken == '}') return getNextToken();
-      if (nextToken == '"') {
-        nextToken = skipString();
-      } else {
-        throw newParseError("Expecting '\"' for attribute name");
-      }
-      if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
-      getNextToken();
-      nextToken = skip();
-      while (nextToken == ',') {
-        nextToken = getNextToken();
-        if (nextToken == '"') {
-          nextToken = skipString();
-        } else {
-          throw newParseError("Expecting '\"' for attribute name");
-        }
-        if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
-        getNextToken();
-        nextToken = skip();
-      }
-      if (nextToken != '}') throw newParseError("Expecting '}' for object end");
-      return getNextToken();
+      return skipObject();
     }
     if (last == '[') {
-      getNextToken();
-      byte nextToken = skip();
-      while (nextToken == ',') {
-        getNextToken();
-        nextToken = skip();
-      }
-      if (nextToken != ']') throw newParseError("Expecting ']' for array end");
-      return getNextToken();
+      return skipArray();
     }
     if (last == 'n') {
       if (!wasNull()) throw newParseErrorAt("Expecting 'null' for null constant", 0);
@@ -1075,6 +1046,43 @@ final class JsonParser {
       read();
     }
     return last;
+  }
+
+  private byte skipArray() throws IOException {
+    getNextToken();
+    byte nextToken = skip();
+    while (nextToken == ',') {
+      getNextToken();
+      nextToken = skip();
+    }
+    if (nextToken != ']') throw newParseError("Expecting ']' for array end");
+    return getNextToken();
+  }
+
+  private byte skipObject() throws IOException {
+    byte nextToken = getNextToken();
+    if (nextToken == '}') return getNextToken();
+    if (nextToken == '"') {
+      nextToken = skipString();
+    } else {
+      throw newParseError("Expecting '\"' for attribute name");
+    }
+    if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
+    getNextToken();
+    nextToken = skip();
+    while (nextToken == ',') {
+      nextToken = getNextToken();
+      if (nextToken == '"') {
+        nextToken = skipString();
+      } else {
+        throw newParseError("Expecting '\"' for attribute name");
+      }
+      if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
+      getNextToken();
+      nextToken = skip();
+    }
+    if (nextToken != '}') throw newParseError("Expecting '}' for object end");
+    return getNextToken();
   }
 
 //  public final byte[] readBase64() throws IOException {
@@ -1095,10 +1103,17 @@ final class JsonParser {
 //  }
 
   public String nextField() throws IOException {
-    if (pushedNames) {
-      final long hash = fillName();
-      final String key = currentNames.lookup(hash);
-      if (key == null) throw newParseError("Attribute key lookup failed");
+    if (currentNames != null) {
+      final long hash = calcHash();
+      String key = currentNames.lookup(hash);
+      if (key == null) {
+        key = getLastName();
+      }
+      if (read() != ':') {
+        if (!wasWhiteSpace() || getNextToken() != ':') {
+          throw newParseError("Expecting ':' after attribute name");
+        }
+      }
       getNextToken(); // position to read the value/next
       return key;
     }

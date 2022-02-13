@@ -181,7 +181,11 @@ public class JsonReadAdapter implements JsonReader {
 
   @Override
   public void skipValue() {
-
+    try {
+      reader.skip();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
