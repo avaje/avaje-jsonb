@@ -9,20 +9,20 @@ import java.util.Map;
 public final class JsonNames implements PropertyNames {
 
   private final byte[][] nameArray;
-  private final Map<Integer, String> nameHash;
+  private final Map<Long, String> nameHash;
 
-  JsonNames(byte[][] nameArray, Map<Integer, String> nameHash) {
+  JsonNames(byte[][] nameArray, Map<Long, String> nameHash) {
     this.nameArray = nameArray;
     this.nameHash = nameHash;
   }
 
   static JsonNames of(String... names) {
     boolean hashingClash = false;
-    Map<Integer, String> nameHash = new HashMap<>();
+    Map<Long, String> nameHash = new HashMap<>();
     byte[][] nameArray = new byte[names.length][];
     for (int i = 0; i < names.length; i++) {
       nameArray[i] = Escape.quoteEscape(names[i]);
-      int hash = Escape.nameHash(names[i]);
+      long hash = Escape.nameHash(names[i]);
       if (nameHash.put(hash, names[i]) != null) {
         hashingClash = true;
       }
@@ -34,7 +34,7 @@ public final class JsonNames implements PropertyNames {
     return nameArray[namePos];
   }
 
-  public String lookup(int hash) {
+  public String lookup(long hash) {
     return nameHash.get(hash);
   }
 }

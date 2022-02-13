@@ -757,16 +757,16 @@ final class JsonParser {
     return last;
   }
 
-  public final long positionInStream() {
-    return currentPosition + currentIndex;
-  }
+//  long positionInStream() {
+//    return currentPosition + currentIndex;
+//  }
 
-  public final long positionInStream(final int offset) {
+  long positionInStream(final int offset) {
     return currentPosition + currentIndex - offset;
   }
 
-  public final int fillName() throws IOException {
-    final int hash = calcHash();
+  long fillName() throws IOException {
+    final long hash = calcHash();
     if (read() != ':') {
       if (!wasWhiteSpace() || getNextToken() != ':') {
         throw newParseError("Expecting ':' after attribute name");
@@ -785,7 +785,7 @@ final class JsonParser {
 //    return hash;
 //  }
 
-  public final int calcHash() throws IOException {
+  long calcHash() throws IOException {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
     tokenStart = currentIndex;
     int ci = currentIndex;
@@ -824,7 +824,7 @@ final class JsonParser {
       }
       nameEnd = currentIndex = ci;
     }
-    return (int) hash;
+    return hash;
   }
 
 //  public final int calcWeakHash() throws IOException {
@@ -1096,8 +1096,8 @@ final class JsonParser {
 
   public String nextField() throws IOException {
     if (pushedNames) {
-      int hash = fillName();
-      String key = currentNames.lookup(hash);
+      final long hash = fillName();
+      final String key = currentNames.lookup(hash);
       if (key == null) throw newParseError("Attribute key lookup failed");
       getNextToken(); // position to read the value/next
       return key;

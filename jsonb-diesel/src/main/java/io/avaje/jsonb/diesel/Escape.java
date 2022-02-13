@@ -198,13 +198,13 @@ final class Escape {
     }
   }
 
-  static int nameHash(String name) {
+  static long nameHash(String name) {
     long hash = 0x811c9dc5;
     byte[] bytes = name.getBytes(StandardCharsets.UTF_8);
     for (byte b : bytes) {
       hash ^= b;
       hash *= 0x1000193;
     }
-    return (int)hash;
+    return hash;
   }
 }
