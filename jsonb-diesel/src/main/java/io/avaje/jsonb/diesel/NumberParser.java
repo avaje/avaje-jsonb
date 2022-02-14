@@ -2,6 +2,7 @@ package io.avaje.jsonb.diesel;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 final class NumberParser {
 
@@ -333,7 +334,7 @@ final class NumberParser {
           decOffset = 0;
         }
       }
-      final int numLimit = maxLen < end ? maxLen : end;
+      final int numLimit = Math.min(maxLen, end);
       //TODO zeros
       for (; i < numLimit; i++) {
         ch = buf[i];
@@ -353,7 +354,7 @@ final class NumberParser {
         return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
       }
       int decimals = 0;
-      final int decLimit = start + offset + 18 < end ? start + offset + 18 : end;
+      final int decLimit = Math.min(start + offset + 18, end);
       final int remPos = i;
       for(;i < decLimit; i++) {
         ch = buf[i];
@@ -601,6 +602,99 @@ final class NumberParser {
       return BigDecimal.valueOf(value, -exp);
     }
     return BigDecimal.valueOf(value);
+  }
+
+
+  private static BigInteger parseBigIntGeneric(char[] buf, int len, JsonParser reader) throws ParsingException {
+    int end;
+    for(end = len; end > 0 && Character.isWhitespace(buf[end - 1]); --end) {
+      // do nothing
+    }
+    if (end > reader.maxNumberDigits) {
+      throw reader.newParseErrorWith("Too many digits detected in number", len, "", "Too many digits detected in number", end, "");
+    } else {
+      try {
+        return new BigInteger(new String(buf, 0, end));
+      } catch (NumberFormatException var5) {
+        throw reader.newParseErrorAt("Error parsing number", len, var5);
+      }
+    }
+  }
+
+  static BigInteger deserializeBigInt(JsonParser reader) throws IOException {
+    int start;
+    if (reader.last() == 34) {
+      start = reader.parseString();
+      return parseBigIntGeneric(reader.chars, start, reader);
+    } else {
+      start = reader.scanNumber();
+      int end = reader.getCurrentIndex();
+      int len = end - start;
+      if (len > 18) {
+        end = reader.findNonWhitespace(end);
+        len = end - start;
+        if (end == reader.length()) {
+          NumberInfo info = readLongNumber(reader, start);
+          return parseBigIntGeneric(info.buffer, info.length, reader);
+        }
+
+        if (len > 18) {
+          return parseBigIntGeneric(reader.prepareBuffer(start, len), len, reader);
+        }
+      }
+
+      byte[] buf = reader.buffer;
+      byte ch = buf[start];
+      int i = start;
+      long value = 0L;
+      int ind;
+      if (ch == 45) {
+        i = start + 1;
+        if (i == end) {
+          numberException(reader, start, end, "Digit not found");
+        }
+
+        while(i < end) {
+          ind = buf[i] - 48;
+          if (ind < 0 || ind > 9) {
+            if (i > start + 1 && reader.allWhitespace(i, end)) {
+              return BigInteger.valueOf(value);
+            }
+
+            numberException(reader, start, end, "Unknown digit", (char)ch);
+          }
+
+          value = (value << 3) + (value << 1) - (long)ind;
+          ++i;
+        }
+
+        return BigInteger.valueOf(value);
+      } else {
+        if (start == end) {
+          numberException(reader, start, end, "Digit not found");
+        }
+
+        while(i < end) {
+          ind = buf[i] - 48;
+          if (ind < 0 || ind > 9) {
+            if (ch == 43 && i > start + 1 && reader.allWhitespace(i, end)) {
+              return BigInteger.valueOf(value);
+            }
+
+            if (ch != 43 && i > start && reader.allWhitespace(i, end)) {
+              return BigInteger.valueOf(value);
+            }
+
+            numberException(reader, start, end, "Unknown digit", (char)ch);
+          }
+
+          value = (value << 3) + (value << 1) + (long)ind;
+          ++i;
+        }
+
+        return BigInteger.valueOf(value);
+      }
+    }
   }
 
 //  private static final BigDecimal BD_MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);

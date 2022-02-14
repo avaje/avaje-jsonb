@@ -11,9 +11,11 @@ import java.math.BigInteger;
 public class JsonReadAdapter implements JsonReader {
 
   private final JsonParser reader;
+  private final boolean failOnUnknown;
 
-  public JsonReadAdapter(JsonParser reader) {
+  public JsonReadAdapter(JsonParser reader, boolean failOnUnknown) {
     this.reader = reader;
+    this.failOnUnknown = failOnUnknown;
   }
 
   @Override
@@ -141,7 +143,11 @@ public class JsonReadAdapter implements JsonReader {
 
   @Override
   public BigInteger nextBigInteger() {
-    return null;
+    try {
+      return reader.readBigInt();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -190,6 +196,8 @@ public class JsonReadAdapter implements JsonReader {
 
   @Override
   public void unmappedField(String fieldName) {
-
+    if (failOnUnknown) {
+      throw new IllegalStateException("Unknown property " + fieldName + " at " + reader.positionDescription(0));
+    }
   }
 }

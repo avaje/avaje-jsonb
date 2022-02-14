@@ -46,7 +46,7 @@ public class DieselAdapter implements IOAdapter {
   @Override
   public JsonReader reader(byte[] json) {
     JsonParser reader1 = Recycle.reader(json);
-    return new JsonReadAdapter(reader1);
+    return new JsonReadAdapter(reader1, failOnUnknown);
   }
 
   @Override
@@ -63,7 +63,7 @@ public class DieselAdapter implements IOAdapter {
   public JsonReader reader(InputStream inputStream) {
     try {
       JsonParser reader1 = Recycle.reader(inputStream);
-      return new JsonReadAdapter(reader1);
+      return new JsonReadAdapter(reader1, failOnUnknown);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -442,6 +443,15 @@ final class JsonParser {
     }
     return true;
   }
+
+  int findNonWhitespace(final int end) {
+    final byte[] _buf = buffer;
+    for (int i = end - 1; i > 0; i--) {
+      if (!WHITESPACE[_buf[i] + 128]) return i + 1;
+    }
+    return 0;
+  }
+
 //
 //  /**
 //   * Read simple ascii string. Will not use values cache to create instance.
@@ -509,6 +519,10 @@ final class JsonParser {
 
   public BigDecimal readDecimal() throws IOException {
     return NumberParser.deserializeDecimal(this);
+  }
+
+  public BigInteger readBigInt() throws IOException {
+    return NumberParser.deserializeBigInt(this);
   }
 
   public boolean readBool() throws IOException {
