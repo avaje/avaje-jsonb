@@ -15,9 +15,9 @@
   <dependencies>
 
     <dependency>
-      <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonp</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <groupId>org.avaje.experiment</groupId>
+      <artifactId>experiment-jsonp</artifactId>
+      <version>0.2</version>
     </dependency>
 
 <!--    <dependency>-->
