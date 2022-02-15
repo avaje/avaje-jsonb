@@ -445,31 +445,6 @@ final class JsonParser {
     return 0;
   }
 
-//
-//  /**
-//   * Read simple ascii string. Will not use values cache to create instance.
-//   *
-//   * @return parsed string
-//   * @throws ParsingException unable to parse string
-//   */
-//  private String readSimpleString() throws ParsingException {
-//    if (last != '"') throw newParseError("Expecting '\"' for string start");
-//    int i = 0;
-//    int ci = currentIndex;
-//    try {
-//      while (i < tmp.length) {
-//        final byte bb = buffer[ci++];
-//        if (bb == '"') break;
-//        tmp[i++] = (char) bb;
-//      }
-//    } catch (ArrayIndexOutOfBoundsException ignore) {
-//      throw newParseErrorAt("JSON string was not closed with a double quote", 0);
-//    }
-//    if (ci > length) throw newParseErrorAt("JSON string was not closed with a double quote", 0);
-//    currentIndex = ci;
-//    return new String(tmp, 0, i);
-//  }
-
   /**
    * Read simple "ascii string" into temporary buffer.
    * String length must be obtained through getTokenStart and getCurrentToken
