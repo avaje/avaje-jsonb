@@ -822,7 +822,7 @@ final class JsonParser {
     throw newParseErrorAt("JSON string was not closed with a double quote", (int)startPosition);
   }
 
-  public String getLastName() throws IOException {
+  private String lastFieldName() {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
     }
@@ -931,7 +931,7 @@ final class JsonParser {
       final long hash = calcHash();
       String key = currentNames.lookup(hash);
       if (key == null) {
-        key = getLastName();
+        key = lastFieldName();
       }
       if (read() != ':') {
         if (!wasWhiteSpace() || getNextToken() != ':') {
