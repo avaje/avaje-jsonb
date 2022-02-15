@@ -8,7 +8,7 @@ import java.io.*;
 /**
  * Provides the underlying JsonReader and JsonWriter to use.
  */
-public interface IOAdapter {
+public interface JsonStreamAdapter {
 
   /**
    * Return the JsonReader given json string content.

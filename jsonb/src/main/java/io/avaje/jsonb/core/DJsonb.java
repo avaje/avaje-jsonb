@@ -2,7 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.*;
-import io.avaje.jsonb.stream.DieselAdapter;
+import io.avaje.jsonb.stream.JsonStream;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,20 +21,20 @@ import static java.util.Objects.requireNonNull;
 class DJsonb implements Jsonb {
 
   private final CoreAdapterBuilder builder;
-  private final IOAdapter io;
+  private final JsonStreamAdapter io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ViewKey,JsonView<?>> viewCache = new ConcurrentHashMap<>();
 
-  DJsonb(IOAdapter adapter, List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
+  DJsonb(JsonStreamAdapter adapter, List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
     if (adapter != null) {
       this.io = adapter;
     } else {
-      Iterator<IOAdapterFactory> iterator = ServiceLoader.load(IOAdapterFactory.class).iterator();
+      Iterator<AdapterFactory> iterator = ServiceLoader.load(AdapterFactory.class).iterator();
       if (iterator.hasNext()) {
         this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
       } else {
-        this.io = new DieselAdapter(serializeNulls, serializeEmpty, failOnUnknown);
+        this.io = new JsonStream(serializeNulls, serializeEmpty, failOnUnknown);
       }
     }
   }
@@ -176,7 +176,7 @@ class DJsonb implements Jsonb {
     private boolean mathTypesAsString;
     private boolean serializeNulls;
     private boolean serializeEmpty;
-    private IOAdapter adapter;
+    private JsonStreamAdapter adapter;
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -203,7 +203,7 @@ class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder adapter(IOAdapter adapter) {
+    public Builder adapter(JsonStreamAdapter adapter) {
       this.adapter = adapter;
       return this;
     }

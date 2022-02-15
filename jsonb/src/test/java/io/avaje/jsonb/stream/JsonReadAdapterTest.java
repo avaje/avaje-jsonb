@@ -31,7 +31,7 @@ class JsonReadAdapterTest {
   void via_adapter() {
     String input = "{\"name\":\"roberto\", \"age\": 42 , \"notes\" :\"fooFooFoo\"}";
 
-    DieselAdapter adapter = new DieselAdapter(false, false, false);
+    JsonStream adapter = new JsonStream(false, false, false);
     try (JsonReader reader = adapter.reader(input)) {
       readExampleWithAsserts(reader);
     }
@@ -57,7 +57,7 @@ class JsonReadAdapterTest {
   void bigInt() {
     String input = "{\"name\":\"roberto\", \"val0\": 123, \"val1\": \"1234567890123456789\", \"val2\": 1234567890123456789 , \"notes\" :\"end\"}";
 
-    DieselAdapter adapter = new DieselAdapter(false, false, false);
+    JsonStream adapter = new JsonStream(false, false, false);
     try (JsonReader reader = adapter.reader(input)) {
       reader.beginObject();
       assertTrue(reader.hasNextField());

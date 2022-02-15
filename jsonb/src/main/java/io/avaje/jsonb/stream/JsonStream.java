@@ -8,9 +8,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Jackson Core implementation of IOAdapter.
+ * Default implementation of JsonStreamAdapter provided with Jsonb.
  */
-public final class DieselAdapter implements IOAdapter {
+public final class JsonStream implements JsonStreamAdapter {
 
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
@@ -19,14 +19,14 @@ public final class DieselAdapter implements IOAdapter {
   /**
    * Create with the given default configuration.
    */
-  public DieselAdapter() {
+  public JsonStream() {
     this(false, false, false);
   }
 
   /**
    * Create additionally providing the jsonFactory.
    */
-  public DieselAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
+  public JsonStream(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;

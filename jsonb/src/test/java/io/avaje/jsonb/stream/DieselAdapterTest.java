@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DieselAdapterTest {
 
-  final DieselAdapter adapter = new DieselAdapter(true, true, false);
+  final JsonStream adapter = new JsonStream(true, true, false);
 
   @Test
   void readArray() {

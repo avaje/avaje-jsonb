@@ -11,7 +11,7 @@ final class JsonReadAdapter implements JsonReader {
   private final JsonParser reader;
   private final boolean failOnUnknown;
 
-  public JsonReadAdapter(JsonParser reader, boolean failOnUnknown) {
+  JsonReadAdapter(JsonParser reader, boolean failOnUnknown) {
     this.reader = reader;
     this.failOnUnknown = failOnUnknown;
   }

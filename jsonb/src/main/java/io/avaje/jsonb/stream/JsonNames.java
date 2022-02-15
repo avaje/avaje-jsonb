@@ -6,7 +6,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-final class JsonNames implements PropertyNames {
+/**
+ * Provides "prepared" JSON keys/field names for improved performance
+ * during generation and parsing.
+ */
+public final class JsonNames implements PropertyNames {
 
   private final byte[][] nameArray;
   private final Map<Long, String> nameHash;
@@ -16,7 +20,10 @@ final class JsonNames implements PropertyNames {
     this.nameHash = nameHash;
   }
 
-  static JsonNames of(String... names) {
+  /**
+   * Create given the names.
+   */
+  public static JsonNames of(String... names) {
     boolean hashingClash = false;
     Map<Long, String> nameHash = new HashMap<>();
     byte[][] nameArray = new byte[names.length][];

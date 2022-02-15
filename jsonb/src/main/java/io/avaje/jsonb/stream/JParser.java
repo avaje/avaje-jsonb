@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Formatter;
 
 /**
- *
+ * The json parsing implementation.
  */
 final class JParser implements JsonParser {
 

@@ -4,7 +4,7 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
-import io.avaje.jsonb.spi.IOAdapter;
+import io.avaje.jsonb.spi.JsonStreamAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
 import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonGenerator;
@@ -12,7 +12,7 @@ import jakarta.json.stream.JsonParser;
 
 import java.io.*;
 
-public final class JakartaIOAdapter implements IOAdapter {
+public final class JakartaIOAdapter implements JsonStreamAdapter {
 
   private final boolean serializeNulls;
   private final boolean serializeEmpty;

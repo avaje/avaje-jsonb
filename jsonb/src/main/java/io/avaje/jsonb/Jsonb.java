@@ -1,8 +1,9 @@
 package io.avaje.jsonb;
 
 import io.avaje.jsonb.core.DefaultBootstrap;
+import io.avaje.jsonb.spi.AdapterFactory;
 import io.avaje.jsonb.spi.Bootstrap;
-import io.avaje.jsonb.spi.IOAdapter;
+import io.avaje.jsonb.spi.JsonStreamAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.InputStream;
@@ -211,11 +212,11 @@ public interface Jsonb {
     /**
      * Explicitly set the adapter to use.
      * <p>
-     * When not set the IOAdapter is service loaded using {@link io.avaje.jsonb.spi.IOAdapterFactory}.
+     * When not set the IOAdapter is service loaded using {@link AdapterFactory}.
      *
      * @param adapter The adapter to use
      */
-    Builder adapter(IOAdapter adapter);
+    Builder adapter(JsonStreamAdapter adapter);
 
     /**
      * Add a JsonAdapter to use for the given type.

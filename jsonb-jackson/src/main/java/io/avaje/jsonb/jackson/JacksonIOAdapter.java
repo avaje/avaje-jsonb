@@ -8,7 +8,7 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
-import io.avaje.jsonb.spi.IOAdapter;
+import io.avaje.jsonb.spi.JsonStreamAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.*;
@@ -16,7 +16,7 @@ import java.io.*;
 /**
  * Jackson Core implementation of IOAdapter.
  */
-public class JacksonIOAdapter implements IOAdapter {
+public class JacksonIOAdapter implements JsonStreamAdapter {
 
   private final JsonFactory jsonFactory;
   private final boolean serializeNulls;

@@ -2,7 +2,7 @@ package org.example.customer.skip;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.stream.DieselAdapter;
+import io.avaje.jsonb.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ class MyCustomerTest {
   @Test
   void toJson_fromJson() {
 
-    Jsonb jsonb = Jsonb.newBuilder().adapter(new DieselAdapter()).build();
+    Jsonb jsonb = Jsonb.newBuilder().adapter(new JsonStream()).build();
 
     MyCustomer myCustomer = new MyCustomer(42, "rob", "foo");
     JsonType<MyCustomer> type = jsonb.type(MyCustomer.class);
@@ -36,7 +36,7 @@ class MyCustomerTest {
   @Test
   void list_toJson_fromJson() {
 
-    Jsonb jsonb = Jsonb.newBuilder().adapter(new DieselAdapter()).build();
+    Jsonb jsonb = Jsonb.newBuilder().adapter(new JsonStream()).build();
 
     List<MyCustomer> customers = new ArrayList<>();
     customers.add(new MyCustomer(42, "rob", "foo"));

@@ -3,7 +3,7 @@ package io.avaje.jsonb.spi;
 /**
  * Factory that is service loaded to create the adapter for underlying json parsing and generation.
  */
-public interface IOAdapterFactory {
+public interface AdapterFactory {
 
   /**
    * Create the adapter to use for the underlying json parsing and generation.
@@ -13,5 +13,5 @@ public interface IOAdapterFactory {
    * @param failOnUnknown  The default setting for fail when deserializing unknown properties
    * @return The adapter to use
    */
-  IOAdapter create(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown);
+  JsonStreamAdapter create(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown);
 }
