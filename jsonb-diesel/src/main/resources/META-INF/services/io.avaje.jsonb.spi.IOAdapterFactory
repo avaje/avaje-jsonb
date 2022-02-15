@@ -1,1 +1,1 @@
-io.avaje.jsonb.diesel.DieselAdapterFactory
+io.avaje.jsonb.stream.DieselAdapterFactory

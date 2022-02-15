@@ -1,4 +1,4 @@
-package io.avaje.jsonb.diesel;
+package io.avaje.jsonb.stream;
 
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;

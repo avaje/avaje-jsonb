@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.diesel.DieselAdapter;
+import io.avaje.jsonb.stream.DieselAdapter;
 import io.avaje.jsonb.jackson.JacksonIOAdapter;
 import io.avaje.jsonb.jakarta.JakartaIOAdapter;
 import org.example.jmh.model.NarrowNamesRecord;

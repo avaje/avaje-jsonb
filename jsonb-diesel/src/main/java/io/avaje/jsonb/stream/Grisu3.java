@@ -31,7 +31,7 @@
 // Modified by Rikard Pavelic do avoid allocations
 // and unused code paths due to external checks
 
-package io.avaje.jsonb.diesel;
+package io.avaje.jsonb.stream;
 
 final class Grisu3 {
 

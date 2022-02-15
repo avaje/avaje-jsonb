@@ -1,4 +1,4 @@
-package io.avaje.jsonb.diesel;
+package io.avaje.jsonb.stream;
 
 import io.avaje.jsonb.spi.PropertyNames;
 

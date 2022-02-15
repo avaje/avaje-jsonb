@@ -1,4 +1,4 @@
-package io.avaje.jsonb.diesel;
+package io.avaje.jsonb.stream;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;

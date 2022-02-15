@@ -2,7 +2,7 @@ package org.example;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.diesel.DieselAdapter;
+import io.avaje.jsonb.stream.DieselAdapter;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

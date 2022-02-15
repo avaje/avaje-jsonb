@@ -1,4 +1,4 @@
-package io.avaje.jsonb.diesel;
+package io.avaje.jsonb.stream;
 
 import java.io.IOException;
 import java.io.InputStream;
