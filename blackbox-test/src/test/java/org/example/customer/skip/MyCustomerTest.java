@@ -1,4 +1,4 @@
-package org.example;
+package org.example.customer.skip;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;

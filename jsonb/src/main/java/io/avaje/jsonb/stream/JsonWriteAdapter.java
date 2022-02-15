@@ -30,11 +30,7 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void close() {
-    try {
-      generator.close();
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    generator.close();
   }
 
   @Override
@@ -45,7 +41,6 @@ final class JsonWriteAdapter implements JsonWriter {
   @Override
   public void pretty(boolean pretty) {
     generator.pretty(pretty);
-//    }
   }
 
   @Override
