@@ -46,9 +46,6 @@ final class JsonParser {
   //always leave some room for reading special stuff, so that buffer contains enough padding for such optimizations
   private int bufferLenWithExtraSpace;
 
-//  private final StringCache keyCache;
-//  private final StringCache valuesCache;
-
   private final byte[] originalBuffer;
   private final int originalBufferLenWithExtraSpace;
 
@@ -94,8 +91,6 @@ final class JsonParser {
     final char[] tmp,
     final byte[] buffer,
     final int length,
-//    @Nullable final StringCache keyCache,
-//    @Nullable final StringCache valuesCache,
     final ErrorInfo errorInfo,
     final DoublePrecision doublePrecision,
     final UnknownNumberParsing unknownNumbers,
@@ -106,8 +101,6 @@ final class JsonParser {
     this.length = length;
     this.bufferLenWithExtraSpace = buffer.length - 38; //currently maximum padding is for uuid
     this.chars = tmp;
-//    this.keyCache = keyCache;
-//    this.valuesCache = valuesCache;
     this.errorInfo = errorInfo;
     this.doublePrecision = doublePrecision;
     this.unknownNumbers = unknownNumbers;
@@ -165,7 +158,7 @@ final class JsonParser {
   JsonParser process(final byte[] newBuffer, final int newLength) {
     if (newBuffer != null) {
       this.buffer = newBuffer;
-      this.bufferLenWithExtraSpace = buffer.length - 38; //currently maximum padding is for uuid
+      this.bufferLenWithExtraSpace = buffer.length - 38; // maximum padding is for uuid
     }
     if (newLength > buffer.length) {
       throw new IllegalArgumentException("length can't be longer than buffer.length");
@@ -255,7 +248,7 @@ final class JsonParser {
       length = readLimit;
       currentIndex = 0;
     } else {
-      readLimit = available < bufferLenWithExtraSpace ? available : bufferLenWithExtraSpace;
+      readLimit = Math.min(available, bufferLenWithExtraSpace);
       this.length = available;
       currentIndex = 0;
     }
@@ -558,7 +551,7 @@ final class JsonParser {
     int ci = currentIndex;
     char[] _tmp = chars;
     final int remaining = length - currentIndex;
-    int _tmpLen = _tmp.length < remaining ? _tmp.length : remaining;
+    int _tmpLen = Math.min(_tmp.length, remaining);
     int i = 0;
     while (i < _tmpLen) {
       bb = buffer[ci++];
@@ -1134,15 +1127,12 @@ final class JsonParser {
     return readKey();
   }
 
-  private final StringCache keyCache = new SimpleStringCache();
-
   /**
    * Read key value of JSON input.
    */
   private String readKey() throws IOException {
     final int len = parseString();
-    final String key = keyCache != null ? keyCache.get(chars, len) : new String(chars, 0, len);
-    //final String key = new String(chars, 0, len);
+    final String key = new String(chars, 0, len);
     if (getNextToken() != ':') throw newParseError("Expecting ':' after attribute name");
     getNextToken();
     return key;
