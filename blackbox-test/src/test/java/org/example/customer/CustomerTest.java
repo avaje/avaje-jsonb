@@ -72,7 +72,7 @@ class CustomerTest {
     JsonType<Customer> customerType = jsonb.type(Customer.class);
     StringWriter sw = new StringWriter();
 
-    customerType.toJson(sw, customer);
+    customerType.toJson(customer, sw);
     assertThat(sw.toString()).startsWith(jsonStart);
   }
 
@@ -130,7 +130,7 @@ class CustomerTest {
     try (JsonWriter writer = jsonb.writer(stringWriter)) {
       writer.pretty(true);
       Customer customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
-      jsonb.type(Customer.class).toJson(writer, customer);
+      jsonb.type(Customer.class).toJson(customer, writer);
     }
     String prettyJson = stringWriter.toString().replace("\" : ", "\": ");
     assertThat(prettyJson).isEqualTo("""
@@ -155,7 +155,7 @@ class CustomerTest {
     try (JsonWriter jsonWriter = jsonb.writer(writer)) {
       jsonWriter.pretty(false);
       for (Customer customer : customers) {
-        type.toJson(jsonWriter, customer);
+        type.toJson(customer, jsonWriter);
         jsonWriter.writeNewLine();
       }
     }
@@ -190,10 +190,10 @@ class CustomerTest {
       jsonWriter.pretty(false);
       T first = iterator.next();
       JsonType<T> type = jsonb.typeOf(first);
-      type.toJson(jsonWriter, first);
+      type.toJson(first, jsonWriter);
       jsonWriter.writeNewLine();
       while (iterator.hasNext()) {
-        type.toJson(jsonWriter, iterator.next());
+        type.toJson(iterator.next(), jsonWriter);
         jsonWriter.writeNewLine();
       }
     }

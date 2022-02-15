@@ -36,7 +36,7 @@ class SomeAddressWrapperTest {
     writer.serializeEmpty(true);
 
     var type = jsonb.type(SomeAddressWrapper.class);
-    type.toJson(writer, new SomeAddressWrapper(43L, null, Collections.emptyList()));
+    type.toJson(new SomeAddressWrapper(43L, null, Collections.emptyList()), writer);
     writer.close();
     assertThat(sw.toString()).isEqualTo("{\"id\":43,\"address\":null,\"tags\":[]}");
   }
