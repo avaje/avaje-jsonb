@@ -10,9 +10,8 @@ import java.nio.charset.StandardCharsets;
 /**
  * Jackson Core implementation of IOAdapter.
  */
-public class DieselAdapter implements IOAdapter {
+public final class DieselAdapter implements IOAdapter {
 
-  //private final JsonFactory jsonFactory;
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
@@ -45,8 +44,8 @@ public class DieselAdapter implements IOAdapter {
 
   @Override
   public JsonReader reader(byte[] json) {
-    JsonParser reader1 = Recycle.reader(json);
-    return new JsonReadAdapter(reader1, failOnUnknown);
+    JsonParser parser = Recycle.parser(json);
+    return new JsonReadAdapter(parser, failOnUnknown);
   }
 
   @Override
@@ -62,8 +61,8 @@ public class DieselAdapter implements IOAdapter {
   @Override
   public JsonReader reader(InputStream inputStream) {
     try {
-      JsonParser reader1 = Recycle.reader(inputStream);
-      return new JsonReadAdapter(reader1, failOnUnknown);
+      JsonParser parser = Recycle.parser(inputStream);
+      return new JsonReadAdapter(parser, failOnUnknown);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

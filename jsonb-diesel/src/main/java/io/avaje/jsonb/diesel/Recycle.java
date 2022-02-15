@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class Recycle {
+final class Recycle {
 
   static ThreadLocal<JGenerator> managed = ThreadLocal.withInitial(() -> new JGenerator(4096));
 
-  static ThreadLocal<JsonParser> read = ThreadLocal.withInitial(() -> {
+  static ThreadLocal<JParser> read = ThreadLocal.withInitial(() -> {
     char[] ch = new char[4096];
     byte[] by = new byte[4096];
-    return new JsonParser(ch, by, 0, JsonParser.ErrorInfo.MINIMAL, JsonParser.DoublePrecision.DEFAULT, JsonParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
+    return new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
   });
 
   /**
@@ -28,11 +28,11 @@ class Recycle {
     return managed.get().prepare(null);
   }
 
-  static JsonParser reader(byte[] bytes) {
+  static JsonParser parser(byte[] bytes) {
     return read.get().process(bytes, bytes.length);
   }
 
-  static JsonParser reader(InputStream in) throws IOException {
+  static JsonParser parser(InputStream in) throws IOException {
     return read.get().process(in);
   }
 }

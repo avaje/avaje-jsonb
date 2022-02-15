@@ -539,5 +539,6 @@ final class JGenerator implements JsonGenerator {
   @Override
   public void writeNewLine() {
     writeByte(NEWLINE);
+    lastOp = 0;
   }
 }

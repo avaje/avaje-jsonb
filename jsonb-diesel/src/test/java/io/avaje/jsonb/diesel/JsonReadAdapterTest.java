@@ -16,7 +16,7 @@ class JsonReadAdapterTest {
 
     char[] ch = new char[1000];
     byte[] by = new byte[1000];
-    JsonParser jr = new JsonParser(ch, by, 0, JsonParser.ErrorInfo.MINIMAL, JsonParser.DoublePrecision.DEFAULT, JsonParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
+    JParser jr = new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
 
     String input = "{\"name\":\"roberto\", \"age\": 42 , \"notes\" :\"fooFooFoo\"}";
     byte[] bytes = input.getBytes(StandardCharsets.UTF_8);

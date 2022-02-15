@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class JsonNames implements PropertyNames {
+final class JsonNames implements PropertyNames {
 
   private final byte[][] nameArray;
   private final Map<Long, String> nameHash;
@@ -30,11 +30,11 @@ public final class JsonNames implements PropertyNames {
     return  new JsonNames(nameArray, hashingClash ? Collections.emptyMap() : nameHash);
   }
 
-  public byte[] key(int namePos) {
+  byte[] key(int namePos) {
     return nameArray[namePos];
   }
 
-  public String lookup(long hash) {
+  String lookup(long hash) {
     return nameHash.get(hash);
   }
 }

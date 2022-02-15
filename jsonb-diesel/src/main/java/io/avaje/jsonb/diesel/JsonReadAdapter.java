@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class JsonReadAdapter implements JsonReader {
+final class JsonReadAdapter implements JsonReader {
 
   private final JsonParser reader;
   private final boolean failOnUnknown;
@@ -103,7 +103,7 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public boolean nextBoolean() {
     try {
-      return reader.readBool();
+      return reader.readBoolean();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -148,7 +148,7 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public BigInteger nextBigInteger() {
     try {
-      return reader.readBigInt();
+      return reader.readBigInteger();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -165,8 +165,11 @@ public class JsonReadAdapter implements JsonReader {
 
   @Override
   public boolean peekIsNull() {
-    byte last = reader.last();
-    return last == 'n';
+    try {
+      return reader.currentIsNull();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -176,17 +179,29 @@ public class JsonReadAdapter implements JsonReader {
 
   @Override
   public String path() {
-    return null;
+    return reader.location();
   }
 
   @Override
   public Token peek() {
-    return null;
+    byte token = reader.currentToken();
+    switch (token) {
+      case '[': return Token.BEGIN_ARRAY;
+      case '{': return Token.BEGIN_OBJECT;
+      case 'n': return Token.NULL;
+      case '\"': return Token.STRING;
+      case 't':
+      case 'f': {
+        return Token.BOOLEAN;
+      }
+      default:
+        return Token.NUMBER;
+    }
   }
 
   @Override
   public void close() {
-    reader.reset();
+    reader.close();
   }
 
   @Override
@@ -201,7 +216,7 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public void unmappedField(String fieldName) {
     if (failOnUnknown) {
-      throw new IllegalStateException("Unknown property " + fieldName + " at " + reader.positionDescription(0));
+      throw new IllegalStateException("Unknown property " + fieldName + " at " + reader.location());
     }
   }
 }

@@ -33,7 +33,7 @@
 
 package io.avaje.jsonb.diesel;
 
-abstract class Grisu3 {
+final class Grisu3 {
 
   // FastDtoa will produce at most kFastDtoaMaximalLength digits.
   static final int kFastDtoaMaximalLength = 17;

@@ -68,7 +68,7 @@ import java.nio.charset.CodingErrorAction;
  * Instances of {@link WriterOutputStream} are not thread safe.
  * </p>
  */
-class WriterOutputStream extends OutputStream {
+final class WriterOutputStream extends OutputStream {
 
   private static final int BUFFER_SIZE = 1024;
 

@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-class JsonWriteAdapter implements JsonWriter {
+final class JsonWriteAdapter implements JsonWriter {
 
   final JsonGenerator generator;
   private boolean serializeEmpty;
