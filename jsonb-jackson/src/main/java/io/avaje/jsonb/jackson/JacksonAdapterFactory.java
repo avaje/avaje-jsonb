@@ -12,6 +12,6 @@ public class JacksonAdapterFactory implements AdapterFactory {
 
   @Override
   public JsonStreamAdapter create(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
-    return new JacksonIOAdapter(serializeNulls, serializeEmpty, failOnUnknown);
+    return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown);
   }
 }

@@ -16,7 +16,7 @@ import java.io.*;
 /**
  * Jackson Core implementation of IOAdapter.
  */
-public class JacksonIOAdapter implements JsonStreamAdapter {
+public class JacksonAdapter implements JsonStreamAdapter {
 
   private final JsonFactory jsonFactory;
   private final boolean serializeNulls;
@@ -26,21 +26,21 @@ public class JacksonIOAdapter implements JsonStreamAdapter {
   /**
    * Create with the given default configuration.
    */
-  public JacksonIOAdapter() {
+  public JacksonAdapter() {
     this(false, false, false, new JsonFactory());
   }
 
   /**
    * Create with the given default configuration.
    */
-  public JacksonIOAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
+  public JacksonAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
     this(serializeNulls, serializeEmpty, failOnUnknown, new JsonFactory());
   }
 
   /**
    * Create additionally providing the jsonFactory.
    */
-  public JacksonIOAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, JsonFactory jsonFactory) {
+  public JacksonAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, JsonFactory jsonFactory) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
