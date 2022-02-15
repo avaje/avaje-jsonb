@@ -117,7 +117,7 @@ class GenericType {
   String shortName() {
     StringBuilder sb = new StringBuilder();
     shortName(sb);
-    return sb.toString();
+    return sb.toString().replace("[]", "Array");
   }
 
   void shortName(StringBuilder sb) {

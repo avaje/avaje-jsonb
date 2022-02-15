@@ -1,7 +1,9 @@
 package org.example.jmh.model;
 
+import com.dslplatform.json.CompiledJson;
 import io.avaje.jsonb.Json;
 
+@CompiledJson
 @Json
 public class SomePropertyData {
 	private String prop1;

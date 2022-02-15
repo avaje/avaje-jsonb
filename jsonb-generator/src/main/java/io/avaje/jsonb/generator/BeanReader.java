@@ -42,6 +42,10 @@ class BeanReader {
     return beanType.toString();
   }
 
+  String shortName() {
+    return shortName;
+  }
+
   TypeElement getBeanType() {
     return beanType;
   }
@@ -302,6 +306,7 @@ class BeanReader {
     writer.eol();
     writer.append("    // read json").eol();
     writer.append("    reader.beginObject();").eol();
+    writer.append("    reader.names(names);").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
     writer.append("      String fieldName = reader.nextField();").eol();
     writer.append("      switch (fieldName) {").eol();

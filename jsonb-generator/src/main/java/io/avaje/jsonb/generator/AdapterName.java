@@ -10,8 +10,15 @@ class AdapterName {
 
   AdapterName(TypeElement origin) {
     String originName = origin.getQualifiedName().toString();
-    this.shortName = origin.getSimpleName().toString();
+    String name = origin.getSimpleName().toString();
     String originPackage = Util.packageOf(originName);
+    if (origin.getNestingKind().isNested()) {
+      String parent = Util.shortName(originPackage);
+      originPackage = Util.packageOf(originPackage);
+      shortName = parent + "$" + name;
+    } else {
+      shortName = name;
+    }
     this.adapterPackage = originPackage.equals("") ? "jsonb" : originPackage + ".jsonb";
     this.fullName = adapterPackage + "." + shortName + "JsonAdapter";
   }

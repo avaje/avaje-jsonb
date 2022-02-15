@@ -1,6 +1,7 @@
 package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,6 +23,11 @@ final class ObjectJsonReader implements JsonReader {
   ObjectJsonReader(Object source) {
     this.source = source;
     this.currentValue = source;
+  }
+
+  @Override
+  public void names(PropertyNames names) {
+    // ignore
   }
 
   @Override

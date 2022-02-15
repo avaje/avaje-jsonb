@@ -68,12 +68,16 @@ final class DJsonType<T> implements JsonType<T> {
 
   @Override
   public void toJson(Writer writer, T value) {
-    adapter.toJson(jsonb.writer(writer), value);
+    try (JsonWriter jw = jsonb.writer(writer)) {
+      adapter.toJson(jw, value);
+    }
   }
 
   @Override
   public void toJson(OutputStream outputStream, T value) {
-    adapter.toJson(jsonb.writer(outputStream), value);
+    try (JsonWriter writer = jsonb.writer(outputStream)) {
+      adapter.toJson(writer, value);
+    }
   }
 
   @Override

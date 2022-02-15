@@ -13,6 +13,8 @@ public class MixedCSF {
   // public field
   public Long four;
 
+  public int[] flags;
+
   public MixedCSF(String one) {
     this.one = one;
   }

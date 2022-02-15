@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.spi.PropertyNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -17,6 +18,11 @@ final class JacksonReader implements JsonReader {
   JacksonReader(JsonParser parser, boolean failOnUnknown) {
     this.parser = parser;
     this.failOnUnknown = failOnUnknown;
+  }
+
+  @Override
+  public void names(PropertyNames names) {
+    // ignore
   }
 
   @Override

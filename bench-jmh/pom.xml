@@ -42,6 +42,11 @@
     </dependency>
     <dependency>
       <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsonb-diesel</artifactId>
+      <version>${avaje-jsonb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb-generator</artifactId>
       <version>${avaje-jsonb.version}</version>
       <scope>provided</scope>
@@ -57,10 +62,17 @@
 <!--      <version>${yasson.version}</version>-->
 <!--    </dependency>-->
 
+<!--    <dependency>-->
+<!--      <groupId>com.dslplatform</groupId>-->
+<!--      <artifactId>dsl-json</artifactId>-->
+<!--      <version>1.9.9</version>-->
+<!--    </dependency>-->
+
     <dependency>
       <groupId>com.dslplatform</groupId>
-      <artifactId>dsl-json</artifactId>
+      <artifactId>dsl-json-java8</artifactId>
       <version>1.9.9</version>
+<!--      <scope>provided</scope>-->
     </dependency>
 
 <!--    implementation group: 'com.dslplatform', name: '', version: "${dslJsonVersion}"-->
