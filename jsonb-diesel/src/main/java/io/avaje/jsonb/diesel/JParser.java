@@ -338,7 +338,7 @@ final class JParser implements JsonParser {
 
   char[] prepareBuffer(final int start, final int len) throws ParsingException {
     if (len > maxNumberDigits) {
-      throw newParseErrorWith("Too many digits detected in number", len, "", "Too many digits detected in number", len, "");
+      throw newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", len, "");
     }
     while (chars.length < len) {
       chars = Arrays.copyOf(chars, chars.length * 2);
@@ -991,10 +991,6 @@ final class JParser implements JsonParser {
   private final Formatter errorFormatter = new Formatter(error);
 
   ParsingException newParseError(final String description) {
-    return newParseError(description, 0);
-  }
-
-  ParsingException newParseError(final String description, final int positionOffset) {
     if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, false);
     error.setLength(0);
     error.append(description);
@@ -1002,22 +998,22 @@ final class JParser implements JsonParser {
     error.append((char) last);
     if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
     error.append(" ");
-    positionDescription(positionOffset, error);
+    positionDescription(0, error);
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  ParsingException newParseErrorAt(final String description, final int positionOffset) {
+  ParsingException newParseErrorAt(final String description, final int offset) {
     if (errorInfo == ErrorInfo.MINIMAL || errorInfo == ErrorInfo.DESCRIPTION_ONLY) {
       return ParsingException.create(description, false);
     }
     error.setLength(0);
     error.append(description);
     error.append(" ");
-    positionDescription(positionOffset, error);
+    positionDescription(offset, error);
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  ParsingException newParseErrorAt(final String description, final int positionOffset, final Exception cause) {
+  ParsingException newParseErrorAt(final String description, final int offset, final Exception cause) {
     if (cause == null) throw new IllegalArgumentException("cause can't be null");
     if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, cause, false);
     error.setLength(0);
@@ -1032,44 +1028,35 @@ final class JParser implements JsonParser {
     error.append(description);
     if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), cause, false);
     error.append(" ");
-    positionDescription(positionOffset, error);
+    positionDescription(offset, error);
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  ParsingException newParseErrorFormat(final String shortDescription, final int positionOffset, final String longDescriptionFormat, Object... arguments) {
-    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(shortDescription, false);
+  ParsingException newParseErrorFormat(final String description, final int offset, final String extraFormat, Object... args) {
+    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, false);
     error.setLength(0);
-    errorFormatter.format(longDescriptionFormat, arguments);
+    errorFormatter.format(extraFormat, args);
     if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
     error.append(" ");
-    positionDescription(positionOffset, error);
+    positionDescription(offset, error);
     return ParsingException.create(error.toString(), withStackTrace());
   }
 
-  ParsingException newParseErrorWith(
-    final String description, Object argument) {
-    return newParseErrorWith(description, 0, "", description, argument, "");
+  ParsingException newParseErrorWith(String description, Object argument) {
+    return newParseErrorWith(description, 0, description, argument, "");
   }
 
-  ParsingException newParseErrorWith(
-    final String shortDescription,
-    final int positionOffset,
-    final String longDescriptionPrefix,
-    final String longDescriptionMessage, Object argument,
-    final String longDescriptionSuffix) {
-    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(shortDescription, false);
+  ParsingException newParseErrorWith(String description,int offset,String extra, Object extraArgument, String extraSuffix) {
+    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, false);
     error.setLength(0);
-    error.append(longDescriptionPrefix);
-    error.append(longDescriptionMessage);
-    if (argument != null) {
-      error.append(": '");
-      error.append(argument);
-      error.append("'");
+    error.append(extra);
+    if (extraArgument != null) {
+      error.append(": '").append(extraArgument).append("'");
     }
-    error.append(longDescriptionSuffix);
+    error.append(extraSuffix);
     if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
     error.append(" ");
-    positionDescription(positionOffset, error);
+    positionDescription(offset, error);
     return ParsingException.create(error.toString(), withStackTrace());
   }
 }
