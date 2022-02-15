@@ -4,7 +4,6 @@ import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 
-import java.io.IOException;
 import java.time.*;
 
 /**
@@ -35,7 +34,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<Instant>() {
     @Override
     public Instant fromJson(JsonReader reader) {
-      return Instant.parse(reader.nextString());
+      return Instant.parse(reader.readString());
     }
 
     @Override
@@ -52,7 +51,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<OffsetDateTime> OFFSET_DATE_TIME_ADAPTER = new JsonAdapter<OffsetDateTime>() {
     @Override
     public OffsetDateTime fromJson(JsonReader reader) {
-      return OffsetDateTime.parse(reader.nextString());
+      return OffsetDateTime.parse(reader.readString());
     }
 
     @Override
@@ -69,7 +68,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<OffsetTime> OFFSET_TIME_ADAPTER = new JsonAdapter<OffsetTime>() {
     @Override
     public OffsetTime fromJson(JsonReader reader) {
-      return OffsetTime.parse(reader.nextString());
+      return OffsetTime.parse(reader.readString());
     }
 
     @Override
@@ -86,7 +85,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<ZonedDateTime> ZONED_DATE_TIME_ADAPTER = new JsonAdapter<ZonedDateTime>() {
     @Override
     public ZonedDateTime fromJson(JsonReader reader) {
-      return ZonedDateTime.parse(reader.nextString());
+      return ZonedDateTime.parse(reader.readString());
     }
 
     @Override
@@ -103,7 +102,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<ZoneOffset> ZONE_OFFSET_ADAPTER = new JsonAdapter<ZoneOffset>() {
     @Override
     public ZoneOffset fromJson(JsonReader reader) {
-      return ZoneOffset.of(reader.nextString());
+      return ZoneOffset.of(reader.readString());
     }
 
     @Override
@@ -120,7 +119,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<ZoneId> ZONE_ID_ADAPTER = new JsonAdapter<ZoneId>() {
     @Override
     public ZoneId fromJson(JsonReader reader) {
-      return ZoneId.of(reader.nextString());
+      return ZoneId.of(reader.readString());
     }
 
     @Override
@@ -137,7 +136,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<LocalDate> LOCAL_DATE_ADAPTER = new JsonAdapter<LocalDate>() {
     @Override
     public LocalDate fromJson(JsonReader reader) {
-      return LocalDate.parse(reader.nextString());
+      return LocalDate.parse(reader.readString());
     }
 
     @Override
@@ -154,7 +153,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<LocalDateTime> LOCAL_DATE_TIME_ADAPTER = new JsonAdapter<LocalDateTime>() {
     @Override
     public LocalDateTime fromJson(JsonReader reader) {
-      return LocalDateTime.parse(reader.nextString());
+      return LocalDateTime.parse(reader.readString());
     }
 
     @Override
@@ -171,7 +170,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<LocalTime> LOCAL_TIME_ADAPTER = new JsonAdapter<LocalTime>() {
     @Override
     public LocalTime fromJson(JsonReader reader) {
-      return LocalTime.parse(reader.nextString());
+      return LocalTime.parse(reader.readString());
     }
 
     @Override
@@ -188,7 +187,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<MonthDay> MONTH_DAY_ADAPTER = new JsonAdapter<MonthDay>() {
     @Override
     public MonthDay fromJson(JsonReader reader) {
-      return MonthDay.parse(reader.nextString());
+      return MonthDay.parse(reader.readString());
     }
 
     @Override
@@ -206,7 +205,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<Period> PERIOD_ADAPTER = new JsonAdapter<Period>() {
     @Override
     public Period fromJson(JsonReader reader) {
-      return Period.parse(reader.nextString());
+      return Period.parse(reader.readString());
     }
 
     @Override
@@ -223,7 +222,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<Year> YEAR_ADAPTER = new JsonAdapter<Year>() {
     @Override
     public Year fromJson(JsonReader reader) {
-      return Year.of(reader.nextInt());
+      return Year.of(reader.readInt());
     }
 
     @Override
@@ -240,7 +239,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<YearMonth> YEAR_MONTH_ADAPTER = new JsonAdapter<YearMonth>() {
     @Override
     public YearMonth fromJson(JsonReader reader) {
-      return YearMonth.parse(reader.nextString());
+      return YearMonth.parse(reader.readString());
     }
 
     @Override

@@ -101,7 +101,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public boolean nextBoolean() {
+  public boolean readBoolean() {
     try {
       return reader.readBoolean();
     } catch (IOException e) {
@@ -110,7 +110,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public int nextInt() {
+  public int readInt() {
     try {
       return reader.readInt();
     } catch (IOException e) {
@@ -119,7 +119,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public long nextLong() {
+  public long readLong() {
     try {
       return reader.readLong();
     } catch (IOException e) {
@@ -128,7 +128,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public double nextDouble() {
+  public double readDouble() {
     try {
       return reader.readDouble();
     } catch (IOException e) {
@@ -137,7 +137,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public BigDecimal nextDecimal() {
+  public BigDecimal readDecimal() {
     try {
       return reader.readDecimal();
     } catch (IOException e) {
@@ -146,7 +146,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public BigInteger nextBigInteger() {
+  public BigInteger readBigInteger() {
     try {
       return reader.readBigInteger();
     } catch (IOException e) {
@@ -155,7 +155,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public String nextString() {
+  public String readString() {
     try {
       return reader.readString();
     } catch (IOException e) {
@@ -164,7 +164,7 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public boolean peekIsNull() {
+  public boolean isNull() {
     try {
       return reader.currentIsNull();
     } catch (IOException e) {
@@ -173,17 +173,12 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public <T> T nextNull() {
-    return null;
-  }
-
-  @Override
-  public String path() {
+  public String location() {
     return reader.location();
   }
 
   @Override
-  public Token peek() {
+  public Token currentToken() {
     byte token = reader.currentToken();
     switch (token) {
       case '[': return Token.BEGIN_ARRAY;

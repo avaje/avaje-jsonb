@@ -77,7 +77,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public String path() {
+  public String location() {
     return parser.getCurrentLocation().toString();
   }
 
@@ -103,19 +103,12 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public boolean peekIsNull() {
+  public boolean isNull() {
     return parser.hasToken(JsonToken.VALUE_NULL);
-    //return parser.currentToken() == JsonToken.VALUE_NULL;
   }
 
   @Override
-  public <T> T nextNull() {
-    // do nothing
-    return null;
-  }
-
-  @Override
-  public boolean nextBoolean() {
+  public boolean readBoolean() {
     try {
       return parser.getValueAsBoolean();
     } catch (IOException e) {
@@ -124,7 +117,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public int nextInt() {
+  public int readInt() {
     try {
       return parser.getValueAsInt();
     } catch (IOException e) {
@@ -133,7 +126,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public BigDecimal nextDecimal() {
+  public BigDecimal readDecimal() {
     try {
       return parser.getDecimalValue();
     } catch (IOException e) {
@@ -142,7 +135,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public BigInteger nextBigInteger() {
+  public BigInteger readBigInteger() {
     try {
       return parser.getBigIntegerValue();
     } catch (IOException e) {
@@ -151,7 +144,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public long nextLong() {
+  public long readLong() {
     try {
       return parser.getValueAsLong();
     } catch (IOException e) {
@@ -160,7 +153,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public double nextDouble() {
+  public double readDouble() {
     try {
       return parser.getValueAsDouble();
     } catch (IOException e) {
@@ -169,7 +162,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public String nextString() {
+  public String readString() {
     try {
       return parser.getValueAsString();
     } catch (IOException e) {
@@ -199,7 +192,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public Token peek() {
+  public Token currentToken() {
     JsonToken token = parser.currentToken();
     if (token == null) {
       try {

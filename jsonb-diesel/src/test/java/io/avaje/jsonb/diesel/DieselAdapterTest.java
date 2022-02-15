@@ -22,20 +22,20 @@ class DieselAdapterTest {
       reader.beginObject();
       assertTrue(reader.hasNextField());
       assertEquals("a", reader.nextField());
-      assertEquals("hi", reader.nextString());
+      assertEquals("hi", reader.readString());
       assertTrue(reader.hasNextField());
       assertEquals("b", reader.nextField());
       reader.beginArray();
       assertTrue(reader.hasNextElement());
-      assertEquals("zz", reader.nextString());
+      assertEquals("zz", reader.readString());
       assertTrue(reader.hasNextElement());
-      assertEquals("xx", reader.nextString());
+      assertEquals("xx", reader.readString());
       assertTrue(reader.hasNextElement());
-      assertEquals("yy", reader.nextString());
+      assertEquals("yy", reader.readString());
       assertFalse(reader.hasNextElement());
       assertTrue(reader.hasNextField());
       assertEquals("c", reader.nextField());
-      assertEquals("bye", reader.nextString());
+      assertEquals("bye", reader.readString());
       assertFalse(reader.hasNextField());
       reader.endObject();
     }

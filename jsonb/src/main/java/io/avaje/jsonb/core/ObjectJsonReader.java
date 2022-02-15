@@ -89,7 +89,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public boolean nextBoolean() {
+  public boolean readBoolean() {
     if (currentValue instanceof Boolean) {
       return (Boolean) currentValue;
     }
@@ -97,7 +97,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public int nextInt() {
+  public int readInt() {
     if (currentValue instanceof Integer) {
       return (Integer) currentValue;
     }
@@ -105,7 +105,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public long nextLong() {
+  public long readLong() {
     if (currentValue instanceof Long) {
       return (Long) currentValue;
     }
@@ -113,7 +113,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public double nextDouble() {
+  public double readDouble() {
     if (currentValue instanceof Double) {
       return (Double) currentValue;
     }
@@ -121,7 +121,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public String nextString() {
+  public String readString() {
     if (currentValue instanceof String) {
       return (String) currentValue;
     }
@@ -129,7 +129,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public BigDecimal nextDecimal() {
+  public BigDecimal readDecimal() {
     if (currentValue instanceof BigDecimal) {
       return (BigDecimal) currentValue;
     }
@@ -137,7 +137,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public BigInteger nextBigInteger() {
+  public BigInteger readBigInteger() {
     if (currentValue instanceof BigInteger) {
       return (BigInteger) currentValue;
     }
@@ -145,23 +145,18 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public boolean peekIsNull() {
+  public boolean isNull() {
     return currentValue == null;
   }
 
   @Override
-  public <T> T nextNull() {
-    return null;
-  }
-
-  @Override
-  public String path() {
+  public String location() {
     // not maintaining a path at this point
     return "unknown";
   }
 
   @Override
-  public Token peek() {
+  public Token currentToken() {
     throw new IllegalStateException("not called");
   }
 

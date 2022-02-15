@@ -17,7 +17,6 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -64,7 +63,7 @@ final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
       V value = valueAdapter.fromJson(reader);
       V replaced = result.put(name, value);
       if (replaced != null) {
-        throw new JsonDataException(String.format("Map key '%s' has multiple values at path %s : %s and %s", name, reader.path(), replaced, value));
+        throw new JsonDataException(String.format("Map key '%s' has multiple values at path %s : %s and %s", name, reader.location(), replaced, value));
       }
     }
     reader.endObject();

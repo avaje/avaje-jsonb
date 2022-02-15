@@ -74,58 +74,52 @@ final class JakartaJsonReader implements JsonReader {
   }
 
   @Override
-  public boolean nextBoolean() {
+  public boolean readBoolean() {
     return currenEvent == JsonParser.Event.VALUE_TRUE;
   }
 
   @Override
-  public int nextInt() {
+  public int readInt() {
     return parser.getInt();
   }
 
   @Override
-  public long nextLong() {
+  public long readLong() {
     return parser.getLong();
   }
 
   @Override
-  public double nextDouble() {
+  public double readDouble() {
     return parser.getBigDecimal().doubleValue();
   }
 
   @Override
-  public BigDecimal nextDecimal() {
+  public BigDecimal readDecimal() {
     return parser.getBigDecimal();
   }
 
   @Override
-  public BigInteger nextBigInteger() {
+  public BigInteger readBigInteger() {
     return parser.getBigDecimal().toBigInteger();
   }
 
   @Override
-  public String nextString() {
+  public String readString() {
     return parser.getString();
   }
 
   @Override
-  public boolean peekIsNull() {
+  public boolean isNull() {
     return currenEvent == JsonParser.Event.VALUE_NULL;
   }
 
   @Override
-  public <T> T nextNull() {
-    // just return null
-    return null;
-  }
-
-  @Override
-  public String path() {
+  public String location() {
     return parser.getLocation().toString();
   }
 
   @Override
-  public Token peek() {
+  public Token currentToken() {
     if (currenEvent == null) {
       currenEvent = parser.next();
     }

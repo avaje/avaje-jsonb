@@ -44,7 +44,7 @@ public interface JsonReader extends Closeable {
     void endArray();
 
     /**
-     * Return true if there is a next element.
+     * Return true if there is a next element in an ARRAY.
      */
     boolean hasNextElement();
 
@@ -59,7 +59,7 @@ public interface JsonReader extends Closeable {
     void endObject();
 
     /**
-     * Return true if there is a next field to be read.
+     * Return true if there is a next field to be read in an OBJECT.
      */
     boolean hasNextField();
 
@@ -71,57 +71,52 @@ public interface JsonReader extends Closeable {
     /**
      * Read and return the next value as a boolean.
      */
-    boolean nextBoolean();
+    boolean readBoolean();
 
     /**
      * Read and return the next value as an int.
      */
-    int nextInt();
+    int readInt();
 
     /**
      * Read and return the next value as a long.
      */
-    long nextLong();
+    long readLong();
 
     /**
      * Read and return the next value as a double.
      */
-    double nextDouble();
+    double readDouble();
 
     /**
      * Read and return the next value as a BigDecimal.
      */
-    BigDecimal nextDecimal();
+    BigDecimal readDecimal();
 
     /**
      * Read and return the next value as a BigInteger.
      */
-    BigInteger nextBigInteger();
+    BigInteger readBigInteger();
 
     /**
      * Read and return the next value as String.
      */
-    String nextString();
+    String readString();
 
     /**
-     * Return true if the next value is a null.
+     * Return true if the value to be read is a null.
      */
-    boolean peekIsNull();
+    boolean isNull();
 
     /**
-     * Return the next value as a null.
+     * Return the current location. This is typically used when reporting errors.
      */
-    <T> T nextNull();
-
-    /**
-     * Return the current path.
-     */
-    String path();
+    String location();
 
     /**
      * Return the current Token.
      */
-    Token peek();
+    Token currentToken();
 
     /**
      * Close the resources of the reader.

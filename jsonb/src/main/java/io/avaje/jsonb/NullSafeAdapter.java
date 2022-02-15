@@ -17,8 +17,6 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
-import java.io.IOException;
-
 final class NullSafeAdapter<T> extends JsonAdapter<T> {
 
   private final JsonAdapter<T> delegate;
@@ -38,8 +36,8 @@ final class NullSafeAdapter<T> extends JsonAdapter<T> {
 
   @Override
   public T fromJson(JsonReader reader) {
-    if (reader.peekIsNull()) {
-      return reader.nextNull();
+    if (reader.isNull()) {
+      return null;//reader.nextNull();
     } else {
       return delegate.fromJson(reader);
     }

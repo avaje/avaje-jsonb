@@ -44,13 +44,13 @@ class JsonReadAdapterTest {
     reader.beginObject();
     assertTrue(reader.hasNextField());
     assertEquals("name", reader.nextField());
-    assertEquals("roberto", reader.nextString());
+    assertEquals("roberto", reader.readString());
     assertTrue(reader.hasNextField());
     assertEquals("age", reader.nextField());
-    assertEquals(42, reader.nextInt());
+    assertEquals(42, reader.readInt());
     assertTrue(reader.hasNextField());
     assertEquals("notes", reader.nextField());
-    assertEquals("fooFooFoo", reader.nextString());
+    assertEquals("fooFooFoo", reader.readString());
   }
 
   @Test
@@ -62,20 +62,20 @@ class JsonReadAdapterTest {
       reader.beginObject();
       assertTrue(reader.hasNextField());
       assertEquals("name", reader.nextField());
-      assertEquals("roberto", reader.nextString());
+      assertEquals("roberto", reader.readString());
       assertTrue(reader.hasNextField());
       assertEquals("val0", reader.nextField());
-      assertEquals(BigInteger.valueOf(123), reader.nextBigInteger());
+      assertEquals(BigInteger.valueOf(123), reader.readBigInteger());
       assertTrue(reader.hasNextField());
       assertEquals("val1", reader.nextField());
-      assertEquals(BigInteger.valueOf(1234567890123456789L), reader.nextBigInteger());
+      assertEquals(BigInteger.valueOf(1234567890123456789L), reader.readBigInteger());
       assertTrue(reader.hasNextField());
       assertEquals("val2", reader.nextField());
-      assertEquals(BigInteger.valueOf(1234567890123456789L), reader.nextBigInteger());
+      assertEquals(BigInteger.valueOf(1234567890123456789L), reader.readBigInteger());
 
       assertTrue(reader.hasNextField());
       assertEquals("notes", reader.nextField());
-      assertEquals("end", reader.nextString());
+      assertEquals("end", reader.readString());
     }
   }
 }

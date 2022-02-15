@@ -62,7 +62,7 @@ final class BasicTypeAdapters {
   private static final class UuidAdapter extends JsonAdapter<UUID> {
     @Override
     public UUID fromJson(JsonReader reader) {
-      return UUID.fromString(reader.nextString());
+      return UUID.fromString(reader.readString());
     }
 
     @Override
@@ -80,7 +80,7 @@ final class BasicTypeAdapters {
     @Override
     public URL fromJson(JsonReader reader) {
       try {
-        return new URL(reader.nextString());
+        return new URL(reader.readString());
       } catch (MalformedURLException e) {
         throw new JsonDataException(e);
       }
@@ -100,7 +100,7 @@ final class BasicTypeAdapters {
   private static final class UriAdapter extends JsonAdapter<URI> {
     @Override
     public URI fromJson(JsonReader reader) {
-      return URI.create(reader.nextString());
+      return URI.create(reader.readString());
     }
 
     @Override
@@ -117,7 +117,7 @@ final class BasicTypeAdapters {
   static final class BooleanAdapter extends JsonAdapter<Boolean> {
     @Override
     public Boolean fromJson(JsonReader reader) {
-      return reader.nextBoolean();
+      return reader.readBoolean();
     }
 
     @Override
@@ -151,9 +151,9 @@ final class BasicTypeAdapters {
   static final class CharacterAdapter extends JsonAdapter<Character> {
     @Override
     public Character fromJson(JsonReader reader) {
-      String value = reader.nextString();
+      String value = reader.readString();
       if (value.length() > 1) {
-        throw new JsonDataException(String.format("Expected %s but was %s at path %s", "a char", '"' + value + '"', reader.path()));
+        throw new JsonDataException(String.format("Expected %s but was %s at path %s", "a char", '"' + value + '"', reader.location()));
       } else {
         return value.charAt(0);
       }
@@ -173,7 +173,7 @@ final class BasicTypeAdapters {
   static final class DoubleAdapter extends JsonAdapter<Double> {
     @Override
     public Double fromJson(JsonReader reader) {
-      return reader.nextDouble();
+      return reader.readDouble();
     }
 
     @Override
@@ -190,9 +190,9 @@ final class BasicTypeAdapters {
   static final class FloatAdapter extends JsonAdapter<Float> {
     @Override
     public Float fromJson(JsonReader reader) {
-      float value = (float) reader.nextDouble();
+      float value = (float) reader.readDouble();
       if (Float.isInfinite(value)) { // !reader.isLenient() &&
-        throw new JsonDataException("JSON forbids NaN and infinities: " + value + " at path " + reader.path());
+        throw new JsonDataException("JSON forbids NaN and infinities: " + value + " at path " + reader.location());
       } else {
         return value;
       }
@@ -213,7 +213,7 @@ final class BasicTypeAdapters {
   static final class IntegerAdapter extends JsonAdapter<Integer> {
     @Override
     public Integer fromJson(JsonReader reader) {
-      return reader.nextInt();
+      return reader.readInt();
     }
 
     @Override
@@ -230,7 +230,7 @@ final class BasicTypeAdapters {
   static final class LongAdapter extends JsonAdapter<Long> {
     @Override
     public Long fromJson(JsonReader reader) {
-      return reader.nextLong();
+      return reader.readLong();
     }
 
     @Override
@@ -264,7 +264,7 @@ final class BasicTypeAdapters {
   static final class StringAdapter extends JsonAdapter<String> {
     @Override
     public String fromJson(JsonReader reader) {
-      return reader.nextString();
+      return reader.readString();
     }
 
     @Override
@@ -279,11 +279,11 @@ final class BasicTypeAdapters {
   }
 
   static int rangeCheckNextInt(JsonReader reader, String typeMessage, int min, int max) {
-    int value = reader.nextInt();
+    int value = reader.readInt();
     if (value >= min && value <= max) {
       return value;
     } else {
-      throw new JsonDataException(String.format("Expected %s but was %s at path %s", typeMessage, value, reader.path()));
+      throw new JsonDataException(String.format("Expected %s but was %s at path %s", typeMessage, value, reader.location()));
     }
   }
 
@@ -307,7 +307,7 @@ final class BasicTypeAdapters {
 
     @Override
     public Object fromJson(JsonReader reader) {
-      switch (reader.peek()) {
+      switch (reader.currentToken()) {
         case BEGIN_ARRAY:
           return this.listJsonAdapter.fromJson(reader);
         case BEGIN_OBJECT:
@@ -319,9 +319,9 @@ final class BasicTypeAdapters {
         case BOOLEAN:
           return this.booleanAdapter.fromJson(reader);
         case NULL:
-          return reader.nextNull();
+          return null;//reader.nextNull();
         default:
-          throw new IllegalStateException("Expected a value but was " + reader.peek() + " at path " + reader.path());
+          throw new IllegalStateException("Expected a value but was " + reader.currentToken() + " at path " + reader.location());
       }
     }
 
@@ -408,10 +408,10 @@ final class BasicTypeAdapters {
 
     @Override
     public T fromJson(JsonReader reader) {
-      String value = reader.nextString();
+      String value = reader.readString();
       String name = toName.get(value);
       if (name == null) {
-        throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.path());
+        throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.location());
       }
       return Enum.valueOf(enumType, name);
     }
@@ -449,10 +449,10 @@ final class BasicTypeAdapters {
 
     @Override
     public T fromJson(JsonReader reader) {
-      int value = reader.nextInt();
+      int value = reader.readInt();
       String name = toName.get(value);
       if (name == null) {
-        throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.path());
+        throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.location());
       }
       return Enum.valueOf(enumType, name);
     }
@@ -472,7 +472,7 @@ final class BasicTypeAdapters {
 
     @Override
     public T fromJson(JsonReader reader) {
-      String value = reader.nextString();
+      String value = reader.readString();
       return Enum.valueOf(enumType, value);
     }
 
