@@ -27,7 +27,7 @@ final class JsonNames implements PropertyNames {
         hashingClash = true;
       }
     }
-    return  new JsonNames(nameArray, hashingClash ? Collections.emptyMap() : nameHash);
+    return new JsonNames(nameArray, hashingClash ? Collections.emptyMap() : nameHash);
   }
 
   byte[] key(int namePos) {

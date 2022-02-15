@@ -6,6 +6,7 @@ final class NumberWriter {
   private static final byte[] MIN_INT = "-2147483648".getBytes();
   private static final byte[] MIN_LONG = "-9223372036854775808".getBytes();
   private final static int[] DIGITS = new int[1000];
+
   static {
     for (int i = 0; i < DIGITS.length; i++) {
       DIGITS[i] = (i < 10 ? (2 << 24) : i < 100 ? (1 << 24) : 0)

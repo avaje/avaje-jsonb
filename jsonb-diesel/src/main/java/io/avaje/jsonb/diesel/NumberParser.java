@@ -12,12 +12,12 @@ final class NumberParser {
 //  public final static Float FLOAT_ZERO = 0f;
 //  public final static Double DOUBLE_ZERO = 0.0;
 
-//  private final static int[] DIGITS = new int[1000];
+  //  private final static int[] DIGITS = new int[1000];
   private final static int[] DIFF = {111, 222, 444, 888, 1776};
   private final static int[] ERROR = {50, 100, 200, 400, 800};
   private final static int[] SCALE_10 = {10000, 1000, 100, 10, 1};
   private final static double[] POW_10 = {
-    1e1,  1e2,  1e3,  1e4,  1e5, 1e6, 1e7, 1e8,  1e9,
+    1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9,
     1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19,
     1e20, 1e21, 1e22, 1e23, 1e24, 1e25, 1e26, 1e27, 1e28, 1e29,
     1e30, 1e31, 1e32, 1e33, 1e34, 1e35, 1e36, 1e37, 1e38, 1e39,
@@ -46,7 +46,7 @@ final class NumberParser {
     if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
       throw reader.newParseErrorAt("Short overflow detected", reader.getCurrentIndex());
     }
-    return (short)value;
+    return (short) value;
   }
 
   static int deserializeInt(final JParser reader) throws IOException {
@@ -293,12 +293,13 @@ final class NumberParser {
           numberException(reader, start, end, "Leading zero is not allowed");
         }
         if (i > start + offset && reader.allWhitespace(i, end)) return value;
-        numberException(reader, start, end, "Unknown digit", (char)ch);
+        numberException(reader, start, end, "Unknown digit", (char) ch);
       }
       value = (value << 3) + (value << 1) + ind;
     }
     if (i == start + offset) numberException(reader, start, end, "Digit not found");
-    else if (leadingZero && ch != '.' && i > start + offset + 1) numberException(reader, start, end, "Leading zero is not allowed");
+    else if (leadingZero && ch != '.' && i > start + offset + 1)
+      numberException(reader, start, end, "Leading zero is not allowed");
     else if (i == end) return value;
     else if (ch == '.') {
       i++;
@@ -342,13 +343,13 @@ final class NumberParser {
         final int ind = ch - 48;
         if (ind < 0 || ind > 9) {
           if (reader.allWhitespace(i, end)) return value / POW_10[i - decPos - 1];
-          numberException(reader, start, end, "Unknown digit", (char)buf[i]);
+          numberException(reader, start, end, "Unknown digit", (char) buf[i]);
         }
         value = (value << 3) + (value << 1) + ind;
       }
       if (i == end) return value / POW_10[i - decPos - 1];
       else if (ch == 'e' || ch == 'E') {
-        return doubleExponent(reader, value, i - decPos,0, buf, start, end, offset, i);
+        return doubleExponent(reader, value, i - decPos, 0, buf, start, end, offset, i);
       }
       if (reader.doublePrecision == JParser.DoublePrecision.HIGH) {
         return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
@@ -356,7 +357,7 @@ final class NumberParser {
       int decimals = 0;
       final int decLimit = Math.min(start + offset + 18, end);
       final int remPos = i;
-      for(;i < decLimit; i++) {
+      for (; i < decLimit; i++) {
         ch = buf[i];
         if (ch == 'e' || ch == 'E') break;
         final int ind = ch - 48;
@@ -364,7 +365,7 @@ final class NumberParser {
           if (reader.allWhitespace(i, end)) {
             return approximateDouble(decimals, value / preciseDividor, i - remPos - decOffset);
           }
-          numberException(reader, start, end, "Unknown digit", (char)buf[i]);
+          numberException(reader, start, end, "Unknown digit", (char) buf[i]);
         }
         decimals = (decimals << 3) + (decimals << 1) + ind;
       }
@@ -389,7 +390,7 @@ final class NumberParser {
 
   private static double approximateDouble(final int decimals, final double precise, final int digits) {
     final long bits = Double.doubleToRawLongBits(precise);
-    final int exp = (int)(bits >> 52) - 1022;
+    final int exp = (int) (bits >> 52) - 1022;
     final int missing = (decimals * SCALE_10[digits + 1] + ERROR[exp]) / DIFF[exp];
     return Double.longBitsToDouble(bits + missing);
   }
@@ -484,12 +485,13 @@ final class NumberParser {
           numberException(reader, start, end, "Leading zero is not allowed");
         }
         if (i > start && reader.allWhitespace(i, end)) return BigDecimal.valueOf(value);
-        numberException(reader, start, end, "Unknown digit", (char)ch);
+        numberException(reader, start, end, "Unknown digit", (char) ch);
       }
       value = (value << 3) + (value << 1) + ind;
     }
     if (i == start) numberException(reader, start, end, "Digit not found");
-    else if (leadingZero && ch != '.' && i > start + 1) numberException(reader, start, end, "Leading zero is not allowed");
+    else if (leadingZero && ch != '.' && i > start + 1)
+      numberException(reader, start, end, "Leading zero is not allowed");
     else if (i == end) return BigDecimal.valueOf(value);
     else if (ch == '.') {
       i++;
@@ -501,7 +503,7 @@ final class NumberParser {
         final int ind = ch - 48;
         if (ind < 0 || ind > 9) {
           if (reader.allWhitespace(i, end)) return BigDecimal.valueOf(value, i - dp);
-          numberException(reader, start, end, "Unknown digit", (char)ch);
+          numberException(reader, start, end, "Unknown digit", (char) ch);
         }
         value = (value << 3) + (value << 1) + ind;
       }
@@ -551,12 +553,13 @@ final class NumberParser {
           numberException(reader, start, end, "Leading zero is not allowed");
         }
         if (i > start + 1 && reader.allWhitespace(i, end)) return BigDecimal.valueOf(value);
-        numberException(reader, start, end, "Unknown digit", (char)ch);
+        numberException(reader, start, end, "Unknown digit", (char) ch);
       }
       value = (value << 3) + (value << 1) - ind;
     }
     if (i == start + 1) numberException(reader, start, end, "Digit not found");
-    else if (leadingZero && ch != '.' && i > start + 2) numberException(reader, start, end, "Leading zero is not allowed");
+    else if (leadingZero && ch != '.' && i > start + 2)
+      numberException(reader, start, end, "Leading zero is not allowed");
     else if (i == end) return BigDecimal.valueOf(value);
     else if (ch == '.') {
       i++;
@@ -568,7 +571,7 @@ final class NumberParser {
         final int ind = ch - 48;
         if (ind < 0 || ind > 9) {
           if (reader.allWhitespace(i, end)) return BigDecimal.valueOf(value, i - dp);
-          numberException(reader, start, end, "Unknown digit", (char)ch);
+          numberException(reader, start, end, "Unknown digit", (char) ch);
         }
         value = (value << 3) + (value << 1) - ind;
       }
@@ -607,7 +610,7 @@ final class NumberParser {
 
   private static BigInteger parseBigIntGeneric(char[] buf, int len, JParser reader) throws ParsingException {
     int end;
-    for(end = len; end > 0 && Character.isWhitespace(buf[end - 1]); --end) {
+    for (end = len; end > 0 && Character.isWhitespace(buf[end - 1]); --end) {
       // do nothing
     }
     if (end > reader.maxNumberDigits) {
@@ -654,17 +657,17 @@ final class NumberParser {
           numberException(reader, start, end, "Digit not found");
         }
 
-        while(i < end) {
+        while (i < end) {
           ind = buf[i] - 48;
           if (ind < 0 || ind > 9) {
             if (i > start + 1 && reader.allWhitespace(i, end)) {
               return BigInteger.valueOf(value);
             }
 
-            numberException(reader, start, end, "Unknown digit", (char)ch);
+            numberException(reader, start, end, "Unknown digit", (char) ch);
           }
 
-          value = (value << 3) + (value << 1) - (long)ind;
+          value = (value << 3) + (value << 1) - (long) ind;
           ++i;
         }
 
@@ -674,7 +677,7 @@ final class NumberParser {
           numberException(reader, start, end, "Digit not found");
         }
 
-        while(i < end) {
+        while (i < end) {
           ind = buf[i] - 48;
           if (ind < 0 || ind > 9) {
             if (ch == 43 && i > start + 1 && reader.allWhitespace(i, end)) {
@@ -685,10 +688,10 @@ final class NumberParser {
               return BigInteger.valueOf(value);
             }
 
-            numberException(reader, start, end, "Unknown digit", (char)ch);
+            numberException(reader, start, end, "Unknown digit", (char) ch);
           }
 
-          value = (value << 3) + (value << 1) + (long)ind;
+          value = (value << 3) + (value << 1) + (long) ind;
           ++i;
         }
 

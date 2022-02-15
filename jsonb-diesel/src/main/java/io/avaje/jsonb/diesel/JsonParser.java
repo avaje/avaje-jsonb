@@ -1,7 +1,6 @@
 package io.avaje.jsonb.diesel;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 

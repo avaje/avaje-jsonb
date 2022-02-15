@@ -2,24 +2,25 @@ package io.avaje.jsonb.diesel;
 
 import java.util.Arrays;
 
-/** A very fast and memory efficient class to encode and decode to and from BASE64 in full accordance
+/**
+ * A very fast and memory efficient class to encode and decode to and from BASE64 in full accordance
  * with RFC 2045.<br><br>
  * On Windows XP sp1 with 1.4.2_04 and later ;), this encoder and decoder is about 10 times faster
  * on small arrays (10 - 1000 bytes) and 2-3 times as fast on larger arrays (10000 - 1000000 bytes)
  * compared to <code>sun.misc.Encoder()/Decoder()</code>.<br><br>
- *
+ * <p>
  * On byte arrays the encoder is about 20% faster than Jakarta Commons Base64 Codec for encode and
  * about 50% faster for decoding large arrays. This implementation is about twice as fast on very small
  * arrays (&lt 30 bytes). If source/destination is a <code>String</code> this
  * version is about three times as fast due to the fact that the Commons Codec result has to be recoded
  * to a <code>String</code> from <code>byte[]</code>, which is very expensive.<br><br>
- *
+ * <p>
  * This encode/decode algorithm doesn't create any temporary arrays as many other codecs do, it only
  * allocates the resulting array. This produces less garbage and it is possible to handle arrays twice
  * as large as algorithms that create a temporary array. (E.g. Jakarta Commons Codec). It is unknown
  * whether Sun's <code>sun.misc.Encoder()/Decoder()</code> produce temporary arrays but since performance
  * is quite low it probably does.<br><br>
- *
+ * <p>
  * The encoder produces the same output as the Sun one except that the Sun's encoder appends
  * a trailing line separator if the last character isn't a pad. Unclear why but it only adds to the
  * length and is probably a side effect. Both are in conformance with RFC 2045 though.<br>
@@ -29,19 +30,19 @@ import java.util.Arrays;
  * The encode/decode method pairs (types) come in three versions with the <b>exact</b> same algorithm and
  * thus a lot of code redundancy. This is to not create any temporary arrays for transcoding to/from different
  * format types. The methods not used can simply be commented out.<br><br>
- *
+ * <p>
  * There is also a "fast" version of all decode methods that works the same way as the normal ones, but
  * har a few demands on the decoded input. Normally though, these fast verions should be used if the source if
  * the input is known and it hasn't bee tampered with.<br><br>
- *
+ * <p>
  * If you find the code useful or you find a bug, please send me a note at base64 @ miginfocom . com.
- *
+ * <p>
  * Licence (BSD):
  * ==============
- *
+ * <p>
  * Copyright (c) 2004, Mikael Grev, MiG InfoCom AB. (base64 @ miginfocom . com)
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * Redistributions of source code must retain the above copyright notice, this list
@@ -52,7 +53,7 @@ import java.util.Arrays;
  * Neither the name of the MiG InfoCom AB nor the names of its contributors may be
  * used to endorse or promote products derived from this software without specific
  * prior written permission.
- *
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -64,16 +65,17 @@ import java.util.Arrays;
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *
- * @version 2.2
  * @author Mikael Grev
- *         Date: 2004-aug-02
- *         Time: 11:31:11
+ * Date: 2004-aug-02
+ * Time: 11:31:11
+ * @version 2.2
  */
 
 final class Base64 {
   private static final char[] CA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
   private static final byte[] BA;
   private static final int[] IA = new int[256];
+
   static {
     Arrays.fill(IA, -1);
     for (int i = 0, iS = CA.length; i < iS; i++) {
@@ -82,7 +84,7 @@ final class Base64 {
     IA['='] = 0;
     BA = new byte[CA.length];
     for (int i = 0; i < CA.length; i++) {
-      BA[i] = (byte)CA[i];
+      BA[i] = (byte) CA[i];
     }
   }
 
@@ -93,7 +95,7 @@ final class Base64 {
     final int dLen = ((sLen - 1) / 3 + 1) << 2;   // Returned character count
 
     // Encode even 24-bits
-    for (int s = 0, d = start; s < eLen;) {
+    for (int s = 0, d = start; s < eLen; ) {
       // Copy next three bytes into lower 24 bits of int, paying attension to sign.
       int i = (sArr[s++] & 0xff) << 16 | (sArr[s++] & 0xff) << 8 | (sArr[s++] & 0xff);
 
@@ -113,7 +115,7 @@ final class Base64 {
       // Set last four chars
       dArr[start + dLen - 4] = BA[i >> 12];
       dArr[start + dLen - 3] = BA[(i >>> 6) & 0x3f];
-      dArr[start + dLen - 2] = left == 2 ? BA[i & 0x3f] : (byte)'=';
+      dArr[start + dLen - 2] = left == 2 ? BA[i & 0x3f] : (byte) '=';
       dArr[start + dLen - 1] = '=';
     }
 
@@ -157,7 +159,7 @@ final class Base64 {
 
     // Decode all but the last 0 - 2 bytes.
     int d = 0;
-    for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
+    for (int cc = 0, eLen = (len / 3) * 3; d < eLen; ) {
       // Assemble three bytes into an int from four "valid" characters.
       int i = IA[sArr[sIx++]] << 18 | IA[sArr[sIx++]] << 12 | IA[sArr[sIx++]] << 6 | IA[sArr[sIx++]];
 

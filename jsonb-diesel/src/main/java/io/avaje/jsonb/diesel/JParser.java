@@ -7,9 +7,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Formatter;
 
 /**
+ *
  */
 final class JParser implements JsonParser {
 
@@ -218,6 +220,7 @@ final class JParser implements JsonParser {
       return this;
     }
   }
+
   private static final EOFException eof = new EmptyEOFException();
 
   boolean withStackTrace() {
@@ -325,7 +328,7 @@ final class JParser implements JsonParser {
     error.setLength(0);
     error.append(description);
     error.append(". Found ");
-    error.append((char)last);
+    error.append((char) last);
     if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
     error.append(" ");
     positionDescription(positionOffset, error);
@@ -828,7 +831,7 @@ final class JParser implements JsonParser {
       hash *= 0x1000193;
     } while (!isEndOfStream());
     //TODO: check offset
-    throw newParseErrorAt("JSON string was not closed with a double quote", (int)startPosition);
+    throw newParseErrorAt("JSON string was not closed with a double quote", (int) startPosition);
   }
 
   private String lastFieldName() {

@@ -20,7 +20,7 @@ final class JsonReadAdapter implements JsonReader {
 
   @Override
   public void names(PropertyNames names) {
-    reader.names((JsonNames)names);
+    reader.names((JsonNames) names);
   }
 
   @Override
@@ -181,10 +181,14 @@ final class JsonReadAdapter implements JsonReader {
   public Token currentToken() {
     byte token = reader.currentToken();
     switch (token) {
-      case '[': return Token.BEGIN_ARRAY;
-      case '{': return Token.BEGIN_OBJECT;
-      case 'n': return Token.NULL;
-      case '\"': return Token.STRING;
+      case '[':
+        return Token.BEGIN_ARRAY;
+      case '{':
+        return Token.BEGIN_OBJECT;
+      case 'n':
+        return Token.NULL;
+      case '\"':
+        return Token.STRING;
       case 't':
       case 'f': {
         return Token.BOOLEAN;
