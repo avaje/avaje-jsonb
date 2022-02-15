@@ -1,5 +1,6 @@
 package io.avaje.jsonb.diesel;
 
+import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import org.junit.jupiter.api.Test;
@@ -9,10 +10,36 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DieselAdapterTest {
 
   final DieselAdapter adapter = new DieselAdapter(true, true, false);
+
+  @Test
+  void readArray() {
+    try (JsonReader reader = adapter.reader("{\"a\":\"hi\",\"b\":[\"zz\",\"xx\",\"yy\"], \"c\":\"bye\"}")) {
+      reader.beginObject();
+      assertTrue(reader.hasNextField());
+      assertEquals("a", reader.nextField());
+      assertEquals("hi", reader.nextString());
+      assertTrue(reader.hasNextField());
+      assertEquals("b", reader.nextField());
+      reader.beginArray();
+      assertTrue(reader.hasNextElement());
+      assertEquals("zz", reader.nextString());
+      assertTrue(reader.hasNextElement());
+      assertEquals("xx", reader.nextString());
+      assertTrue(reader.hasNextElement());
+      assertEquals("yy", reader.nextString());
+      assertFalse(reader.hasNextElement());
+      assertTrue(reader.hasNextField());
+      assertEquals("c", reader.nextField());
+      assertEquals("bye", reader.nextString());
+      assertFalse(reader.hasNextField());
+      reader.endObject();
+    }
+  }
 
   @Test
   void write_usingBufferedWriter() {
@@ -24,7 +51,6 @@ class DieselAdapterTest {
     writeHello(jw1, "hi");
     assertThat(jw1.result()).isEqualTo("{\"one\":\"hi\"}");
   }
-
 
   @Test
   void write_to_writer() {

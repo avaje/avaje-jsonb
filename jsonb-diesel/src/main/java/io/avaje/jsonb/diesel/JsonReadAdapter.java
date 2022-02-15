@@ -63,6 +63,10 @@ public class JsonReadAdapter implements JsonReader {
   public boolean hasNextElement() {
     try {
       byte nextToken = reader.getNextToken();
+      if (nextToken == ',') {
+        reader.getNextToken();
+        return true;
+      }
       return nextToken != ']';
     } catch (IOException e) {
       throw new JsonIoException(e);

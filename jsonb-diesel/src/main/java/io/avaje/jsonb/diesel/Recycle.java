@@ -9,8 +9,8 @@ class Recycle {
   static ThreadLocal<JGenerator> managed = ThreadLocal.withInitial(() -> new JGenerator(4096));
 
   static ThreadLocal<JsonParser> read = ThreadLocal.withInitial(() -> {
-    char[] ch = new char[1000];
-    byte[] by = new byte[1000];
+    char[] ch = new char[4096];
+    byte[] by = new byte[4096];
     return new JsonParser(ch, by, 0, JsonParser.ErrorInfo.MINIMAL, JsonParser.DoublePrecision.DEFAULT, JsonParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
   });
 
