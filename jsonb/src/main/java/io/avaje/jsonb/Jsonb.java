@@ -87,7 +87,42 @@ public interface Jsonb {
   }
 
   /**
+   * Return JSON content for the given object.
+   * <p>
+   * This is a convenience method for using {@code jsonb.type(Object.class).toJson(any) }
+   *
+   * @param any The object to return as JSON string
+   * @return Return JSON content for the given object.
+   */
+  String toJson(Object any);
+
+  /**
+   * Return JSON content in pretty format for the given object.
+   * <p>
+   * This is a convenience method for using {@code jsonb.type(Object.class).toJsonPretty(any) }
+   *
+   * @param any The object to return as JSON string in pretty format
+   * @return Return JSON content in pretty format for the given object.
+   */
+  String toJsonPretty(Object any);
+
+  /**
    * Return the JsonType used to read and write json for the given class.
+   *
+   * <h3>Examples</h3>
+   * <pre>{@code
+   *
+   *   JsonType<Customer> customerType = jsonb.type(Customer.class)
+   *
+   *   Customer customer = ...
+   *   customerType.toJson(customer);
+   *
+   *   JsonType<List<Customer>> customerListType = customerType.list()
+   *
+   *   List<Customer> customers = ...
+   *   customerListType.toJson(customers);
+   *
+   * }</pre>
    *
    * <h3>Using Object.class</h3>
    * <p>
@@ -105,6 +140,19 @@ public interface Jsonb {
 
   /**
    * Return the JsonType used to read and write json for the given type.
+   * <p>
+   * We can use {@link Types} to obtain common generic types for List, Set, Map, Array etc.
+   *
+   * <h3>Example</h3>
+   * <pre>{@code
+   *
+   *   JsonType<List<String>> listOfStringType = jsonb.type(Types.listOf(String.class))
+   *
+   *   JsonType<List<Customer>> listOfCustomerType = jsonb.type(Types.listOf(Customer.class))
+   *
+   *   JsonType<Map<String,Integer>> adapter = jsonb.type(Types.mapOf(Integer.class))
+   *
+   * }</pre>
    *
    * <h3>Using Object.class</h3>
    * <p>
@@ -121,7 +169,7 @@ public interface Jsonb {
   <T> JsonType<T> type(Type type);
 
   /**
-   * Return the JsonType for the given value using the values class.
+   * Return the JsonType for the given value using the class of the value being passed in.
    * <p>
    * This is a helper method that supports returning an inferred generic type.
    *

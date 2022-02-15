@@ -24,6 +24,7 @@ class DJsonb implements Jsonb {
   private final JsonStreamAdapter io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ViewKey,JsonView<?>> viewCache = new ConcurrentHashMap<>();
+  private final JsonType<Object> anyType;
 
   DJsonb(JsonStreamAdapter adapter, List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
@@ -37,6 +38,17 @@ class DJsonb implements Jsonb {
         this.io = new JsonStream(serializeNulls, serializeEmpty, failOnUnknown);
       }
     }
+    this.anyType = type(Object.class);
+  }
+
+  @Override
+  public String toJson(Object any) {
+    return anyType.toJson(any);
+  }
+
+  @Override
+  public String toJsonPretty(Object any) {
+    return anyType.toJsonPretty(any);
   }
 
   @Override

@@ -16,6 +16,20 @@ class CustomerTest {
   Jsonb jsonb = Jsonb.newBuilder().build();
 
   @Test
+  void anyToJson() {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    String asJson = jsonb.toJson(customer);
+    assertThat(asJson).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
+  }
+
+  @Test
+  void anyToJsonPretty() {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    String asJson = jsonb.toJsonPretty(customer).replace("\" : ", "\": ");
+    assertThat(asJson).isEqualTo("{\n  \"id\": 42,\n  \"name\": \"rob\",\n  \"status\": \"ACTIVE\"\n}");
+  }
+
+  @Test
   void toJson_view() {
     JsonView<Customer> customerJsonView = jsonb.type(Customer.class).view("(id, name)");
 

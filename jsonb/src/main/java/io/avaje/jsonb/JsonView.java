@@ -35,6 +35,11 @@ public interface JsonView<T> {
   String toJson(T value);
 
   /**
+   * Return as json string in pretty format.
+   */
+  String toJsonPretty(T value);
+
+  /**
    * Return the value as json content in bytes form.
    */
   byte[] toJsonBytes(T value);

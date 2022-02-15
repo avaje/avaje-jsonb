@@ -27,6 +27,9 @@ class BasicPubFieldsTest {
     var view = type.view("(two, four)");
     String viewJson = view.toJson(b);
     assertThat(viewJson).isEqualTo("{\"two\":43,\"four\":\"fourValue\"}");
+
+    String viewJsonPretty = view.toJsonPretty(b).replace("\" : ", "\": ");
+    assertThat(viewJsonPretty).isEqualTo("{\n  \"two\": 43,\n  \"four\": \"fourValue\"\n}");
   }
 
   @Test
