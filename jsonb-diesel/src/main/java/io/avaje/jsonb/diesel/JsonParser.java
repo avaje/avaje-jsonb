@@ -747,26 +747,6 @@ final class JsonParser {
     return currentPosition + currentIndex - offset;
   }
 
-  long fillName() throws IOException {
-    final long hash = calcHash();
-    if (read() != ':') {
-      if (!wasWhiteSpace() || getNextToken() != ':') {
-        throw newParseError("Expecting ':' after attribute name");
-      }
-    }
-    return hash;
-  }
-
-//  public final int fillNameWeakHash() throws IOException {
-//    final int hash = calcWeakHash();
-//    if (read() != ':') {
-//      if (!wasWhiteSpace() || getNextToken() != ':') {
-//        throw newParseError("Expecting ':' after attribute name");
-//      }
-//    }
-//    return hash;
-//  }
-
   long calcHash() throws IOException {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
     tokenStart = currentIndex;
@@ -809,67 +789,6 @@ final class JsonParser {
     return hash;
   }
 
-//  public final int calcWeakHash() throws IOException {
-//    if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
-//    tokenStart = currentIndex;
-//    int ci = currentIndex;
-//    int hash = 0;
-//    if (stream != null) {
-//      while (ci < readLimit) {
-//        byte b = buffer[ci];
-//        if (b == '\\') {
-//          if (ci == readLimit - 1) {
-//            return calcWeakHashAndCopyName(hash, ci);
-//          }
-//          b = buffer[++ci];
-//        } else if (b == '"') {
-//          break;
-//        }
-//        ci++;
-//        hash += b;
-//      }
-//      if (ci >= readLimit) {
-//        return calcWeakHashAndCopyName(hash, ci);
-//      }
-//      nameEnd = currentIndex = ci + 1;
-//    } else {
-//      //TODO: use length instead!? this will read data after used buffer size
-//      while (ci < buffer.length) {
-//        byte b = buffer[ci++];
-//        if (b == '\\') {
-//          if (ci == buffer.length) throw newParseError("Expecting '\"' for attribute name end");
-//          b = buffer[ci++];
-//        } else if (b == '"') {
-//          break;
-//        }
-//        hash += b;
-//      }
-//      nameEnd = currentIndex = ci;
-//    }
-//    return hash;
-//  }
-//
-//  public final int getLastHash() {
-//    long hash = 0x811c9dc5;
-//    if (stream != null && nameEnd == -1) {
-//      int i = 0;
-//      while (i < lastNameLen) {
-//        final byte b = (byte)chars[i++];
-//        hash ^= b;
-//        hash *= 0x1000193;
-//      }
-//    } else {
-//      int i = tokenStart;
-//      int end = nameEnd - 1;
-//      while (i < end) {
-//        final byte b = buffer[i++];
-//        hash ^= b;
-//        hash *= 0x1000193;
-//      }
-//    }
-//    return (int)hash;
-//  }
-
   private int lastNameLen;
 
   private int calcHashAndCopyName(long hash, int ci) throws IOException {
@@ -903,83 +822,6 @@ final class JsonParser {
     throw newParseErrorAt("JSON string was not closed with a double quote", (int)startPosition);
   }
 
-//  private int calcWeakHashAndCopyName(int hash, int ci) throws IOException {
-//    int soFar = ci - tokenStart;
-//    long startPosition = currentPosition - soFar;
-//    while (chars.length < soFar) {
-//      chars = Arrays.copyOf(chars, chars.length * 2);
-//    }
-//    int i = 0;
-//    for (; i < soFar; i++) {
-//      chars[i] = (char) buffer[i + tokenStart];
-//    }
-//    currentIndex = ci;
-//    do {
-//      byte b = read();
-//      if (b == '\\') {
-//        b = read();
-//      } else if (b == '"') {
-//        nameEnd = -1;
-//        lastNameLen = i;
-//        return hash;
-//      }
-//      if (i == chars.length) {
-//        chars = Arrays.copyOf(chars, chars.length * 2);
-//      }
-//      chars[i++] = (char) b;
-//      hash += b;
-//    } while (!isEndOfStream());
-//    //TODO: check offset
-//    throw newParseErrorAt("JSON string was not closed with a double quote", (int)startPosition);
-//  }
-//
-//  public final boolean wasLastName(final String name) {
-//    if (stream != null && nameEnd == -1) {
-//      if (name.length() != lastNameLen) {
-//        return false;
-//      }
-//      for (int i = 0; i < name.length(); i++) {
-//        if (name.charAt(i) != chars[i]) {
-//          return false;
-//        }
-//      }
-//      return true;
-//    }
-//    if (name.length() != nameEnd - tokenStart - 1) {
-//      return false;
-//    }
-//    //TODO: not correct with escaping
-//    for (int i = 0; i < name.length(); i++) {
-//      if (name.charAt(i) != buffer[tokenStart + i]) {
-//        return false;
-//      }
-//    }
-//    return true;
-//  }
-//
-//  public final boolean wasLastName(final byte[] name) {
-//    if (stream != null && nameEnd == -1) {
-//      if (name.length != lastNameLen) {
-//        return false;
-//      }
-//      for (int i = 0; i < name.length; i++) {
-//        if (name[i] != chars[i]) {
-//          return false;
-//        }
-//      }
-//      return true;
-//    }
-//    if (name.length != nameEnd - tokenStart - 1) {
-//      return false;
-//    }
-//    for (int i = 0; i < name.length; i++) {
-//      if (name[i] != buffer[tokenStart + i]) {
-//        return false;
-//      }
-//    }
-//    return true;
-//  }
-//
   public String getLastName() throws IOException {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
