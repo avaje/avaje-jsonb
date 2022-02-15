@@ -223,12 +223,16 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
 
     @Override
     public void toJson(Writer writer, T value) {
-      toJson(jsonb.writer(writer), value);
+      try (JsonWriter jw = jsonb.writer(writer)) {
+        toJson(jw, value);
+      }
     }
 
     @Override
     public void toJson(OutputStream outputStream, T value) {
-      toJson(jsonb.writer(outputStream), value);
+      try (JsonWriter jw = jsonb.writer(outputStream)) {
+        toJson(jw, value);
+      }
     }
   }
 

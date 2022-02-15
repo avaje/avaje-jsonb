@@ -28,9 +28,7 @@ class CustomerTest {
   @Test
   void toJson()  {
 
-    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE).whenCreated(Instant.now());
-    customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
-    customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
+    Customer customer = customer();
 
     JsonType<Customer> customerType = jsonb.type(Customer.class);
     String asJson = customerType.toJson(customer);
@@ -57,6 +55,25 @@ class CustomerTest {
     assertThat(from1.id()).isEqualTo(customer.id());
     assertThat(from1.name()).isEqualTo(customer.name());
     assertThat(from1.whenCreated()).isEqualTo(customer.whenCreated());
+  }
+
+  private Customer customer() {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE).whenCreated(Instant.now());
+    customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
+    customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
+    return customer;
+  }
+
+  @Test
+  void toJson_writer() {
+
+    Customer customer = customer();
+
+    JsonType<Customer> customerType = jsonb.type(Customer.class);
+    StringWriter sw = new StringWriter();
+
+    customerType.toJson(sw, customer);
+    assertThat(sw.toString()).startsWith(jsonStart);
   }
 
   @Test
