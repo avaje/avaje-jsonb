@@ -153,10 +153,7 @@ final class WriterOutputStream extends OutputStream {
   public WriterOutputStream(final Writer writer, final Charset charset, final int bufferSize,
                             final boolean writeImmediately) {
     this(writer,
-      charset.newDecoder()
-        .onMalformedInput(CodingErrorAction.REPLACE)
-        .onUnmappableCharacter(CodingErrorAction.REPLACE)
-        .replaceWith("?"),
+      charset.newDecoder(),
       bufferSize,
       writeImmediately);
   }
@@ -194,35 +191,6 @@ final class WriterOutputStream extends OutputStream {
     this.decoder = decoder;
     this.writeImmediately = writeImmediately;
     decoderOut = CharBuffer.allocate(bufferSize);
-  }
-
-  /**
-   * Constructs a new {@link WriterOutputStream} with a default output buffer size of {@value #BUFFER_SIZE}
-   * characters. The output buffer will only be flushed when it overflows or when {@link #flush()} or {@link #close()}
-   * is called.
-   *
-   * @param writer      the target {@link Writer}
-   * @param charsetName the name of the charset encoding
-   */
-  public WriterOutputStream(final Writer writer, final String charsetName) {
-    this(writer, charsetName, BUFFER_SIZE, false);
-  }
-
-  /**
-   * Constructs a new {@link WriterOutputStream}.
-   *
-   * @param writer           the target {@link Writer}
-   * @param charsetName      the name of the charset encoding
-   * @param bufferSize       the size of the output buffer in number of characters
-   * @param writeImmediately If {@code true} the output buffer will be flushed after each
-   *                         write operation, i.e. all available data will be written to the
-   *                         underlying {@link Writer} immediately. If {@code false}, the
-   *                         output buffer will only be flushed when it overflows or when
-   *                         {@link #flush()} or {@link #close()} is called.
-   */
-  public WriterOutputStream(final Writer writer, final String charsetName, final int bufferSize,
-                            final boolean writeImmediately) {
-    this(writer, Charset.forName(charsetName), bufferSize, writeImmediately);
   }
 
   /**

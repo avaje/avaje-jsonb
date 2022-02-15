@@ -3,6 +3,7 @@ package io.avaje.jsonb.stream;
 import io.avaje.jsonb.JsonReader;
 import org.junit.jupiter.api.Test;
 
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
@@ -11,15 +12,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonReadAdapterTest {
 
+  String jsonStringInput = "{\"name\":\"roberto\", \"age\": 42 , \"notes\" :\"fooFooFoo\"}";
+
   @Test
   void via_jreader() {
-
     char[] ch = new char[1000];
     byte[] by = new byte[1000];
     JParser jr = new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
 
-    String input = "{\"name\":\"roberto\", \"age\": 42 , \"notes\" :\"fooFooFoo\"}";
-    byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
+    byte[] bytes = jsonStringInput.getBytes(StandardCharsets.UTF_8);
     jr.process(bytes, bytes.length);
 
     JsonReadAdapter reader = new JsonReadAdapter(jr, true);
@@ -28,14 +29,23 @@ class JsonReadAdapterTest {
   }
 
   @Test
-  void via_adapter() {
-    String input = "{\"name\":\"roberto\", \"age\": 42 , \"notes\" :\"fooFooFoo\"}";
-
+  void via_adapter_usingReader() {
     JsonStream adapter = new JsonStream(false, false, false);
-    try (JsonReader reader = adapter.reader(input)) {
+    try (JsonReader reader = adapter.reader(new StringReader(jsonStringInput))) {
       readExampleWithAsserts(reader);
     }
-    try (JsonReader reader = adapter.reader(input)) {
+    try (JsonReader reader = adapter.reader(new StringReader(jsonStringInput))) {
+      readExampleWithAsserts(reader);
+    }
+  }
+
+  @Test
+  void via_adapter_usingString() {
+    JsonStream adapter = new JsonStream(false, false, false);
+    try (JsonReader reader = adapter.reader(jsonStringInput)) {
+      readExampleWithAsserts(reader);
+    }
+    try (JsonReader reader = adapter.reader(jsonStringInput)) {
       readExampleWithAsserts(reader);
     }
   }

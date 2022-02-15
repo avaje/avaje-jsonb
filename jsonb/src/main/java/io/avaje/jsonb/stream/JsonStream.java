@@ -50,12 +50,8 @@ public final class JsonStream implements JsonStreamAdapter {
 
   @Override
   public JsonReader reader(Reader reader) {
-    return null;
-//    try {
-//      return new JacksonReader(jsonFactory.createParser(reader), failOnUnknown);
-//    } catch (IOException e) {
-//      throw new JsonIoException(e);
-//    }
+    // TODO: Could recycle encoder and buffer
+    return reader(new ReaderInputStream(reader, StandardCharsets.UTF_8));
   }
 
   @Override
@@ -70,6 +66,7 @@ public final class JsonStream implements JsonStreamAdapter {
 
   @Override
   public JsonWriter writer(Writer writer) {
+    // TODO: Could recycle buffer used
     return writer(new WriterOutputStream(writer, StandardCharsets.UTF_8));
   }
 
