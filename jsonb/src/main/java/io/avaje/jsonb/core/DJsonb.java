@@ -203,8 +203,8 @@ class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder adapter(JsonStreamAdapter adapter) {
-      this.adapter = adapter;
+    public Builder adapter(JsonStreamAdapter streamAdapter) {
+      this.adapter = streamAdapter;
       return this;
     }
 

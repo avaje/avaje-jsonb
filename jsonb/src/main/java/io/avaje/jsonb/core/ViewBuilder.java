@@ -195,22 +195,22 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
 
     @Override
     public String toJson(T value) {
-      try (BufferedJsonWriter bufferedJsonWriter = jsonb.bufferedWriter()) {
-        toJson(bufferedJsonWriter, value);
-        return bufferedJsonWriter.result();
+      try (BufferedJsonWriter writer = jsonb.bufferedWriter()) {
+        toJson(value, writer);
+        return writer.result();
       }
     }
 
     @Override
     public byte[] toJsonBytes(T value) {
-      try (BytesJsonWriter bytesWriter = jsonb.bufferedWriterAsBytes()) {
-        toJson(bytesWriter, value);
-        return bytesWriter.result();
+      try (BytesJsonWriter writer = jsonb.bufferedWriterAsBytes()) {
+        toJson(value, writer);
+        return writer.result();
       }
     }
 
     @Override
-    public void toJson(JsonWriter writer, T value) {
+    public void toJson(T value, JsonWriter writer) {
       if (properties != null) {
         writer.names(properties);
       }
@@ -222,16 +222,16 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     }
 
     @Override
-    public void toJson(Writer writer, T value) {
-      try (JsonWriter jw = jsonb.writer(writer)) {
-        toJson(jw, value);
+    public void toJson(T value, Writer writer) {
+      try (JsonWriter jsonWriter = jsonb.writer(writer)) {
+        toJson(value, jsonWriter);
       }
     }
 
     @Override
-    public void toJson(OutputStream outputStream, T value) {
-      try (JsonWriter jw = jsonb.writer(outputStream)) {
-        toJson(jw, value);
+    public void toJson(T value, OutputStream outputStream) {
+      try (JsonWriter writer = jsonb.writer(outputStream)) {
+        toJson(value, writer);
       }
     }
   }
@@ -327,7 +327,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
       } else {
         writer.beginArray();
         for (final Object value : collection) {
-          child.toJson(writer, value);
+          child.toJson(value, writer);
         }
         writer.endArray();
       }
@@ -357,7 +357,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
         } else {
           writer.beginArray();
           for (final Object value : collection) {
-            child.toJson(writer, value);
+            child.toJson(value, writer);
           }
           writer.endArray();
         }

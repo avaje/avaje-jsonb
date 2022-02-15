@@ -42,15 +42,15 @@ public interface JsonView<T> {
   /**
    * Write to the given writer.
    */
-  void toJson(JsonWriter writer, T value);
+  void toJson(T value, JsonWriter writer);
 
   /**
    * Write to the given writer.
    */
-  void toJson(Writer writer, T value);
+  void toJson(T value, Writer writer);
 
   /**
    * Write to the given outputStream.
    */
-  void toJson(OutputStream outputStream, T value);
+  void toJson(T value, OutputStream outputStream);
 }

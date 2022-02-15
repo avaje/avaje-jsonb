@@ -212,11 +212,12 @@ public interface Jsonb {
     /**
      * Explicitly set the adapter to use.
      * <p>
-     * When not set the IOAdapter is service loaded using {@link AdapterFactory}.
+     * When not set the JsonStreamAdapter is service loaded using {@link AdapterFactory}
+     * with a fallback default of using the builtin implementation.
      *
-     * @param adapter The adapter to use
+     * @param streamAdapter The underlying adapter to use when generating and parsing
      */
-    Builder adapter(JsonStreamAdapter adapter);
+    Builder adapter(JsonStreamAdapter streamAdapter);
 
     /**
      * Add a JsonAdapter to use for the given type.
