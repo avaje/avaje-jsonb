@@ -1,6 +1,7 @@
 package io.avaje.jsonb;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
