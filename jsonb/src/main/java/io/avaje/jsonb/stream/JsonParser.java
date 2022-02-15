@@ -11,37 +11,37 @@ public interface JsonParser extends Closeable {
 
   byte currentToken();
 
-  byte nextToken() throws IOException;
+  byte nextToken();
 
-  String nextField() throws IOException;
+  String nextField();
 
-  void startArray() throws IOException;
+  void startArray();
 
-  void endArray() throws IOException;
+  void endArray();
 
-  void startObject() throws IOException;
+  void startObject();
 
-  void endObject() throws IOException;
+  void endObject();
 
-  byte skipValue() throws IOException;
+  byte skipValue();
 
-  boolean isNullValue() throws ParsingException;
+  boolean isNullValue();
 
-  int readInt() throws IOException;
+  int readInt();
 
-  long readLong() throws IOException;
+  long readLong();
 
-  short readShort() throws IOException;
+  short readShort();
 
-  double readDouble() throws IOException;
+  double readDouble();
 
-  BigDecimal readDecimal() throws IOException;
+  BigDecimal readDecimal();
 
-  BigInteger readBigInteger() throws IOException;
+  BigInteger readBigInteger();
 
-  boolean readBoolean() throws IOException;
+  boolean readBoolean();
 
-  String readString() throws IOException;
+  String readString();
 
   /**
    * Return the current location. Generally used for reporting errors.

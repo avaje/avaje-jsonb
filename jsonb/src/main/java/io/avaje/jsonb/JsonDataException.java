@@ -24,7 +24,11 @@ public class JsonDataException extends JsonException {
     super(message);
   }
 
-  public JsonDataException(Throwable e) {
-    super(e);
+  public JsonDataException(Throwable cause) {
+    super(cause);
+  }
+
+  public JsonDataException(String description, Throwable cause) {
+    super(description, cause);
   }
 }

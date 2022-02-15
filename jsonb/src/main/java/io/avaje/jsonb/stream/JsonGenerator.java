@@ -43,6 +43,8 @@ public interface JsonGenerator extends Closeable, Flushable {
 
   void flush();
 
+  void close();
+
   byte[] toByteArray();
 
 }

@@ -389,10 +389,14 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     flush();
     if (target != null) {
-      target.flush();
+      try {
+        target.flush();
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
     }
   }
 

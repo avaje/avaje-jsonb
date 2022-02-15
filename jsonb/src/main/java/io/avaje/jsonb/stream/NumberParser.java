@@ -1,6 +1,5 @@
 package io.avaje.jsonb.stream;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -26,7 +25,7 @@ final class NumberParser {
     1e60, 1e61, 1e62, 1e63, 1e64, 1e65
   };
 
-  static short deserializeShort(final JParser reader) throws IOException {
+  static short deserializeShort(final JParser reader) {
     if (reader.currentToken() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -49,7 +48,7 @@ final class NumberParser {
     return (short) value;
   }
 
-  static int deserializeInt(final JParser reader) throws IOException {
+  static int deserializeInt(final JParser reader) {
     if (reader.currentToken() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -76,7 +75,7 @@ final class NumberParser {
     }
   }
 
-  private static int parsePositiveInt(final byte[] buf, final JParser reader, final int start, final int end, final int offset) throws IOException {
+  private static int parsePositiveInt(final byte[] buf, final JParser reader, final int start, final int end, final int offset) {
     int value = 0;
     int i = start + offset;
     if (i == end) numberException(reader, start, end, "Digit not found");
@@ -98,7 +97,7 @@ final class NumberParser {
     return value;
   }
 
-  private static int parseNegativeInt(final byte[] buf, final JParser reader, final int start, final int end) throws IOException {
+  private static int parseNegativeInt(final byte[] buf, final JParser reader, final int start, final int end) {
     int value = 0;
     int i = start + 1;
     if (i == end) numberException(reader, start, end, "Digit not found");
@@ -119,7 +118,7 @@ final class NumberParser {
     return value;
   }
 
-  private static BigDecimal parseNumberGeneric(final char[] buf, final int len, final JParser reader, final boolean withQuotes) throws ParsingException {
+  private static BigDecimal parseNumberGeneric(final char[] buf, final int len, final JParser reader, final boolean withQuotes) {
     int end = len;
     while (end > 0 && Character.isWhitespace(buf[end - 1])) {
       end--;
@@ -138,7 +137,7 @@ final class NumberParser {
     }
   }
 
-  static void numberException(final JParser reader, final int start, final int end, String message) throws ParsingException {
+  static void numberException(final JParser reader, final int start, final int end, String message) {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
       throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
@@ -146,7 +145,7 @@ final class NumberParser {
     throw reader.newParseErrorWith("Error parsing number", len, message, null, ". Error parsing number");
   }
 
-  static void numberException(final JParser reader, final int start, final int end, String message, Object messageArgument) throws ParsingException {
+  static void numberException(final JParser reader, final int start, final int end, String message, Object messageArgument) {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
       throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
@@ -155,7 +154,7 @@ final class NumberParser {
   }
 
 
-  static long deserializeLong(final JParser reader) throws IOException {
+  static long deserializeLong(final JParser reader) {
     if (reader.currentToken() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -217,7 +216,7 @@ final class NumberParser {
     return value;
   }
 
-  private static long parseLongGeneric(final JParser reader, final int start, final int end) throws IOException {
+  private static long parseLongGeneric(final JParser reader, final int start, final int end) {
     final int len = end - start;
     final char[] buf = reader.prepareBuffer(start, len);
     if (len > 0 && buf[len - 1] == '.') numberException(reader, start, end, "Number ends with a dot");
@@ -236,7 +235,7 @@ final class NumberParser {
     }
   }
 
-  private static NumberInfo readLongNumber(final JParser reader, final int start) throws IOException {
+  private static NumberInfo readLongNumber(final JParser reader, final int start) {
     int len = reader.length() - start;
     char[] result = reader.prepareBuffer(start, len);
     while (reader.length() == reader.getCurrentIndex()) {
@@ -256,7 +255,7 @@ final class NumberParser {
     return new NumberInfo(result, len);
   }
 
-  static double deserializeDouble(final JParser reader) throws IOException {
+  static double deserializeDouble(final JParser reader) {
     if (reader.currentToken() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
@@ -272,7 +271,7 @@ final class NumberParser {
     return parseDouble(buf, reader, start, end, 0);
   }
 
-  private static double parseDouble(final byte[] buf, final JParser reader, final int start, final int end, final int offset) throws IOException {
+  private static double parseDouble(final byte[] buf, final JParser reader, final int start, final int end, final int offset) {
     if (end - start - offset > reader.doubleLengthLimit) {
       if (end == reader.length()) {
         final NumberInfo tmp = readLongNumber(reader, start + offset);
@@ -395,7 +394,7 @@ final class NumberParser {
     return Double.longBitsToDouble(bits + missing);
   }
 
-  private static double doubleExponent(JParser reader, final long whole, final int decimals, double fraction, byte[] buf, int start, int end, int offset, int i) throws IOException {
+  private static double doubleExponent(JParser reader, final long whole, final int decimals, double fraction, byte[] buf, int start, int end, int offset, int i) {
     if (reader.doublePrecision == JParser.DoublePrecision.EXACT) {
       return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
     }
@@ -429,7 +428,7 @@ final class NumberParser {
     return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
   }
 
-  private static double parseDoubleGeneric(final char[] buf, final int len, final JParser reader, final boolean withQuotes) throws IOException {
+  private static double parseDoubleGeneric(final char[] buf, final int len, final JParser reader, final boolean withQuotes) {
     int end = len;
     while (end > 0 && Character.isWhitespace(buf[end - 1])) {
       end--;
@@ -448,7 +447,7 @@ final class NumberParser {
     }
   }
 
-  static BigDecimal deserializeDecimal(final JParser reader) throws IOException {
+  static BigDecimal deserializeDecimal(final JParser reader) {
     if (reader.currentToken() == '"') {
       final int len = reader.parseString();
       return parseNumberGeneric(reader.chars, len, reader, true);
@@ -471,7 +470,7 @@ final class NumberParser {
     return parsePositiveDecimal(buf, reader, start, end);
   }
 
-  private static BigDecimal parsePositiveDecimal(final byte[] buf, final JParser reader, final int start, final int end) throws IOException {
+  private static BigDecimal parsePositiveDecimal(final byte[] buf, final JParser reader, final int start, final int end) {
     long value = 0;
     byte ch = ' ';
     int i = start;
@@ -539,7 +538,7 @@ final class NumberParser {
     return BigDecimal.valueOf(value);
   }
 
-  private static BigDecimal parseNegativeDecimal(final byte[] buf, final JParser reader, final int start, final int end) throws IOException {
+  private static BigDecimal parseNegativeDecimal(final byte[] buf, final JParser reader, final int start, final int end) {
     long value = 0;
     byte ch = ' ';
     int i = start + 1;
@@ -608,7 +607,7 @@ final class NumberParser {
   }
 
 
-  private static BigInteger parseBigIntGeneric(char[] buf, int len, JParser reader) throws ParsingException {
+  private static BigInteger parseBigIntGeneric(char[] buf, int len, JParser reader) {
     int end;
     for (end = len; end > 0 && Character.isWhitespace(buf[end - 1]); --end) {
       // do nothing
@@ -624,7 +623,7 @@ final class NumberParser {
     }
   }
 
-  static BigInteger deserializeBigInt(JParser reader) throws IOException {
+  static BigInteger deserializeBigInt(JParser reader) {
     int start;
     if (reader.currentToken() == 34) {
       start = reader.parseString();

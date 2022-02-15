@@ -1,10 +1,8 @@
 package io.avaje.jsonb.stream;
 
-import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.spi.PropertyNames;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -25,151 +23,91 @@ final class JsonReadAdapter implements JsonReader {
 
   @Override
   public void beginArray() {
-    try {
-      reader.startArray();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    reader.startArray();
   }
 
   @Override
   public void endArray() {
-    try {
-      reader.endArray();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    reader.endArray();
   }
 
   @Override
   public void beginObject() {
-    try {
-      reader.startObject();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    reader.startObject();
   }
 
   @Override
   public void endObject() {
-    try {
-      reader.endObject();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    reader.endObject();
   }
 
   @Override
   public boolean hasNextElement() {
-    try {
-      byte nextToken = reader.nextToken();
-      if (nextToken == ',') {
-        reader.nextToken();
-        return true;
-      }
-      return nextToken != ']';
-    } catch (IOException e) {
-      throw new JsonIoException(e);
+    byte nextToken = reader.nextToken();
+    if (nextToken == ',') {
+      reader.nextToken();
+      return true;
     }
+    return nextToken != ']';
   }
 
   @Override
   public boolean hasNextField() {
-    try {
-      byte nextToken = reader.nextToken();
-      if (nextToken == '"') {
-        return true;
-      }
-      if (nextToken == ',') {
-        nextToken = reader.nextToken();
-        return nextToken == '"';
-      } else {
-        return false;
-      }
-    } catch (IOException e) {
-      throw new JsonIoException(e);
+    byte nextToken = reader.nextToken();
+    if (nextToken == '"') {
+      return true;
+    }
+    if (nextToken == ',') {
+      nextToken = reader.nextToken();
+      return nextToken == '"';
+    } else {
+      return false;
     }
   }
 
   @Override
   public String nextField() {
-    try {
-      return reader.nextField();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.nextField();
   }
 
   @Override
   public boolean readBoolean() {
-    try {
-      return reader.readBoolean();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readBoolean();
   }
 
   @Override
   public int readInt() {
-    try {
-      return reader.readInt();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readInt();
   }
 
   @Override
   public long readLong() {
-    try {
-      return reader.readLong();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readLong();
   }
 
   @Override
   public double readDouble() {
-    try {
-      return reader.readDouble();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readDouble();
   }
 
   @Override
   public BigDecimal readDecimal() {
-    try {
-      return reader.readDecimal();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readDecimal();
   }
 
   @Override
   public BigInteger readBigInteger() {
-    try {
-      return reader.readBigInteger();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readBigInteger();
   }
 
   @Override
   public String readString() {
-    try {
-      return reader.readString();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readString();
   }
 
   @Override
   public boolean isNullValue() {
-    try {
-      return reader.isNullValue();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.isNullValue();
   }
 
   @Override
@@ -205,11 +143,7 @@ final class JsonReadAdapter implements JsonReader {
 
   @Override
   public void skipValue() {
-    try {
-      reader.skipValue();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    reader.skipValue();
   }
 
   @Override
