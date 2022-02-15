@@ -62,9 +62,9 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public boolean hasNextElement() {
     try {
-      byte nextToken = reader.getNextToken();
+      byte nextToken = reader.nextToken();
       if (nextToken == ',') {
-        reader.getNextToken();
+        reader.nextToken();
         return true;
       }
       return nextToken != ']';
@@ -76,12 +76,12 @@ public class JsonReadAdapter implements JsonReader {
   @Override
   public boolean hasNextField() {
     try {
-      byte nextToken = reader.getNextToken();
+      byte nextToken = reader.nextToken();
       if (nextToken == '"') {
         return true;
       }
       if (nextToken == ',') {
-        nextToken = reader.getNextToken();
+        nextToken = reader.nextToken();
         return nextToken == '"';
       } else {
         return false;

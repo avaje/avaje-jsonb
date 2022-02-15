@@ -729,7 +729,7 @@ final class JsonParser {
    * @return next non-whitespace byte in the JSON input
    * @throws IOException unable to get next byte (end of stream, ...)
    */
-  public byte getNextToken() throws IOException {
+  public byte nextToken() throws IOException {
     read();
     if (WHITESPACE[last + 128]) {
       while (wasWhiteSpace()) {
@@ -836,7 +836,7 @@ final class JsonParser {
       inEscape = !inEscape && c == '\\';
       c = read();
     }
-    return getNextToken();
+    return nextToken();
   }
 
   /**
@@ -856,15 +856,15 @@ final class JsonParser {
     }
     if (last == 'n') {
       if (!wasNull()) throw newParseErrorAt("Expecting 'null' for null constant", 0);
-      return getNextToken();
+      return nextToken();
     }
     if (last == 't') {
       if (!wasTrue()) throw newParseErrorAt("Expecting 'true' for true constant", 0);
-      return getNextToken();
+      return nextToken();
     }
     if (last == 'f') {
       if (!wasFalse()) throw newParseErrorAt("Expecting 'false' for false constant", 0);
-      return getNextToken();
+      return nextToken();
     }
     while (last != ',' && last != '}' && last != ']') {
       read();
@@ -873,40 +873,40 @@ final class JsonParser {
   }
 
   private byte skipArray() throws IOException {
-    getNextToken();
+    nextToken();
     byte nextToken = skip();
     while (nextToken == ',') {
-      getNextToken();
+      nextToken();
       nextToken = skip();
     }
     if (nextToken != ']') throw newParseError("Expecting ']' for array end");
-    return getNextToken();
+    return nextToken();
   }
 
   private byte skipObject() throws IOException {
-    byte nextToken = getNextToken();
-    if (nextToken == '}') return getNextToken();
+    byte nextToken = nextToken();
+    if (nextToken == '}') return nextToken();
     if (nextToken == '"') {
       nextToken = skipString();
     } else {
       throw newParseError("Expecting '\"' for attribute name");
     }
     if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
-    getNextToken();
+    nextToken();
     nextToken = skip();
     while (nextToken == ',') {
-      nextToken = getNextToken();
+      nextToken = nextToken();
       if (nextToken == '"') {
         nextToken = skipString();
       } else {
         throw newParseError("Expecting '\"' for attribute name");
       }
       if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
-      getNextToken();
+      nextToken();
       nextToken = skip();
     }
     if (nextToken != '}') throw newParseError("Expecting '}' for object end");
-    return getNextToken();
+    return nextToken();
   }
 
 //  public final byte[] readBase64() throws IOException {
@@ -934,11 +934,11 @@ final class JsonParser {
         key = lastFieldName();
       }
       if (read() != ':') {
-        if (!wasWhiteSpace() || getNextToken() != ':') {
+        if (!wasWhiteSpace() || nextToken() != ':') {
           throw newParseError("Expecting ':' after attribute name");
         }
       }
-      getNextToken(); // position to read the value/next
+      nextToken(); // position to read the value/next
       return key;
     }
     return readKey();
@@ -950,8 +950,8 @@ final class JsonParser {
   private String readKey() throws IOException {
     final int len = parseString();
     final String key = new String(chars, 0, len);
-    if (getNextToken() != ':') throw newParseError("Expecting ':' after attribute name");
-    getNextToken();
+    if (nextToken() != ':') throw newParseError("Expecting ':' after attribute name");
+    nextToken();
     return key;
   }
 
@@ -1014,7 +1014,7 @@ final class JsonParser {
    * Ensure array start
    */
   public void startArray() throws IOException {
-    if (last != '[' && getNextToken() != '[') {
+    if (last != '[' && nextToken() != '[') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '[' as array start");
     }
@@ -1024,7 +1024,7 @@ final class JsonParser {
    * Ensure array end
    */
   public void endArray() throws IOException {
-    if (last != ']' && getNextToken() != ']') {
+    if (last != ']' && nextToken() != ']') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting ']' as array end");
     }
@@ -1034,7 +1034,7 @@ final class JsonParser {
    * Ensure object start
    */
   public void startObject() throws IOException {
-    if (last != '{' && getNextToken() != '{') {
+    if (last != '{' && nextToken() != '{') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '{' as object start");
     }
@@ -1048,7 +1048,7 @@ final class JsonParser {
       pushedNames = false;
       currentNames = nameStack != null ? nameStack.pop() : null;
     }
-    if (last != '}' && getNextToken() != '}') {
+    if (last != '}' && nextToken() != '}') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '}' as object end");
     }
