@@ -158,11 +158,11 @@ class CustomerTest {
         jsonWriter.writeNewLine();
       }
     }
-    String streamJson = writer.toString();
+    String streamJson = writer.toString().replace(" ", "");
     assertThat(streamJson).isEqualTo(
       "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}\n" +
-      " {\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
-      " {\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
+      "{\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
+      "{\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
   }
 
   @Test
@@ -177,11 +177,11 @@ class CustomerTest {
       toStream(customers.iterator(), jsonWriter);
     }
 
-    String streamJson = writer.toString();
+    String streamJson = writer.toString().replace(" ", "");
     assertThat(streamJson).isEqualTo(
       "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}\n" +
-      " {\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
-      " {\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
+      "{\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
+      "{\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
   }
 
   <T> void toStream(Iterator<T> iterator, JsonWriter jsonWriter) {
