@@ -36,6 +36,7 @@ final class JGenerator implements JsonGenerator {
   private static final byte[] NULL = "null".getBytes(StandardCharsets.UTF_8);
   private static final byte[] TRUE = "true".getBytes(StandardCharsets.UTF_8);
   private static final byte[] FALSE = "false".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] INDENT = "  ".getBytes(StandardCharsets.UTF_8);
 
   private static final byte OBJECT_START = '{';
   private static final byte OBJECT_END = '}';
@@ -46,6 +47,7 @@ final class JGenerator implements JsonGenerator {
   private static final byte SEMI = ':';
   private static final byte QUOTE = '"';
   private static final byte ESCAPE = '\\';
+  private static final byte SPACE = ' ';
 
   private static final int OP_START = 1;
   private static final int OP_FIELD = 3;
@@ -56,6 +58,8 @@ final class JGenerator implements JsonGenerator {
   private OutputStream target;
   private int lastOp;
   private int position;
+  private boolean pretty;
+  private int depth;
 
   JGenerator() {
     this(512);
@@ -73,6 +77,7 @@ final class JGenerator implements JsonGenerator {
     target = targetStream;
     lastOp = 0;
     position = 0;
+    pretty = false;
     return this;
   }
 
@@ -396,6 +401,10 @@ final class JGenerator implements JsonGenerator {
       writeByte(COMMA);
     }
     lastOp = OP_FIELD;
+    if (pretty) {
+      writeNewLine();
+      prettyIndent();
+    }
   }
 
   private void prefixValue() {
@@ -406,7 +415,16 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
+  public void pretty(boolean pretty) {
+    this.pretty = pretty;
+  }
+
+  @Override
   public void startObject() {
+    if (pretty) {
+      prettyIndent();
+      depth++;
+    }
     if (lastOp == OP_END) {
       writeByte(COMMA);
     }
@@ -416,34 +434,66 @@ final class JGenerator implements JsonGenerator {
 
   @Override
   public void endObject() {
+    if (pretty) {
+      writeNewLine();
+      depth--;
+      prettyIndent();
+    }
     writeByte(OBJECT_END);
     lastOp = OP_END;
   }
 
   @Override
   public void startArray() {
+    if (pretty) {
+      prettyIndent();
+      depth++;
+    }
     writeByte(ARRAY_START);
     lastOp = OP_START;
+    if (pretty) {
+      writeNewLine();
+    }
   }
 
   @Override
   public void endArray() {
+    if (pretty) {
+      prettyIndent();
+      depth--;
+    }
     writeByte(ARRAY_END);
     lastOp = OP_END;
+    if (pretty) {
+      writeNewLine();
+    }
+  }
+
+  private void prettyIndent() {
+    for (int i = 0; i < depth; i++) {
+      writeAscii(INDENT);
+    }
   }
 
   @Override
   public void writeName(String name) {
     prefixName();
     writeString(name);
-    writeByte(SEMI);
+    writeColon();
   }
 
   @Override
   public void writeName(byte[] escapedName) {
     prefixName();
     writeAscii(escapedName);
+    writeColon();
+  }
+
+  private void writeColon() {
     writeByte(SEMI);
+    if (pretty) {
+      writeByte(SPACE);
+    }
   }
 
   @Override

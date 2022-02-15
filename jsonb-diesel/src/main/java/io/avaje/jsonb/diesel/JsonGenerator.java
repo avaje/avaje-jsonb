@@ -7,6 +7,8 @@ import java.math.BigInteger;
 
 public interface JsonGenerator extends Closeable, Flushable {
 
+  void pretty(boolean pretty);
+
   void startArray();
 
   void endArray();

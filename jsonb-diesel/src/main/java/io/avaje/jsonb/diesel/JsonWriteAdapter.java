@@ -44,10 +44,7 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void pretty(boolean pretty) {
-//    if (!pretty) {
-//      generator.setPrettyPrinter(null);
-//    } else {
-//      generator.useDefaultPrettyPrinter();
+    generator.pretty(pretty);
 //    }
   }
 

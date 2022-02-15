@@ -132,11 +132,12 @@ class CustomerTest {
       Customer customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
       jsonb.type(Customer.class).toJson(writer, customer);
     }
-    assertThat(stringWriter.toString()).isEqualTo("""
+    String prettyJson = stringWriter.toString().replace("\" : ", "\": ");
+    assertThat(prettyJson).isEqualTo("""
       {
-        "id" : 42,
-        "name" : "rob",
-        "status" : "ACTIVE"
+        "id": 42,
+        "name": "rob",
+        "status": "ACTIVE"
       }""");
   }
 
