@@ -30,7 +30,7 @@
     <module>jsonb-generator</module>
     <module>jsonb-jakarta</module>
     <module>jsonb-jackson</module>
-    <module>jsonb-diesel</module>
+<!--    <module>jsonb-diesel</module>-->
   </modules>
 
   <profiles>

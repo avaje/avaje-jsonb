@@ -3,7 +3,6 @@ package io.avaje.jsonb.stream;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,7 +15,7 @@ class JsonWriterTest {
 
     writeHello(generator, "hello");
 
-    String asJson = os.toString(StandardCharsets.UTF_8);
+    String asJson = os.toString();
     assertThat(asJson).isEqualTo("{\"one\":\"hello\"}");
 
     ByteArrayOutputStream os1 = new ByteArrayOutputStream();
@@ -24,7 +23,7 @@ class JsonWriterTest {
 
     writeHello(generator1, "hi");
 
-    String asJson1 = os1.toString(StandardCharsets.UTF_8);
+    String asJson1 = os1.toString();
     assertThat(asJson1).isEqualTo("{\"one\":\"hi\"}");
   }
 
@@ -80,7 +79,7 @@ class JsonWriterTest {
     fw.endArray();
     fw.close();
 
-    String asJson = os.toString(StandardCharsets.UTF_8);
+    String asJson = os.toString();
     assertThat(asJson).isEqualTo("[{\"one\":\"hello\",\"size\":43},{\"one\":\"another\",\"active\":true,\"flags\":[42,43]}]");
   }
 
@@ -121,7 +120,7 @@ class JsonWriterTest {
     fw.endArray();
     fw.close();
 
-    String asJson = os.toString(StandardCharsets.UTF_8);
+    String asJson = os.toString();
     assertThat(asJson).isEqualTo("[{\"one\":\"hello\",\"size\":43},{\"one\":\"another\",\"active\":true,\"flags\":[42,43]}]");
 
   }

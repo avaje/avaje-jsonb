@@ -2,6 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.*;
+import io.avaje.jsonb.stream.DieselAdapter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,7 +34,7 @@ class DJsonb implements Jsonb {
       if (iterator.hasNext()) {
         this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
       } else {
-        throw new IllegalStateException("Missing dependency on avaje-jsonb-jackson or avaje-jsonb-jakarta? No IOAdapterFactory service found.");
+        this.io = new DieselAdapter(serializeNulls, serializeEmpty, failOnUnknown);
       }
     }
   }

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,13 +72,13 @@ class DieselAdapterTest {
     try (JsonWriter jw0 = adapter.writer(os)) {
       writeHello(jw0, "hello");
     }
-    assertThat(os.toString(StandardCharsets.UTF_8)).isEqualTo("{\"one\":\"hello\"}");
+    assertThat(os.toString()).isEqualTo("{\"one\":\"hello\"}");
 
     ByteArrayOutputStream os1 = new ByteArrayOutputStream();
     try (JsonWriter jw1 = adapter.writer(os1)) {
       writeHello(jw1, "hi");
     }
-    assertThat(os1.toString(StandardCharsets.UTF_8)).isEqualTo("{\"one\":\"hi\"}");
+    assertThat(os1.toString()).isEqualTo("{\"one\":\"hi\"}");
   }
 
   private void writeHello(JsonWriter jw, String message) {

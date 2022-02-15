@@ -22,7 +22,7 @@
 
     <dependency>
       <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonb-diesel</artifactId>
+      <artifactId>avaje-jsonb-jackson</artifactId>
       <version>0.10-SNAPSHOT</version>
     </dependency>
 
