@@ -13,6 +13,33 @@ import java.util.*;
  */
 final class JsonParser {
 
+  enum ErrorInfo {
+    WITH_STACK_TRACE,
+    DESCRIPTION_AND_POSITION,
+    DESCRIPTION_ONLY,
+    MINIMAL
+  }
+
+  enum DoublePrecision {
+    EXACT(0),
+    HIGH(1),
+    DEFAULT(3),
+    LOW(4);
+
+    final int level;
+
+    DoublePrecision(int level) {
+      this.level = level;
+    }
+  }
+
+  enum UnknownNumberParsing {
+    LONG_AND_BIGDECIMAL,
+    LONG_AND_DOUBLE,
+    BIGDECIMAL,
+    DOUBLE
+  }
+
   private static final boolean[] WHITESPACE = new boolean[256];
   private static final Charset utf8 = StandardCharsets.UTF_8;
 
@@ -52,33 +79,6 @@ final class JsonParser {
   private ArrayStack<JsonNames> nameStack;
   private JsonNames currentNames;
   private boolean pushedNames;
-
-  enum ErrorInfo {
-    WITH_STACK_TRACE,
-    DESCRIPTION_AND_POSITION,
-    DESCRIPTION_ONLY,
-    MINIMAL
-  }
-
-  enum DoublePrecision {
-    EXACT(0),
-    HIGH(1),
-    DEFAULT(3),
-    LOW(4);
-
-    final int level;
-
-    DoublePrecision(int level) {
-      this.level = level;
-    }
-  }
-
-  enum UnknownNumberParsing {
-    LONG_AND_BIGDECIMAL,
-    LONG_AND_DOUBLE,
-    BIGDECIMAL,
-    DOUBLE
-  }
 
   final ErrorInfo errorInfo;
   final DoublePrecision doublePrecision;
