@@ -316,91 +316,6 @@ final class JParser implements JsonParser {
     }
   }
 
-  private final StringBuilder error = new StringBuilder(0);
-  private final Formatter errorFormatter = new Formatter(error);
-
-  public ParsingException newParseError(final String description) {
-    return newParseError(description, 0);
-  }
-
-  public ParsingException newParseError(final String description, final int positionOffset) {
-    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, false);
-    error.setLength(0);
-    error.append(description);
-    error.append(". Found ");
-    error.append((char) last);
-    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
-    error.append(" ");
-    positionDescription(positionOffset, error);
-    return ParsingException.create(error.toString(), withStackTrace());
-  }
-
-  public ParsingException newParseErrorAt(final String description, final int positionOffset) {
-    if (errorInfo == ErrorInfo.MINIMAL || errorInfo == ErrorInfo.DESCRIPTION_ONLY) {
-      return ParsingException.create(description, false);
-    }
-    error.setLength(0);
-    error.append(description);
-    error.append(" ");
-    positionDescription(positionOffset, error);
-    return ParsingException.create(error.toString(), withStackTrace());
-  }
-
-  public ParsingException newParseErrorAt(final String description, final int positionOffset, final Exception cause) {
-    if (cause == null) throw new IllegalArgumentException("cause can't be null");
-    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, cause, false);
-    error.setLength(0);
-    final String msg = cause.getMessage();
-    if (msg != null && msg.length() > 0) {
-      error.append(msg);
-      if (!msg.endsWith(".")) {
-        error.append(".");
-      }
-      error.append(" ");
-    }
-    error.append(description);
-    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), cause, false);
-    error.append(" ");
-    positionDescription(positionOffset, error);
-    return ParsingException.create(error.toString(), withStackTrace());
-  }
-
-  public ParsingException newParseErrorFormat(final String shortDescription, final int positionOffset, final String longDescriptionFormat, Object... arguments) {
-    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(shortDescription, false);
-    error.setLength(0);
-    errorFormatter.format(longDescriptionFormat, arguments);
-    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
-    error.append(" ");
-    positionDescription(positionOffset, error);
-    return ParsingException.create(error.toString(), withStackTrace());
-  }
-
-  public ParsingException newParseErrorWith(
-    final String description, Object argument) {
-    return newParseErrorWith(description, 0, "", description, argument, "");
-  }
-
-  public ParsingException newParseErrorWith(
-    final String shortDescription,
-    final int positionOffset,
-    final String longDescriptionPrefix,
-    final String longDescriptionMessage, Object argument,
-    final String longDescriptionSuffix) {
-    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(shortDescription, false);
-    error.setLength(0);
-    error.append(longDescriptionPrefix);
-    error.append(longDescriptionMessage);
-    if (argument != null) {
-      error.append(": '");
-      error.append(argument);
-      error.append("'");
-    }
-    error.append(longDescriptionSuffix);
-    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
-    error.append(" ");
-    positionDescription(positionOffset, error);
-    return ParsingException.create(error.toString(), withStackTrace());
-  }
 
   int getCurrentIndex() {
     return currentIndex;
@@ -1070,5 +985,92 @@ final class JParser implements JsonParser {
     }
   }
 
+
+
+  private final StringBuilder error = new StringBuilder(0);
+  private final Formatter errorFormatter = new Formatter(error);
+
+  ParsingException newParseError(final String description) {
+    return newParseError(description, 0);
+  }
+
+  ParsingException newParseError(final String description, final int positionOffset) {
+    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, false);
+    error.setLength(0);
+    error.append(description);
+    error.append(". Found ");
+    error.append((char) last);
+    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
+    error.append(" ");
+    positionDescription(positionOffset, error);
+    return ParsingException.create(error.toString(), withStackTrace());
+  }
+
+  ParsingException newParseErrorAt(final String description, final int positionOffset) {
+    if (errorInfo == ErrorInfo.MINIMAL || errorInfo == ErrorInfo.DESCRIPTION_ONLY) {
+      return ParsingException.create(description, false);
+    }
+    error.setLength(0);
+    error.append(description);
+    error.append(" ");
+    positionDescription(positionOffset, error);
+    return ParsingException.create(error.toString(), withStackTrace());
+  }
+
+  ParsingException newParseErrorAt(final String description, final int positionOffset, final Exception cause) {
+    if (cause == null) throw new IllegalArgumentException("cause can't be null");
+    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(description, cause, false);
+    error.setLength(0);
+    final String msg = cause.getMessage();
+    if (msg != null && msg.length() > 0) {
+      error.append(msg);
+      if (!msg.endsWith(".")) {
+        error.append(".");
+      }
+      error.append(" ");
+    }
+    error.append(description);
+    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), cause, false);
+    error.append(" ");
+    positionDescription(positionOffset, error);
+    return ParsingException.create(error.toString(), withStackTrace());
+  }
+
+  ParsingException newParseErrorFormat(final String shortDescription, final int positionOffset, final String longDescriptionFormat, Object... arguments) {
+    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(shortDescription, false);
+    error.setLength(0);
+    errorFormatter.format(longDescriptionFormat, arguments);
+    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
+    error.append(" ");
+    positionDescription(positionOffset, error);
+    return ParsingException.create(error.toString(), withStackTrace());
+  }
+
+  ParsingException newParseErrorWith(
+    final String description, Object argument) {
+    return newParseErrorWith(description, 0, "", description, argument, "");
+  }
+
+  ParsingException newParseErrorWith(
+    final String shortDescription,
+    final int positionOffset,
+    final String longDescriptionPrefix,
+    final String longDescriptionMessage, Object argument,
+    final String longDescriptionSuffix) {
+    if (errorInfo == ErrorInfo.MINIMAL) return ParsingException.create(shortDescription, false);
+    error.setLength(0);
+    error.append(longDescriptionPrefix);
+    error.append(longDescriptionMessage);
+    if (argument != null) {
+      error.append(": '");
+      error.append(argument);
+      error.append("'");
+    }
+    error.append(longDescriptionSuffix);
+    if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
+    error.append(" ");
+    positionDescription(positionOffset, error);
+    return ParsingException.create(error.toString(), withStackTrace());
+  }
 }
 
