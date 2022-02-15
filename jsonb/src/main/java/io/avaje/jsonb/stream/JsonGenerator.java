@@ -8,7 +8,7 @@ import java.math.BigInteger;
 /**
  * Generate JSON content.
  */
-public interface JsonGenerator extends Closeable, Flushable {
+interface JsonGenerator extends Closeable, Flushable {
 
   /**
    * Enable or disable pretty json formatting.

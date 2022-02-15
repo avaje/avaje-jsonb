@@ -10,7 +10,7 @@ import java.util.Map;
  * Provides "prepared" JSON keys/field names for improved performance
  * during generation and parsing.
  */
-public final class JsonNames implements PropertyNames {
+final class JsonNames implements PropertyNames {
 
   private final byte[][] nameArray;
   private final Map<Long, String> nameHash;

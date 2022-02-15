@@ -7,7 +7,7 @@ import java.math.BigInteger;
 /**
  * Parse JSON content.
  */
-public interface JsonParser extends Closeable {
+interface JsonParser extends Closeable {
 
   /**
    * Set the current object names that can are "prepared" and can be used
