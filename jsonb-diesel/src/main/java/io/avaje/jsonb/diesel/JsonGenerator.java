@@ -7,13 +7,13 @@ import java.math.BigInteger;
 
 public interface JsonGenerator extends Closeable, Flushable {
 
-  void writeStartArray();
+  void startArray();
 
-  void writeEndArray();
+  void endArray();
 
-  void writeStartObject();
+  void startObject();
 
-  void writeEndObject();
+  void endObject();
 
   void writeName(String name);
 

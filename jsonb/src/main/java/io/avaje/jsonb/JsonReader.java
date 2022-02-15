@@ -71,7 +71,7 @@ public interface JsonReader extends Closeable {
   /**
    * Return true if the value to be read is a null.
    */
-  boolean isNull();
+  boolean isNullValue();
 
   /**
    * Read and return the next value as a boolean.

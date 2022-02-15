@@ -1,12 +1,11 @@
 package io.avaje.jsonb.diesel;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public interface JsonParser {
-
-  String location();
+public interface JsonParser extends Closeable {
 
   void names(JsonNames nextNames);
 
@@ -16,10 +15,6 @@ public interface JsonParser {
 
   String nextField() throws IOException;
 
-  boolean currentIsNull() throws ParsingException;
-
-  byte skip() throws IOException;
-
   void startArray() throws IOException;
 
   void endArray() throws IOException;
@@ -27,6 +22,10 @@ public interface JsonParser {
   void startObject() throws IOException;
 
   void endObject() throws IOException;
+
+  byte skipValue() throws IOException;
+
+  boolean isNullValue() throws ParsingException;
 
   int readInt() throws IOException;
 
@@ -43,6 +42,11 @@ public interface JsonParser {
   boolean readBoolean() throws IOException;
 
   String readString() throws IOException;
+
+  /**
+   * Return the current location. Generally used for reporting errors.
+   */
+  String location();
 
   void close();
 

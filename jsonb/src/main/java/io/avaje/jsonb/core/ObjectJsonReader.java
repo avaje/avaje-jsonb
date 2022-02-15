@@ -145,7 +145,7 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public boolean isNull() {
+  public boolean isNullValue() {
     return currentValue == null;
   }
 

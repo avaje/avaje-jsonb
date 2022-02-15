@@ -109,7 +109,7 @@ final class JakartaJsonReader implements JsonReader {
   }
 
   @Override
-  public boolean isNull() {
+  public boolean isNullValue() {
     return currenEvent == JsonParser.Event.VALUE_NULL;
   }
 

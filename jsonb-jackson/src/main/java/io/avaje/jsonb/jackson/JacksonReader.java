@@ -103,7 +103,7 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public boolean isNull() {
+  public boolean isNullValue() {
     return parser.hasToken(JsonToken.VALUE_NULL);
   }
 

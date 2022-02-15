@@ -164,9 +164,9 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public boolean isNull() {
+  public boolean isNullValue() {
     try {
-      return reader.currentIsNull();
+      return reader.isNullValue();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -206,7 +206,7 @@ final class JsonReadAdapter implements JsonReader {
   @Override
   public void skipValue() {
     try {
-      reader.skip();
+      reader.skipValue();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

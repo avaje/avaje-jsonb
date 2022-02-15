@@ -859,7 +859,7 @@ final class JParser implements JsonParser {
    * @throws IOException unable to read next byte (end of stream, invalid JSON, ...)
    */
   @Override
-  public byte skip() throws IOException {
+  public byte skipValue() throws IOException {
     if (last == '"') return skipString();
     if (last == '{') {
       return skipObject();
@@ -868,7 +868,7 @@ final class JParser implements JsonParser {
       return skipArray();
     }
     if (last == 'n') {
-      if (!currentIsNull()) throw newParseErrorAt("Expecting 'null' for null constant", 0);
+      if (!isNullValue()) throw newParseErrorAt("Expecting 'null' for null constant", 0);
       return nextToken();
     }
     if (last == 't') {
@@ -887,10 +887,10 @@ final class JParser implements JsonParser {
 
   private byte skipArray() throws IOException {
     nextToken();
-    byte nextToken = skip();
+    byte nextToken = skipValue();
     while (nextToken == ',') {
       nextToken();
-      nextToken = skip();
+      nextToken = skipValue();
     }
     if (nextToken != ']') throw newParseError("Expecting ']' for array end");
     return nextToken();
@@ -906,7 +906,7 @@ final class JParser implements JsonParser {
     }
     if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
     nextToken();
-    nextToken = skip();
+    nextToken = skipValue();
     while (nextToken == ',') {
       nextToken = nextToken();
       if (nextToken == '"') {
@@ -916,7 +916,7 @@ final class JParser implements JsonParser {
       }
       if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
       nextToken();
-      nextToken = skip();
+      nextToken = skipValue();
     }
     if (nextToken != '}') throw newParseError("Expecting '}' for object end");
     return nextToken();
@@ -970,7 +970,7 @@ final class JParser implements JsonParser {
   }
 
   @Override
-  public boolean currentIsNull() throws ParsingException {
+  public boolean isNullValue() throws ParsingException {
     if (last == 'n') {
       if (currentIndex + 2 < length
         && buffer[currentIndex] == 'u'

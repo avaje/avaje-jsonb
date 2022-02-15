@@ -80,7 +80,7 @@ final class JsonWriteAdapter implements JsonWriter {
   public void beginArray() {
     try {
       writeDeferredName();
-      generator.writeStartArray();
+      generator.startArray();
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -88,14 +88,14 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void endArray() {
-    generator.writeEndArray();
+    generator.endArray();
   }
 
   @Override
   public void beginObject() {
     try {
       writeDeferredName();
-      generator.writeStartObject();
+      generator.startObject();
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -103,7 +103,7 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void endObject() {
-    generator.writeEndObject();
+    generator.endObject();
     if (pushedNames) {
       pushedNames = false;
       currentNames = nameStack != null ? nameStack.pop() : null;
@@ -153,8 +153,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (serializeEmpty) {
       try {
         writeDeferredName();
-        generator.writeStartArray();
-        generator.writeEndArray();
+        generator.startArray();
+        generator.endArray();
       } catch (IOException e) {
         throw new JsonIoException(e);
       }

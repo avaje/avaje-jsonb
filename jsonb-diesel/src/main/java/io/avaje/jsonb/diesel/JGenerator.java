@@ -406,7 +406,7 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
-  public void writeStartObject() {
+  public void startObject() {
     if (lastOp == OP_END) {
       writeByte(COMMA);
     }
@@ -415,19 +415,19 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
-  public void writeEndObject() {
+  public void endObject() {
     writeByte(OBJECT_END);
     lastOp = OP_END;
   }
 
   @Override
-  public void writeStartArray() {
+  public void startArray() {
     writeByte(ARRAY_START);
     lastOp = OP_START;
   }
 
   @Override
-  public void writeEndArray() {
+  public void endArray() {
     writeByte(ARRAY_END);
     lastOp = OP_END;
   }
