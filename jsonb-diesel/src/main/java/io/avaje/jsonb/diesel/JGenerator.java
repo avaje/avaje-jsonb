@@ -56,9 +56,6 @@ final class JGenerator implements JsonGenerator {
   private OutputStream target;
   private int lastOp;
   private int position;
-  private long flushed;
-
-  private String jsonString;
 
   JGenerator() {
     this(512);
@@ -76,7 +73,6 @@ final class JGenerator implements JsonGenerator {
     target = targetStream;
     lastOp = 0;
     position = 0;
-    flushed = 0;
     return this;
   }
 
@@ -103,7 +99,6 @@ final class JGenerator implements JsonGenerator {
         throw new JsonIoException("Unable to write to target stream.", ex);
       }
       position = 0;
-      flushed += size;
       if (padding > buffer.length) {
         buffer = Arrays.copyOf(buffer, buffer.length + buffer.length / 2 + padding);
       }
@@ -139,27 +134,6 @@ final class JGenerator implements JsonGenerator {
     _result[cur] = QUOTE;
     position = cur + 1;
   }
-
-//  private void writeString(final CharSequence value) {
-//    final int len = value.length();
-//    if (position + (len << 2) + (len << 1) + 2 >= buffer.length) {
-//      enlargeOrFlush(position, (len << 2) + (len << 1) + 2);
-//    }
-//    final byte[] _result = buffer;
-//    _result[position] = QUOTE;
-//    int cur = position + 1;
-//    for (int i = 0; i < len; i++) {
-//      final char c = value.charAt(i);
-//      if (c > 31 && c != '"' && c != '\\' && c < 126) {
-//        _result[cur++] = (byte) c;
-//      } else {
-//        writeQuotedString(value, i, cur, len);
-//        return;
-//      }
-//    }
-//    _result[cur] = QUOTE;
-//    position = cur + 1;
-//  }
 
   private void writeQuotedString(final CharSequence str, int i, int cur, final int len) {
     final byte[] _result = this.buffer;
@@ -405,7 +379,6 @@ final class JGenerator implements JsonGenerator {
       } catch (IOException ex) {
         throw new JsonIoException("Unable to write to target stream.", ex);
       }
-      flushed += position;
       position = 0;
     }
   }
@@ -416,11 +389,6 @@ final class JGenerator implements JsonGenerator {
     if (target != null) {
       target.flush();
     }
-//    if (target != null && position != 0) {
-//      target.write(buffer, 0, position);
-//      position = 0;
-//      flushed = 0;
-//    }
   }
 
   private void prefixName() {
