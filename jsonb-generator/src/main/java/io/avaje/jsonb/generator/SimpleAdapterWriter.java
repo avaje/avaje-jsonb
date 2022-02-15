@@ -8,7 +8,7 @@ class SimpleAdapterWriter {
 
   private final BeanReader beanReader;
   private final ProcessingContext context;
-  private final String shortName;
+  private final String adapterShortName;
   private final String adapterPackage;
   private final String adapterFullName;
 
@@ -18,7 +18,7 @@ class SimpleAdapterWriter {
     this.beanReader = beanReader;
     this.context = context;
     AdapterName adapterName = new AdapterName(beanReader.getBeanType());
-    this.shortName = adapterName.shortName();
+    this.adapterShortName = adapterName.shortName();
     this.adapterPackage = adapterName.adapterPackage();
     this.adapterFullName = adapterName.fullName();
   }
@@ -45,7 +45,7 @@ class SimpleAdapterWriter {
   }
 
   private void writeConstructor() {
-    writer.append("  public %sJsonAdapter(Jsonb jsonb) {", shortName).eol();
+    writer.append("  public %sJsonAdapter(Jsonb jsonb) {", adapterShortName).eol();
     beanReader.writeConstructor(writer);
     writer.append("  }").eol();
   }
@@ -61,7 +61,7 @@ class SimpleAdapterWriter {
   }
 
   private void writeClassStart() {
-    writer.append("public class %sJsonAdapter extends JsonAdapter<%s> ", shortName, shortName);
+    writer.append("public class %sJsonAdapter extends JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
     if (!beanReader.hasSubtypes()) {
       writer.append("implements ViewBuilderAware ");
     }

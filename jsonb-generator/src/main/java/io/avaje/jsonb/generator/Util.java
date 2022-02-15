@@ -91,6 +91,7 @@ class Util {
     if (posPrior == -1) {
       return adapterFullName.substring(posLast + 1, nameEnd);
     }
-    return adapterFullName.substring(0, posPrior) + adapterFullName.substring(posLast, nameEnd);
+    return adapterFullName.substring(0, posPrior)
+      + adapterFullName.substring(posLast, nameEnd).replace('$', '.');
   }
 }

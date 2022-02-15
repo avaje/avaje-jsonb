@@ -42,6 +42,10 @@ class BeanReader {
     return beanType.toString();
   }
 
+  String shortName() {
+    return shortName;
+  }
+
   TypeElement getBeanType() {
     return beanType;
   }
