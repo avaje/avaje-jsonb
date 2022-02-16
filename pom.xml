@@ -22,13 +22,12 @@
 
   <properties>
 <!--    <java.version>11</java.version>-->
-    <nexus.staging.autoReleaseAfterClose>false</nexus.staging.autoReleaseAfterClose>
+    <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
   </properties>
 
   <modules>
     <module>jsonb</module>
     <module>jsonb-generator</module>
-    <module>jsonb-jakarta</module>
     <module>jsonb-jackson</module>
   </modules>
 
@@ -42,6 +41,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
+        <module>jsonb-jakarta</module>
         <module>blackbox-test</module>
       </modules>
     </profile>
