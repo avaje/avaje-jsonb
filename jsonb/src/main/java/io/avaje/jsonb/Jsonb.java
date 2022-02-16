@@ -60,7 +60,7 @@ import java.util.ServiceLoader;
 public interface Jsonb {
 
   /**
-   * Create and return a new Jsonb.Builder to configure before building the Jsonb instance.
+   * Create a new Jsonb.Builder to configure and build the Jsonb instance.
    * <p>
    * We can register JsonAdapter's to use for specific types before building and returning
    * the Jsonb instance to use.
@@ -87,22 +87,22 @@ public interface Jsonb {
   }
 
   /**
-   * Return JSON content for the given object.
+   * Return json content for the given object.
    * <p>
    * This is a convenience method for using {@code jsonb.type(Object.class).toJson(any) }
    *
-   * @param any The object to return as JSON string
-   * @return Return JSON content for the given object.
+   * @param any The object to return as json string
+   * @return Return json content for the given object.
    */
   String toJson(Object any);
 
   /**
-   * Return JSON content in pretty format for the given object.
+   * Return json content in pretty format for the given object.
    * <p>
    * This is a convenience method for using {@code jsonb.type(Object.class).toJsonPretty(any) }
    *
-   * @param any The object to return as JSON string in pretty format
-   * @return Return JSON content in pretty format for the given object.
+   * @param any The object to return as json string in pretty format
+   * @return Return json content in pretty format for the given object.
    */
   String toJsonPretty(Object any);
 
@@ -133,7 +133,7 @@ public interface Jsonb {
    * is determined dynamically based on the type of the object value passed in.
    * <p>
    * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
-   * the result are determined dynamically based on the JSON types being read and the resulting java types
+   * the result are determined dynamically based on the json types being read and the resulting java types
    * are ArrayList, LinkedHashMap, String, boolean, and double.
    */
   <T> JsonType<T> type(Class<T> cls);
@@ -163,7 +163,7 @@ public interface Jsonb {
    * is determined dynamically based on the type of the object value passed in.
    * <p>
    * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
-   * the result are determined dynamically based on the JSON types being read and the resulting java types
+   * the result are determined dynamically based on the json types being read and the resulting java types
    * are ArrayList, LinkedHashMap, String, boolean, and double.
    */
   <T> JsonType<T> type(Type type);
