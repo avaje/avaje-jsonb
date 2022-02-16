@@ -58,12 +58,26 @@ public interface JsonWriter extends Closeable, Flushable {
   String path();
 
   /**
+   * Set the property names that will be used for all json generation.
+   * <p>
+   * These names should be used for all json generation for this generator and set once
+   * rather than set per object via {@link #names(PropertyNames)}.
+   * <p>
+   * This is used by view json generation where all the names are known at the point
+   * when the view is created (a sort of flattened nested tree).
+   */
+  void allNames(PropertyNames names);
+
+  /**
    * Set the current property names.
+   * <p>
+   * This is expected to be called per object after each call to {@link #beginObject()}.
    */
   void names(PropertyNames names);
 
   /**
-   * Set the next property name to write by position.
+   * Set the next property name to write by position. This uses the already encoded
+   * name values of PropertyNames.
    */
   void name(int position);
 

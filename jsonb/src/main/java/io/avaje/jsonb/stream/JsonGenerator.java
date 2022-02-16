@@ -37,15 +37,24 @@ interface JsonGenerator extends Closeable, Flushable {
 
   /**
    * Set the already encoded and escaped names that can be used via {@link #writeName(int)}.
+   * <p>
+   * These names should be used for all json generation for this generator and set once
+   * rather than set per object via {@link #names(JsonNames)}.
+   */
+  void allNames(JsonNames names);
+
+  /**
+   * Set the already encoded and escaped names that can be used via {@link #writeName(int)}.
+   * <p>
+   * This is expected to be called per object after each call to  {@link #startObject()}.
    */
   void names(JsonNames nextNames);
 
   /**
-   * Write a field name that is already encoded and escaped.
-   * <p>
-   * The namePos is the name position in the JsonNames that has been set.
+   * Set the next property name to write by position. This uses the already encoded
+   * name values of JsonNames.
    */
-   void writeName(int namePos);
+  void writeName(int namePos);
 
   /**
    * Write a field name.

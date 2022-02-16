@@ -221,7 +221,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     @Override
     public void toJson(T value, JsonWriter writer) {
       if (properties != null) {
-        writer.names(properties);
+        writer.allNames(properties);
       }
       try {
         element.write(writer, value);

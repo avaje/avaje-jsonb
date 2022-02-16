@@ -101,8 +101,13 @@ final class JsonWriteAdapter implements JsonWriter {
   }
 
   @Override
-  public void names(PropertyNames nextNames) {
-    generator.names((JsonNames) nextNames);
+  public void allNames(PropertyNames names) {
+    generator.allNames((JsonNames) names);
+  }
+
+  @Override
+  public void names(PropertyNames names) {
+    generator.names((JsonNames) names);
   }
 
   @Override

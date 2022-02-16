@@ -56,6 +56,11 @@ final class JakartaJsonWriter implements JsonWriter {
   }
 
   @Override
+  public void allNames(PropertyNames names) {
+    this.names = (DPropertyNames) names;
+  }
+
+  @Override
   public void names(PropertyNames names) {
     this.names = (DPropertyNames) names;
   }

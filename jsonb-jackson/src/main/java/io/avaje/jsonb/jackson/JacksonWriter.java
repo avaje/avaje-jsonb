@@ -18,9 +18,9 @@ final class JacksonWriter implements JsonWriter {
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
-  private ArrayStack<JacksonNames> nameStack;
+  private final ArrayStack<JacksonNames> nameStack = new ArrayStack<>();
   private JacksonNames currentNames;
-  private boolean pushedNames;
+  private boolean allNames;
   private int namePos = -1;
 
   JacksonWriter(JsonGenerator generator, boolean serializeNulls, boolean serializeEmpty) {
@@ -114,9 +114,8 @@ final class JacksonWriter implements JsonWriter {
   public void endObject() {
     try {
       generator.writeEndObject();
-      if (pushedNames) {
-        pushedNames = false;
-        currentNames = nameStack != null ? nameStack.pop() : null;
+      if (!allNames) {
+        currentNames = nameStack.pop();
       }
     } catch (IOException e) {
       throw new JsonIoException(e);
@@ -129,21 +128,17 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
-  public void names(PropertyNames nextNames) {
-    if (currentNames != nextNames) {
-      if (currentNames != null) {
-        pushCurrentNames();
-      }
-      currentNames = (JacksonNames) nextNames;
-    }
+  public void allNames(PropertyNames names) {
+    allNames = true;
+    currentNames = (JacksonNames) names;
   }
 
-  private void pushCurrentNames() {
-    if (nameStack == null) {
-      nameStack = new ArrayStack<>();
+  @Override
+  public void names(PropertyNames names) {
+    if (currentNames != null) {
+      nameStack.push(currentNames);
     }
-    pushedNames = true;
-    nameStack.push(currentNames);
+    currentNames = (JacksonNames) names;
   }
 
   @Override
