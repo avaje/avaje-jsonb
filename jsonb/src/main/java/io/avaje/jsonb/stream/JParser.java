@@ -75,7 +75,7 @@ final class JParser implements JsonParser {
 
   private InputStream stream;
   private int readLimit;
-  //always leave some room for reading special stuff, so that buffer contains enough padding for such optimizations
+  // always leave some room for reading special stuff, so that buffer contains enough padding for such optimizations
   private int bufferLenWithExtraSpace;
 
   private final byte[] originalBuffer;
@@ -103,7 +103,7 @@ final class JParser implements JsonParser {
     this.tmp = tmp;
     this.buffer = buffer;
     this.length = length;
-    this.bufferLenWithExtraSpace = buffer.length - 38; //currently maximum padding is for uuid
+    this.bufferLenWithExtraSpace = buffer.length - 38; // maximum padding is for uuid
     this.chars = tmp;
     this.errorInfo = errorInfo;
     this.doublePrecision = doublePrecision;
@@ -121,34 +121,31 @@ final class JParser implements JsonParser {
    */
   @Override
   public void close() {
-    this.buffer = this.originalBuffer;
-    this.bufferLenWithExtraSpace = this.originalBufferLenWithExtraSpace;
-    this.last = ' ';
-    this.currentIndex = 0;
-    this.length = 0;
-    this.readLimit = 0;
-    this.nameStack.clear();
-    this.stream = null;
+    buffer = originalBuffer;
+    bufferLenWithExtraSpace = originalBufferLenWithExtraSpace;
+    last = ' ';
+    currentIndex = 0;
+    length = 0;
+    readLimit = 0;
+    nameStack.clear();
+    stream = null;
   }
 
   /**
    * Bind input stream for processing.
    * Stream will be processed in byte[] chunks.
    * If stream is null, reference to stream will be released.
-   *
-   * @param stream set input stream
-   * @return itself
    */
-  public JParser process(final InputStream stream) {
-    this.nameStack.clear();
-    this.currentPosition = 0;
-    this.currentIndex = 0;
-    this.stream = stream;
-    if (stream != null) {
-      this.readLimit = Math.min(this.length, bufferLenWithExtraSpace);
-      final int available = readFully(buffer, stream, 0);
+  public JParser process(final InputStream newStream) {
+    nameStack.clear();
+    currentPosition = 0;
+    currentIndex = 0;
+    stream = newStream;
+    if (newStream != null) {
+      readLimit = Math.min(length, bufferLenWithExtraSpace);
+      final int available = readFully(buffer, newStream, 0);
       readLimit = Math.min(available, bufferLenWithExtraSpace);
-      this.length = available;
+      length = available;
     }
     return this;
   }
@@ -160,30 +157,29 @@ final class JParser implements JsonParser {
    *
    * @param newBuffer new buffer to use for processing
    * @param newLength length of buffer which can be used
-   * @return itself
    */
   public JParser process(final byte[] newBuffer, final int newLength) {
     if (newBuffer != null) {
-      this.buffer = newBuffer;
-      this.bufferLenWithExtraSpace = buffer.length - 38; // maximum padding is for uuid
+      buffer = newBuffer;
+      bufferLenWithExtraSpace = buffer.length - 38; // maximum padding is for uuid
     }
     if (newLength > buffer.length) {
       throw new IllegalArgumentException("length can't be longer than buffer.length");
     }
-    this.nameStack.clear();
-    this.currentIndex = 0;
-    this.length = newLength;
-    this.stream = null;
-    this.readLimit = newLength;
+    nameStack.clear();
+    currentIndex = 0;
+    length = newLength;
+    stream = null;
+    readLimit = newLength;
     return this;
   }
 
   @Override
-  public void names(JsonNames nextNames) {
+  public void names(final JsonNames names) {
     if (currentNames != null) {
       nameStack.push(currentNames);
     }
-    currentNames = nextNames;
+    currentNames = names;
   }
 
   /**
