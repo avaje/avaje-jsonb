@@ -81,9 +81,8 @@ final class JParser implements JsonParser {
   private final byte[] originalBuffer;
   private final int originalBufferLenWithExtraSpace;
 
-  private ArrayStack<JsonNames> nameStack;
+  private final ArrayStack<JsonNames> nameStack = new ArrayStack<>();
   private JsonNames currentNames;
-  private boolean pushedNames;
 
   final ErrorInfo errorInfo;
   final DoublePrecision doublePrecision;
@@ -128,6 +127,7 @@ final class JParser implements JsonParser {
     this.currentIndex = 0;
     this.length = 0;
     this.readLimit = 0;
+    this.nameStack.clear();
     this.stream = null;
   }
 
@@ -140,6 +140,7 @@ final class JParser implements JsonParser {
    * @return itself
    */
   public JParser process(final InputStream stream) {
+    this.nameStack.clear();
     this.currentPosition = 0;
     this.currentIndex = 0;
     this.stream = stream;
@@ -169,6 +170,7 @@ final class JParser implements JsonParser {
     if (newLength > buffer.length) {
       throw new IllegalArgumentException("length can't be longer than buffer.length");
     }
+    this.nameStack.clear();
     this.currentIndex = 0;
     this.length = newLength;
     this.stream = null;
@@ -178,20 +180,10 @@ final class JParser implements JsonParser {
 
   @Override
   public void names(JsonNames nextNames) {
-    if (currentNames != nextNames) {
-      if (currentNames != null) {
-        pushCurrentNames();
-      }
-      currentNames = nextNames;
+    if (currentNames != null) {
+      nameStack.push(currentNames);
     }
-  }
-
-  private void pushCurrentNames() {
-    if (nameStack == null) {
-      nameStack = new ArrayStack<>();
-    }
-    pushedNames = true;
-    nameStack.push(currentNames);
+    currentNames = nextNames;
   }
 
   /**
@@ -967,10 +959,7 @@ final class JParser implements JsonParser {
    */
   @Override
   public void endObject() {
-    if (pushedNames) {
-      pushedNames = false;
-      currentNames = nameStack != null ? nameStack.pop() : null;
-    }
+    currentNames = nameStack.pop();
     if (last != '}' && nextToken() != '}') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '}' as object end");

@@ -60,6 +60,8 @@ final class JGenerator implements JsonGenerator {
   private int position;
   private boolean pretty;
   private int depth;
+  private final ArrayStack<JsonNames> nameStack = new ArrayStack<>();
+  private JsonNames currentNames;
 
   JGenerator() {
     this(512);
@@ -78,6 +80,7 @@ final class JGenerator implements JsonGenerator {
     lastOp = 0;
     position = 0;
     pretty = false;
+    nameStack.clear();
     return this;
   }
 
@@ -438,6 +441,7 @@ final class JGenerator implements JsonGenerator {
 
   @Override
   public void endObject() {
+    currentNames = nameStack.pop();
     if (pretty) {
       writeNewLine();
       depth--;
@@ -480,16 +484,24 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
-  public void writeName(String name) {
+  public void names(JsonNames nextNames) {
+    if (currentNames != null) {
+      nameStack.push(currentNames);
+    }
+    currentNames = nextNames;
+  }
+
+  @Override
+  public void writeName(int namePos) {
     prefixName();
-    writeString(name);
+    writeAscii(currentNames.key(namePos));
     writeColon();
   }
 
   @Override
-  public void writeName(byte[] escapedName) {
+  public void writeName(String name) {
     prefixName();
-    writeAscii(escapedName);
+    writeString(name);
     writeColon();
   }
 

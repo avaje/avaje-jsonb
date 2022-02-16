@@ -37,4 +37,7 @@ final class ArrayStack<E> {
     return len == 0 ? null : list.remove(len - 1);
   }
 
+  void clear() {
+    list.clear();
+  }
 }

@@ -17,9 +17,6 @@ final class JsonWriteAdapter implements JsonWriter {
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
-  private ArrayStack<JsonNames> nameStack;
-  private JsonNames currentNames;
-  private boolean pushedNames;
   private int namePos = -1;
 
   JsonWriteAdapter(JsonGenerator generator, boolean serializeNulls, boolean serializeEmpty) {
@@ -96,10 +93,6 @@ final class JsonWriteAdapter implements JsonWriter {
   @Override
   public void endObject() {
     generator.endObject();
-    if (pushedNames) {
-      pushedNames = false;
-      currentNames = nameStack != null ? nameStack.pop() : null;
-    }
   }
 
   @Override
@@ -109,20 +102,7 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void names(PropertyNames nextNames) {
-    if (currentNames != nextNames) {
-      if (currentNames != null) {
-        pushCurrentNames();
-      }
-      currentNames = (JsonNames) nextNames;
-    }
-  }
-
-  private void pushCurrentNames() {
-    if (nameStack == null) {
-      nameStack = new ArrayStack<>();
-    }
-    pushedNames = true;
-    nameStack.push(currentNames);
+    generator.names((JsonNames) nextNames);
   }
 
   @Override
@@ -132,7 +112,7 @@ final class JsonWriteAdapter implements JsonWriter {
 
   void writeDeferredName() throws IOException {
     if (namePos > -1) {
-      generator.writeName(currentNames.key(namePos));
+      generator.writeName(namePos);
       namePos = -1;
     } else if (deferredName != null) {
       generator.writeName(deferredName);

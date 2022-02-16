@@ -58,8 +58,7 @@ final class JsonReadAdapter implements JsonReader {
       return true;
     }
     if (nextToken == ',') {
-      nextToken = reader.nextToken();
-      return nextToken == '"';
+      return reader.nextToken() == '"';
     } else {
       return false;
     }

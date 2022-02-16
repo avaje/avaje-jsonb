@@ -36,14 +36,21 @@ interface JsonGenerator extends Closeable, Flushable {
   void endObject();
 
   /**
-   * Write a field name.
+   * Set the already encoded and escaped names that can be used via {@link #writeName(int)}.
    */
-  void writeName(String name);
+  void names(JsonNames nextNames);
 
   /**
    * Write a field name that is already encoded and escaped.
+   * <p>
+   * The namePos is the name position in the JsonNames that has been set.
    */
-  void writeName(byte[] escapedName);
+   void writeName(int namePos);
+
+  /**
+   * Write a field name.
+   */
+  void writeName(String name);
 
   /**
    * Write null value.
