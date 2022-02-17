@@ -3,7 +3,10 @@ package org.example.customer;
 import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
@@ -27,6 +30,31 @@ class CustomerTest {
     var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
     String asJson = jsonb.toJsonPretty(customer).replace("\" : ", "\": ");
     assertThat(asJson).isEqualTo("{\n  \"id\": 42,\n  \"name\": \"rob\",\n  \"status\": \"ACTIVE\"\n}");
+  }
+
+  @Test
+  void anyToWriter() {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    StringWriter writer = new StringWriter();
+    jsonb.toJson(customer,  writer);
+    assertThat(writer.toString()).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
+  }
+
+  @Test
+  void anyToOutputStream() {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    jsonb.toJson(customer,  baos);
+    String asString = baos.toString(StandardCharsets.UTF_8);
+    assertThat(asString).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
+  }
+
+  @Test
+  void anyToBytes() {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    byte[] bytes = jsonb.toJsonBytes(customer);
+    String asString = new String(bytes, StandardCharsets.UTF_8);
+    assertThat(asString).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
   }
 
   @Test

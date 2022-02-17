@@ -89,7 +89,7 @@ public interface Jsonb {
   /**
    * Return json content for the given object.
    * <p>
-   * This is a convenience method for using {@code jsonb.type(Object.class).toJson(any) }
+   * This is a convenience method for {@code jsonb.type(Object.class).toJson(any) }
    *
    * @param any The object to return as json string
    * @return Return json content for the given object.
@@ -99,7 +99,7 @@ public interface Jsonb {
   /**
    * Return json content in pretty format for the given object.
    * <p>
-   * This is a convenience method for using {@code jsonb.type(Object.class).toJsonPretty(any) }
+   * This is a convenience method for {@code jsonb.type(Object.class).toJsonPretty(any) }
    *
    * @param any The object to return as json string in pretty format
    * @return Return json content in pretty format for the given object.
@@ -107,20 +107,53 @@ public interface Jsonb {
   String toJsonPretty(Object any);
 
   /**
+   * Return the value as json content in bytes form.
+   * <p>
+   * This is a convenience method for {@code jsonb.type(Object.class).toJsonBytes(any) }
+   */
+  byte[] toJsonBytes(Object any);
+
+  /**
+   * Write to the given writer.
+   * <p>
+   * This is a convenience method for {@code jsonb.type(Object.class).toJson(any, writer) }
+   */
+  void toJson(Object any, Writer writer);
+
+  /**
+   * Write to the given outputStream.
+   * <p>
+   * This is a convenience method for {@code jsonb.type(Object.class).toJsonBytes(any, outputStream) }
+   */
+  void toJson(Object any, OutputStream outputStream);
+
+  /**
    * Return the JsonType used to read and write json for the given class.
    *
-   * <h3>Examples</h3>
+   * <h3>fromJson() example</h3>
    * <pre>{@code
    *
-   *   JsonType<Customer> customerType = jsonb.type(Customer.class)
+   *   Customer customer = jsonb
+   *     .type(Customer.class)
+   *     .fromJson(jsonContent);
+   *
+   *
+   *   // list
+   *   List<Customer> customers = jsonb
+   *     .type(Customer.class)
+   *     .list()
+   *     .fromJson(jsonContent);
+   *
+   * }</pre>
+   *
+   * <h3>toJson() example</h3>
+   * <pre>{@code
    *
    *   Customer customer = ...
-   *   customerType.toJson(customer);
    *
-   *   JsonType<List<Customer>> customerListType = customerType.list()
-   *
-   *   List<Customer> customers = ...
-   *   customerListType.toJson(customers);
+   *   String jsonContent = jsonb
+   *     .type(Customer.class)
+   *     .toJson(customer);
    *
    * }</pre>
    *
@@ -128,6 +161,21 @@ public interface Jsonb {
    * <p>
    * We can use <code>type(Object.class)</code> when we don't know the specific type that is being
    * written toJson or read fromJson.
+   * <p>
+   *
+   * <h3>Object toJson()</h3>
+   * <pre>{@code
+   *
+   *   Object any = ...
+   *
+   *   String jsonContent = jsonb
+   *     .type(Object.class)
+   *     .toJson(any);
+   *
+   *   // the same as
+   *   String jsonContent = jsonb.toJson(any);
+   *
+   * }</pre>
    * <p>
    * When using <code>Object.class</code> and writing <code>toJson()</code> then the underlying JsonAdapter
    * is determined dynamically based on the type of the object value passed in.
@@ -158,6 +206,20 @@ public interface Jsonb {
    * <p>
    * We can use <code>type(Object.class)</code> when we don't know the specific type that is being
    * written toJson or read fromJson.
+   *
+   * <h3>Object toJson()</h3>
+   * <pre>{@code
+   *
+   *   Object any = ...
+   *
+   *   String jsonContent = jsonb
+   *     .type(Object.class)
+   *     .toJson(any);
+   *
+   *   // the same as
+   *   String jsonContent = jsonb.toJson(any);
+   *
+   * }</pre>
    * <p>
    * When using <code>Object.class</code> and writing <code>toJson()</code> then the underlying JsonAdapter
    * is determined dynamically based on the type of the object value passed in.
