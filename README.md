@@ -31,14 +31,14 @@ json binding via apt source code generation
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb</artifactId>
-  <version>0.10</version>
+  <version>0.11</version>
 </dependency>
 
 <!-- annotation processor -->
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-generator</artifactId>
-  <version>0.10</version>
+  <version>0.11</version>
   <scope>provided</scope>
 </dependency>
 ```
