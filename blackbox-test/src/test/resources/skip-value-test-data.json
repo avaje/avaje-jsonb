@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "name": "n0",
+    "skip_string": "234"
+  },
+  {
+    "id": 2,
+    "name": "n1",
+    "skip_int": 139
+  },
+  {
+    "id": 3,
+    "name": "n2",
+    "skip_dec": 895.34
+  },
+  {
+    "id": 4,
+    "node_id": "MDEwOlJlcG9zaXRvcnkxNTc2MDI1Mw==",
+    "name": "n3",
+    "skip_object": {
+      "id": 208973,
+      "node_id": "MDQ6VXNlcjIwODk3Mw=="
+    }
+  },
+  {
+    "id": 5,
+    "name": "n4",
+    "skip_array": [1,2,3,4]
+  },
+  {
+    "id": 6,
+    "name": "n5",
+    "skip_null": null
+  },
+  {
+    "id": 7,
+    "name": "n6",
+    "skip_true": true
+  },
+  {
+    "id": 8,
+    "name": "n7",
+    "skip_false": false
+  },
+  {
+    "id": 9,
+    "skip_string": "234",
+    "name": "n8"
+  }
+]

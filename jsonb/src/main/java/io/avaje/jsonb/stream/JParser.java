@@ -746,15 +746,20 @@ final class JParser implements JsonParser {
     return nextToken();
   }
 
+  @Override
+  public void skipValue() {
+    skipNextValue();
+    // go back one as nextToken() is called next
+    last = buffer[--currentIndex];
+  }
+
   /**
    * Skip to next non-whitespace token (byte)
    * Will not allocate memory while skipping over JSON input.
    *
    * @return next non-whitespace byte
-   * @throws IOException unable to read next byte (end of stream, invalid JSON, ...)
    */
-  @Override
-  public byte skipValue() {
+  private byte skipNextValue() {
     if (last == '"') return skipString();
     if (last == '{') {
       return skipObject();
@@ -782,10 +787,10 @@ final class JParser implements JsonParser {
 
   private byte skipArray() {
     nextToken();
-    byte nextToken = skipValue();
+    byte nextToken = skipNextValue();
     while (nextToken == ',') {
       nextToken();
-      nextToken = skipValue();
+      nextToken = skipNextValue();
     }
     if (nextToken != ']') throw newParseError("Expecting ']' for array end");
     return nextToken();
@@ -801,7 +806,7 @@ final class JParser implements JsonParser {
     }
     if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
     nextToken();
-    nextToken = skipValue();
+    nextToken = skipNextValue();
     while (nextToken == ',') {
       nextToken = nextToken();
       if (nextToken == '"') {
@@ -811,7 +816,7 @@ final class JParser implements JsonParser {
       }
       if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
       nextToken();
-      nextToken = skipValue();
+      nextToken = skipNextValue();
     }
     if (nextToken != '}') throw newParseError("Expecting '}' for object end");
     return nextToken();
@@ -968,7 +973,6 @@ final class JParser implements JsonParser {
   private final Formatter errorFormatter = new Formatter(error);
 
   JsonDataException newParseError(final String description) {
-    if (errorInfo == ErrorInfo.MINIMAL) return new JsonDataException(description);
     error.setLength(0);
     error.append(description);
     error.append(". Found ");

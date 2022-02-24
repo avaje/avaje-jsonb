@@ -59,7 +59,7 @@ interface JsonParser extends Closeable {
    * This is typically use when we have read <code>nextField()</code>
    * and deemed that we are not interested in the value for that field.
    */
-  byte skipValue();
+  void skipValue();
 
   /**
    * Return true if the value to be read is NULL.
