@@ -523,12 +523,6 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
-  public void writeBinary(final byte[] value) {
-    prefixValue();
-    writeBase64(value);
-  }
-
-  @Override
   public void writeNull() {
     prefixValue();
     writeAscii(NULL);
@@ -578,6 +572,12 @@ final class JGenerator implements JsonGenerator {
   public void write(String value) {
     prefixValue();
     writeString(value);
+  }
+
+  @Override
+  public void write(byte[] value) {
+    prefixValue();
+    writeBase64(value);
   }
 
   @Override

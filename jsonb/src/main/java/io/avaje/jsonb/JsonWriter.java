@@ -174,6 +174,11 @@ public interface JsonWriter extends Closeable, Flushable {
   void value(BigInteger value);
 
   /**
+   * Write binary content as base64.
+   */
+  void value(byte[] value);
+
+  /**
    * Write a value that could be any value.
    */
   void jsonValue(Object value);

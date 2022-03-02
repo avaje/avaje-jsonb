@@ -107,6 +107,11 @@ interface JsonParser extends Closeable {
   String readString();
 
   /**
+   * Read and return a binary value from base64.
+   */
+  byte[] readBinary();
+
+  /**
    * Return the current location. Generally used for reporting errors.
    */
   String location();

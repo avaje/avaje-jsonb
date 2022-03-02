@@ -171,6 +171,15 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
+  public byte[] readBinary() {
+    try {
+      return parser.getBinaryValue();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
+  }
+
+  @Override
   public void beginObject() {
     if (parser.currentToken() == JsonToken.START_OBJECT) {
       return;

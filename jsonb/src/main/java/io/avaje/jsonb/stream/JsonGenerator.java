@@ -102,9 +102,9 @@ interface JsonGenerator extends Closeable, Flushable {
   void write(String value);
 
   /**
-   * Write a binary value.
+   * Write a binary value as base64.
    */
-  void writeBinary(byte[] value);
+  void write(byte[] value);
 
   /**
    * Write a new line. This is typically used when support line delimited x-json-stream content.

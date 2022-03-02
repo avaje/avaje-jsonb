@@ -298,6 +298,20 @@ final class JsonWriteAdapter implements JsonWriter {
   }
 
   @Override
+  public void value(byte[] value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      try {
+        writeDeferredName();
+        generator.write(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
+    }
+  }
+
+  @Override
   public void writeNewLine() {
     generator.writeNewLine();
   }
@@ -311,7 +325,7 @@ final class JsonWriteAdapter implements JsonWriter {
     } else if (value instanceof Collection<?>) {
       writeCollection((Collection<?>) value);
     } else if (value instanceof String) {
-      value(((String) value));
+      value((String) value);
     } else if (value instanceof Boolean) {
       value(((Boolean) value).booleanValue());
     } else if (value instanceof Integer) {
@@ -321,7 +335,9 @@ final class JsonWriteAdapter implements JsonWriter {
     } else if (value instanceof Double) {
       value(((Double) value).doubleValue());
     } else if (value instanceof BigDecimal) {
-      value(((BigDecimal) value));
+      value((BigDecimal) value);
+    } else if (value instanceof byte[]) {
+      value((byte[]) value);
     } else if (value == null) {
       nullValue();
     } else {

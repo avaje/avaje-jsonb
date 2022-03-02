@@ -19,7 +19,6 @@ import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -30,14 +29,14 @@ import java.util.List;
  * This supports both primitive and object arrays.
  */
 final class ArrayAdapter extends JsonAdapter<Object> {
-  public static final Factory FACTORY =
-    (type, jsonb) -> {
-      Type elementType = Util.arrayComponentType(type);
-      if (elementType == null) return null;
-      Class<?> elementClass = Util.rawType(elementType);
-      JsonAdapter<Object> elementAdapter = jsonb.adapter(elementType);
-      return new ArrayAdapter(elementClass, elementAdapter).nullSafe();
-    };
+  public static final Factory FACTORY = (type, jsonb) -> {
+    Type elementType = Util.arrayComponentType(type);
+    if (elementType == null) return null;
+    if (elementType == byte.class) return new ByteArray();
+    Class<?> elementClass = Util.rawType(elementType);
+    JsonAdapter<Object> elementAdapter = jsonb.adapter(elementType);
+    return new ArrayAdapter(elementClass, elementAdapter).nullSafe();
+  };
 
   private final Class<?> elementClass;
   private final JsonAdapter<Object> elementAdapter;
@@ -74,5 +73,22 @@ final class ArrayAdapter extends JsonAdapter<Object> {
   @Override
   public String toString() {
     return elementAdapter + ".array()";
+  }
+
+  static final class ByteArray extends JsonAdapter<byte[]> {
+    @Override
+    public byte[] fromJson(JsonReader reader) {
+      return reader.readBinary();
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, byte[] value) {
+      writer.value(value);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(byte[])";
+    }
   }
 }

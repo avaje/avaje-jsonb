@@ -105,6 +105,11 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
+  public byte[] readBinary() {
+    return reader.readBinary();
+  }
+
+  @Override
   public boolean isNullValue() {
     return reader.isNullValue();
   }

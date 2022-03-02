@@ -319,7 +319,7 @@ final class BasicTypeAdapters {
         case BOOLEAN:
           return this.booleanAdapter.fromJson(reader);
         case NULL:
-          return null;//reader.nextNull();
+          return null;
         default:
           throw new IllegalStateException("Expected a value but was " + reader.currentToken() + " at path " + reader.location());
       }

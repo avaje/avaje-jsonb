@@ -3,7 +3,6 @@ package io.avaje.jsonb.core;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.spi.PropertyNames;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -142,6 +141,11 @@ final class ObjectJsonReader implements JsonReader {
       return (BigInteger) currentValue;
     }
     return new BigInteger(currentValue.toString());
+  }
+
+  @Override
+  public byte[] readBinary() {
+    return (byte[]) currentValue;
   }
 
   @Override

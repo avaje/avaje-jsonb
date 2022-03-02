@@ -109,6 +109,11 @@ public interface JsonReader extends Closeable {
   String readString();
 
   /**
+   * Read and return the binary value from base64.
+   */
+  byte[] readBinary();
+
+  /**
    * Return the current location. This is typically used when reporting errors.
    */
   String location();

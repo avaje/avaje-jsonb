@@ -822,22 +822,23 @@ final class JParser implements JsonParser {
     return nextToken();
   }
 
-//  public final byte[] readBase64() throws IOException {
-//    if (stream != null && Base64.findEnd(buffer, currentIndex) == buffer.length) {
-//      final int len = parseString();
-//      final byte[] input = new byte[len];
-//      for (int i = 0; i < input.length; i++) {
-//        input[i] = (byte) chars[i];
-//      }
-//      return Base64.decodeFast(input, 0, len);
-//    }
-//    if (last != '"') throw newParseError("Expecting '\"' for base64 start");
-//    final int start = currentIndex;
-//    currentIndex = Base64.findEnd(buffer, start);
-//    last = buffer[currentIndex++];
-//    if (last != '"') throw newParseError("Expecting '\"' for base64 end");
-//    return Base64.decodeFast(buffer, start, currentIndex - 1);
-//  }
+  @Override
+  public byte[] readBinary() {
+    if (stream != null && Base64.findEnd(buffer, currentIndex) == buffer.length) {
+      final int len = parseString();
+      final byte[] input = new byte[len];
+      for (int i = 0; i < input.length; i++) {
+        input[i] = (byte) chars[i];
+      }
+      return Base64.decodeFast(input, 0, len);
+    }
+    if (last != '"') throw newParseError("Expecting '\"' for base64 start");
+    final int start = currentIndex;
+    currentIndex = Base64.findEnd(buffer, start);
+    last = buffer[currentIndex++];
+    if (last != '"') throw newParseError("Expecting '\"' for base64 end");
+    return Base64.decodeFast(buffer, start, currentIndex - 1);
+  }
 
   @Override
   public String nextField() {
