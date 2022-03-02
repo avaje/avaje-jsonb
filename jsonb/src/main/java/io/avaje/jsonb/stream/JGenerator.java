@@ -145,7 +145,7 @@ final class JGenerator implements JsonGenerator {
     position = cur + 1;
   }
 
-  private void writeQuotedString(final CharSequence str, int i, int cur, final int len) {
+  private void writeQuotedString(final String str, int i, int cur, final int len) {
     final byte[] _result = this.buffer;
     for (; i < len; i++) {
       final char c = str.charAt(i);
@@ -341,9 +341,9 @@ final class JGenerator implements JsonGenerator {
     if (position + (value.length << 1) + 2 >= buffer.length) {
       enlargeOrFlush(position, (value.length << 1) + 2);
     }
-    buffer[position++] = '"';
+    buffer[position++] = QUOTE;
     position += Base64.encodeToBytes(value, buffer, position);
-    buffer[position++] = '"';
+    buffer[position++] = QUOTE;
   }
 
   void writeDouble(final double value) {
