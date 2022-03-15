@@ -109,6 +109,11 @@ final class JakartaJsonReader implements JsonReader {
   }
 
   @Override
+  public byte[] readBinary() {
+    return new byte[0];
+  }
+
+  @Override
   public boolean isNullValue() {
     return currenEvent == JsonParser.Event.VALUE_NULL;
   }

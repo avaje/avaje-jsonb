@@ -218,6 +218,11 @@ final class JakartaJsonWriter implements JsonWriter {
   }
 
   @Override
+  public void value(byte[] value) {
+
+  }
+
+  @Override
   public void writeNewLine() {
     // TODO: No support to write new line characters for x-json-stream
   }
