@@ -1,5 +1,5 @@
 
-name: JDK EA
+name: JDK 19 EA
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [17]
+        java_version: [19]
         os: [ubuntu-latest]
 
     steps:
