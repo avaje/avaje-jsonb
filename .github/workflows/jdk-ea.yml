@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [17,18,19,loom]
+        java_version: [17,18,19,loom,valhalla,metropolis,panama]
         os: [ubuntu-latest]
 
     steps:
