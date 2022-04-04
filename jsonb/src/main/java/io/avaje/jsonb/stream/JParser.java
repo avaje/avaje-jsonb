@@ -209,7 +209,7 @@ final class JParser implements JsonParser {
 
   private static class EmptyEOFException extends EOFException {
     @Override
-    public synchronized Throwable fillInStackTrace() {
+    public Throwable fillInStackTrace() {
       return this;
     }
   }

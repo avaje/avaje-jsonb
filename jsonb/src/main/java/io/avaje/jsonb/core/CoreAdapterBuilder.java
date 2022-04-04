@@ -19,9 +19,9 @@ import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Builds and caches the JsonAdapter adapters for DJsonb.
@@ -32,6 +32,7 @@ class CoreAdapterBuilder {
   private final List<JsonAdapter.Factory> factories;
   private final ThreadLocal<LookupChain> lookupChainThreadLocal = new ThreadLocal<>();
   private final Map<Object, JsonAdapter<?>> adapterCache = new LinkedHashMap<>();
+  private final ReentrantLock lock = new ReentrantLock();
 
   CoreAdapterBuilder(DJsonb context, List<JsonAdapter.Factory> userFactories, boolean mathAsString) {
     this.context = context;
@@ -50,11 +51,14 @@ class CoreAdapterBuilder {
    */
   @SuppressWarnings("unchecked")
   <T> JsonAdapter<T> get(Object cacheKey) {
-    synchronized (adapterCache) {
+    lock.lock();
+    try {
       JsonAdapter<?> result = adapterCache.get(cacheKey);
       if (result != null) {
         return (JsonAdapter<T>) result;
       }
+    } finally {
+      lock.unlock();
     }
     return null;
   }
@@ -167,15 +171,17 @@ class CoreAdapterBuilder {
       }
       lookupChainThreadLocal.remove();
       if (success) {
-        synchronized (adapterCache) {
-          for (int i = 0, size = callLookups.size(); i < size; i++) {
-            Lookup<?> lookup = callLookups.get(i);
+        lock.lock();
+        try {
+          for (Lookup<?> lookup : callLookups) {
             JsonAdapter<?> replaced = adapterCache.put(lookup.cacheKey, lookup.adapter);
             if (replaced != null) {
               ((Lookup<Object>) lookup).adapter = (JsonAdapter<Object>) replaced;
               adapterCache.put(lookup.cacheKey, replaced);
             }
           }
+        } finally {
+          lock.unlock();
         }
       }
     }
