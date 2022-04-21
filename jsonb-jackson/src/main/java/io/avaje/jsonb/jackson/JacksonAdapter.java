@@ -64,6 +64,9 @@ public class JacksonAdapter implements JsonStreamAdapter {
      * Build and return the JacksonAdapter.
      */
     public JacksonAdapter build() {
+      if (jsonFactory == null) {
+        jsonFactory = new JsonFactory();
+      }
       return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory);
     }
   }

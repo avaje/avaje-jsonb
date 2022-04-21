@@ -25,6 +25,12 @@ final class JsonWriteAdapter implements JsonWriter {
     this.serializeEmpty = serializeEmpty;
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T unwrap(Class<T> underlying) {
+    return (T)generator;
+  }
+
   @Override
   public void close() {
     generator.close();

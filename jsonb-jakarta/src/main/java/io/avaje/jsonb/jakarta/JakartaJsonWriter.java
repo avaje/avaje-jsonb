@@ -26,6 +26,11 @@ final class JakartaJsonWriter implements JsonWriter {
   }
 
   @Override
+  public <T> T unwrap(Class<T> underlying) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  @Override
   public void serializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
   }

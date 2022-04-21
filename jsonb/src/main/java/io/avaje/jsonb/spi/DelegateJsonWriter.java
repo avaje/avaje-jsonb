@@ -17,6 +17,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
+  public <T> T unwrap(Class<T> underlying) {
+    return delegate.unwrap(underlying);
+  }
+
+  @Override
   public final void serializeNulls(boolean serializeNulls) {
     delegate.serializeNulls(serializeNulls);
   }

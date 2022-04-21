@@ -28,6 +28,30 @@ import java.math.BigInteger;
 public interface JsonWriter extends Closeable, Flushable {
 
   /**
+   * Unwrap the underlying generator being used.
+   * <p>
+   * We do this to get access to the underlying generator. For the case when
+   * using jackson-core we get access to Jackson JsonGenerator and can then
+   * do Jackson specific things like set custom escaping.
+   *
+   * <pre>{@code
+   *
+   *     try (JsonWriter writer = jsonb.writer(new StringWriter())) {
+   *
+   *       // get access to the underlying Jackson JsonGenerator
+   *       var generator = writer.unwrap(JsonGenerator.class)
+   *
+   *       // do Jackson specific things like ...
+   *       generator.setCharacterEscapes(new HTMLCharacterEscapes());
+   *
+   *       jsonb.toJson(myBean, writer);
+   *     }
+   *
+   * }</pre>
+   */
+  <T> T unwrap(Class<T> underlying);
+
+  /**
    * Set to serialise null values or not.
    */
   void serializeNulls(boolean serializeNulls);

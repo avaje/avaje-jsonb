@@ -56,6 +56,12 @@ final class JacksonWriter implements JsonWriter {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T unwrap(Class<T> underlying) {
+    return (T) generator;
+  }
+
   @Override
   public void serializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;

@@ -67,6 +67,11 @@ class DJsonb implements Jsonb {
   }
 
   @Override
+  public void toJson(Object any, JsonWriter jsonWriter) {
+    anyType.toJson(any, jsonWriter);
+  }
+
+  @Override
   public PropertyNames properties(String... names) {
     return io.properties(names);
   }

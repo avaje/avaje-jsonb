@@ -128,6 +128,13 @@ public interface Jsonb {
   void toJson(Object any, OutputStream outputStream);
 
   /**
+   * Write to the given writer.
+   * <p>
+   * This is a convenience method for {@code jsonb.type(Object.class).toJson(any, writer) }
+   */
+  void toJson(Object any, JsonWriter jsonWriter);
+
+  /**
    * Return the JsonType used to read and write json for the given class.
    *
    * <h3>fromJson() example</h3>
