@@ -31,11 +31,11 @@ class JParserTest {
     JParser parser = newParser(100);
 
     String raw = createLargeContent();
-    String content = "{\"id\":43, \"content\":"+raw+"}";
+    String content = "{\"id\":43, \"content\":" + raw + "}";
     initParserViaByteArray(parser, content);
 
     assertThat(parser.nextField()).isEqualTo("content");
-    assertThat(parser.readRaw()).isEqualTo(raw.toString());
+    assertThat(parser.readRaw()).isEqualTo(raw);
   }
 
   @Test
@@ -65,11 +65,11 @@ class JParserTest {
     JParser parser = newParser(100);
 
     String raw = createLargeContent();
-    String content = "{\"id\":43, \"content\":"+raw+"}";
+    String content = "{\"id\":43, \"content\":" + raw + "}";
 
     initParserViaStream(parser, content);
     assertThat(parser.nextField()).isEqualTo("content");
-    assertThat(parser.readRaw()).isEqualTo(raw.toString());
+    assertThat(parser.readRaw()).isEqualTo(raw);
   }
 
   private String createLargeContent() {
