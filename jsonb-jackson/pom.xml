@@ -4,7 +4,7 @@
   <parent>
     <artifactId>avaje-jsonb-parent</artifactId>
     <groupId>io.avaje</groupId>
-    <version>0.14</version>
+    <version>0.15-SNAPSHOT</version>
   </parent>
 
   <artifactId>avaje-jsonb-jackson</artifactId>
@@ -21,7 +21,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb</artifactId>
-      <version>0.14</version>
+      <version>0.15-SNAPSHOT</version>
     </dependency>
 
     <dependency>
