@@ -296,6 +296,11 @@ public interface Jsonb {
   <T> JsonAdapter<T> adapter(Type type);
 
   /**
+   * Raw JsonAdapter for raw json content.
+   */
+  JsonAdapter<String> rawAdapter();
+
+  /**
    * Build the Jsonb instance adding JsonAdapter, Factory or AdapterBuilder.
    */
   interface Builder {

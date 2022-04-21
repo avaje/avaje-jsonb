@@ -157,6 +157,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
+  public void rawValue(String value) {
+    delegate.rawValue(value);
+  }
+
+  @Override
   public final void jsonValue(Object value) {
     delegate.jsonValue(value);
   }

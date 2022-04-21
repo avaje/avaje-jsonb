@@ -10,8 +10,10 @@ class PropertyIgnoreReader {
 
   private static final String JSON_IGNORE = "io.avaje.jsonb.Json.Ignore";
   private static final String JSON_UNMAPPED = "io.avaje.jsonb.Json.Unmapped";
+  private static final String JSON_RAW = "io.avaje.jsonb.Json.Raw";
 
   private boolean unmapped;
+  private boolean raw;
   private boolean ignoreSerialize;
   private boolean ignoreDeserialize;
 
@@ -21,6 +23,10 @@ class PropertyIgnoreReader {
 
   boolean unmapped() {
     return unmapped;
+  }
+
+  boolean raw() {
+    return raw;
   }
 
   boolean serialize() {
@@ -38,6 +44,8 @@ class PropertyIgnoreReader {
     for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
       if (JSON_UNMAPPED.equals(mirror.getAnnotationType().toString())) {
         unmapped = true;
+      } else if (JSON_RAW.equals(mirror.getAnnotationType().toString())) {
+        raw = true;
       } else if (JSON_IGNORE.equals(mirror.getAnnotationType().toString())) {
         ignoreDeserialize = true;
         ignoreSerialize = true;

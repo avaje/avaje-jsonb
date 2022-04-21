@@ -151,6 +151,11 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
+  public String readRaw() {
+    return reader.readRaw();
+  }
+
+  @Override
   public void unmappedField(String fieldName) {
     if (failOnUnknown) {
       throw new IllegalStateException("Unknown property " + fieldName + " at " + reader.location());

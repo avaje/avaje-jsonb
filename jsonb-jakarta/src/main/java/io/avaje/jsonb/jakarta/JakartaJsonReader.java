@@ -114,6 +114,11 @@ final class JakartaJsonReader implements JsonReader {
   }
 
   @Override
+  public String readRaw() {
+    throw new RuntimeException("Not Supported");
+  }
+
+  @Override
   public boolean isNullValue() {
     return currenEvent == JsonParser.Event.VALUE_NULL;
   }

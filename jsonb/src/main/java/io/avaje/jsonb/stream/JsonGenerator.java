@@ -107,6 +107,11 @@ interface JsonGenerator extends Closeable, Flushable {
   void write(byte[] value);
 
   /**
+   * Write raw content that is assumed to be valid json.
+   */
+  void writeRaw(String value);
+
+  /**
    * Write a new line. This is typically used when support line delimited x-json-stream content.
    */
   void writeNewLine();

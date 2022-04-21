@@ -112,6 +112,11 @@ interface JsonParser extends Closeable {
   byte[] readBinary();
 
   /**
+   * Read and return raw json content.
+   */
+  String readRaw();
+
+  /**
    * Return the current location. Generally used for reporting errors.
    */
   String location();

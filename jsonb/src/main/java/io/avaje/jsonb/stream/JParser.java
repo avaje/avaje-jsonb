@@ -3,6 +3,7 @@ package io.avaje.jsonb.stream;
 import io.avaje.jsonb.JsonDataException;
 import io.avaje.jsonb.JsonIoException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,6 +73,8 @@ final class JParser implements JsonParser {
 
   byte[] buffer;
   char[] chars;
+  private ByteArrayOutputStream readRawBuffer;
+  private int readRawStartPosition;
 
   private InputStream stream;
   private int readLimit;
@@ -234,6 +237,14 @@ final class JParser implements JsonParser {
 
   private int prepareNextBlock() {
     final int len = length - currentIndex;
+    if (readRawBuffer != null) {
+      // performing readRaw()
+      readRawBuffer.write(buffer, readRawStartPosition, currentIndex - readRawStartPosition);
+      readRawStartPosition = 0;
+      if (readRawBuffer.size() > maxStringBuffer) {
+        throw newParseErrorWith("Maximum buffer limit exceeded for raw content", maxStringBuffer);
+      }
+    }
     System.arraycopy(buffer, currentIndex, buffer, 0, len);
     final int available = readFully(buffer, stream, len);
     currentPosition += currentIndex;
@@ -747,6 +758,27 @@ final class JParser implements JsonParser {
   }
 
   @Override
+  public String readRaw() {
+    readRawStartPosition = currentIndex - 1;
+    if (stream != null) {
+      readRawBuffer = new ByteArrayOutputStream();
+    }
+    skipValue();
+    if (stream != null) {
+      try {
+        if (readRawBuffer.size() > 0) {
+          // streaming and exceeded a single buffer, append the remaining
+          readRawBuffer.write(buffer, 0, currentIndex);
+          return new String(readRawBuffer.toByteArray(), utf8);
+        }
+      } finally {
+        readRawBuffer = null;
+      }
+    }
+    return new String(buffer, readRawStartPosition, currentIndex - readRawStartPosition, utf8);
+  }
+
+  @Override
   public void skipValue() {
     skipNextValue();
     // go back one as nextToken() is called next
@@ -967,8 +999,6 @@ final class JParser implements JsonParser {
       throw newParseError("Expecting '}' as object end");
     }
   }
-
-
 
   private final StringBuilder error = new StringBuilder(0);
   private final Formatter errorFormatter = new Formatter(error);
