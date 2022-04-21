@@ -2,6 +2,7 @@ package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.spi.PropertyNames;
@@ -45,6 +46,16 @@ final class JacksonReader implements JsonReader {
   public void skipValue() {
     try {
       parser.skipChildren();
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
+  }
+
+  @Override
+  public String readRaw() {
+    try {
+      TreeNode tree = parser.getCodec().readTree(parser);
+      return tree.toString();
     } catch (IOException e) {
       throw new JsonIoException(e);
     }

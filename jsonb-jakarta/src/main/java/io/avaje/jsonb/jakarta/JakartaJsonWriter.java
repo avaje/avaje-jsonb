@@ -219,12 +219,17 @@ final class JakartaJsonWriter implements JsonWriter {
 
   @Override
   public void value(byte[] value) {
+    throw new RuntimeException("Not supported");
+  }
 
+  @Override
+  public void rawValue(String value) {
+    throw new RuntimeException("Not supported");
   }
 
   @Override
   public void writeNewLine() {
-    // TODO: No support to write new line characters for x-json-stream
+    throw new RuntimeException("Not supported");
   }
 
   @Override

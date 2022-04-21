@@ -21,6 +21,7 @@ class BeanReader {
   private final TypeReader typeReader;
   private final String typeProperty;
   private FieldReader unmappedField;
+  private boolean hasRaw;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
     this.beanType = beanType;
@@ -61,6 +62,9 @@ class BeanReader {
   void read() {
     for (FieldReader field : allFields) {
       field.addImports(importTypes);
+      if (field.isRaw()) {
+        hasRaw = true;
+      }
       if (field.isUnmapped()) {
         unmappedField = field;
       }
@@ -113,9 +117,12 @@ class BeanReader {
       allField.writeDebug(writer);
     }
     writer.eol();
+    if (hasRaw) {
+      writer.append("  private final JsonAdapter<String> rawAdapter;").eol();
+    }
     Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      if (allField.include()) {
+      if (allField.include() && !allField.isRaw()) {
         if (uniqueTypes.add(allField.adapterShortType())) {
           allField.writeField(writer);
         }
@@ -126,9 +133,12 @@ class BeanReader {
   }
 
   void writeConstructor(Append writer) {
+    if (hasRaw) {
+      writer.append("    this.rawAdapter = jsonb.rawAdapter();").eol();
+    }
     Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      if (allField.include()) {
+      if (allField.include() || !allField.isRaw()) {
         if (uniqueTypes.add(allField.adapterShortType())) {
           allField.writeConstructor(writer);
         }

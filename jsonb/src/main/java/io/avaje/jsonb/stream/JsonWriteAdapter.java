@@ -312,6 +312,20 @@ final class JsonWriteAdapter implements JsonWriter {
   }
 
   @Override
+  public void rawValue(String value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      try {
+        writeDeferredName();
+        generator.writeRaw(value);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
+      }
+    }
+  }
+
+  @Override
   public void writeNewLine() {
     generator.writeNewLine();
   }

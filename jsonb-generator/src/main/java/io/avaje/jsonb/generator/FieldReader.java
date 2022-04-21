@@ -22,6 +22,7 @@ class FieldReader {
   private final boolean serialize;
   private final boolean deserialize;
   private final boolean unmapped;
+  private final boolean raw;
 
   private MethodReader setter;
   private MethodReader getter;
@@ -38,10 +39,16 @@ class FieldReader {
 
     PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     this.unmapped = ignoreReader.unmapped();
+    this.raw = ignoreReader.raw();
     this.serialize = ignoreReader.serialize();
     this.deserialize = ignoreReader.deserialize();
-
-    if (unmapped) {
+    if (raw) {
+      genericType = GenericType.parse("java.lang.String");
+      adapterShortType = "JsonAdapter<String>";
+      adapterFieldName = "rawAdapter";
+      defaultValue = "null";
+      primitive = false;
+    } else if (unmapped) {
       genericType = GenericType.parse("java.lang.Object");
       adapterShortType = "JsonAdapter<Object>";
       adapterFieldName = "objectJsonAdapter";
@@ -68,6 +75,10 @@ class FieldReader {
 
   String propertyName() {
     return propertyName;
+  }
+
+  boolean isRaw() {
+    return raw;
   }
 
   boolean isUnmapped() {
@@ -100,11 +111,13 @@ class FieldReader {
     if (unmapped) {
       importTypes.add("java.util.*");
     }
-    genericType.addImports(importTypes);
+    if (!raw) {
+      genericType.addImports(importTypes);
+    }
   }
 
   void cascadeTypes(Set<String> types) {
-    if (!unmapped) {
+    if (!raw && !unmapped) {
       String topType = genericType.topType();
       if (topType.equals("java.util.List") || topType.equals("java.util.Set")) {
         types.add(genericType.firstParamType());
@@ -165,8 +178,12 @@ class FieldReader {
   }
 
   void writeConstructor(Append writer) {
-    String asType = genericType.asTypeDeclaration();
-    writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asType).eol();
+    if (raw) {
+      writer.append("    this.%s = jsonb.rawAdapter();", adapterFieldName).eol();
+    } else {
+      String asType = genericType.asTypeDeclaration();
+      writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asType).eol();
+    }
   }
 
   void writeToJson(Append writer, String varName, String prefix) {

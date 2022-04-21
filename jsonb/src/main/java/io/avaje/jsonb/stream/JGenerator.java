@@ -581,6 +581,12 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
+  public void writeRaw(String value) {
+    prefixValue();
+    writeAscii(value);
+  }
+
+  @Override
   public void writeNewLine() {
     writeByte(NEWLINE);
     lastOp = 0;

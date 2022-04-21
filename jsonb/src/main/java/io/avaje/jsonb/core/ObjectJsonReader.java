@@ -128,6 +128,14 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
+  public String readRaw() {
+    if (currentValue instanceof String) {
+      return (String) currentValue;
+    }
+    return currentValue.toString();
+  }
+
+  @Override
   public BigDecimal readDecimal() {
     if (currentValue instanceof BigDecimal) {
       return (BigDecimal) currentValue;

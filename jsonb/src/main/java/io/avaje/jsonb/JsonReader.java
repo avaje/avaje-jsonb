@@ -114,6 +114,11 @@ public interface JsonReader extends Closeable {
   byte[] readBinary();
 
   /**
+   * Read and return raw json content as a String.
+   */
+  String readRaw();
+
+  /**
    * Return the current location. This is typically used when reporting errors.
    */
   String location();

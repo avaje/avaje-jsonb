@@ -182,6 +182,14 @@ public @interface Json {
     SubType[] value();
   }
 
+  /**
+   * Marks a String field as containing raw JSON content.
+   */
+  @Retention(CLASS)
+  @Target({ElementType.FIELD})
+  @interface Raw {
+
+  }
 
   /**
    * The naming convention that we can use for a given type.

@@ -152,6 +152,11 @@ class DJsonb implements Jsonb {
     return builder.build(type, cacheKey);
   }
 
+  @Override
+  public JsonAdapter<String> rawAdapter() {
+    return RawAdapter.STR;
+  }
+
   JsonReader objectReader(Object value) {
     return new ObjectJsonReader(value);
   }
