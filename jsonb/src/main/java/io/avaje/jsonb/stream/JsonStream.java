@@ -12,6 +12,47 @@ import java.nio.charset.StandardCharsets;
  */
 public final class JsonStream implements JsonStreamAdapter {
 
+  /**
+   * Used to build JsonStream with custom settings.
+   */
+  public static final class Builder {
+
+    private boolean serializeNulls;
+    private boolean serializeEmpty;
+    private boolean failOnUnknown;
+
+    /**
+     * Set to true to serialize nulls. Defaults to false.
+     */
+    public Builder serializeNulls(boolean serializeNulls) {
+      this.serializeNulls = serializeNulls;
+      return this;
+    }
+
+    /**
+     * Set to true to serialize empty collections. Defaults to false.
+     */
+    public Builder serializeEmpty(boolean serializeEmpty) {
+      this.serializeEmpty = serializeEmpty;
+      return this;
+    }
+
+    /**
+     * Set to true to fail on unknown properties. Defaults to false.
+     */
+    public Builder failOnUnknown(boolean failOnUnknown) {
+      this.failOnUnknown = failOnUnknown;
+      return this;
+    }
+
+    /**
+     * Build and return the JsonStream.
+     */
+    public JsonStream build() {
+      return new JsonStream(serializeNulls, serializeEmpty, failOnUnknown);
+    }
+  }
+
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
@@ -30,6 +71,21 @@ public final class JsonStream implements JsonStreamAdapter {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
+  }
+
+  /**
+   * Return a new builder to create a JsonStream with custom configuration.
+   *
+   * <pre>{@code
+   *
+   * var jsonStream = JsonStream.newBuilder()
+   *   .serializeNulls(true)
+   *   .build();
+   *
+   * }</pre>
+   */
+  public static Builder newBuilder() {
+    return new Builder();
   }
 
   @Override

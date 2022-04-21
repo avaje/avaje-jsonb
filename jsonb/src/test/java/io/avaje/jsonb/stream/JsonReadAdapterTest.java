@@ -67,7 +67,7 @@ class JsonReadAdapterTest {
   void bigInt() {
     String input = "{\"name\":\"roberto\", \"val0\": 123, \"val1\": \"1234567890123456789\", \"val2\": 1234567890123456789 , \"notes\" :\"end\"}";
 
-    JsonStream adapter = new JsonStream(false, false, false);
+    JsonStream adapter = JsonStream.newBuilder().failOnUnknown(true).build();
     try (JsonReader reader = adapter.reader(input)) {
       reader.beginObject();
       assertTrue(reader.hasNextField());
