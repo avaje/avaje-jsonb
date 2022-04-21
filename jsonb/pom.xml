@@ -4,11 +4,11 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>0.13</version>
+    <version>0.14-SNAPSHOT</version>
   </parent>
 
   <artifactId>avaje-jsonb</artifactId>
-  <version>0.13</version>
+  <version>0.14-SNAPSHOT</version>
   <name>jsonb</name>
 
   <dependencies>
