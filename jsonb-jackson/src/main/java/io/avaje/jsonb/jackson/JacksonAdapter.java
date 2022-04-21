@@ -18,6 +18,56 @@ import java.io.*;
  */
 public class JacksonAdapter implements JsonStreamAdapter {
 
+  /**
+   * Used to build JacksonAdapter with custom settings.
+   */
+  public static class Builder {
+
+    private JsonFactory jsonFactory;
+    private boolean serializeNulls;
+    private boolean serializeEmpty;
+    private boolean failOnUnknown;
+
+    /**
+     * Set the Jackson JsonFactory to use.
+     */
+    public Builder jsonFactory(JsonFactory jsonFactory) {
+      this.jsonFactory = jsonFactory;
+      return this;
+    }
+
+    /**
+     * Set to true to serialize nulls. Defaults to false.
+     */
+    public Builder serializeNulls(boolean serializeNulls) {
+      this.serializeNulls = serializeNulls;
+      return this;
+    }
+
+    /**
+     * Set to true to serialize empty collections. Defaults to false.
+     */
+    public Builder serializeEmpty(boolean serializeEmpty) {
+      this.serializeEmpty = serializeEmpty;
+      return this;
+    }
+
+    /**
+     * Set to true to fail on unknown properties. Defaults to false.
+     */
+    public Builder failOnUnknown(boolean failOnUnknown) {
+      this.failOnUnknown = failOnUnknown;
+      return this;
+    }
+
+    /**
+     * Build and return the JacksonAdapter.
+     */
+    public JacksonAdapter build() {
+      return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory);
+    }
+  }
+
   private final JsonFactory jsonFactory;
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
@@ -45,6 +95,24 @@ public class JacksonAdapter implements JsonStreamAdapter {
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.jsonFactory = jsonFactory;
+  }
+
+  /**
+   * Return a new builder to create a JacksonAdapter.
+   *
+   * <pre>{@code
+   *
+   * JsonFactory customFactory = ...;
+   *
+   * var jacksonAdapter = JacksonAdapter.newBuilder()
+   *   .serializeNulls(true)
+   *   .jsonFactory(customFactory)
+   *   .build();
+   *
+   * }</pre>
+   */
+  public static Builder newBuilder() {
+    return new Builder();
   }
 
   @Override

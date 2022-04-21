@@ -25,7 +25,9 @@ class JacksonAdapterTest {
   @Test
   void custom_JsonFactory() {
 
-    JacksonAdapter jacksonAdapter = new JacksonAdapter(false, false, false, HUMAN_READABLE_JSON_FACTORY);
+    JacksonAdapter jacksonAdapter = JacksonAdapter.newBuilder()
+      .jsonFactory(HUMAN_READABLE_JSON_FACTORY)
+      .build();
 
     Jsonb jsonb = Jsonb.newBuilder()
       .adapter(jacksonAdapter)
