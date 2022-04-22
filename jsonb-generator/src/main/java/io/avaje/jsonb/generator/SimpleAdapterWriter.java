@@ -61,7 +61,8 @@ class SimpleAdapterWriter {
   }
 
   private void writeClassStart() {
-    writer.append("public class %sJsonAdapter extends JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
+    writer.append("@Generated").eol();
+    writer.append("public final class %sJsonAdapter extends JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
     if (!beanReader.hasSubtypes()) {
       writer.append("implements ViewBuilderAware ");
     }
