@@ -176,6 +176,8 @@ class GenericType {
         return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
       case "java.util.Set":
         return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
+      case "java.util.stream.Stream":
+        return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
     }
     return "FIXME: Unhandled Container Type " + containerType;
   }

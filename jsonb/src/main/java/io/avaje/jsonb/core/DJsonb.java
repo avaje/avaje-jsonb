@@ -145,7 +145,6 @@ class DJsonb implements Jsonb {
     return builder.build(cacheKey);
   }
 
-
   @Override
   public <T> JsonAdapter<T> adapter(Type type) {
     type = removeSubtypeWildcard(canonicalize(requireNonNull(type)));

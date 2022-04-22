@@ -12,12 +12,13 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
-final class DJsonType<T> implements JsonType<T> {
+class DJsonType<T> implements JsonType<T> {
 
-  private final DJsonb jsonb;
-  private final Type type;
-  private final JsonAdapter<T> adapter;
+  protected final DJsonb jsonb;
+  protected final Type type;
+  protected final JsonAdapter<T> adapter;
 
   DJsonType(DJsonb jsonb, Type type, JsonAdapter<T> adapter) {
     this.jsonb = jsonb;
@@ -26,27 +27,32 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
-  public JsonView<T> view(String dsl) {
+  public final JsonView<T> view(String dsl) {
     return jsonb.buildView(dsl, adapter, type);
   }
 
   @Override
-  public JsonType<List<T>> list() {
+  public JsonType<Stream<T>> stream() {
+    return new DJsonStreamType<>(jsonb, Types.newParameterizedType(Stream.class, type), new StreamAdapter<>(adapter));
+  }
+
+  @Override
+  public final JsonType<List<T>> list() {
     return jsonb.type(Types.listOf(type));
   }
 
   @Override
-  public JsonType<Set<T>> set() {
+  public final JsonType<Set<T>> set() {
     return jsonb.type(Types.setOf(type));
   }
 
   @Override
-  public JsonType<Map<String, T>> map() {
+  public final JsonType<Map<String, T>> map() {
     return jsonb.type(Types.mapOf(type));
   }
 
   @Override
-  public String toJson(T value) {
+  public final String toJson(T value) {
     try (BufferedJsonWriter writer = jsonb.bufferedWriter()) {
       toJson(value, writer);
       return writer.result();
@@ -54,7 +60,7 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
-  public String toJsonPretty(T value) {
+  public final String toJsonPretty(T value) {
     try (BufferedJsonWriter writer = jsonb.bufferedWriter()) {
       writer.pretty(true);
       toJson(value, writer);
@@ -63,7 +69,7 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
-  public byte[] toJsonBytes(T value) {
+  public final byte[] toJsonBytes(T value) {
     try (BytesJsonWriter writer = jsonb.bufferedWriterAsBytes()) {
       toJson(value, writer);
       return writer.result();
@@ -71,33 +77,38 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
-  public void toJson(T value, JsonWriter writer) {
+  public final void toJson(T value, JsonWriter writer) {
     adapter.toJson(writer, value);
   }
 
   @Override
-  public void toJson(T value, Writer writer) {
+  public final void toJson(T value, Writer writer) {
     try (JsonWriter jsonWriter = jsonb.writer(writer)) {
       adapter.toJson(jsonWriter, value);
     }
   }
 
   @Override
-  public void toJson(T value, OutputStream outputStream) {
+  public final void toJson(T value, OutputStream outputStream) {
     try (JsonWriter writer = jsonb.writer(outputStream)) {
       adapter.toJson(writer, value);
     }
   }
 
   @Override
-  public T fromObject(Object value) {
+  public final Stream<T> stream(JsonReader reader) {
+    return new StreamAdapter<>(adapter).fromJson(reader);
+  }
+
+  @Override
+  public final T fromObject(Object value) {
     try (JsonReader reader = jsonb.objectReader(value)) {
       return adapter.fromJson(reader);
     }
   }
 
   @Override
-  public T fromJson(JsonReader reader) {
+  public final T fromJson(JsonReader reader) {
     return adapter.fromJson(reader);
   }
 
@@ -116,12 +127,16 @@ final class DJsonType<T> implements JsonType<T> {
   }
 
   @Override
-  public T fromJson(Reader reader) {
-    return adapter.fromJson(jsonb.reader(reader));
+  public T fromJson(Reader content) {
+    try (JsonReader reader = jsonb.reader(content)) {
+      return adapter.fromJson(reader);
+    }
   }
 
   @Override
   public T fromJson(InputStream inputStream) {
-    return adapter.fromJson(jsonb.reader(inputStream));
+    try (JsonReader reader = jsonb.reader(inputStream)) {
+      return adapter.fromJson(reader);
+    }
   }
 }

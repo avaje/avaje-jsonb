@@ -34,6 +34,20 @@ public interface JsonReader extends Closeable {
   void names(PropertyNames names);
 
   /**
+   * Read the beginning of an ARRAY or x-json-stream.
+   */
+  default void beginStream() {
+    beginArray();
+  }
+
+  /**
+   * Read the end of an ARRAY or x-json-stream.
+   */
+  default void endStream() {
+    endArray();
+  }
+
+  /**
    * Read array begin.
    */
   void beginArray();

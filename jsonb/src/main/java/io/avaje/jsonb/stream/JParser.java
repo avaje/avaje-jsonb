@@ -1,6 +1,7 @@
 package io.avaje.jsonb.stream;
 
 import io.avaje.jsonb.JsonDataException;
+import io.avaje.jsonb.JsonEofException;
 import io.avaje.jsonb.JsonIoException;
 
 import java.io.ByteArrayOutputStream;
@@ -230,7 +231,7 @@ final class JParser implements JsonParser {
       prepareNextBlock();
     }
     if (currentIndex >= length) {
-      throw new JsonDataException("Unexpected end of JSON input");
+      throw new JsonEofException("Unexpected end of JSON input");
     }
     return last = buffer[currentIndex++];
   }
@@ -644,6 +645,24 @@ final class JParser implements JsonParser {
     }
   }
 
+  @Override
+  public boolean hasNextElement() {
+    if (currentIndex >= length) {
+      return false;
+    }
+    try {
+      byte nextToken = nextToken();
+      if (nextToken == ',') {
+        nextToken();
+        return true;
+      }
+      return nextToken != ']';
+    } catch (JsonEofException e) {
+      // expected when streaming new line delimited content with trailing whitespace
+      return false;
+    }
+  }
+
   /**
    * Read next token (byte) from input JSON.
    * Whitespace will be skipped and next non-whitespace byte will be returned.
@@ -955,6 +974,30 @@ final class JParser implements JsonParser {
     return false;
   }
 
+  @Override
+  public void startStream() {
+    if (last == '[') return;
+    if (last == '{') {
+      // go back one
+      last = buffer[--currentIndex];
+      return;
+    }
+    nextToken();
+    if (last == '[') return;
+    if (last == '{') {
+      // go back one
+      last = buffer[--currentIndex];
+      return;
+    }
+    if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
+    throw newParseError("Expecting start of stream but got [" + last + "]");
+  }
+
+  @Override
+  public void endStream() {
+    // do nothing
+  }
+
   /**
    * Parse array start
    */
@@ -1058,7 +1101,7 @@ final class JParser implements JsonParser {
     return newParseErrorWith(description, 0, description, argument, "");
   }
 
-  JsonDataException newParseErrorWith(String description,int offset,String extra, Object extraArgument, String extraSuffix) {
+  JsonDataException newParseErrorWith(String description, int offset, String extra, Object extraArgument, String extraSuffix) {
     if (errorInfo == ErrorInfo.MINIMAL) return new JsonDataException(description);
     error.setLength(0);
     error.append(extra);

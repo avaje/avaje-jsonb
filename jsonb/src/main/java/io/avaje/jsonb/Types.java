@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Factory methods for types.
@@ -51,6 +52,13 @@ public class Types {
    */
   public static Type setOf(Type elementType) {
     return newParameterizedType(Set.class, elementType);
+  }
+
+  /**
+   * Returns a Type that is a Stream of the given element type.
+   */
+  public static Type streamOf(Type elementType) {
+    return newParameterizedType(Stream.class, elementType);
   }
 
   /**

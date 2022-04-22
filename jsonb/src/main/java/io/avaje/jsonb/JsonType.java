@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Provides API to serialise a type to and from JSON.
@@ -68,6 +69,25 @@ public interface JsonType<T> extends JsonView<T> {
   JsonType<List<T>> list();
 
   /**
+   * Return the stream type for this JsonType.
+   * <p>
+   * When using this Stream type use a try-with-resources block with the Stream
+   * to ensure that any underlying resources are closed.
+   *
+   * <pre>{@code
+   *
+   *  JsonType<Stream<MyBean>> type =  jsonb.type(MyBean.class).stream();
+   *
+   *  try (Stream<MyBean> asStream = type.fromJson(content)) {
+   *    // use the stream
+   *    ...
+   *  }
+   *
+   * }</pre>
+   */
+  JsonType<Stream<T>> stream();
+
+  /**
    * Return the set type for this JsonType.
    */
   JsonType<Set<T>> set();
@@ -110,4 +130,25 @@ public interface JsonType<T> extends JsonView<T> {
    * @return The value converted from 'object form'.
    */
   T fromObject(Object value);
+
+  /**
+   * Return as a Stream that will read the content as the stream is processed.
+   * <p>
+   * Use a try-with-resources block with the JsonReader to ensure the underlying
+   * resources are closed.
+   *
+   * <pre>{@code
+   *
+   *  JsonType<MyBean> type =  jsonb.type(MyBean.class);
+   *
+   *  try (JsonReader reader = jsonb.reader(content)) {
+
+   *    Stream<MyBean> asStream = type.stream(reader);
+   *    ...
+   *  }
+   *
+   * }</pre>
+   */
+  Stream<T> stream(JsonReader reader);
+
 }

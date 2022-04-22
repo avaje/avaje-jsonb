@@ -22,6 +22,16 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
+  public void beginStream() {
+    reader.startStream();
+  }
+
+  @Override
+  public void endStream() {
+    reader.endStream();
+  }
+
+  @Override
   public void beginArray() {
     reader.startArray();
   }
@@ -43,12 +53,7 @@ final class JsonReadAdapter implements JsonReader {
 
   @Override
   public boolean hasNextElement() {
-    byte nextToken = reader.nextToken();
-    if (nextToken == ',') {
-      reader.nextToken();
-      return true;
-    }
-    return nextToken != ']';
+    return reader.hasNextElement();
   }
 
   @Override
