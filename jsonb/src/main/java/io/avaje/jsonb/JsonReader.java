@@ -34,14 +34,14 @@ public interface JsonReader extends Closeable {
   void names(PropertyNames names);
 
   /**
-   * Read the beginning of an ARRAY or x-json-stream.
+   * Read the beginning of an ARRAY or x-json-stream (new line delimited json content).
    */
   default void beginStream() {
     beginArray();
   }
 
   /**
-   * Read the end of an ARRAY or x-json-stream.
+   * Read the end of an ARRAY or x-json-stream (new line delimited json content).
    */
   default void endStream() {
     endArray();
@@ -156,6 +156,29 @@ public interface JsonReader extends Closeable {
    * Reading json with an unmapped field, throw an Exception if failOnUnmapped is true.
    */
   void unmappedField(String fieldName);
+
+  /**
+   * Explicitly state if the streaming content contains ARRAY '[' and ']' tokens.
+   * <p>
+   * The builtin avaje-jsonb parser detects this automatically. Effectively we only need
+   * to set this when we are using the Jackson core parser.
+   *
+   * <pre>{@code
+   *
+   *  try (JsonReader reader = jsonb.reader(arrayJson)) {
+   *    // content contains ARRAY '[' and ']' tokens, use streamArray(true)
+   *    Stream<MyBasic> asStream = type.stream(reader.streamArray(true));
+   *    asStream.forEach(...);
+   *  }
+   *
+   * }</pre>
+   *
+   * @param streamArray When true the content is expected to contain ARRAY '[' and ']' tokens.
+   */
+  default JsonReader streamArray(boolean streamArray) {
+    // do nothing by default, jackson specifically needs this option
+    return this;
+  }
 
   /**
    * A structure, name, or value type in a JSON-encoded string.

@@ -69,9 +69,13 @@ public interface JsonType<T> extends JsonView<T> {
   JsonType<List<T>> list();
 
   /**
-   * Return the stream type for this JsonType.
+   * Prefer use of {@link JsonType#stream(JsonReader)} rather than using this stream type directly.
    * <p>
-   * When using this Stream type use a try-with-resources block with the Stream
+   * Generally, we should not use this type directly but instead create a  {@link JsonReader}
+   * and use {@link JsonType#stream(JsonReader)} instead. Then we just use a try-with-resources on
+   * the JsonReader and can additionally specify {@link JsonReader#streamArray(boolean)} option.
+   * <p>
+   * When using this Stream type directly, use a try-with-resources block with the Stream
    * to ensure that any underlying resources are closed.
    *
    * <pre>{@code
@@ -84,6 +88,9 @@ public interface JsonType<T> extends JsonView<T> {
    *  }
    *
    * }</pre>
+   *
+   * @return The stream type for this base JsonType.
+   * @see #stream(JsonReader)
    */
   JsonType<Stream<T>> stream();
 
@@ -142,8 +149,28 @@ public interface JsonType<T> extends JsonView<T> {
    *  JsonType<MyBean> type =  jsonb.type(MyBean.class);
    *
    *  try (JsonReader reader = jsonb.reader(content)) {
-
+   *
    *    Stream<MyBean> asStream = type.stream(reader);
+   *    ...
+   *  }
+   *
+   * }</pre>
+   *
+   * <h3>When using Jackson</h3>
+   * <p>
+   * When using Jackson-core as the underlying parser we should explicitly state that the content is either
+   * an ARRAY (with '[' and ']' tokens or not (x-json-stream new line delimited, there are no '[' and ']' tokens).
+   * <p>
+   * When using the builtin avaje-jsonb parser, it automatically detects and handles both cases (with or without the
+   * '[' and ']' tokens). With the Jackson-core parser we need to explicitly state if we are processing
+   *
+   * <pre>{@code
+   *
+   *  JsonType<MyBean> type =  jsonb.type(MyBean.class);
+   *
+   *  try (JsonReader reader = jsonb.reader(content)) {
+   *    // when the content contains the ARRAY '[', ']' tokens set streamArray(true)
+   *    Stream<MyBean> asStream = type.stream(reader.streamArray(true));
    *    ...
    *  }
    *
