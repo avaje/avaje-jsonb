@@ -15,6 +15,7 @@ final class JacksonReader implements JsonReader {
 
   private final JsonParser parser;
   private final boolean failOnUnknown;
+  private boolean streamArray;
 
   JacksonReader(JsonParser parser, boolean failOnUnknown) {
     this.parser = parser;
@@ -62,6 +63,28 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
+  public JsonReader streamArray(boolean streamArray) {
+    this.streamArray = streamArray;
+    return this;
+  }
+
+  @Override
+  public void beginStream() {
+    try {
+      if (streamArray && parser.currentToken() == null) {
+        parser.nextToken();
+      }
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
+  }
+
+  @Override
+  public void endStream() {
+
+  }
+
+  @Override
   public void beginArray() {
     try {
       if (parser.currentToken() == null) {
@@ -81,7 +104,8 @@ final class JacksonReader implements JsonReader {
   public boolean hasNextElement() {
     try {
       JsonToken token = parser.nextToken();
-      return token != JsonToken.END_ARRAY;
+      // token can be null when streaming new line delimited content
+      return token != null && token != JsonToken.END_ARRAY;
     } catch (IOException e) {
       throw new JsonIoException(e);
     }

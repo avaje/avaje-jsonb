@@ -13,5 +13,6 @@ public class MyComponent implements Jsonb.Component {
     builder.add(Customer.class, CustomerJsonAdapter::new);
     builder.add(Contact.class, ContactJsonAdapter::new);
     builder.add(Address.class, AddressJsonAdapter::new);
+    builder.add(StreamBasicTest.MyBasic.class, MyBasicJsonAdapter::new);
   }
 }
