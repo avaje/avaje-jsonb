@@ -33,6 +33,27 @@ import java.util.ServiceLoader;
  *     .build();
  * }</pre>
  *
+ * <h4>Initialise using Jackson core with configuration</h3>
+ * <p>
+ * We need to include the dependency <code>io.avaje:avaje-jsonb-jackson</code> to do this.
+ * This will use Jackson core JsonParser and JsonGenerator to do the underlying parsing and generation.
+ * </p>
+ * <pre>{@code
+ *
+ *   // create the Jackson JsonFactory
+ *   JsonFactory customFactory = ...;
+ *
+ *   var jacksonAdapter = JacksonAdapter.newBuilder()
+ *     .serializeNulls(true)
+ *     .jsonFactory(customFactory)
+ *     .build();
+ *
+ *   Jsonb jsonb = Jsonb.newBuilder()
+ *     .adapter(jacksonAdapter)
+ *     .build();
+ *
+ * }</pre>
+ *
  * <h4>fromJson</h4>
  * <p>
  * Read json content from: String, byte[], Reader, InputStream, JsonReader

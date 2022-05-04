@@ -14,7 +14,42 @@ import io.avaje.jsonb.spi.PropertyNames;
 import java.io.*;
 
 /**
- * Jackson Core implementation of IOAdapter.
+ * Jackson Core implementation of JsonStreamAdapter.
+ * <p>
+ * This uses the JsonParser and JsonGenerator of Jackson core to do the underlying parsing and
+ * generation.
+ *
+ * <h3>Explicitly initialise</h3>
+ * <p>
+ * We can use it explicitly using code like:
+ *
+ * <pre>{@code
+ *
+ * JsonFactory customFactory = ...;
+ *
+ * var jacksonAdapter = JacksonAdapter.newBuilder()
+ *   .serializeNulls(true)
+ *   .jsonFactory(customFactory)
+ *   .build();
+ *
+ * Jsonb jsonb = Jsonb.newBuilder()
+ *   .adapter(jacksonAdapter)
+ *   .build();
+ *
+ * }</pre>
+ *
+ * <h3>Service loading initialise</h3>
+ * <p>
+ * Including the <code>io.avaje:avaje-jsonb-jackson</em> dependency in the classpath means that this
+ * JacksonAdapter will be automatically used via service loading.
+ * <p>
+ * In this automatic service loading case the defaults are:
+ * <ul>
+ *   <li>new JsonFactory()</li>
+ *   <li>serializeNulls false</li>
+ *   <li>serializeEmpty false</li>
+ *   <li>failOnUnknown false</li>
+ * </ul>
  */
 public class JacksonAdapter implements JsonStreamAdapter {
 
@@ -110,6 +145,10 @@ public class JacksonAdapter implements JsonStreamAdapter {
    * var jacksonAdapter = JacksonAdapter.newBuilder()
    *   .serializeNulls(true)
    *   .jsonFactory(customFactory)
+   *   .build();
+   *
+   * Jsonb jsonb = Jsonb.newBuilder()
+   *   .adapter(jacksonAdapter)
    *   .build();
    *
    * }</pre>
