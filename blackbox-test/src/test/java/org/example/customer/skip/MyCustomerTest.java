@@ -15,7 +15,7 @@ class MyCustomerTest {
   @Test
   void toJson_fromJson() {
 
-    Jsonb jsonb = Jsonb.newBuilder().adapter(new JsonStream()).build();
+    Jsonb jsonb = Jsonb.builder().adapter(new JsonStream()).build();
 
     MyCustomer myCustomer = new MyCustomer(42, "rob", "foo");
     JsonType<MyCustomer> type = jsonb.type(MyCustomer.class);
@@ -36,7 +36,7 @@ class MyCustomerTest {
   @Test
   void list_toJson_fromJson() {
 
-    Jsonb jsonb = Jsonb.newBuilder().adapter(new JsonStream()).build();
+    Jsonb jsonb = Jsonb.builder().adapter(new JsonStream()).build();
 
     List<MyCustomer> customers = new ArrayList<>();
     customers.add(new MyCustomer(42, "rob", "foo"));

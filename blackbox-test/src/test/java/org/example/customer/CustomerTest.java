@@ -4,7 +4,6 @@ import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -16,7 +15,7 @@ class CustomerTest {
 
   final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\",\"whenCreated\":";
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void anyToJson() {

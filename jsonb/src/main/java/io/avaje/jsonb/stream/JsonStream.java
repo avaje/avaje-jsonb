@@ -78,13 +78,13 @@ public final class JsonStream implements JsonStreamAdapter {
    *
    * <pre>{@code
    *
-   * var jsonStream = JsonStream.newBuilder()
+   * var jsonStream = JsonStream.builder()
    *   .serializeNulls(true)
    *   .build();
    *
    * }</pre>
    */
-  public static Builder newBuilder() {
+  public static Builder builder() {
     return new Builder();
   }
 

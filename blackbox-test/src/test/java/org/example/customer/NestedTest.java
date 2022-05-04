@@ -13,7 +13,7 @@ class NestedTest {
 
     Nested.MyNest bean = new Nested.MyNest(42, "one");
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
 
     JsonType<Nested.MyNest> mixedAdapter = jsonb.type(Nested.MyNest.class);
     String asJson = mixedAdapter.toJson(bean);

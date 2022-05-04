@@ -67,7 +67,7 @@ public record Address(String street, String suburb, String city) { }
 
 ```java
 // build using defaults
-Jsonb jsonb = Jsonb.newBuilder().build();
+Jsonb jsonb = Jsonb.builder().build();
 
 JsonType<Customer> customerType = jsonb.type(Customer.class);
 
@@ -88,7 +88,7 @@ to include when serialising to json.
 For example:
 
 ```java
-Jsonb jsonb = Jsonb.newBuilder().build();
+Jsonb jsonb = Jsonb.builder().build();
 
 JsonType<Customer> customerType = jsonb.type(Customer.class);
 

@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class StreamBasicTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<MyBasic> type = jsonb.type(MyBasic.class);
   List<MyBasic> basics = List.of(new MyBasic(1, "a"), new MyBasic(2, "b"), new MyBasic(3, "c"));
 

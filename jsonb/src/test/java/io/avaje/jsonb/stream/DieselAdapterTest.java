@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DieselAdapterTest {
 
-  final JsonStream adapter = JsonStream.newBuilder().serializeNulls(true).serializeEmpty(true).failOnUnknown(false).build();
+  final JsonStream adapter = JsonStream.builder().serializeNulls(true).serializeEmpty(true).failOnUnknown(false).build();
 
   @Test
   void readArray() {

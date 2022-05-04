@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ObjectAdapterTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
 
   JsonAdapter<Object> objectAdapter = jsonb.adapter(Object.class);
 

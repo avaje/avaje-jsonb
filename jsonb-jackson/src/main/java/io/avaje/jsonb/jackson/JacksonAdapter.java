@@ -27,12 +27,12 @@ import java.io.*;
  *
  * JsonFactory customFactory = ...;
  *
- * var jacksonAdapter = JacksonAdapter.newBuilder()
+ * var jacksonAdapter = JacksonAdapter.builder()
  *   .serializeNulls(true)
  *   .jsonFactory(customFactory)
  *   .build();
  *
- * Jsonb jsonb = Jsonb.newBuilder()
+ * Jsonb jsonb = Jsonb.builder()
  *   .adapter(jacksonAdapter)
  *   .build();
  *
@@ -142,18 +142,18 @@ public class JacksonAdapter implements JsonStreamAdapter {
    *
    * JsonFactory customFactory = ...;
    *
-   * var jacksonAdapter = JacksonAdapter.newBuilder()
+   * var jacksonAdapter = JacksonAdapter.builder()
    *   .serializeNulls(true)
    *   .jsonFactory(customFactory)
    *   .build();
    *
-   * Jsonb jsonb = Jsonb.newBuilder()
+   * Jsonb jsonb = Jsonb.builder()
    *   .adapter(jacksonAdapter)
    *   .build();
    *
    * }</pre>
    */
-  public static Builder newBuilder() {
+  public static Builder builder() {
     return new Builder();
   }
 

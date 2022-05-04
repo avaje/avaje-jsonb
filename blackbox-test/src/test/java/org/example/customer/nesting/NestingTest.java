@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class NestingTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void asd() {

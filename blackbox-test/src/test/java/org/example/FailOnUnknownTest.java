@@ -15,7 +15,7 @@ class FailOnUnknownTest {
     String jsonContent = "{\"unknown\":\"foo\",\"unknownObject\":{\"a\":\"aval\"},\"unknownList\":[5,6,7],\"id\":42,\"name\":\"hello\"}";
 
     // default skips unknown
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
     JsonType<Customer> jsonType = jsonb.type(Customer.class);
 
     Customer customer = jsonType.fromJson(jsonContent);
@@ -28,7 +28,7 @@ class FailOnUnknownTest {
   @Test
   void fromJson_with_failOnUnknownTrue() {
     // failOnUnknown set to true
-    Jsonb jsonb = Jsonb.newBuilder().failOnUnknown(true).build();
+    Jsonb jsonb = Jsonb.builder().failOnUnknown(true).build();
     JsonType<Customer> jsonType = jsonb.type(Customer.class);
 
     String jsonContent0 = "{\"unknownScalar\":\"foo\",\"unknownObject\":{\"a\":\"aval\"},\"unknownList\":[5,6,7],\"id\":42,\"name\":\"hello\"}";

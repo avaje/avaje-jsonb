@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UnmappedRecordTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<UnmappedRecord> jsonType = jsonb.type(UnmappedRecord.class);
 
   @Test

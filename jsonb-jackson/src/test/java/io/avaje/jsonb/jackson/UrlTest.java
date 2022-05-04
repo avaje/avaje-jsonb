@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UrlTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void url() throws IOException {

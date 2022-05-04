@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class WithRawContentTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<WithRawContent> withRawType = jsonb.type(WithRawContent.class);
 
   @Test

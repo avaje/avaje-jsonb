@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class SomeBinaryTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void toJsonFromJson_byteArray() {

@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class StreamBasicTest {
 
-  Jsonb jsonb = Jsonb.newBuilder()
+  Jsonb jsonb = Jsonb.builder()
     .add(MyBasic.class, MyBasicJsonAdapter::new)
     .build();
 

@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AinheritCTest {
 
-  private final Jsonb jsonb = Jsonb.newBuilder().build();
+  private final Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void toFromJson()  {

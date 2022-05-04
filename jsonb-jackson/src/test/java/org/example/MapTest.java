@@ -18,7 +18,7 @@ class MapTest {
   @Test
   void simpleMap() throws IOException {
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
 
     ParameterizedType mapType = Types.newParameterizedType(Map.class, String.class, Integer.class);
     JsonType<Map<String,Integer>> adapter = jsonb.type(mapType);
@@ -40,7 +40,7 @@ class MapTest {
   @Test
   void typesMapOf() throws IOException {
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
 
     Type mapType = Types.mapOf(Integer.class);
     JsonType<Map<String,Integer>> adapter = jsonb.type(mapType);

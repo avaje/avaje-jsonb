@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class IntegerTest {
 
-  private final Jsonb jsonb = Jsonb.newBuilder().build();
+  private final Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void fromObject()  {

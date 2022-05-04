@@ -10,7 +10,7 @@ public class DefaultBootstrap {
   /**
    * Create the Jsonb.Builder.
    */
-  public static Jsonb.Builder newBuilder() {
+  public static Jsonb.Builder builder() {
     return new DJsonb.DBuilder();
   }
 }

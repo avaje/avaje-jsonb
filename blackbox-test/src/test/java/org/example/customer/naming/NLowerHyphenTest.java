@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NLowerHyphenTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<NLowHyp> jsonType = jsonb.type(NLowHyp.class);
 
   @Test

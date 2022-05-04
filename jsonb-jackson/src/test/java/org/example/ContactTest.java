@@ -16,7 +16,7 @@ class ContactTest {
   @Test
   void toJson_fromJson() {
 
-    Jsonb jsonb = Jsonb.newBuilder()
+    Jsonb jsonb = Jsonb.builder()
       // a silly example exercising add of Jsonb.Component - don't do this yourself
       .add(builder -> builder.add(Contact.class, ContactJsonAdapter::new))
       .build();
@@ -40,7 +40,7 @@ class ContactTest {
 
   @Test
   void toJson_asBytes() {
-    Jsonb jsonb = Jsonb.newBuilder()
+    Jsonb jsonb = Jsonb.builder()
       .add(Contact.class, ContactJsonAdapter::new)
       .build();
 

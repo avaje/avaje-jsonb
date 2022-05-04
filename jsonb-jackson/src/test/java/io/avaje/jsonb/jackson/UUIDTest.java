@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UUIDTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void toJson_fromJson() {
@@ -36,7 +36,7 @@ class UUIDTest {
     map.put("k0", v0);
     map.put("k1", v1);
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
 
     JsonType<Map<String,UUID>> mapUidType = jsonb.type(Types.mapOf(UUID.class));
     String asJson = mapUidType.toJson(map);

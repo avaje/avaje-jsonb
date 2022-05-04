@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BasicPubFieldsTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<BasicPubFields> type = jsonb.type(BasicPubFields.class);
 
   @Test

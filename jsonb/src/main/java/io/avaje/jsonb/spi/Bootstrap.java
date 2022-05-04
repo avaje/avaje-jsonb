@@ -12,5 +12,5 @@ public interface Bootstrap {
    * <p>
    * The default implementation uses Jackson Core.
    */
-  Jsonb.Builder newBuilder();
+  Jsonb.Builder builder();
 }

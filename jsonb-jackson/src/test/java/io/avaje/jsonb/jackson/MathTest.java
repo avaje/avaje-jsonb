@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MathTest {
 
-  Jsonb jsonbMathAsString = Jsonb.newBuilder().mathTypesAsString(true).build();
-  Jsonb jsonbMathAsNumber = Jsonb.newBuilder().build();
+  Jsonb jsonbMathAsString = Jsonb.builder().mathTypesAsString(true).build();
+  Jsonb jsonbMathAsNumber = Jsonb.builder().build();
 
   @Test
   void mathAsString_true_bigDecimal() throws IOException {

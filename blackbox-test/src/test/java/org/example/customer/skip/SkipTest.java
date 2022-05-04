@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class SkipTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().adapter(new JsonStream()).build();
+  Jsonb jsonb = Jsonb.builder().adapter(new JsonStream()).build();
   JsonType<MyCustomer> type = jsonb.type(MyCustomer.class);
 
   @Test

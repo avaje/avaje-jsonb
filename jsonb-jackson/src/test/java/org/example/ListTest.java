@@ -6,7 +6,6 @@ import io.avaje.jsonb.Types;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +17,7 @@ class ListTest {
   @Test
   void simpleList() throws IOException {
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
 
     Type listOfString = Types.listOf(String.class);
     JsonType<List<String>> listOfStringType = jsonb.type(listOfString);
@@ -35,7 +34,7 @@ class ListTest {
   @Test
   void adapter_list() throws IOException {
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
 
     JsonType<String> stringType = jsonb.type(String.class);
     JsonType<List<String>> list = stringType.list();

@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonIgnoreTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<Customer> jsonType = jsonb.type(Customer.class);
 
   @Test

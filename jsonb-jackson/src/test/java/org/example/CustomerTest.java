@@ -15,7 +15,7 @@ class CustomerTest {
 
   final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"whenCreated\":";
 
-  Jsonb jsonb = Jsonb.newBuilder().add(new MyComponent()).build();
+  Jsonb jsonb = Jsonb.builder().add(new MyComponent()).build();
 
   @Test
   void toJson() {

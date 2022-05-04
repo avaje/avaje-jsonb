@@ -16,7 +16,7 @@ class MixedCSFTest {
     mixed.setThree(33L);
     mixed.four = 44L;
 
-    Jsonb jsonb = Jsonb.newBuilder()
+    Jsonb jsonb = Jsonb.builder()
       //.add(MixedCSF.class, MixedCSFJsonAdapter::new)
       .build();
 

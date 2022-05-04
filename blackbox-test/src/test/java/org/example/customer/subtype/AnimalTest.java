@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AnimalTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<Animal> animalJsonType = jsonb.type(Animal.class);
 
   @Test

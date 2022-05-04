@@ -19,8 +19,8 @@ class UnwrapJacksonGeneratorTest {
 
   @Test
   void writer_unwrap() {
-    Jsonb jsonb = Jsonb.newBuilder()
-      .adapter(JacksonAdapter.newBuilder().build())
+    Jsonb jsonb = Jsonb.builder()
+      .adapter(JacksonAdapter.builder().build())
       .add(new MyComponent())
       .build();
 

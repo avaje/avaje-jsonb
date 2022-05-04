@@ -20,13 +20,13 @@ import java.util.ServiceLoader;
  * <h4>Initialise with defaults</h3>
  *
  * <pre>{@code
- *   Jsonb jsonb = Jsonb.newBuilder().build();
+ *   Jsonb jsonb = Jsonb.builder().build();
  * }</pre>
  *
  * <h4>Initialise with some configuration</h3>
  *
  * <pre>{@code
- *   Jsonb jsonb = Jsonb.newBuilder()
+ *   Jsonb jsonb = Jsonb.builder()
  *     .serializeNulls(true)
  *     .serializeEmpty(true)
  *     .failOnUnknown(true)
@@ -43,12 +43,12 @@ import java.util.ServiceLoader;
  *   // create the Jackson JsonFactory
  *   JsonFactory customFactory = ...;
  *
- *   var jacksonAdapter = JacksonAdapter.newBuilder()
+ *   var jacksonAdapter = JacksonAdapter.builder()
  *     .serializeNulls(true)
  *     .jsonFactory(customFactory)
  *     .build();
  *
- *   Jsonb jsonb = Jsonb.newBuilder()
+ *   Jsonb jsonb = Jsonb.builder()
  *     .adapter(jacksonAdapter)
  *     .build();
  *
@@ -91,7 +91,7 @@ public interface Jsonb {
    *
    * <pre>{@code
    *
-   *   Jsonb jsonb = Jsonb.newBuilder()
+   *   Jsonb jsonb = Jsonb.builder()
    *     .serializeNulls(true)
    *     .serializeEmpty(true)
    *     .failOnUnknown(true)
@@ -99,12 +99,20 @@ public interface Jsonb {
    *
    * }</pre>
    */
-  static Builder newBuilder() {
+  static Builder builder() {
     Iterator<Bootstrap> bootstrapService = ServiceLoader.load(Bootstrap.class).iterator();
     if (bootstrapService.hasNext()) {
-      return bootstrapService.next().newBuilder();
+      return bootstrapService.next().builder();
     }
-    return DefaultBootstrap.newBuilder();
+    return DefaultBootstrap.builder();
+  }
+
+  /**
+   * Migrate to builder().
+   */
+  @Deprecated
+  static Builder newBuilder() {
+    return builder();
   }
 
   /**

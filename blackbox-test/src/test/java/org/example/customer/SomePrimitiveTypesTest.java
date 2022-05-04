@@ -13,7 +13,7 @@ class SomePrimitiveTypesTest {
 
     SomePrimitiveTypes bean = new SomePrimitiveTypes(12, 13L, true, 14D, 'x', (byte) 43, (short) 15);
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
     var jsonType = jsonb.type(SomePrimitiveTypes.class);
     String asJson = jsonType.toJson(bean);
     assertEquals("{\"f0\":12,\"f1\":13,\"f2\":true,\"f3\":14.0,\"f4\":\"x\",\"f5\":43,\"f6\":15}",asJson);

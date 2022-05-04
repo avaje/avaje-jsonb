@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SomeNamesTest {
 
-  Jsonb jsonb = Jsonb.newBuilder().build();
+  Jsonb jsonb = Jsonb.builder().build();
   JsonType<SomeNames> jsonType = jsonb.type(SomeNames.class);
 
   @Test

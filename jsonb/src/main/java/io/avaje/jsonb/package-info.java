@@ -4,13 +4,13 @@
  * <h4>Initialise with defaults</h3>
  *
  * <pre>{@code
- *   Jsonb jsonb = Jsonb.newBuilder().build();
+ *   Jsonb jsonb = Jsonb.builder().build();
  * }</pre>
  *
  * <h4>Initialise with some configuration</h3>
  *
  * <pre>{@code
- *   Jsonb jsonb = Jsonb.newBuilder()
+ *   Jsonb jsonb = Jsonb.builder()
  *     .serializeNulls(true)
  *     .serializeEmpty(true)
  *     .failOnUnknown(true)

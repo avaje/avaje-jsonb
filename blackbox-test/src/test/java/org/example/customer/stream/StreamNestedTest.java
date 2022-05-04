@@ -20,7 +20,7 @@ class StreamNestedTest {
       ]
       """;
 
-    Jsonb jsonb = Jsonb.newBuilder().build();
+    Jsonb jsonb = Jsonb.builder().build();
     JsonType<Stream<MyNested>> stream = jsonb.type(MyNested.class).stream();
 
     try (JsonReader reader = jsonb.reader(jsonContent)) {
