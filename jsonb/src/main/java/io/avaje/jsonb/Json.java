@@ -10,6 +10,22 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Marks a type for JSON support.
+ *
+ * <h3>Examples:</h3>
+ *
+ * <pre>{@code
+ *
+ *   @Json(naming = LowerHyphen)
+ *   public class Customer ...
+ *
+ * }</pre>
+ *
+ * <pre>{@code
+ *
+ *   @Json
+ *   public record Product( ... )
+ *
+ * }</pre>
  */
 @Retention(CLASS)
 @Target(ElementType.TYPE)
@@ -17,6 +33,8 @@ public @interface Json {
 
   /**
    * Specify the naming convention to use for the properties on this type.
+   * <p>
+   * By default, the naming used is {@link Naming#Match}
    */
   Naming naming() default Naming.Match;
 
@@ -33,6 +51,15 @@ public @interface Json {
    * <p>
    * These types are typically in an external project / dependency or otherwise
    * types that we can't or don't want to explicitly annotate with {@code @Json}.
+   * <p>
+   * Typically, we put this annotation on a package.
+   *
+   * <pre>{@code
+   *
+   *   @Json.Import({Customer.class, Product.class, ...})
+   *   package org.example.processor;
+   *
+   * }</pre>
    */
   @Retention(CLASS)
   @Target({ElementType.TYPE, ElementType.PACKAGE})
@@ -46,6 +73,13 @@ public @interface Json {
 
   /**
    * Override the json property name.
+   *
+   * <pre>{@code
+   *
+   *   @Json.Property("$code")
+   *   String referenceCode;
+   *
+   * }</pre>
    */
   @Retention(CLASS)
   @Target({ElementType.FIELD})
