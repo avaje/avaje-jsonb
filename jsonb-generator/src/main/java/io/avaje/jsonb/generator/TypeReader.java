@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import io.avaje.jsonb.Json;
+
 import javax.lang.model.element.*;
 import java.util.*;
 
@@ -23,15 +25,18 @@ class TypeReader {
   private final TypeElement baseType;
   private final ProcessingContext context;
   private final NamingConvention namingConvention;
+  private final boolean hasJsonAnnotation;
   private MethodReader constructor;
   private boolean defaultPublicConstructor;
   private final Map<String, MethodReader.MethodParam> constructorParamMap = new LinkedHashMap<>();
   private TypeSubTypeMeta currentSubType;
+  private boolean nonAccessibleField;
 
   TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.context = context;
     this.namingConvention = namingConvention;
+    this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
     this.subTypes = new TypeSubTypeReader(baseType, context);
   }
 
@@ -192,7 +197,12 @@ class TypeReader {
     if (!matchFieldToGetter2(field, false)) {
       if (!matchFieldToGetter2(field, true)) {
         if (!field.isPublicField()) {
-          context.logError("Non public field " + baseType + " " + field.fieldName() + " with no matching getter ?");
+          nonAccessibleField = true;
+          if (hasJsonAnnotation) {
+            context.logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
+          } else {
+            context.logDebug("Non accessible field " + baseType + " " + field.fieldName());
+          }
         }
       }
     }
@@ -236,6 +246,10 @@ class TypeReader {
 
   private String isGetterName(String name) {
     return "is" + Util.initCap(name);
+  }
+
+  boolean nonAccessibleField() {
+    return nonAccessibleField;
   }
 
   List<FieldReader> allFields() {

@@ -396,7 +396,7 @@ public interface Jsonb {
     /**
      * Add a Component which can provide multiple JsonAdapters and or configuration.
      */
-    Builder add(Jsonb.Component component);
+    Builder add(JsonbComponent component);
 
     /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
@@ -425,7 +425,7 @@ public interface Jsonb {
    * Components register JsonAdapters Jsonb.Builder
    */
   @FunctionalInterface
-  interface Component {
+  interface Component extends JsonbComponent {
 
     /**
      * Register JsonAdapters with the Builder.

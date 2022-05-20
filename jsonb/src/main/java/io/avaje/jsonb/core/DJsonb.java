@@ -23,7 +23,7 @@ class DJsonb implements Jsonb {
   private final CoreAdapterBuilder builder;
   private final JsonStreamAdapter io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<ViewKey,JsonView<?>> viewCache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<ViewKey, JsonView<?>> viewCache = new ConcurrentHashMap<>();
   private final JsonType<Object> anyType;
 
   DJsonb(JsonStreamAdapter adapter, List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
@@ -127,7 +127,7 @@ class DJsonb implements Jsonb {
   @Override
   public <T> JsonType<T> typeOf(Object first) {
     requireNonNull(first);
-    return type((Type)first.getClass());
+    return type((Type) first.getClass());
   }
 
   @SuppressWarnings("unchecked")
@@ -255,7 +255,7 @@ class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder add(Component component) {
+    public Builder add(JsonbComponent component) {
       component.register(this);
       return this;
     }
@@ -267,8 +267,11 @@ class DJsonb implements Jsonb {
     }
 
     private void registerComponents() {
-      ServiceLoader<Component> load = ServiceLoader.load(Component.class);
-      for (Component next : load) {
+      // first register all user defined JsonbComponent
+      for (JsonbComponent next : ServiceLoader.load(JsonbComponent.class)) {
+        next.register(this);
+      }
+      for (Component next : ServiceLoader.load(Component.class)) {
         next.register(this);
       }
     }

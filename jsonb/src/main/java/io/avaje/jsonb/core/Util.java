@@ -48,7 +48,6 @@ public final class Util {
   }
 
   static boolean typesMatch(Type pattern, Type candidate) {
-    // TODO: permit raw types (like Set.class) to match non-raw candidates (like Set<Long>).
     return Util.equals(pattern, candidate);
   }
 

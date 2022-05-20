@@ -160,6 +160,12 @@ public class Processor extends AbstractProcessor {
   private void writeAdapterForType(TypeElement typeElement) {
     BeanReader beanReader = new BeanReader(typeElement, context);
     beanReader.read();
+    if (beanReader.nonAccessibleField()) {
+      if (beanReader.hasJsonAnnotation()) {
+        context.logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);
+      }
+      return;
+    }
     try {
       SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader, context);
       metaData.add(beanWriter.fullName());

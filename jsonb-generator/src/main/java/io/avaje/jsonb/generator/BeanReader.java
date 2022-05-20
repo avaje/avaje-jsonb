@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import io.avaje.jsonb.Json;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.util.HashSet;
@@ -20,6 +22,7 @@ class BeanReader {
   private final boolean hasSubTypes;
   private final TypeReader typeReader;
   private final String typeProperty;
+  private final boolean nonAccessibleField;
   private FieldReader unmappedField;
   private boolean hasRaw;
 
@@ -33,6 +36,7 @@ class BeanReader {
 
     this.typeReader = new TypeReader(beanType, context, namingConvention);
     typeReader.process();
+    this.nonAccessibleField = typeReader.nonAccessibleField();
     this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
@@ -57,6 +61,14 @@ class BeanReader {
 
   boolean hasSubtypes() {
     return hasSubTypes;
+  }
+
+  boolean nonAccessibleField() {
+    return nonAccessibleField;
+  }
+
+  boolean hasJsonAnnotation() {
+    return beanType.getAnnotation(Json.class) != null;
   }
 
   void read() {
