@@ -185,8 +185,15 @@ public interface Jsonb {
    * <h3>toJson() example</h3>
    * <pre>{@code
    *
+   *   Object anything = ...
+   *   String jsonContent = jsonb.toJson(anything);
+   *
    *   Customer customer = ...
    *
+   *   // any type toJson()
+   *   String jsonContent = jsonb.toJson(customer);
+   *
+   *   // or use .type(Customer.class) if we like
    *   String jsonContent = jsonb
    *     .type(Customer.class)
    *     .toJson(customer);
@@ -208,7 +215,7 @@ public interface Jsonb {
    *     .type(Object.class)
    *     .toJson(any);
    *
-   *   // the same as
+   *   // which is the same as
    *   String jsonContent = jsonb.toJson(any);
    *
    * }</pre>
