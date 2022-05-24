@@ -28,7 +28,7 @@
 <!--&lt;!&ndash;      <artifactId>jakarta.json</artifactId>&ndash;&gt;-->
 <!--&lt;!&ndash;      <version>1.0.0</version>&ndash;&gt;-->
 <!--      <artifactId>parsson</artifactId>-->
-<!--      <version>1.1.0-RC1-SNAPSHOT</version>-->
+<!--      <version>1.1.0-RC2-SNAPSHOT</version>-->
 <!--    </dependency>-->
 
     <dependency>
