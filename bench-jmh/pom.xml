@@ -7,7 +7,7 @@
 
   <groupId>org.avaje.jmh</groupId>
   <artifactId>bench-jmh</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-RC1-SNAPSHOT</version>
 
   <properties>
     <jmh.version>1.33</jmh.version>
