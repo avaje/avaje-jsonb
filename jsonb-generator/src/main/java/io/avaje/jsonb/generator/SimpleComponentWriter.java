@@ -88,7 +88,7 @@ class SimpleComponentWriter {
     }
     writer.append("})").eol();
 
-    writer.append("public class %s implements Jsonb.Component {", shortName).eol().eol();
+    writer.append("public class %s implements Jsonb.GeneratedComponent {", shortName).eol().eol();
   }
 
 

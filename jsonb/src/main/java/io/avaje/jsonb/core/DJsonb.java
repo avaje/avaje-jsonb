@@ -271,7 +271,7 @@ class DJsonb implements Jsonb {
       for (JsonbComponent next : ServiceLoader.load(JsonbComponent.class)) {
         next.register(this);
       }
-      for (Component next : ServiceLoader.load(Component.class)) {
+      for (GeneratedComponent next : ServiceLoader.load(GeneratedComponent.class)) {
         next.register(this);
       }
     }

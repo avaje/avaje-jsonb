@@ -425,7 +425,7 @@ public interface Jsonb {
    * Components register JsonAdapters Jsonb.Builder
    */
   @FunctionalInterface
-  interface Component extends JsonbComponent {
+  interface GeneratedComponent extends JsonbComponent {
 
     /**
      * Register JsonAdapters with the Builder.

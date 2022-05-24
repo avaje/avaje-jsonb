@@ -6,7 +6,7 @@ import io.avaje.jsonb.spi.MetaData;
 
 @Generated
 @MetaData({CustomerJsonAdapter.class, ContactJsonAdapter.class})
-public class MyComponent implements Jsonb.Component {
+public class MyComponent implements Jsonb.GeneratedComponent {
 
   @Override
   public void register(Jsonb.Builder builder) {
