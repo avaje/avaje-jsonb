@@ -26,22 +26,38 @@ json binding via apt source code generation
 
 # Quick start
 
-## Step 1 - Add dependencies
+## Step 1 - Add dependency
 ```xml
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb</artifactId>
-  <version>0.11</version>
+  <version>1.0-RC1</version>
 </dependency>
 
-<!-- annotation processor -->
-<dependency>
-  <groupId>io.avaje</groupId>
-  <artifactId>avaje-jsonb-generator</artifactId>
-  <version>0.11</version>
-  <scope>provided</scope>
-</dependency>
+
 ```
+And add avaje-jsonb-generator as a annotation processor
+```xml
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>${maven-compiler-plugin.version}</version>
+      <configuration>
+        <annotationProcessorPaths>
+          <path>
+            <groupId>io.avaje</groupId>
+            <artifactId>avaje-jsonb-generator</artifactId>
+            <version>1.0-RC1</version>
+          </path>
+        </annotationProcessorPaths>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+```
+
 
 ## Step 2 - Add `@Json`
 
