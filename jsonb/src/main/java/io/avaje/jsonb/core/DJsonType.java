@@ -4,10 +4,7 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -92,6 +89,15 @@ class DJsonType<T> implements JsonType<T> {
   public final void toJson(T value, OutputStream outputStream) {
     try (JsonWriter writer = jsonb.writer(outputStream)) {
       adapter.toJson(writer, value);
+    }
+    close(outputStream);
+  }
+
+  private void close(OutputStream outputStream) {
+    try {
+      outputStream.close();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Error closing stream", e);
     }
   }
 
