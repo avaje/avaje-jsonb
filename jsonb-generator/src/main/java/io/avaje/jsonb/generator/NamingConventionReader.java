@@ -19,13 +19,21 @@ class NamingConventionReader {
       if (JSON_ANNOTATION.equals(mirror.getAnnotationType().toString())) {
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
           if (entry.getKey().toString().equals(NAMING_ATTRIBUTE)) {
-            namingConvention = NamingConvention.of(Json.Naming.valueOf(entry.getValue().toString()));
+            namingConvention = NamingConvention.of(naming(entry.getValue().toString()));
           } else if (entry.getKey().toString().equals(TYPEPROPERTY_ATTRIBUTE)) {
             typeProperty = Util.trimQuotes(entry.getValue().toString());
           }
         }
       }
     }
+  }
+
+  static Json.Naming naming(String entry) {
+    int pos = entry.lastIndexOf('.');
+    if (pos > -1) {
+      entry = entry.substring(pos + 1);
+    }
+    return Json.Naming.valueOf(entry);
   }
 
   NamingConvention get() {
