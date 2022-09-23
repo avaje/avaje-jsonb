@@ -41,7 +41,6 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
-        <module>jsonb-jakarta</module>
         <module>blackbox-test</module>
       </modules>
     </profile>
