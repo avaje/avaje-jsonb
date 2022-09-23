@@ -3,7 +3,7 @@ package org.example.jmh;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.jackson.JacksonIOAdapter;
+import io.avaje.jsonb.jackson.JacksonAdapter;
 import org.example.jmh.model.MyMathBigD;
 import org.openjdk.jmh.annotations.*;
 
@@ -24,7 +24,7 @@ public class BigDecimalTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
+  private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonAdapter()).build();
   private static final JsonType<MyMathBigD> jsonbType = jsonbStandard.type(MyMathBigD.class);
 
   private MyMathBigD testData;

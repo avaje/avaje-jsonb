@@ -7,19 +7,15 @@ import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
-import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.stream.DieselAdapter;
-import io.avaje.jsonb.jackson.JacksonIOAdapter;
-import io.avaje.jsonb.jakarta.JakartaIOAdapter;
+import io.avaje.jsonb.jackson.JacksonAdapter;
+import io.avaje.jsonb.stream.JsonStream;
 import org.example.jmh.model.NarrowNamesRecord;
-import org.example.jmh.model.SomePropertyData;
 import org.example.jmh.model.WideNamesRecord;
 import org.openjdk.jmh.annotations.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +33,7 @@ public class RecordBasicTest {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonFactory jsonFactory = new JsonFactory();
 
-  private static final Jsonb jsonbX = Jsonb.newBuilder().adapter(new JacksonIOAdapter())
+  private static final Jsonb jsonbX = Jsonb.newBuilder().adapter(new JacksonAdapter())
     .add(WideNamesRecord.class, MyCustomWideAdapter::new)
     .add(NarrowNamesRecord.class, MyCustomNarrowAdapter::new)
     .build();
@@ -45,26 +41,26 @@ public class RecordBasicTest {
   private static final JsonType<WideNamesRecord> jsonbXWide = jsonbX.type(WideNamesRecord.class);
   private static final JsonType<NarrowNamesRecord> jsonbXNarrow = jsonbX.type(NarrowNamesRecord.class);
 
-  private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
+  private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonAdapter()).build();
   private static final JsonType<WideNamesRecord> jsonbWideNames = jsonbStandard.type(WideNamesRecord.class);
   private static final JsonType<NarrowNamesRecord> jsonbNarrowNames = jsonbStandard.type(NarrowNamesRecord.class);
 
-  private static final Jsonb jakartaJsonb = Jsonb.newBuilder().adapter(new JakartaIOAdapter()).build();
-  private static final JsonType<WideNamesRecord> jakartaJsonbWideNames = jakartaJsonb.type(WideNamesRecord.class);
-  private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNames = jakartaJsonb.type(NarrowNamesRecord.class);
+//  private static final Jsonb jakartaJsonb = Jsonb.newBuilder().adapter(new JakartaAdapter()).build();
+//  private static final JsonType<WideNamesRecord> jakartaJsonbWideNames = jakartaJsonb.type(WideNamesRecord.class);
+//  private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNames = jakartaJsonb.type(NarrowNamesRecord.class);
 
-  private static final Jsonb dieselJsonb = Jsonb.newBuilder().adapter(new DieselAdapter(false, false, false)).build();
+  private static final Jsonb dieselJsonb = Jsonb.newBuilder().adapter(new JsonStream(false, false, false)).build();
   private static final JsonType<WideNamesRecord> dieselJsonbWideNames = dieselJsonb.type(WideNamesRecord.class);
   private static final JsonType<NarrowNamesRecord> dieselJsonbNarrowNames = dieselJsonb.type(NarrowNamesRecord.class);
 
 
-  private static final Jsonb jakartaJsonbBase = Jsonb.newBuilder().adapter(new JakartaIOAdapter())
-    .add(WideNamesRecord.class, MyCustomWideAdapter::new)
-    .add(NarrowNamesRecord.class, MyCustomNarrowAdapter::new)
-    .build();
-
-  private static final JsonType<WideNamesRecord> jakartaJsonbWideNamesBase = jakartaJsonbBase.type(WideNamesRecord.class);
-  private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNamesBase = jakartaJsonbBase.type(NarrowNamesRecord.class);
+//  private static final Jsonb jakartaJsonbBase = Jsonb.newBuilder().adapter(new JakartaIOAdapter())
+//    .add(WideNamesRecord.class, MyCustomWideAdapter::new)
+//    .add(NarrowNamesRecord.class, MyCustomNarrowAdapter::new)
+//    .build();
+//
+//  private static final JsonType<WideNamesRecord> jakartaJsonbWideNamesBase = jakartaJsonbBase.type(WideNamesRecord.class);
+//  private static final JsonType<NarrowNamesRecord> jakartaJsonbNarrowNamesBase = jakartaJsonbBase.type(NarrowNamesRecord.class);
 
   private NarrowNamesRecord testDataNarrowNames;
   private WideNamesRecord testDataWideNames, testDataWideNames2;
@@ -136,16 +132,6 @@ public class RecordBasicTest {
     return jsonbWideNames.toJson(testDataWideNames);
   }
 
-  //@Benchmark
-  public String toJson_wideNames_jsonb_jakarta_preparedKey() {
-    return jakartaJsonbWideNames.toJson(testDataWideNames);
-  }
-
-  //@Benchmark
-  public String toJson_wideNames_jsonb_jakarta_normalKey() {
-    return jakartaJsonbWideNamesBase.toJson(testDataWideNames);
-  }
-
   // ---------------------------------------------------------
 
   //@Benchmark
@@ -174,16 +160,6 @@ public class RecordBasicTest {
     return jsonbNarrowNames.toJson(testDataNarrowNames);
   }
 
-  //@Benchmark
-  public String toJson_narrowNames_jsonb_jakarta_preparedKey() {
-    return jakartaJsonbNarrowNames.toJson(testDataNarrowNames);
-  }
-
-  //@Benchmark
-  public String toJson_narrowNames_jsonb_jakarta_normalKey() {
-    return jakartaJsonbNarrowNamesBase.toJson(testDataNarrowNames);
-  }
-
   // -------------------------------------------
 
   @Benchmark
@@ -198,11 +174,6 @@ public class RecordBasicTest {
   @Benchmark
   public WideNamesRecord fromJson_wideNames_jsonb_jackson() {
     return jsonbWideNames.fromJson(content);
-  }
-
-  @Benchmark
-  public WideNamesRecord fromJson_wideNames_jsonb_jakarta() {
-    return jakartaJsonbWideNames.fromJson(content);
   }
 
   @Benchmark
@@ -314,7 +285,6 @@ public class RecordBasicTest {
 //
 //    System.out.println(asJson1);
 //    System.out.println(asJson2);
-    WideNamesRecord from0 = test.fromJson_wideNames_jsonb_jakarta();
     WideNamesRecord from1 = test.fromJson_wideNames_jsonb_jackson();
     WideNamesRecord from2 = test.fromJson_wideNames_objectMapper();
     System.out.println("" + from1 + from2);

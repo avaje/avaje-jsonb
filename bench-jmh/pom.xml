@@ -11,7 +11,7 @@
 
   <properties>
     <jmh.version>1.33</jmh.version>
-    <avaje-jsonb.version>0.10-SNAPSHOT</avaje-jsonb.version>
+    <avaje-jsonb.version>1.0-RC2</avaje-jsonb.version>
     <yasson.version>2.0.2</yasson.version>
     <java.release>17</java.release>
     <maven.compiler.source>17</maven.compiler.source>
@@ -35,16 +35,16 @@
       <artifactId>avaje-jsonb-jackson</artifactId>
       <version>${avaje-jsonb.version}</version>
     </dependency>
-    <dependency>
-      <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonb-jakarta</artifactId>
-      <version>${avaje-jsonb.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonb-diesel</artifactId>
-      <version>${avaje-jsonb.version}</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.avaje</groupId>-->
+<!--      <artifactId>avaje-jsonb-jakarta</artifactId>-->
+<!--      <version>${avaje-jsonb.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>io.avaje</groupId>-->
+<!--      <artifactId>avaje-jsonb-diesel</artifactId>-->
+<!--      <version>${avaje-jsonb.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb-generator</artifactId>
@@ -118,18 +118,18 @@
       </plugin>
 
       <!-- Don't upload any files from these project. JMH dependencies are approved only for testing purposes. -->
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
+<!--      <plugin>-->
+<!--        <artifactId>maven-deploy-plugin</artifactId>-->
+<!--        <configuration>-->
+<!--          <skip>true</skip>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
+<!--      <plugin>-->
+<!--        <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--        <configuration>-->
+<!--          <skip>true</skip>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
 
       <!--run `java -jar bench-jmh.jar -h` for help -->
       <plugin>

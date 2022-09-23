@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.jackson.JacksonIOAdapter;
+import io.avaje.jsonb.jackson.JacksonAdapter;
 import org.example.jmh.model.NarrowNamesRecord;
 import org.example.jmh.model.NestAddress;
 import org.example.jmh.model.NestCust;
@@ -31,7 +31,7 @@ public class NestSmallTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
+  private static final Jsonb jsonbStandard = Jsonb.newBuilder().adapter(new JacksonAdapter()).build();
   private static final JsonType<NestCust> jsonbNestCust = jsonbStandard.type(NestCust.class);
 
   private NestCust testData;

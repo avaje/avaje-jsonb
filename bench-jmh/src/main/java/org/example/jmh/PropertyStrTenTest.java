@@ -8,12 +8,10 @@ import com.squareup.moshi.Moshi;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.stream.DieselAdapter;
-import io.avaje.jsonb.jackson.JacksonIOAdapter;
-import io.avaje.jsonb.jakarta.JakartaIOAdapter;
+import io.avaje.jsonb.jackson.JacksonAdapter;
+import io.avaje.jsonb.stream.JsonStream;
 import org.example.jmh.model.OtherPropertyData;
 import org.example.jmh.model.SomePropertyData;
-import org.example.jmh.model.WideNamesRecord;
 import org.openjdk.jmh.annotations.*;
 
 import java.io.IOException;
@@ -34,13 +32,10 @@ public class PropertyStrTenTest {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  private static final Jsonb dieselJsonb = Jsonb.newBuilder().adapter(new DieselAdapter(false, false, false)).build();
+  private static final Jsonb dieselJsonb = Jsonb.newBuilder().adapter(new JsonStream(false, false, false)).build();
   private static final JsonType<SomePropertyData> dieselJsonbType = dieselJsonb.type(SomePropertyData.class);
 
-  private static final Jsonb jakartaJsonb = Jsonb.newBuilder().adapter(new JakartaIOAdapter()).build();
-  private static final JsonType<SomePropertyData> jakartaJsonbType = jakartaJsonb.type(SomePropertyData.class);
-
-  private static final Jsonb jsonb = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).build();
+  private static final Jsonb jsonb = Jsonb.newBuilder().adapter(new JacksonAdapter()).build();
   private static final JsonType<SomePropertyData> jsonbType = jsonb.type(SomePropertyData.class);
   private JsonView<SomePropertyData> allView;
   private JsonView<SomePropertyData> prop35View;
@@ -57,7 +52,7 @@ public class PropertyStrTenTest {
   @Setup
   public void setup() {
 
-    Jsonb viewAwareJsonb = Jsonb.newBuilder().adapter(new JacksonIOAdapter()).add(SomePropertyData.class, MyViewAdapter::new).build();
+    Jsonb viewAwareJsonb = Jsonb.newBuilder().adapter(new JacksonAdapter()).add(SomePropertyData.class, MyViewAdapter::new).build();
     JsonType<SomePropertyData> viewAwareType = viewAwareJsonb.type(SomePropertyData.class);
     allView = viewAwareType.view("(*)");
     prop35View = viewAwareType.view("(anotherSimilarProperty3, lastButNotLeastProperty5)");
@@ -88,11 +83,6 @@ public class PropertyStrTenTest {
 //  @Benchmark
   public String toJson_jsonb_jackson() {
     return jsonbType.toJson(testData);
-  }
-
-//  @Benchmark
-  public String toJson_jsonb_jakarta() {
-    return jakartaJsonbType.toJson(testData);
   }
 
 //  @Benchmark
@@ -189,28 +179,13 @@ public class PropertyStrTenTest {
   }
 
   @Benchmark
-  public SomePropertyData fromJson_jsonb_jakarta() {
-    return jakartaJsonbType.fromJson(content);
-  }
-
-  @Benchmark
   public SomePropertyData fromJson_jsonb_diesel() {
     return dieselJsonbType.fromJson(content);
-  }
-
-  //  @Benchmark
-  public SomePropertyData fromJson_jsonb_jakarta_reader() {
-    return jakartaJsonbType.fromJson(new StringReader(content));
   }
 
 //  @Benchmark
   public SomePropertyData fromJson_jsonb_asBytes() {
     return jsonbType.fromJson(contentAsBytes);
-  }
-
-//  @Benchmark
-  public SomePropertyData fromJson_jsonb_asBytes_jakarta() {
-    return jakartaJsonbType.fromJson(contentAsBytes);
   }
 
  //@Benchmark
@@ -231,11 +206,9 @@ public class PropertyStrTenTest {
 
     SomePropertyData d0 = test.fromJson_jsonb_diesel();
     SomePropertyData d1 = test.fromJson_jsonb_jackson();
-    SomePropertyData d2 = test.fromJson_jsonb_jakarta();
 
     String s0 = test.toJson_jsonb_diesel();
     String s1 = test.toJson_jsonb_jackson();
-    String s2 = test.toJson_jsonb_jakarta();
     String s3 = test.toJson_objectMapper();
 
 //    String asJson = test.toJson_jsonb_viewProp35();
