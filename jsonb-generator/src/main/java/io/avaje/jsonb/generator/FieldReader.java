@@ -33,17 +33,8 @@ class FieldReader {
     addSubType(subType);
     this.fieldName = element.getSimpleName().toString();
     this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
-
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
-
-    final String type = element.asType().toString();
-    if (type.contains("@")) {
-      final String[] split = type.split(" ");
-
-      this.rawType = type.substring(0, type.indexOf("@")) + split[split.length - 1];
-    } else {
-      this.rawType = type;
-    }
+    this.rawType = trimAnnotations(element.asType().toString());
 
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     this.unmapped = ignoreReader.unmapped();
@@ -71,6 +62,14 @@ class FieldReader {
       adapterShortType = "JsonAdapter<" + typeWrapped + ">";
       adapterFieldName = (primitive ? "p" : "") + Util.initLower(genericType.shortName()) + "JsonAdapter";
     }
+  }
+
+  static String trimAnnotations(String type) {
+    int pos = type.indexOf("@");
+    if (pos == -1) {
+      return type;
+    }
+    return type.substring(0, pos) + type.substring(type.lastIndexOf(' ') + 1);
   }
 
   void position(int pos) {
@@ -160,7 +159,7 @@ class FieldReader {
     }
     if (!deserialize) {
       writer.append(" ignoreDeserialize");
-    }else if (constructorParam) {
+    } else if (constructorParam) {
       writer.append(" constructor");
     } else if (setter != null) {
       writer.append(" setter:%s ", setter);
