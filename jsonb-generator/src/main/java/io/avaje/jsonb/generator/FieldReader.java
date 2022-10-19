@@ -1,15 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
+
 class FieldReader {
 
   private final Map<String, TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
-  private final Element element;
   private final boolean publicField;
   private final String rawType;
   private final GenericType genericType;
@@ -30,14 +30,13 @@ class FieldReader {
   private boolean constructorParam;
 
   FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType) {
-    this.element = element;
     addSubType(subType);
     this.fieldName = element.getSimpleName().toString();
     this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
-    this.rawType = element.asType().toString();
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
+    this.rawType = trimAnnotations(element.asType().toString());
 
-    PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
+    final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     this.unmapped = ignoreReader.unmapped();
     this.raw = ignoreReader.raw();
     this.serialize = ignoreReader.serialize();
@@ -56,13 +55,21 @@ class FieldReader {
       primitive = false;
     } else {
       genericType = GenericType.parse(rawType);
-      String shortType = genericType.shortType();
+      final String shortType = genericType.shortType();
       primitive = PrimitiveUtil.isPrimitive(shortType);
       defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
-      String typeWrapped = PrimitiveUtil.wrap(shortType);
+      final String typeWrapped = PrimitiveUtil.wrap(shortType);
       adapterShortType = "JsonAdapter<" + typeWrapped + ">";
       adapterFieldName = (primitive ? "p" : "") + Util.initLower(genericType.shortName()) + "JsonAdapter";
     }
+  }
+
+  static String trimAnnotations(String type) {
+    int pos = type.indexOf("@");
+    if (pos == -1) {
+      return type;
+    }
+    return type.substring(0, pos) + type.substring(type.lastIndexOf(' ') + 1);
   }
 
   void position(int pos) {
@@ -118,10 +125,10 @@ class FieldReader {
 
   void cascadeTypes(Set<String> types) {
     if (!raw && !unmapped) {
-      String topType = genericType.topType();
-      if (topType.equals("java.util.List") || topType.equals("java.util.Set")) {
+      final String topType = genericType.topType();
+      if ("java.util.List".equals(topType) || "java.util.Set".equals(topType)) {
         types.add(genericType.firstParamType());
-      } else if (topType.equals("java.util.Map")) {
+      } else if ("java.util.Map".equals(topType)) {
         types.add(genericType.secondParamType());
       } else {
         types.add(topType);
@@ -152,16 +159,14 @@ class FieldReader {
     }
     if (!deserialize) {
       writer.append(" ignoreDeserialize");
+    } else if (constructorParam) {
+      writer.append(" constructor");
+    } else if (setter != null) {
+      writer.append(" setter:%s ", setter);
+    } else if (publicField) {
+      writer.append(" publicField");
     } else {
-      if (constructorParam) {
-        writer.append(" constructor");
-      } else if (setter != null) {
-        writer.append(" setter:%s ", setter);
-      } else if (publicField) {
-        writer.append(" publicField");
-      } else {
-        writer.append(" ERROR?? no constructor, setter and not a public field?");
-      }
+      writer.append(" ERROR?? no constructor, setter and not a public field?");
     }
     if (!subTypes.isEmpty()) {
       writer.append(" subTypes %s", subTypes.keySet());
@@ -181,7 +186,7 @@ class FieldReader {
     if (raw) {
       writer.append("    this.%s = jsonb.rawAdapter();", adapterFieldName).eol();
     } else {
-      String asType = genericType.asTypeDeclaration();
+      final String asType = genericType.asTypeDeclaration();
       writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asType).eol();
     }
   }
@@ -227,11 +232,11 @@ class FieldReader {
   }
 
   private String pad(String value) {
-    int pad = 10 - value.length();
+    final int pad = 10 - value.length();
     if (pad < 1) {
       return value;
     }
-    StringBuilder sb = new StringBuilder(10).append(value);
+    final StringBuilder sb = new StringBuilder(10).append(value);
     for (int i = 0; i < pad; i++) {
       sb.append(" ");
     }
@@ -285,7 +290,7 @@ class FieldReader {
     if (getter == null) {
       writer.append("    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));", fieldName, adapterFieldName, shortName, fieldName).eol();
     } else {
-      String topType = genericType.topType();
+      final String topType = genericType.topType();
       writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s.class));", fieldName, adapterFieldName, shortName, getter.getName(), topType).eol();
     }
   }
