@@ -3,3 +3,6 @@ build/
 .idea/
 *.iml
 .gradle
+*.prefs
+jsonb-generator/.classpath
+jsonb-generator/.project
