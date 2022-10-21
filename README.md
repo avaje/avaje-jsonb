@@ -31,10 +31,8 @@ json binding via apt source code generation
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb</artifactId>
-  <version>1.0-RC1</version>
+  <version>${avaje-jsonb-version}</version>
 </dependency>
-
-
 ```
 And add avaje-jsonb-generator as a annotation processor
 ```xml
@@ -49,7 +47,7 @@ And add avaje-jsonb-generator as a annotation processor
           <path>
             <groupId>io.avaje</groupId>
             <artifactId>avaje-jsonb-generator</artifactId>
-            <version>1.0-RC1</version>
+            <version>${avaje-jsonb-version}</version>
           </path>
         </annotationProcessorPaths>
       </configuration>
