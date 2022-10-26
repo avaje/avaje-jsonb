@@ -171,8 +171,14 @@ class TypeReader {
     if (setter != null) {
       field.setterMethod(setter);
       return true;
-    } else {
-      setter = setterLookup(setterName(name), loose);
+    }
+    setter = setterLookup(setterName(name), loose);
+    if (setter != null) {
+      field.setterMethod(setter);
+      return true;
+    }
+    if (field.typeBooleanWithIsPrefix()) { // isActive -> setActive() for boolean and Boolean
+      setter = setterLookup(setterName(name.substring(2)), loose);
       if (setter != null) {
         field.setterMethod(setter);
         return true;
@@ -228,6 +234,13 @@ class TypeReader {
     if (getter != null) {
       field.getterMethod(getter);
       return true;
+    }
+    if (field.typeObjectBooleanWithIsPrefix()) { // isRegistered -> getRegistered() for Boolean
+      getter = getterLookup(getterName(name.substring(2)), loose);
+      if (getter != null) {
+        field.getterMethod(getter);
+        return true;
+      }
     }
     return false;
   }

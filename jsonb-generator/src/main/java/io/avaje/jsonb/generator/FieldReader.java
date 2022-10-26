@@ -84,6 +84,18 @@ class FieldReader {
     return propertyName;
   }
 
+  boolean typeObjectBooleanWithIsPrefix() {
+    return nameHasIsPrefix() && genericType.topType().equals("java.lang.Boolean");
+  }
+
+  boolean typeBooleanWithIsPrefix() {
+    return nameHasIsPrefix() && (genericType.topType().equals("boolean") || genericType.topType().equals("java.lang.Boolean"));
+  }
+
+  private boolean nameHasIsPrefix() {
+    return fieldName.length() > 2 && fieldName.startsWith("is") && Character.isUpperCase(fieldName.charAt(2));
+  }
+
   boolean isRaw() {
     return raw;
   }
@@ -215,10 +227,10 @@ class FieldReader {
   }
 
   private void writeGetValue(Append writer, String varName, String suffix) {
-    if (publicField) {
-      writer.append("%s.%s%s", varName, fieldName, suffix);
-    } else if (getter != null) {
+    if (getter != null) {
       writer.append("%s.%s()%s", varName, getter.getName(), suffix);
+    } else if (publicField) {
+      writer.append("%s.%s%s", varName, fieldName, suffix);
     } else {
       writer.append("FIXME: field %s is not public and has not getter ? ", fieldName);
     }
