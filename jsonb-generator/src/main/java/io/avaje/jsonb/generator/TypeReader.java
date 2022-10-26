@@ -130,10 +130,12 @@ class TypeReader {
 
   private void matchFieldsToSetterOrConstructor() {
     for (FieldReader field : allFields) {
-      if (constructorParamMap.get(field.fieldName()) != null) {
-        field.constructorParam();
-      } else {
-        matchFieldToSetter(field);
+      if (field.includeFromJson()) {
+        if (constructorParamMap.get(field.fieldName()) != null) {
+          field.constructorParam();
+        } else {
+          matchFieldToSetter(field);
+        }
       }
     }
   }
@@ -189,7 +191,9 @@ class TypeReader {
 
   private void matchFieldsToGetter() {
     for (FieldReader field : allFields) {
-      matchFieldToGetter(field);
+      if (field.includeToJson()) {
+        matchFieldToGetter(field);
+      }
     }
   }
 

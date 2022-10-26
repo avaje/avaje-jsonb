@@ -100,6 +100,10 @@ class FieldReader {
     return deserialize;
   }
 
+  boolean includeToJson() {
+    return serialize;
+  }
+
   boolean includeToJson(String type) {
     return serialize && (type == null || subTypes.containsKey(type));
   }
