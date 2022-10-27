@@ -1,5 +1,6 @@
 package org.example.customer;
 
+import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
@@ -47,5 +48,19 @@ class PubFieldsAndAccessorsTest {
     assertThat(fromJsonWithNull.score).isEqualTo(0);
     assertThat(fromJsonWithNull.isActive()).isEqualTo(false);
     assertThat(fromJsonWithNull.getRegistered()).isNull();
+  }
+
+  @Test
+  void viewUsesPropertyName() {
+    var bean = new PubFieldsAndAccessors();
+    bean.name = "foo";
+    bean.setProblem(true);
+
+    String asJson = jsonb.toJson(bean);
+    assertThat(asJson).isEqualTo("{\"name\":\"foo\",\"score\":0,\"isActive\":false,\"problem\":true}");
+
+    JsonView<PubFieldsAndAccessors> view = jsonb.type(PubFieldsAndAccessors.class).view("name,problem");
+    String viewJson = view.toJson(bean);
+    assertThat(viewJson).isEqualTo("{\"name\":\"foo\",\"problem\":true}");
   }
 }

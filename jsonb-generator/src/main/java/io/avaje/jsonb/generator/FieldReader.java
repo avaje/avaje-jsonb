@@ -304,10 +304,10 @@ class FieldReader {
 
   void writeViewBuilder(Append writer, String shortName) {
     if (getter == null) {
-      writer.append("    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));", fieldName, adapterFieldName, shortName, fieldName).eol();
+      writer.append("    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));", propertyName, adapterFieldName, shortName, fieldName).eol();
     } else {
       final String topType = genericType.topType();
-      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s.class));", fieldName, adapterFieldName, shortName, getter.getName(), topType).eol();
+      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s.class));", propertyName, adapterFieldName, shortName, getter.getName(), topType).eol();
     }
   }
 }

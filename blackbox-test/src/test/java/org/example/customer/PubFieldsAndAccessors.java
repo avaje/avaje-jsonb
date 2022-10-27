@@ -14,6 +14,9 @@ public class PubFieldsAndAccessors {
   // match the getter for isRegistered to getRegistered()
   private Boolean isRegistered;
 
+  @Json.Property("problem")
+  private Boolean isProblem;
+
   public String getName() {
     return name;
   }
@@ -47,5 +50,14 @@ public class PubFieldsAndAccessors {
 
   public void setRegistered(Boolean registered) {
     isRegistered = registered;
+  }
+
+  public Boolean getProblem() {
+    return isProblem;
+  }
+
+  public PubFieldsAndAccessors setProblem(Boolean problem) {
+    isProblem = problem;
+    return this;
   }
 }
