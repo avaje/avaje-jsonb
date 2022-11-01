@@ -30,6 +30,7 @@ class ProcessorTest {
   @AfterEach
   void deleteGeneratedFiles() throws IOException {
     try {
+      Paths.get("io.avaje.jsonb.Jsonb$GeneratedComponent").toAbsolutePath().toFile().delete();
       Files.walk(Paths.get("io").toAbsolutePath())
           .sorted(Comparator.reverseOrder())
           .map(Path::toFile)
