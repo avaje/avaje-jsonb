@@ -32,7 +32,7 @@ class TypeReader {
   private TypeSubTypeMeta currentSubType;
   private boolean nonAccessibleField;
 
-private final Map<String, Element> mixInFields;
+  private final Map<String, Element> mixInFields;
 
   TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;

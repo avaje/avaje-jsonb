@@ -1,6 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -9,8 +18,8 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import java.io.IOException;
-import java.util.*;
+
+import io.avaje.jsonb.Json;
 
 public class Processor extends AbstractProcessor {
 
@@ -62,7 +71,9 @@ public class Processor extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     readModule();
     writeAdapters(round.getElementsAnnotatedWith(Json.class));
-    writeAdaptersForImported(round.getElementsAnnotatedWith(Json.Import.class));
+    writeAdaptersForImported(
+        round.getElementsAnnotatedWith(Json.Import.class),
+        round.getElementsAnnotatedWith(Json.MixIn.class));
     initialiseComponent();
     cascadeTypes();
     writeComponent(round.processingOver());

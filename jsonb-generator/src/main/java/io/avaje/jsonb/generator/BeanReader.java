@@ -1,13 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+
+import io.avaje.jsonb.Json;
 
 class BeanReader {
 
