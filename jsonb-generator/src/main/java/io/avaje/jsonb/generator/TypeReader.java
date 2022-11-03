@@ -32,8 +32,25 @@ class TypeReader {
   private TypeSubTypeMeta currentSubType;
   private boolean nonAccessibleField;
 
+private final Map<String, Element> mixInFields;
+
   TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
+    this.context = context;
+    this.mixInFields = new HashMap<>();
+    this.namingConvention = namingConvention;
+    this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
+    this.subTypes = new TypeSubTypeReader(baseType, context);
+  }
+
+  public TypeReader(
+      TypeElement baseType,
+      Map<String, Element> mixInFields,
+      ProcessingContext context,
+      NamingConvention namingConvention) {
+
+    this.baseType = baseType;
+    this.mixInFields = mixInFields;
     this.context = context;
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
@@ -74,7 +91,10 @@ class TypeReader {
   }
 
   private void readField(Element element, List<FieldReader> localFields) {
-    if (includeField(element)) {
+    if (mixInFields.containsKey(element.getSimpleName().toString())) {
+      element = mixInFields.get(element.getSimpleName().toString());
+    }
+	 if (includeField(element)) {
       localFields.add(new FieldReader(element, namingConvention, currentSubType));
     }
   }

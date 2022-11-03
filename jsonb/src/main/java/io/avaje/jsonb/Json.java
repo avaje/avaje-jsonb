@@ -1,12 +1,12 @@
 package io.avaje.jsonb;
 
+import static java.lang.annotation.RetentionPolicy.CLASS;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.RetentionPolicy.CLASS;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Marks a type for JSON support.
@@ -223,6 +223,14 @@ public @interface Json {
   @Target({ElementType.FIELD})
   @interface Raw {
 
+  }
+
+  /** Marks a Class as a MixIn class. */
+  @Retention(CLASS)
+  @Target({ElementType.TYPE})
+  @interface MixIn {
+    /** The concrete type to mix. */
+    Class<?> value();
   }
 
   /**

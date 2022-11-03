@@ -42,7 +42,27 @@ class BeanReader {
     this.constructor = typeReader.constructor();
   }
 
-  @Override
+  public BeanReader(
+      TypeElement beanType,
+      Map<String,  Element> mixInFields,
+      ProcessingContext context) {
+
+	    this.beanType = beanType;
+	    this.type = beanType.getQualifiedName().toString();
+	    this.shortName = shortName(beanType);
+	    final NamingConventionReader ncReader = new NamingConventionReader(beanType);
+	    this.namingConvention = ncReader.get();
+	    this.typeProperty = ncReader.typeProperty();
+	    this.typeReader = new TypeReader(beanType, mixInFields, context, namingConvention);
+	    typeReader.process();
+	    this.nonAccessibleField = typeReader.nonAccessibleField();
+	    this.hasSubTypes = typeReader.hasSubTypes();
+	    this.allFields = typeReader.allFields();
+	    this.constructor = typeReader.constructor();
+
+  }
+
+@Override
   public String toString() {
     return beanType.toString();
   }

@@ -11,6 +11,7 @@ import java.util.Map;
 class ImportReader {
 
   private static final String JSON_IMPORT = "io.avaje.jsonb.Json.Import";
+  private static final String JSON_MIXIN = "io.avaje.jsonb.Json.MixIn";
 
   /**
    * Read the Json.Import annotation using annotation mirrors.
@@ -31,4 +32,15 @@ class ImportReader {
     return fullNames;
   }
 
+  String readMixin(Element element) {
+    for (final AnnotationMirror mirror : element.getAnnotationMirrors()) {
+      if (JSON_MIXIN.equals(mirror.getAnnotationType().toString())) {
+        for (final Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry :
+            mirror.getElementValues().entrySet()) {
+          return Util.trimClassSuffix(entry.getValue().toString());
+        }
+      }
+    }
+    return null;
+  }
 }

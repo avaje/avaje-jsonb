@@ -43,6 +43,7 @@ public class Processor extends AbstractProcessor {
     Set<String> annotations = new LinkedHashSet<>();
     annotations.add(Json.class.getCanonicalName());
     annotations.add(Json.Import.class.getCanonicalName());
+    annotations.add(Json.MixIn.class.getCanonicalName());
     return annotations;
   }
 
@@ -111,12 +112,24 @@ public class Processor extends AbstractProcessor {
   /**
    * Elements that have a {@code @Json.Import} annotation.
    */
-  private void writeAdaptersForImported(Set<? extends Element> importedElements) {
-    for (Element importedElement : importedElements) {
-      for (String importType : importReader.read(importedElement)) {
-        TypeElement element = context.element(importType);
+  private void writeAdaptersForImported(
+      Set<? extends Element> importedElements, Set<? extends Element> mixed) {
+    final Map<String, TypeElement> mixinMap = new HashMap<>();
+    for (final Element mixin : mixed) {
+      final String importType = importReader.readMixin(mixin);
+      if (importType != null) {
+        mixinMap.put(importType, context.element(mixin.asType().toString()));
+      }
+    }
+
+    for (final Element importedElement : importedElements) {
+      for (final String importType : importReader.read(importedElement)) {
+        final TypeElement element = context.element(importType);
+
         if (element == null) {
           context.logError("Unable to find imported element " + importType);
+        } else if (mixinMap.containsKey(importType)) {
+          writeAdapterForMixInType(element, mixinMap.get(importType));
         } else {
           writeAdapterForType(element);
         }
@@ -158,7 +171,20 @@ public class Processor extends AbstractProcessor {
   }
 
   private void writeAdapterForType(TypeElement typeElement) {
-    BeanReader beanReader = new BeanReader(typeElement, context);
+    final BeanReader beanReader = new BeanReader(typeElement, context);
+    writeAdapter(typeElement, beanReader);
+  }
+
+  private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {
+    final Map<String, Element> mixInFields =
+        mixin.getEnclosedElements().stream()
+            .filter(e -> e.getKind() == ElementKind.FIELD)
+            .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+    final BeanReader beanReader = new BeanReader(typeElement, mixInFields, context);
+    writeAdapter(typeElement, beanReader);
+  }
+
+  private void writeAdapter(TypeElement typeElement, BeanReader beanReader) {
     beanReader.read();
     if (beanReader.nonAccessibleField()) {
       if (beanReader.hasJsonAnnotation()) {
@@ -176,5 +202,4 @@ public class Processor extends AbstractProcessor {
       context.logError("Error writing JsonAdapter for %s %s", beanReader, e);
     }
   }
-
 }
