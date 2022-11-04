@@ -46,7 +46,7 @@ class BeanReader {
 
   public BeanReader(
       TypeElement beanType,
-      Map<String,  Element> mixInFields,
+      TypeElement mixInElement,
       ProcessingContext context) {
 
 	    this.beanType = beanType;
@@ -55,7 +55,7 @@ class BeanReader {
 	    final NamingConventionReader ncReader = new NamingConventionReader(beanType);
 	    this.namingConvention = ncReader.get();
 	    this.typeProperty = ncReader.typeProperty();
-	    this.typeReader = new TypeReader(beanType, mixInFields, context, namingConvention);
+	    this.typeReader = new TypeReader(beanType, mixInElement, context, namingConvention);
 	    typeReader.process();
 	    this.nonAccessibleField = typeReader.nonAccessibleField();
 	    this.hasSubTypes = typeReader.hasSubTypes();

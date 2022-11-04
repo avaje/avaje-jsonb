@@ -4,6 +4,7 @@ import io.avaje.jsonb.Json;
 
 import javax.lang.model.element.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Read points for field injection and method injection
@@ -45,12 +46,15 @@ class TypeReader {
 
   public TypeReader(
       TypeElement baseType,
-      Map<String, Element> mixInFields,
+      TypeElement mixInType,
       ProcessingContext context,
       NamingConvention namingConvention) {
 
     this.baseType = baseType;
-    this.mixInFields = mixInFields;
+    this.mixInFields =
+        mixInType.getEnclosedElements().stream()
+            .filter(e -> e.getKind() == ElementKind.FIELD)
+            .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     this.context = context;
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
