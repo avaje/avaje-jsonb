@@ -225,7 +225,25 @@ public @interface Json {
 
   }
 
-  /** Marks a Class as a MixIn class. */
+  /**
+   * Mark this Class as a MixIn Type that can add Jsonb Annotations on the specified type.
+   * <p>
+   * These types are typically in an external project / dependency or otherwise
+   * types that we can't or don't want to explicitly annotate with {@code @Json}.
+   * <p>
+   * In the example below, the VehicleMixin class augments the the generated Vehicle JsonB adapter to use "ford-type" as the json property.
+   *
+   * <pre>{@code
+   *
+   *   @Json.MixIn(Vehicle.class)
+   *   public abstract class VehicleMixIn {
+   *
+   *   @Json.Property("ford-type")
+   *   private String type;
+   *    ...
+   *
+   * }</pre>
+   */
   @Retention(CLASS)
   @Target({ElementType.TYPE})
   @interface MixIn {
