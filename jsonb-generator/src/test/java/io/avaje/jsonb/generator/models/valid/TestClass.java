@@ -19,7 +19,6 @@ public class TestClass {
 
   private List<String> list;
 
-  private TestNestedClass nested;
 
   public String getS() {
     return s;
@@ -61,15 +60,11 @@ public class TestClass {
     this.chara = chara;
   }
 
-  public TestNestedClass getNested() {
-    return nested;
+  public List<String> getList() {
+    return list;
   }
 
-  public void setNested(TestNestedClass nested) {
-    this.nested = nested;
+  public void setList(List<String> list) {
+    this.list = list;
   }
-
-public List<String> getList(){return list;}
-
-public void setList(List<String> list){this.list = list;}
 }
