@@ -91,10 +91,12 @@ class TypeReader {
   }
 
   private void readField(Element element, List<FieldReader> localFields) {
-    if (mixInFields.containsKey(element.getSimpleName().toString())) {
-      element = mixInFields.get(element.getSimpleName().toString());
+    final Element mixInField = mixInFields.get(element.getSimpleName().toString());
+    if (mixInField != null && mixInField.asType().equals(element.asType())) {
+
+      element = mixInField;
     }
-	 if (includeField(element)) {
+    if (includeField(element)) {
       localFields.add(new FieldReader(element, namingConvention, currentSubType));
     }
   }

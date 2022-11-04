@@ -4,10 +4,12 @@ public class CrewMate {
 
   private String c;
   private Integer susLv;
+  private Integer taskNumber;
 
-  public CrewMate(String c, Integer susLv) {
+  public CrewMate(String c, Integer susLv, Integer taskNumber) {
     this.c = c;
     this.susLv = susLv;
+    this.taskNumber = taskNumber;
   }
 
   public String getC() {
@@ -24,5 +26,13 @@ public class CrewMate {
 
   public void setSusLv(Integer susLv) {
     this.susLv = susLv;
+  }
+
+  public Integer getTaskNumber() {
+    return taskNumber;
+  }
+
+  public void setTaskNumber(Integer taskNumber) {
+    this.taskNumber = taskNumber;
   }
 }

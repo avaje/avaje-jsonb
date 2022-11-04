@@ -10,5 +10,8 @@ public abstract class CrewMateMixIn {
   private String c;
 
   @Json.Ignore(deserialize = true)
-  private int susLv;
+  private Integer susLv;
+
+  @Json.Property("wrongtype")
+  private int taskNumber;
 }
