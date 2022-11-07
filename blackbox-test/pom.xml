@@ -13,9 +13,9 @@
 
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
-    <java.version>19</java.version>
-    <maven.compiler.source>19</maven.compiler.source>
-    <maven.compiler.target>19</maven.compiler.target>
+    <java.version>17</java.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
   <dependencies>
