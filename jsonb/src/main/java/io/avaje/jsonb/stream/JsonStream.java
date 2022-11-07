@@ -112,12 +112,8 @@ public final class JsonStream implements JsonStreamAdapter {
 
   @Override
   public JsonReader reader(InputStream inputStream) {
-    try {
-      JsonParser parser = Recycle.parser(inputStream);
-      return new JsonReadAdapter(parser, failOnUnknown);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    JsonParser parser = Recycle.parser(inputStream);
+    return new JsonReadAdapter(parser, failOnUnknown);
   }
 
   @Override
