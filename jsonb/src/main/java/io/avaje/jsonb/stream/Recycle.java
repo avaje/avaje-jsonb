@@ -2,23 +2,18 @@ package io.avaje.jsonb.stream;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.Executors;
 
 final class Recycle {
   private Recycle() {}
 
-  private static boolean virtualThreads;
+  private static boolean jvmRecycle;
   private static ThreadLocal<JGenerator> managed;
   private static ThreadLocal<JParser> read;
 
   static {
-    try {
-      Executors.class.getMethod("newVirtualThreadPerTaskExecutor").invoke(Executors.class);
-      virtualThreads = true;
-    } catch (final Exception e) {
-      virtualThreads = false;
-    }
-    if (!virtualThreads) {
+    if (Integer.getInteger("java.version") >= 19) {
+      jvmRecycle = true;
+    } else {
       managed = ThreadLocal.withInitial(Recycle::getGenerator);
       read = ThreadLocal.withInitial(Recycle::getParser);
     }
@@ -26,20 +21,20 @@ final class Recycle {
 
   /** Return a recycled generator with the given target OutputStream. */
   static JsonGenerator generator(OutputStream target) {
-    return (virtualThreads ? getGenerator() : managed.get()).prepare(target);
+    return (jvmRecycle ? getGenerator() : managed.get()).prepare(target);
   }
 
   /** Return a recycled generator with expected "to String" result. */
   static JsonGenerator generator() {
-    return (virtualThreads ? getGenerator() : managed.get()).prepare(null);
+    return (jvmRecycle ? getGenerator() : managed.get()).prepare(null);
   }
 
   static JsonParser parser(byte[] bytes) {
-    return (virtualThreads ? getParser() : read.get()).process(bytes, bytes.length);
+    return (jvmRecycle ? getParser() : read.get()).process(bytes, bytes.length);
   }
 
   static JsonParser parser(InputStream in) {
-    return (virtualThreads ? getParser() : read.get()).process(in);
+    return (jvmRecycle ? getParser() : read.get()).process(in);
   }
 
   static JGenerator getGenerator() {
