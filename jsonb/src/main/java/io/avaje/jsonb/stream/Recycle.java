@@ -11,15 +11,11 @@ final class Recycle {
   private static ThreadLocal<JParser> read;
 
   static {
-    try {
-      if (Float.parseFloat(System.getProperty("java.version")) >= 19) {
-        jvmRecycle = true;
-      } else {
-        managed = ThreadLocal.withInitial(Recycle::getGenerator);
-        read = ThreadLocal.withInitial(Recycle::getParser);
-      }
-    } catch (final Exception e) {
-      e.printStackTrace();
+    if (Float.parseFloat(System.getProperty("java.specification.version")) >= 19) {
+      jvmRecycle = true;
+    } else {
+      managed = ThreadLocal.withInitial(Recycle::getGenerator);
+      read = ThreadLocal.withInitial(Recycle::getParser);
     }
   }
 
