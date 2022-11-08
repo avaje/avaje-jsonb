@@ -11,7 +11,7 @@ final class Recycle {
   private static ThreadLocal<JParser> read;
 
   static {
-    if (Integer.getInteger("java.version") >= 19) {
+    if (Float.parseFloat(System.getProperty("java.version")) >= 19) {
       jvmRecycle = true;
     } else {
       managed = ThreadLocal.withInitial(Recycle::getGenerator);
