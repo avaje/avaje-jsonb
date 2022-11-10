@@ -178,8 +178,12 @@ class GenericType {
         return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
       case "java.util.stream.Stream":
         return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
+      default:
+        throw new IllegalArgumentException(
+            "Unsupported Container Type "
+                + containerType
+                + ", only java.util List/Set/Stream allowed");
     }
-    return "FIXME: Unhandled Container Type " + containerType;
   }
 
   String firstParamType() {
