@@ -43,9 +43,11 @@ final class Recycle {
   }
 
   static JParser getParser() {
+    final char[] ch = new char[4096];
+    final byte[] by = new byte[4096];
     return new JParser(
-        new char[4096],
-        new byte[4096],
+        ch,
+        by,
         0,
         JParser.ErrorInfo.MINIMAL,
         JParser.DoublePrecision.DEFAULT,
