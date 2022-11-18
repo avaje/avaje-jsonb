@@ -7,11 +7,12 @@ final class Recycle {
   private Recycle() {}
 
   private static boolean jvmRecycle;
-  private static ThreadLocal<JGenerator> managed;
   private static ThreadLocal<JParser> read;
+  private static ThreadLocal<JGenerator> managed;
 
   static {
-    if (Float.parseFloat(System.getProperty("java.specification.version")) >= 19) {
+    if (Float.parseFloat(System.getProperty("java.specification.version")) >= 19
+        && !Boolean.getBoolean("jsonb.UseTLBuffers")) {
       jvmRecycle = true;
     } else {
       managed = ThreadLocal.withInitial(Recycle::getGenerator);
