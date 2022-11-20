@@ -12,7 +12,7 @@ final class Recycle {
 
   static {
     if (Float.parseFloat(System.getProperty("java.specification.version")) >= 19
-        && !Boolean.getBoolean("jsonb.UseTLBuffers")) {
+        && !Boolean.getBoolean("jsonb.useTLBuffers")) {
       jvmRecycle = true;
     } else {
       managed = ThreadLocal.withInitial(Recycle::getGenerator);
