@@ -1,13 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+
+import io.avaje.jsonb.Json;
 
 class BeanReader {
 
@@ -42,7 +44,27 @@ class BeanReader {
     this.constructor = typeReader.constructor();
   }
 
-  @Override
+  public BeanReader(
+      TypeElement beanType,
+      TypeElement mixInElement,
+      ProcessingContext context) {
+
+	    this.beanType = beanType;
+	    this.type = beanType.getQualifiedName().toString();
+	    this.shortName = shortName(beanType);
+	    final NamingConventionReader ncReader = new NamingConventionReader(beanType);
+	    this.namingConvention = ncReader.get();
+	    this.typeProperty = ncReader.typeProperty();
+	    this.typeReader = new TypeReader(beanType, mixInElement, context, namingConvention);
+	    typeReader.process();
+	    this.nonAccessibleField = typeReader.nonAccessibleField();
+	    this.hasSubTypes = typeReader.hasSubTypes();
+	    this.allFields = typeReader.allFields();
+	    this.constructor = typeReader.constructor();
+
+  }
+
+@Override
   public String toString() {
     return beanType.toString();
   }

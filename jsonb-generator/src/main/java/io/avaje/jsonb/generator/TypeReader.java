@@ -4,6 +4,7 @@ import io.avaje.jsonb.Json;
 
 import javax.lang.model.element.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Read points for field injection and method injection
@@ -32,8 +33,28 @@ class TypeReader {
   private TypeSubTypeMeta currentSubType;
   private boolean nonAccessibleField;
 
+  private final Map<String, Element> mixInFields;
+
   TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
+    this.context = context;
+    this.mixInFields = new HashMap<>();
+    this.namingConvention = namingConvention;
+    this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
+    this.subTypes = new TypeSubTypeReader(baseType, context);
+  }
+
+  public TypeReader(
+      TypeElement baseType,
+      TypeElement mixInType,
+      ProcessingContext context,
+      NamingConvention namingConvention) {
+
+    this.baseType = baseType;
+    this.mixInFields =
+        mixInType.getEnclosedElements().stream()
+            .filter(e -> e.getKind() == ElementKind.FIELD)
+            .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     this.context = context;
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
@@ -74,6 +95,11 @@ class TypeReader {
   }
 
   private void readField(Element element, List<FieldReader> localFields) {
+    final Element mixInField = mixInFields.get(element.getSimpleName().toString());
+    if (mixInField != null && mixInField.asType().equals(element.asType())) {
+
+      element = mixInField;
+    }
     if (includeField(element)) {
       localFields.add(new FieldReader(element, namingConvention, currentSubType));
     }
