@@ -11,7 +11,7 @@
 
   <properties>
     <jmh.version>1.33</jmh.version>
-    <avaje-jsonb.version>1.0-RC5-SNAPSHOT</avaje-jsonb.version>
+    <avaje-jsonb.version>1.0-SNAPSHOT</avaje-jsonb.version>
     <yasson.version>2.0.2</yasson.version>
     <java.release>17</java.release>
     <maven.compiler.source>17</maven.compiler.source>
