@@ -63,6 +63,7 @@ final class JGenerator implements JsonGenerator {
   private final ArrayStack<JsonNames> nameStack = new ArrayStack<>();
   private JsonNames currentNames;
   private boolean allNames;
+  private boolean incomplete;
 
   JGenerator() {
     this(512);
@@ -83,6 +84,7 @@ final class JGenerator implements JsonGenerator {
     pretty = false;
     nameStack.clear();
     allNames = false;
+    incomplete = false;
     return this;
   }
 
@@ -382,6 +384,11 @@ final class JGenerator implements JsonGenerator {
   }
 
   @Override
+  public void markIncomplete() {
+    incomplete = true;
+  }
+
+  @Override
   public void flush() {
     if (target != null && position != 0) {
       try {
@@ -395,6 +402,7 @@ final class JGenerator implements JsonGenerator {
 
   @Override
   public void close() {
+    if (incomplete) return;
     flush();
     if (target != null) {
       try {

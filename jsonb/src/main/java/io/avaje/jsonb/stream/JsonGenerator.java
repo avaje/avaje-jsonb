@@ -131,4 +131,8 @@ interface JsonGenerator extends Closeable, Flushable {
    */
   byte[] toByteArray();
 
+  /**
+   * Mark that json generation was not completed due to an error.
+   */
+  void markIncomplete();
 }

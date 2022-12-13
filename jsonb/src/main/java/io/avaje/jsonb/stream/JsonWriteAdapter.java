@@ -32,6 +32,11 @@ final class JsonWriteAdapter implements JsonWriter {
   }
 
   @Override
+  public void markIncomplete() {
+    generator.markIncomplete();
+  }
+
+  @Override
   public void close() {
     generator.close();
   }

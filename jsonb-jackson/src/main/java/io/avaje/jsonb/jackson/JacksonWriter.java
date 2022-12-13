@@ -30,6 +30,14 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
+  public void markIncomplete() {
+    // on close don't flush or close the underlying OutputStream
+    generator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+    generator.disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM);
+    generator.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+  }
+
+  @Override
   public void close() {
     try {
       generator.close();
