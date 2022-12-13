@@ -172,7 +172,7 @@ class BeanReader {
     }
     Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      if (allField.include() || !allField.isRaw()) {
+      if (allField.include() && !allField.isRaw()) {
         if (uniqueTypes.add(allField.adapterShortType())) {
           allField.writeConstructor(writer);
         }
