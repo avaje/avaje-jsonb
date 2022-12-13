@@ -75,20 +75,25 @@ class DJsonType<T> implements JsonType<T> {
 
   @Override
   public final void toJson(T value, JsonWriter writer) {
-    adapter.toJson(writer, value);
+    try {
+      adapter.toJson(writer, value);
+    } catch (RuntimeException e) {
+      writer.markIncomplete();
+      throw new JsonException(e);
+    }
   }
 
   @Override
   public final void toJson(T value, Writer writer) {
     try (JsonWriter jsonWriter = jsonb.writer(writer)) {
-      adapter.toJson(jsonWriter, value);
+      toJson(value, jsonWriter);
     }
   }
 
   @Override
   public final void toJson(T value, OutputStream outputStream) {
     try (JsonWriter writer = jsonb.writer(outputStream)) {
-      adapter.toJson(writer, value);
+      toJson(value, writer);
     }
     close(outputStream);
   }

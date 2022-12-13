@@ -186,4 +186,8 @@ public abstract class DelegateJsonWriter implements JsonWriter {
     delegate.close();
   }
 
+  @Override
+  public void markIncomplete() {
+    delegate.markIncomplete();
+  }
 }

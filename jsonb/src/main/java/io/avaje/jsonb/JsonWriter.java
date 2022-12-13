@@ -228,4 +228,11 @@ public interface JsonWriter extends Closeable, Flushable {
    */
   void close();
 
+  /**
+   * Mark the generated json as not completed due to an error.
+   * <p>
+   * This typically means not to flush or close an underlying OutputStream which
+   * allows it to be reset to then write some error response content instead.
+   */
+  void markIncomplete();
 }

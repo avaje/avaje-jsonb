@@ -81,6 +81,27 @@ class DieselAdapterTest {
     assertThat(os1.toString()).isEqualTo("{\"one\":\"hi\"}");
   }
 
+  @Test
+  void write_markIncomplete_withError() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    try {
+      try (JsonWriter jw = adapter.writer(os)) {
+        jw.beginObject();
+        jw.name("one");
+        jw.value("I will be incomplete");
+        jw.markIncomplete();
+        throwAnError();
+      }
+    } catch (Exception e) {
+      // ignore
+    }
+    assertThat(os.toString()).isEqualTo("");
+  }
+
+  private void throwAnError() {
+    throw new IllegalStateException("foo");
+  }
+
   private void writeHello(JsonWriter jw, String message) {
     jw.beginObject();
     jw.name("one");
