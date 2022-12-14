@@ -304,15 +304,12 @@ class FieldReader {
     if (unmapped) {
       return;
     }
-
     if (aliases != null) {
-
       for (final String alias : aliases) {
         writer.append("        case \"%s\":", alias);
         writer.eol();
       }
     }
-
     writer.append("        case \"%s\": {", propertyName).eol();
     if (!deserialize) {
       writer.append("          reader.skipValue();");
