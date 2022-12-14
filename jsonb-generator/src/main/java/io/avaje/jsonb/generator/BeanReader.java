@@ -23,6 +23,7 @@ class BeanReader {
   private final TypeReader typeReader;
   private final String typeProperty;
   private final boolean nonAccessibleField;
+  private final boolean caseInsensitiveKeys;
   private FieldReader unmappedField;
   private boolean hasRaw;
 
@@ -33,7 +34,7 @@ class BeanReader {
     NamingConventionReader ncReader = new NamingConventionReader(beanType);
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
-
+    this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
     this.typeReader = new TypeReader(beanType, context, namingConvention);
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
@@ -49,6 +50,7 @@ class BeanReader {
     final NamingConventionReader ncReader = new NamingConventionReader(beanType);
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
+    this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
     this.typeReader = new TypeReader(beanType, mixInElement, context, namingConvention);
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
@@ -354,28 +356,38 @@ class BeanReader {
     writer.append("    reader.beginObject();").eol();
     writer.append("    reader.names(names);").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
-    writer.append("      String fieldName = reader.nextField();").eol();
+    if (caseInsensitiveKeys) {
+      writer.append("      final String origFieldName = reader.nextField();").eol();
+      writer.append("      final String fieldName = origFieldName.toLowerCase();").eol();
+    } else {
+      writer.append("      final String fieldName = reader.nextField();").eol();
+    }
     writer.append("      switch (fieldName) {").eol();
     if (hasSubTypes) {
-      writer.append("        case \"%s\": {", typeProperty).eol();
+      writer.append("        case \"%s\": {", typePropertyKey()).eol();
       writer.append("          type = stringJsonAdapter.fromJson(reader); break;").eol();
       writer.append("        }").eol();
     }
     for (FieldReader allField : allFields) {
-      allField.writeFromJsonSwitch(writer, defaultConstructor, varName);
+      allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys);
     }
     writer.append("        default: {").eol();
+    String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
     if (unmappedField != null) {
       writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
-      writer.append("          unmapped.put(fieldName, value);").eol();
+      writer.append("          unmapped.put(%s, value);", unmappedFieldName).eol();
     } else {
-      writer.append("          reader.unmappedField(fieldName);").eol();
+      writer.append("          reader.unmappedField(%s);", unmappedFieldName).eol();
       writer.append("          reader.skipValue();").eol();
     }
     writer.append("        }").eol();
     writer.append("      }").eol();
     writer.append("    }").eol();
     writer.append("    reader.endObject();").eol();
+  }
+
+  private String typePropertyKey() {
+    return caseInsensitiveKeys ? typeProperty.toLowerCase() : typeProperty;
   }
 
 }
