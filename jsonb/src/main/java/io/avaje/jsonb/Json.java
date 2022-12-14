@@ -92,6 +92,24 @@ public @interface Json {
   }
 
   /**
+   * Define one or more alternative names for a property accepted
+   * during deserialization.
+   *
+   * <pre>{@code
+   * @Json.JsonAlias("$code")
+   * String referenceCode;
+   *
+   * }</pre>
+   */
+  @Retention(CLASS)
+  @Target({ElementType.FIELD})
+  @interface JsonAlias {
+
+    /** One or more secondary names to accept as aliases to the official name. */
+    String[] value();
+  }
+
+  /**
    * Exclude the property from serialization, deserialization or both.
    * <p>
    * We can explicitly use {@code deserialize=true} to include the property in

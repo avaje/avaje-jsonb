@@ -31,6 +31,7 @@ class FieldReader {
   private boolean constructorParam;
   private boolean genericTypeParameter;
   private int genericTypeParamPosition;
+  private final List<String> aliases;
 
   FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams) {
     addSubType(subType);
@@ -39,6 +40,7 @@ class FieldReader {
     this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
     this.rawType = trimAnnotations(element.asType().toString());
+    this.aliases = AliasReader.getAliases(element);
 
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     this.unmapped = ignoreReader.unmapped();
@@ -302,6 +304,15 @@ class FieldReader {
     if (unmapped) {
       return;
     }
+
+    if (aliases != null) {
+
+      for (final String alias : aliases) {
+        writer.append("        case \"%s\":", alias);
+        writer.eol();
+      }
+    }
+
     writer.append("        case \"%s\": {", propertyName).eol();
     if (!deserialize) {
       writer.append("          reader.skipValue();");

@@ -7,6 +7,9 @@ import io.avaje.jsonb.Json;
 @Json
 public class TestClass {
 
+  @Json.JsonAlias({"something", "something2"})
+  private String alias;
+
   private String s;
 
   private int i;
@@ -19,6 +22,13 @@ public class TestClass {
 
   private List<String> list;
 
+  public String getAlias() {
+    return alias;
+  }
+
+  public void setAlias(String alias) {
+    this.alias = alias;
+  }
 
   public String getS() {
     return s;
