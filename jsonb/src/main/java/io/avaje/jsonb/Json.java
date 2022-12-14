@@ -47,6 +47,11 @@ public @interface Json {
   String typeProperty() default "";
 
   /**
+   * When set to true on deserialization keys are matched insensitive to case.
+   */
+  boolean caseInsensitiveKeys() default false;
+
+  /**
    * Specify types to generate JsonAdapters for.
    * <p>
    * These types are typically in an external project / dependency or otherwise
