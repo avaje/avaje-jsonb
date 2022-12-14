@@ -53,6 +53,12 @@ class SimpleComponentWriter {
   private void writeRegister() {
     writer.append("  @Override").eol();
     writer.append("  public void register(Jsonb.Builder builder) {").eol();
+    List<String> strings = metaData.allFactories();
+    for (String adapterFullName : strings) {
+      String adapterShortName = Util.shortName(adapterFullName);
+      String typeName = typeShortName(adapterShortName);
+      writer.append("    builder.add(%sJsonAdapter.Factory);", typeName).eol();
+    }
     for (String adapterFullName : metaData.all()) {
       String adapterShortName = Util.shortName(adapterFullName);
       String typeName = typeShortName(adapterShortName);
@@ -78,17 +84,27 @@ class SimpleComponentWriter {
     String fullName = metaData.fullName();
     String shortName = Util.shortName(fullName);
     writer.append("@Generated").eol();
+    List<String> factories = metaData.allFactories();
+    if (!factories.isEmpty()) {
+      writer.append("@MetaData.Factory({");
+      writeMetaDataEntry(factories);
+      writer.append("})").eol();
+    }
     writer.append("@MetaData({");
     List<String> all = metaData.all();
-    for (int i = 0, size = all.size(); i < size; i++) {
-      if (i > 0) {
-        writer.append(", ");
-      }
-      writer.append("%s.class", Util.shortName(all.get(i)));
-    }
+    writeMetaDataEntry(all);
     writer.append("})").eol();
 
     writer.append("public class %s implements Jsonb.GeneratedComponent {", shortName).eol().eol();
+  }
+
+  private void writeMetaDataEntry(List<String> entries) {
+    for (int i = 0, size = entries.size(); i < size; i++) {
+      if (i > 0) {
+        writer.append(", ");
+      }
+      writer.append("%s.class", Util.shortName(entries.get(i)));
+    }
   }
 
 

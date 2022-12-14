@@ -24,6 +24,7 @@ class TypeReader {
 
   private final TypeSubTypeReader subTypes;
   private final TypeElement baseType;
+  private final List<String> genericTypeParams;
   private final ProcessingContext context;
   private final NamingConvention namingConvention;
   private final boolean hasJsonAnnotation;
@@ -37,6 +38,7 @@ class TypeReader {
 
   TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
+    this.genericTypeParams = initTypeParams(baseType);
     this.context = context;
     this.mixInFields = new HashMap<>();
     this.namingConvention = namingConvention;
@@ -44,21 +46,31 @@ class TypeReader {
     this.subTypes = new TypeSubTypeReader(baseType, context);
   }
 
-  public TypeReader(
-      TypeElement baseType,
-      TypeElement mixInType,
-      ProcessingContext context,
-      NamingConvention namingConvention) {
-
+  public TypeReader(TypeElement baseType, TypeElement mixInType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
+    this.genericTypeParams = initTypeParams(baseType);
     this.mixInFields =
-        mixInType.getEnclosedElements().stream()
-            .filter(e -> e.getKind() == ElementKind.FIELD)
-            .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+      mixInType.getEnclosedElements().stream()
+        .filter(e -> e.getKind() == ElementKind.FIELD)
+        .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     this.context = context;
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
     this.subTypes = new TypeSubTypeReader(baseType, context);
+  }
+
+  private List<String> initTypeParams(TypeElement beanType) {
+    if (beanType.getTypeParameters().isEmpty()) {
+      return Collections.emptyList();
+    }
+    return beanType.getTypeParameters()
+      .stream()
+      .map(Object::toString)
+      .collect(Collectors.toList());
+  }
+
+  int genericTypeParamsCount() {
+    return genericTypeParams.size();
   }
 
   void read(TypeElement type) {
@@ -101,7 +113,7 @@ class TypeReader {
       element = mixInField;
     }
     if (includeField(element)) {
-      localFields.add(new FieldReader(element, namingConvention, currentSubType));
+      localFields.add(new FieldReader(element, namingConvention, currentSubType, genericTypeParams));
     }
   }
 

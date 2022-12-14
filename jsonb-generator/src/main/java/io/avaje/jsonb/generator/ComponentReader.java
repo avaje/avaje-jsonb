@@ -19,6 +19,7 @@ import java.util.Map;
 class ComponentReader {
 
   private static final String META_DATA = "io.avaje.jsonb.spi.MetaData";
+  private static final String META_DATA_FACTORY = "io.avaje.jsonb.spi.MetaData.Factory";
   private final ProcessingContext ctx;
   private final ComponentMetaData componentMetaData;
 
@@ -44,13 +45,21 @@ class ComponentReader {
   private void readMetaData(TypeElement moduleType) {
     for (AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
       if (META_DATA.equals(annotationMirror.getAnnotationType().toString())) {
-        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationMirror.getElementValues().entrySet()) {
-          for (Object adapterEntry : (List<?>) entry.getValue().getValue()) {
-            componentMetaData.add(adapterNameFromEntry(adapterEntry));
-          }
-        }
+        readValues(annotationMirror).forEach(componentMetaData::add);
+      } else if (META_DATA_FACTORY.equals(annotationMirror.getAnnotationType().toString())) {
+        readValues(annotationMirror).forEach(componentMetaData::addFactory);
       }
     }
+  }
+
+  private List<String> readValues(AnnotationMirror annotationMirror) {
+    List<String> adapterClasses = new ArrayList<>();
+    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationMirror.getElementValues().entrySet()) {
+      for (Object adapterEntry : (List<?>) entry.getValue().getValue()) {
+        adapterClasses.add(adapterNameFromEntry(adapterEntry));
+      }
+    }
+    return adapterClasses;
   }
 
   private String adapterNameFromEntry(Object adapterEntry) {

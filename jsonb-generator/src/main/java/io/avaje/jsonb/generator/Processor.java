@@ -209,6 +209,9 @@ public class Processor extends AbstractProcessor {
     try {
       final SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader, context);
       metaData.add(beanWriter.fullName());
+      if (beanWriter.hasGenericFactory()) {
+        metaData.addFactory(beanWriter.fullName());
+      }
       beanWriter.write();
       allReaders.add(beanReader);
       sourceTypes.add(typeElement.getSimpleName().toString());

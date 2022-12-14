@@ -57,6 +57,10 @@ class BeanReader {
     this.constructor = typeReader.constructor();
   }
 
+  int genericTypeParamsCount() {
+    return typeReader.genericTypeParamsCount();
+  }
+
   @Override
   public String toString() {
     return beanType.toString();
@@ -106,6 +110,10 @@ class BeanReader {
   }
 
   private Set<String> importTypes() {
+    if (genericTypeParamsCount() > 0) {
+      importTypes.add(Constants.REFLECT_TYPE);
+      importTypes.add(Constants.PARAMETERIZED_TYPE);
+    }
     importTypes.add(Constants.JSONB_WILD);
     importTypes.add(Constants.IOEXCEPTION);
     importTypes.add(Constants.JSONB_SPI);

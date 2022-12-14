@@ -17,8 +17,7 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.core.Util;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -79,4 +78,49 @@ public class Types {
     return Util.newParameterizedType(rawType, typeArguments);
   }
 
+  /**
+   * Return the raw type for the given potentially generic type.
+   */
+  public static Class<?> rawType(Type type) {
+    if (type instanceof Class<?>) {
+      // type is a normal class.
+      return (Class<?>) type;
+
+    } else if (type instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) type;
+
+      // I'm not exactly sure why getRawType() returns Type instead of Class. Neal isn't either but
+      // suspects some pathological case related to nested classes exists.
+      Type rawType = parameterizedType.getRawType();
+      return (Class<?>) rawType;
+
+    } else if (type instanceof GenericArrayType) {
+      Type componentType = ((GenericArrayType) type).getGenericComponentType();
+      return Array.newInstance(rawType(componentType), 0).getClass();
+
+    } else if (type instanceof TypeVariable) {
+      // We could use the variable's bounds, but that won't work if there are multiple. having a raw
+      // type that's more general than necessary is okay.
+      return Object.class;
+
+    } else if (type instanceof WildcardType) {
+      return rawType(((WildcardType) type).getUpperBounds()[0]);
+
+    } else {
+      String className = type == null ? "null" : type.getClass().getName();
+      throw new IllegalArgumentException(
+        "Expected a Class, ParameterizedType, or  GenericArrayType, but <" + type + "> is of type " + className);
+    }
+  }
+
+  /**
+   * Return the generic type arguments expecting type to be a ParameterizedType.
+   */
+  public static Type[] typeArguments(Type type) {
+    if (type instanceof ParameterizedType) {
+      return ((ParameterizedType) type).getActualTypeArguments();
+    }
+    String className = type == null ? "null" : type.getClass().getName();
+    throw new IllegalArgumentException("Expected ParameterizedType but <" + type + "> is of type " + className);
+  }
 }
