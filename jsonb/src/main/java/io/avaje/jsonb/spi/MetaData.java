@@ -14,4 +14,14 @@ public @interface MetaData {
    */
   Class<?>[] value();
 
+  /**
+   * For internal use, holds metadata on generated adapters that also have factories.
+   */
+  @interface Factory {
+
+    /**
+     * The generated JsonAdapters that have a factory.
+     */
+    Class<?>[] value();
+  }
 }

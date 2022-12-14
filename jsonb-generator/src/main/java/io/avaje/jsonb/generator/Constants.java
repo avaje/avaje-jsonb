@@ -8,5 +8,7 @@ class Constants {
   static final String JSONB = "io.avaje.jsonb.Jsonb";
   static final String IOEXCEPTION = "java.io.IOException";
   static final String METHODHANDLE = "java.lang.invoke.MethodHandle";
+  static final String REFLECT_TYPE = "java.lang.reflect.Type";
+  static final String PARAMETERIZED_TYPE = "java.lang.reflect.ParameterizedType";
 
 }

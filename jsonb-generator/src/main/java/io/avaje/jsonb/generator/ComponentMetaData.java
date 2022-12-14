@@ -5,6 +5,7 @@ import java.util.*;
 class ComponentMetaData {
 
   private final List<String> allTypes = new ArrayList<>();
+  private final List<String> factoryTypes = new ArrayList<>();
   private String fullName;
 
   @Override
@@ -25,6 +26,10 @@ class ComponentMetaData {
 
   void add(String type) {
     allTypes.add(type);
+  }
+
+  void addFactory(String fullName) {
+    factoryTypes.add(fullName);
   }
 
   void setFullName(String fullName) {
@@ -48,6 +53,10 @@ class ComponentMetaData {
 
   List<String> all() {
     return allTypes;
+  }
+
+  List<String> allFactories() {
+    return factoryTypes;
   }
 
   /**

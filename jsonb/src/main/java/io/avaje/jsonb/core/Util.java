@@ -15,6 +15,8 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.jsonb.Types;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -473,39 +475,7 @@ public final class Util {
 
 
   static Class<?> rawType(Type type) {
-    if (type instanceof Class<?>) {
-      // type is a normal class.
-      return (Class<?>) type;
-
-    } else if (type instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) type;
-
-      // I'm not exactly sure why getRawType() returns Type instead of Class. Neal isn't either but
-      // suspects some pathological case related to nested classes exists.
-      Type rawType = parameterizedType.getRawType();
-      return (Class<?>) rawType;
-
-    } else if (type instanceof GenericArrayType) {
-      Type componentType = ((GenericArrayType) type).getGenericComponentType();
-      return Array.newInstance(rawType(componentType), 0).getClass();
-
-    } else if (type instanceof TypeVariable) {
-      // We could use the variable's bounds, but that won't work if there are multiple. having a raw
-      // type that's more general than necessary is okay.
-      return Object.class;
-
-    } else if (type instanceof WildcardType) {
-      return rawType(((WildcardType) type).getUpperBounds()[0]);
-
-    } else {
-      String className = type == null ? "null" : type.getClass().getName();
-      throw new IllegalArgumentException(
-        "Expected a Class, ParameterizedType, or "
-          + "GenericArrayType, but <"
-          + type
-          + "> is of type "
-          + className);
-    }
+    return Types.rawType(type);
   }
 
   /**

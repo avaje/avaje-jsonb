@@ -1,15 +1,16 @@
 package io.avaje.jsonb.generator;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 class FieldReader {
 
   private final Map<String, TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
+  private final List<String> genericTypeParams;
   private final boolean publicField;
   private final String rawType;
   private final GenericType genericType;
@@ -28,9 +29,12 @@ class FieldReader {
   private MethodReader getter;
   private int position;
   private boolean constructorParam;
+  private boolean genericTypeParameter;
+  private int genericTypeParamPosition;
 
-  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType) {
+  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams) {
     addSubType(subType);
+    this.genericTypeParams = genericTypeParams;
     this.fieldName = element.getSimpleName().toString();
     this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
@@ -58,10 +62,33 @@ class FieldReader {
       final String shortType = genericType.shortType();
       primitive = PrimitiveUtil.isPrimitive(shortType);
       defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
-      final String typeWrapped = PrimitiveUtil.wrap(shortType);
-      adapterShortType = "JsonAdapter<" + typeWrapped + ">";
-      adapterFieldName = (primitive ? "p" : "") + Util.initLower(genericType.shortName()) + "JsonAdapter";
+      adapterShortType = initAdapterShortType(shortType);
+      adapterFieldName = (primitive ? "p" : "") + initShortName();
     }
+  }
+
+  private String initAdapterShortType(String shortType) {
+    String typeWrapped = "JsonAdapter<" + PrimitiveUtil.wrap(shortType) + ">";
+    for (int i = 0; i < genericTypeParams.size(); i++) {
+      String typeParam = genericTypeParams.get(i);
+      if (typeWrapped.contains("<" + typeParam + ">") ) {
+        genericTypeParameter = true;
+        genericTypeParamPosition = i;
+        typeWrapped = typeWrapped.replace("<" + typeParam + ">", "<Object>");
+      }
+    }
+    return typeWrapped;
+  }
+
+  private String initShortName() {
+    if (genericTypeParameter) {
+      String name = genericType.shortName();
+      for (String typeParam : genericTypeParams) {
+        name = name.replace(typeParam, "");
+      }
+      return Util.initLower(name) + "JsonAdapterGeneric";
+    }
+    return Util.initLower(genericType.shortName()) + "JsonAdapter";
   }
 
   static String trimAnnotations(String type) {
@@ -202,9 +229,21 @@ class FieldReader {
     if (raw) {
       writer.append("    this.%s = jsonb.rawAdapter();", adapterFieldName).eol();
     } else {
-      final String asType = genericType.asTypeDeclaration();
-      writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asType).eol();
+      writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asTypeDeclaration()).eol();
     }
+  }
+
+  String asTypeDeclaration() {
+    String asType = genericType.asTypeDeclaration().replace("? extends ", "");
+    if (genericTypeParameter) {
+      return genericTypeReplacement(asType, "param" + genericTypeParamPosition);
+    }
+    return asType;
+  }
+
+  private String genericTypeReplacement(String asType, String replaceWith) {
+    String typeParam = genericTypeParams.get(genericTypeParamPosition);
+    return asType.replace(typeParam + ".class", replaceWith);
   }
 
   void writeToJson(Append writer, String varName, String prefix) {
@@ -306,8 +345,11 @@ class FieldReader {
     if (getter == null) {
       writer.append("    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));", propertyName, adapterFieldName, shortName, fieldName).eol();
     } else {
-      final String topType = genericType.topType();
-      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s.class));", propertyName, adapterFieldName, shortName, getter.getName(), topType).eol();
+      String topType = genericType.topType() + ".class";
+      if (genericTypeParameter) {
+        topType = genericTypeReplacement(topType, "Object.class");
+      }
+      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s));", propertyName, adapterFieldName, shortName, getter.getName(), topType).eol();
     }
   }
 }
