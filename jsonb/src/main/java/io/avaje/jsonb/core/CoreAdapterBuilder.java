@@ -21,6 +21,7 @@ import io.avaje.jsonb.JsonWriter;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -31,7 +32,7 @@ class CoreAdapterBuilder {
   private final DJsonb context;
   private final List<JsonAdapter.Factory> factories;
   private final ThreadLocal<LookupChain> lookupChainThreadLocal = new ThreadLocal<>();
-  private final Map<Object, JsonAdapter<?>> adapterCache = new LinkedHashMap<>();
+  private final Map<Object, JsonAdapter<?>> adapterCache = new ConcurrentHashMap<>();
   private final ReentrantLock lock = new ReentrantLock();
 
   CoreAdapterBuilder(DJsonb context, List<JsonAdapter.Factory> userFactories, boolean mathAsString) {
@@ -51,16 +52,7 @@ class CoreAdapterBuilder {
    */
   @SuppressWarnings("unchecked")
   <T> JsonAdapter<T> get(Object cacheKey) {
-    lock.lock();
-    try {
-      JsonAdapter<?> result = adapterCache.get(cacheKey);
-      if (result != null) {
-        return (JsonAdapter<T>) result;
-      }
-    } finally {
-      lock.unlock();
-    }
-    return null;
+    return (JsonAdapter<T>) adapterCache.get(cacheKey);
   }
 
   /**

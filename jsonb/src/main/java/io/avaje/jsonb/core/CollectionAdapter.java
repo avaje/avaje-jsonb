@@ -39,28 +39,6 @@ abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter
     return null;
   };
 
-  /**
-   * Helper that takes a base JsonAdapter and returns another JsonAdapter for a List
-   * containing elements of the base type.
-   */
-  static <T> JsonAdapter<List<T>> listOf(JsonAdapter<T> base) {
-    return new CollectionAdapter<List<T>, T>(base) {
-      @Override
-      List<T> newCollection() {
-        return new ArrayList<>();
-      }
-    };
-  }
-
-  static <T> JsonAdapter<Set<T>> setOf(JsonAdapter<T> base) {
-    return new CollectionAdapter<Set<T>, T>(base) {
-      @Override
-      Set<T> newCollection() {
-        return new LinkedHashSet<>();
-      }
-    };
-  }
-
   static <T> JsonAdapter<Collection<T>> newListAdapter(Type type, Jsonb jsonb) {
     Type elementType = Util.collectionElementType(type);
     JsonAdapter<T> elementAdapter = jsonb.adapter(elementType);

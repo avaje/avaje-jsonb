@@ -1,15 +1,13 @@
 package io.avaje.jsonb.generator;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import io.avaje.jsonb.Json;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-
-import io.avaje.jsonb.Json;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 class BeanReader {
 
@@ -44,27 +42,22 @@ class BeanReader {
     this.constructor = typeReader.constructor();
   }
 
-  public BeanReader(
-      TypeElement beanType,
-      TypeElement mixInElement,
-      ProcessingContext context) {
-
-	    this.beanType = beanType;
-	    this.type = beanType.getQualifiedName().toString();
-	    this.shortName = shortName(beanType);
-	    final NamingConventionReader ncReader = new NamingConventionReader(beanType);
-	    this.namingConvention = ncReader.get();
-	    this.typeProperty = ncReader.typeProperty();
-	    this.typeReader = new TypeReader(beanType, mixInElement, context, namingConvention);
-	    typeReader.process();
-	    this.nonAccessibleField = typeReader.nonAccessibleField();
-	    this.hasSubTypes = typeReader.hasSubTypes();
-	    this.allFields = typeReader.allFields();
-	    this.constructor = typeReader.constructor();
-
+  public BeanReader(TypeElement beanType, TypeElement mixInElement, ProcessingContext context) {
+    this.beanType = beanType;
+    this.type = beanType.getQualifiedName().toString();
+    this.shortName = shortName(beanType);
+    final NamingConventionReader ncReader = new NamingConventionReader(beanType);
+    this.namingConvention = ncReader.get();
+    this.typeProperty = ncReader.typeProperty();
+    this.typeReader = new TypeReader(beanType, mixInElement, context, namingConvention);
+    typeReader.process();
+    this.nonAccessibleField = typeReader.nonAccessibleField();
+    this.hasSubTypes = typeReader.hasSubTypes();
+    this.allFields = typeReader.allFields();
+    this.constructor = typeReader.constructor();
   }
 
-@Override
+  @Override
   public String toString() {
     return beanType.toString();
   }
@@ -198,6 +191,7 @@ class BeanReader {
       writeViewBuild(writer);
     }
   }
+
   private void writeView(Append writer) {
     writer.eol();
     writer.append("  @Override").eol();
@@ -375,4 +369,5 @@ class BeanReader {
     writer.append("    }").eol();
     writer.append("    reader.endObject();").eol();
   }
+
 }
