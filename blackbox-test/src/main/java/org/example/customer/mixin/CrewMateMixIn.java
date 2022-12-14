@@ -8,6 +8,7 @@ public abstract class CrewMateMixIn {
   @Json.Property("color")
   private String c;
 
+  @Json.JsonAlias("heatLevel")
   @Json.Ignore(deserialize = true)
   private Integer susLv;
 

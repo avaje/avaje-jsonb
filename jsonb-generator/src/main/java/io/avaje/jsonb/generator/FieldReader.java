@@ -306,7 +306,6 @@ class FieldReader {
     }
 
     if (aliases != null) {
-
       for (final String alias : aliases) {
         writer.append("        case \"%s\":", alias);
         writer.eol();
