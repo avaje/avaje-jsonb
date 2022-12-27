@@ -1,13 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
-
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+
+import io.avaje.jsonb.Json;
 
 class BeanReader {
 
@@ -25,6 +27,7 @@ class BeanReader {
   private final boolean nonAccessibleField;
   private FieldReader unmappedField;
   private boolean hasRaw;
+  private final boolean isRecord;
 
   BeanReader(TypeElement beanType, ProcessingContext context) {
     this.beanType = beanType;
@@ -40,6 +43,7 @@ class BeanReader {
     this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
+    this.isRecord = isRecord(beanType);
   }
 
   public BeanReader(TypeElement beanType, TypeElement mixInElement, ProcessingContext context) {
@@ -55,6 +59,21 @@ class BeanReader {
     this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
+    this.isRecord = isRecord(beanType);
+  }
+
+  boolean isRecord(TypeElement beanType) {
+    try {
+      final List<? extends Element> recordComponents =
+          (List<? extends Element>)
+              TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
+      return !recordComponents.isEmpty();
+    } catch (IllegalAccessException
+        | InvocationTargetException
+        | NoSuchMethodException
+        | SecurityException e) {
+      return false;
+    }
   }
 
   int genericTypeParamsCount() {
@@ -279,9 +298,14 @@ class BeanReader {
       // default public constructor
       writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
     } else {
-      writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
-      for (FieldReader allField : allFields) {
-        if (allField.includeFromJson()) {
+      writer
+          .append(
+              "    // variables to read json values into, constructor params don't need _set$ flags")
+          .eol();
+      for (final FieldReader allField : allFields) {
+        if (isRecord) {
+          allField.writeFromJsonVariablesRecord(writer);
+        } else if (allField.includeFromJson()) {
           allField.writeFromJsonVariables(writer);
         }
       }

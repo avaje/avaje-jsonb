@@ -288,6 +288,13 @@ class FieldReader {
     writer.eol();
   }
 
+  void writeFromJsonVariablesRecord(Append writer) {
+    final String type = genericTypeParameter ? "Object" : genericType.shortType();
+    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue);
+
+    writer.eol();
+  }
+
   private String pad(String value) {
     final int pad = 10 - value.length();
     if (pad < 1) {
