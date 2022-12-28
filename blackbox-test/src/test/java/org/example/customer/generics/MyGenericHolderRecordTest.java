@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.LinkedHashMap;
 
 import org.example.customer.Address;
+import org.example.customer.generics.MyGenericHolder.MyGenericHolderRecord;
 import org.junit.jupiter.api.Test;
 
 import io.avaje.jsonb.JsonType;
@@ -15,7 +16,7 @@ class MyGenericHolderRecordTest {
 
   Jsonb jsonb = Jsonb.builder().build();
 
-  private static MyGenericHolderRecord<Address> createTestData() {
+  private static MyGenericHolderRecord<String, String, Address> createTestData() {
     return new MyGenericHolderRecord<>("hello", "art", new Address(90L, "one"));
   }
 
@@ -51,8 +52,10 @@ class MyGenericHolderRecordTest {
     final var bean = createTestData();
 
     final var jsonb = Jsonb.builder().build();
-    final JsonType<MyGenericHolderRecord<Address>> type =
-        jsonb.type(Types.newParameterizedType(MyGenericHolderRecord.class, Address.class));
+    final JsonType<MyGenericHolderRecord<String, String, Address>> type =
+        jsonb.type(
+            Types.newParameterizedType(
+                MyGenericHolderRecord.class, String.class, String.class, Address.class));
 
     final var asJson = type.toJson(bean);
     assertThat(asJson)
