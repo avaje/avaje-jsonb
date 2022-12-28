@@ -84,10 +84,7 @@ class FieldReader {
 
   private String initShortName() {
     if (genericTypeParameter) {
-      String name = genericType.shortName();
-      for (String typeParam : genericTypeParams) {
-        name = name.replace(typeParam, "");
-      }
+      final String name = genericType.shortName();
       return Util.initLower(name) + "JsonAdapterGeneric";
     }
     return Util.initLower(genericType.shortName()) + "JsonAdapter";
