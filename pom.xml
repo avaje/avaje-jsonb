@@ -33,7 +33,7 @@
 
   <profiles>
     <profile>
-      <id>release</id>
+      <id>central</id>
     </profile>
     <profile>
       <id>default</id>
