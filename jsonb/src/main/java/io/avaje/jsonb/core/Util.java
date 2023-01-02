@@ -286,13 +286,13 @@ public final class Util {
 
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
       // Require an owner type if the raw type needs it.
-      if (rawType instanceof Class<?>) {
+      if (ownerType != null && rawType instanceof Class<?>) {
         Class<?> enclosingClass = ((Class<?>) rawType).getEnclosingClass();
-        if (ownerType != null) {
-          if (enclosingClass == null || Util.rawType(ownerType) != enclosingClass) {
-            throw new IllegalArgumentException(
+
+        if (enclosingClass == null || Util.rawType(ownerType) != enclosingClass) {
+          throw new IllegalArgumentException(
               "unexpected owner type for " + rawType + ": " + ownerType);
-          }
+
         } else if (enclosingClass != null) {
           throw new IllegalArgumentException("unexpected owner type for " + rawType + ": null");
         }

@@ -84,10 +84,7 @@ class FieldReader {
 
   private String initShortName() {
     if (genericTypeParameter) {
-      String name = genericType.shortName();
-      for (String typeParam : genericTypeParams) {
-        name = name.replace(typeParam, "");
-      }
+      final String name = genericType.shortName();
       return Util.initLower(name) + "JsonAdapterGeneric";
     }
     return Util.initLower(genericType.shortName()) + "JsonAdapter";
@@ -285,6 +282,13 @@ class FieldReader {
     if (!constructorParam) {
       writer.append(" boolean _set$%s = false;", fieldName);
     }
+    writer.eol();
+  }
+
+  void writeFromJsonVariablesRecord(Append writer) {
+    final String type = genericTypeParameter ? "Object" : genericType.shortType();
+    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue);
+
     writer.eol();
   }
 

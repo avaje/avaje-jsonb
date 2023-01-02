@@ -53,8 +53,14 @@ class SimpleAdapterWriter {
 
   private void writeFactory() {
     if (genericParamsCount > 0) {
+
+      String typeName = adapterShortName;
+      int nestedIndex = adapterShortName.indexOf("$");
+      if (nestedIndex != -1) {
+        typeName = typeName.substring(nestedIndex + 1);
+      }
       writer.append("  public static final JsonAdapter.Factory Factory = (type, jsonb) -> {").eol();
-      writer.append("    if (type instanceof ParameterizedType && Types.rawType(type) == %s.class) {", adapterShortName).eol();
+      writer.append("    if (type instanceof ParameterizedType && Types.rawType(type) == %s.class) {", typeName).eol();
       writer.append("      Type[] args = Types.typeArguments(type);").eol();
       writer.append("      return new %sJsonAdapter(jsonb", adapterShortName);
       for (int i = 0; i < genericParamsCount; i++) {

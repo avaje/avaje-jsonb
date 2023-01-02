@@ -9,6 +9,9 @@ public class MyGenericHolder<T> {
   String author;
   T document;
 
+  @Json
+  public record MyGenericHolderRecord<T,T2,T3>(T title, T2 author, T3 document) {}
+
   public String getTitle() {
     return title;
   }

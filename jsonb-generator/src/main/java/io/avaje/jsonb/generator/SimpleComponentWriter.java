@@ -53,11 +53,11 @@ class SimpleComponentWriter {
   private void writeRegister() {
     writer.append("  @Override").eol();
     writer.append("  public void register(Jsonb.Builder builder) {").eol();
-    List<String> strings = metaData.allFactories();
-    for (String adapterFullName : strings) {
-      String adapterShortName = Util.shortName(adapterFullName);
-      String typeName = typeShortName(adapterShortName);
-      writer.append("    builder.add(%sJsonAdapter.Factory);", typeName).eol();
+    final List<String> strings = metaData.allFactories();
+    for (final String adapterFullName : strings) {
+      final String adapterShortName = Util.shortName(adapterFullName);
+
+      writer.append("    builder.add(%s.Factory);", adapterShortName).eol();
     }
     for (String adapterFullName : metaData.all()) {
       String adapterShortName = Util.shortName(adapterFullName);
