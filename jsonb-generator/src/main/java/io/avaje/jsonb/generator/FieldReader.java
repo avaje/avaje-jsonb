@@ -287,9 +287,7 @@ class FieldReader {
 
   void writeFromJsonVariablesRecord(Append writer) {
     final String type = genericTypeParameter ? "Object" : genericType.shortType();
-    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue);
-
-    writer.eol();
+    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue).eol();
   }
 
   private String pad(String value) {
