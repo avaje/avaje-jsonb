@@ -5,6 +5,7 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,12 @@ class MyCustomerTest {
 
     String asJson2 = type.toJson(myCustomer);
     assertThat(asJson2).isEqualTo("{\"id\":42,\"name\":\"rob\",\"notes\":\"foo\"}");
+
+    MyCustomer fromJsonBytes = type.fromJson(asJson.getBytes(StandardCharsets.UTF_8));
+
+    assertThat(fromJsonBytes.id()).isEqualTo(myCustomer.id());
+    assertThat(fromJsonBytes.name()).isEqualTo(myCustomer.name());
+    assertThat(fromJsonBytes.notes()).isEqualTo(myCustomer.notes());
   }
 
   @Test
