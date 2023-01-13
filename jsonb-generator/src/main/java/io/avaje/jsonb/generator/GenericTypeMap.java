@@ -3,7 +3,7 @@ package io.avaje.jsonb.generator;
 import java.util.HashMap;
 import java.util.Map;
 
-class GenericTypeMap {
+final class GenericTypeMap {
 
   private final Map<String, String> basic = new HashMap<>();
 

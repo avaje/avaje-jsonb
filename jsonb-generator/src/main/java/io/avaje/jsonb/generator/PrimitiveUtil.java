@@ -3,7 +3,7 @@ package io.avaje.jsonb.generator;
 import java.util.HashMap;
 import java.util.Map;
 
-class PrimitiveUtil {
+final class PrimitiveUtil {
 
   static Map<String,String> wrapperMap = new HashMap<>();
   static {

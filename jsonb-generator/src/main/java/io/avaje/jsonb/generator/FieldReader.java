@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class FieldReader {
+final class FieldReader {
 
   private final Map<String, TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
   private final List<String> genericTypeParams;

@@ -6,7 +6,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import java.util.Map;
 
-class PropertyIgnoreReader {
+final class PropertyIgnoreReader {
 
   private static final String JSON_IGNORE = "io.avaje.jsonb.Json.Ignore";
   private static final String JSON_UNMAPPED = "io.avaje.jsonb.Json.Unmapped";

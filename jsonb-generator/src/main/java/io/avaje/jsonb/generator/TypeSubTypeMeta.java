@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-class TypeSubTypeMeta {
+final class TypeSubTypeMeta {
 
   private String type;
   private String name;

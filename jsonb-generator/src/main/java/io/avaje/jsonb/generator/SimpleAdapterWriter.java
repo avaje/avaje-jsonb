@@ -4,7 +4,7 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 
-class SimpleAdapterWriter {
+final class SimpleAdapterWriter {
 
   private final BeanReader beanReader;
   private final ProcessingContext context;

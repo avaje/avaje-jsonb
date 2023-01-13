@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-class ComponentReader {
+final class ComponentReader {
 
   private static final String META_DATA = "io.avaje.jsonb.spi.MetaData";
   private static final String META_DATA_FACTORY = "io.avaje.jsonb.spi.MetaData.Factory";

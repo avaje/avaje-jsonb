@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * Read points for field injection and method injection
  * on baseType plus inherited injection points.
  */
-class TypeReader {
+final class TypeReader {
 
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
 

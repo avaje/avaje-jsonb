@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-class BeanReader {
+final class BeanReader {
 
   private final TypeElement beanType;
   private final String shortName;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-class SimpleComponentWriter {
+final class SimpleComponentWriter {
 
   private final ProcessingContext context;
   private final ComponentMetaData metaData;

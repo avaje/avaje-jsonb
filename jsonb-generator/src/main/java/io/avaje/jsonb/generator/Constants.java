@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-class Constants {
+final class Constants {
 
   static final String META_INF_COMPONENT = "META-INF/services/io.avaje.jsonb.Jsonb$GeneratedComponent";
   static final String JSONB_WILD = "io.avaje.jsonb.*";
