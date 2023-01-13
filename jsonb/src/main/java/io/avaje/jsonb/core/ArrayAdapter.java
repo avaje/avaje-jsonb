@@ -29,7 +29,7 @@ import java.util.List;
  * This supports both primitive and object arrays.
  */
 final class ArrayAdapter extends JsonAdapter<Object> {
-  public static final Factory FACTORY = (type, jsonb) -> {
+  static final Factory FACTORY = (type, jsonb) -> {
     Type elementType = Util.arrayComponentType(type);
     if (elementType == null) return null;
     if (elementType == byte.class) return new ByteArray();

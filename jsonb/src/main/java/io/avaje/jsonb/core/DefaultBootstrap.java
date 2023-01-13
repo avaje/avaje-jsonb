@@ -5,7 +5,7 @@ import io.avaje.jsonb.Jsonb;
 /**
  * Default bootstrap of Jsonb.
  */
-public class DefaultBootstrap {
+public final class DefaultBootstrap {
 
   /**
    * Create the Jsonb.Builder.

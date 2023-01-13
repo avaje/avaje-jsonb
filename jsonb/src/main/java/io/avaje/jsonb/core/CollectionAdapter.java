@@ -29,7 +29,7 @@ import java.util.*;
  */
 abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> implements ViewBuilderAware {
 
-  public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
     Class<?> rawType = Util.rawType(type);
     if (rawType == List.class || rawType == Collection.class) {
       return newListAdapter(type, jsonb).nullSafe();

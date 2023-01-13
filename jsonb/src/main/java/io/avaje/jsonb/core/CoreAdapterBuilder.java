@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Builds and caches the JsonAdapter adapters for DJsonb.
  */
-class CoreAdapterBuilder {
+final class CoreAdapterBuilder {
 
   private final DJsonb context;
   private final List<JsonAdapter.Factory> factories;
