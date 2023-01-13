@@ -6,22 +6,29 @@ import java.io.OutputStream;
 final class Recycle {
   private Recycle() {}
 
-  private static final int generatorBufferSize = Integer.getInteger("jsonb.generatorBufferSize", 4096);
-  private static final int parserBufferSize = Integer.getInteger("jsonb.parserBufferSize", 4096);
-  private static final int parserCharBufferSize = Integer.getInteger("jsonb.parserCharBufferSize", 4096);
+  private static int generatorBufferSize;
+  private static int parserBufferSize;
+  private static int parserCharBufferSize;
 
   private static boolean jvmRecycle;
   private static ThreadLocal<JParser> read;
   private static ThreadLocal<JGenerator> managed;
 
   static {
-    if (Float.parseFloat(System.getProperty("java.specification.version")) >= 19
-        && !Boolean.getBoolean("jsonb.useTLBuffers")) {
+
+    final boolean jdkGT19 =
+        Float.parseFloat(System.getProperty("java.specification.version")) >= 19;
+
+    if (jdkGT19 && !Boolean.getBoolean("jsonb.useTLBuffers")) {
       jvmRecycle = true;
     } else {
       managed = ThreadLocal.withInitial(Recycle::getGenerator);
       read = ThreadLocal.withInitial(Recycle::getParser);
     }
+
+    generatorBufferSize = Integer.getInteger("jsonb.generatorBufferSize", 4096);
+    parserBufferSize = Integer.getInteger("jsonb.parserBufferSize", 4096);
+    parserCharBufferSize = Integer.getInteger("jsonb.parserCharBufferSize", 4096);
   }
 
   /** Return a recycled generator with the given target OutputStream. */
