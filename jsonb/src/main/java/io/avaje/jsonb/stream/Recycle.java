@@ -6,6 +6,10 @@ import java.io.OutputStream;
 final class Recycle {
   private Recycle() {}
 
+  private static final int generatorBufferSize = Integer.getInteger("jsonb.generatorBufferSize", 4096);
+  private static final int parserBufferSize = Integer.getInteger("jsonb.parserBufferSize", 4096);
+  private static final int parserCharBufferSize = Integer.getInteger("jsonb.parserCharBufferSize", 4096);
+
   private static boolean jvmRecycle;
   private static ThreadLocal<JParser> read;
   private static ThreadLocal<JGenerator> managed;
@@ -39,12 +43,12 @@ final class Recycle {
   }
 
   static JGenerator getGenerator() {
-    return new JGenerator(4096);
+    return new JGenerator(generatorBufferSize);
   }
 
   static JParser getParser() {
-    final char[] ch = new char[4096];
-    final byte[] by = new byte[4096];
+    final char[] ch = new char[parserCharBufferSize];
+    final byte[] by = new byte[parserBufferSize];
     return new JParser(
         ch,
         by,
