@@ -2,7 +2,7 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.TypeElement;
 
-class AdapterName {
+final class AdapterName {
 
   final String shortName;
   final String adapterPackage;

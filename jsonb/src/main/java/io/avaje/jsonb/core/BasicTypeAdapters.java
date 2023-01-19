@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
 
 final class BasicTypeAdapters {
 
-  public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
     if (type == Boolean.TYPE) return new BooleanAdapter();
     if (type == Byte.TYPE) return new ByteAdapter();
     if (type == Character.TYPE) return new CharacterAdapter();

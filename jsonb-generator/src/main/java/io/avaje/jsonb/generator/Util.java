@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-class Util {
+final class Util {
 
   static boolean validImportType(String type) {
     return type.indexOf('.') > 0;

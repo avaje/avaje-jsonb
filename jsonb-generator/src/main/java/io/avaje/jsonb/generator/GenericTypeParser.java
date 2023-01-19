@@ -2,7 +2,7 @@ package io.avaje.jsonb.generator;
 
 import java.util.Stack;
 
-class GenericTypeParser {
+final class GenericTypeParser {
 
   private final String raw;
 

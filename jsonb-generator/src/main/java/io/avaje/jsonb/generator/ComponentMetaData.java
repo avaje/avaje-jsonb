@@ -2,7 +2,7 @@ package io.avaje.jsonb.generator;
 
 import java.util.*;
 
-class ComponentMetaData {
+final class ComponentMetaData {
 
   private final List<String> allTypes = new ArrayList<>();
   private final List<String> factoryTypes = new ArrayList<>();

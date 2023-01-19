@@ -14,7 +14,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 
-class ProcessingContext {
+final class ProcessingContext {
 
   private final ProcessingEnvironment processingEnv;
   private final Messager messager;

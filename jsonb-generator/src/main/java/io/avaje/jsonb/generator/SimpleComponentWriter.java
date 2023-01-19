@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-class SimpleComponentWriter {
+final class SimpleComponentWriter {
 
   private final ProcessingContext context;
   private final ComponentMetaData metaData;
@@ -56,7 +56,6 @@ class SimpleComponentWriter {
     final List<String> strings = metaData.allFactories();
     for (final String adapterFullName : strings) {
       final String adapterShortName = Util.shortName(adapterFullName);
-
       writer.append("    builder.add(%s.Factory);", adapterShortName).eol();
     }
     for (String adapterFullName : metaData.all()) {

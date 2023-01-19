@@ -4,7 +4,7 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 
-class SimpleAdapterWriter {
+final class SimpleAdapterWriter {
 
   private final BeanReader beanReader;
   private final ProcessingContext context;
@@ -53,7 +53,6 @@ class SimpleAdapterWriter {
 
   private void writeFactory() {
     if (genericParamsCount > 0) {
-
       String typeName = adapterShortName;
       int nestedIndex = adapterShortName.indexOf("$");
       if (nestedIndex != -1) {

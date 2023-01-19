@@ -1,17 +1,16 @@
 package io.avaje.jsonb.generator;
 
+import io.avaje.jsonb.Json;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
-
-import io.avaje.jsonb.Json;
-
-class BeanReader {
+final class BeanReader {
 
   private final TypeElement beanType;
   private final String shortName;
@@ -25,6 +24,7 @@ class BeanReader {
   private final TypeReader typeReader;
   private final String typeProperty;
   private final boolean nonAccessibleField;
+  private final boolean caseInsensitiveKeys;
   private FieldReader unmappedField;
   private boolean hasRaw;
   private final boolean isRecord;
@@ -36,7 +36,7 @@ class BeanReader {
     NamingConventionReader ncReader = new NamingConventionReader(beanType);
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
-
+    this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
     this.typeReader = new TypeReader(beanType, context, namingConvention);
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
@@ -53,6 +53,7 @@ class BeanReader {
     final NamingConventionReader ncReader = new NamingConventionReader(beanType);
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
+    this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
     this.typeReader = new TypeReader(beanType, mixInElement, context, namingConvention);
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
@@ -65,13 +66,13 @@ class BeanReader {
   boolean isRecord(TypeElement beanType) {
     try {
       final List<? extends Element> recordComponents =
-          (List<? extends Element>)
-              TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
+        (List<? extends Element>)
+          TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
       return !recordComponents.isEmpty();
     } catch (IllegalAccessException
-        | InvocationTargetException
-        | NoSuchMethodException
-        | SecurityException e) {
+             | InvocationTargetException
+             | NoSuchMethodException
+             | SecurityException e) {
       return false;
     }
   }
@@ -298,10 +299,7 @@ class BeanReader {
       // default public constructor
       writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
     } else {
-      writer
-          .append(
-              "    // variables to read json values into, constructor params don't need _set$ flags")
-          .eol();
+      writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
       for (final FieldReader allField : allFields) {
         if (isRecord) {
           allField.writeFromJsonVariablesRecord(writer);
@@ -378,28 +376,38 @@ class BeanReader {
     writer.append("    reader.beginObject();").eol();
     writer.append("    reader.names(names);").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
-    writer.append("      String fieldName = reader.nextField();").eol();
+    if (caseInsensitiveKeys) {
+      writer.append("      final String origFieldName = reader.nextField();").eol();
+      writer.append("      final String fieldName = origFieldName.toLowerCase();").eol();
+    } else {
+      writer.append("      final String fieldName = reader.nextField();").eol();
+    }
     writer.append("      switch (fieldName) {").eol();
     if (hasSubTypes) {
-      writer.append("        case \"%s\": {", typeProperty).eol();
+      writer.append("        case \"%s\": {", typePropertyKey()).eol();
       writer.append("          type = stringJsonAdapter.fromJson(reader); break;").eol();
       writer.append("        }").eol();
     }
     for (FieldReader allField : allFields) {
-      allField.writeFromJsonSwitch(writer, defaultConstructor, varName);
+      allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys);
     }
     writer.append("        default: {").eol();
+    String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
     if (unmappedField != null) {
       writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
-      writer.append("          unmapped.put(fieldName, value);").eol();
+      writer.append("          unmapped.put(%s, value);", unmappedFieldName).eol();
     } else {
-      writer.append("          reader.unmappedField(fieldName);").eol();
+      writer.append("          reader.unmappedField(%s);", unmappedFieldName).eol();
       writer.append("          reader.skipValue();").eol();
     }
     writer.append("        }").eol();
     writer.append("      }").eol();
     writer.append("    }").eol();
     writer.append("    reader.endObject();").eol();
+  }
+
+  private String typePropertyKey() {
+    return caseInsensitiveKeys ? typeProperty.toLowerCase() : typeProperty;
   }
 
 }

@@ -288,10 +288,8 @@ public final class Util {
       // Require an owner type if the raw type needs it.
       if (ownerType != null && rawType instanceof Class<?>) {
         Class<?> enclosingClass = ((Class<?>) rawType).getEnclosingClass();
-
         if (enclosingClass == null || Util.rawType(ownerType) != enclosingClass) {
-          throw new IllegalArgumentException(
-              "unexpected owner type for " + rawType + ": " + ownerType);
+          throw new IllegalArgumentException("unexpected owner type for " + rawType + ": " + ownerType);
 
         } else if (enclosingClass != null) {
           throw new IllegalArgumentException("unexpected owner type for " + rawType + ": null");

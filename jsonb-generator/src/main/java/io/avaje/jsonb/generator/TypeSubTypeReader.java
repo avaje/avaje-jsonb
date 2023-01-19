@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * Read the @Json.SubType annotations.
  */
-class TypeSubTypeReader {
+final class TypeSubTypeReader {
 
   private static final String JSON_SUBTYPE = "io.avaje.jsonb.Json.SubType";
   private static final String JSON_SUBTYPES = "io.avaje.jsonb.Json.SubTypes";

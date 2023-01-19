@@ -6,7 +6,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import java.util.Map;
 
-class PropertyReader {
+final class PropertyReader {
 
   private static final String JSON_PROPERTY = "io.avaje.jsonb.Json.Property";
 

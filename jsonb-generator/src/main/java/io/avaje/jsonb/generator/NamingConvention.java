@@ -2,7 +2,7 @@ package io.avaje.jsonb.generator;
 
 import io.avaje.jsonb.Json;
 
-class NamingConvention {
+final class NamingConvention {
 
   private final Json.Naming naming;
   private final Convert convert;

@@ -5,23 +5,28 @@ import io.avaje.jsonb.Json;
 import javax.lang.model.element.*;
 import java.util.Map;
 
-class NamingConventionReader {
+final class NamingConventionReader {
 
   private static final String JSON_ANNOTATION = "io.avaje.jsonb.Json";
   private static final String NAMING_ATTRIBUTE = "naming()";
   private static final String TYPEPROPERTY_ATTRIBUTE = "typeProperty()";
+  private static final String CASEINSENSITIVEKEYS_ATTRIBUTE = "caseInsensitiveKeys()";
 
   private String typeProperty;
+  private boolean caseInsensitiveKeys;
   private NamingConvention namingConvention;
 
   NamingConventionReader(TypeElement element) {
     for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
       if (JSON_ANNOTATION.equals(mirror.getAnnotationType().toString())) {
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
-          if (entry.getKey().toString().equals(NAMING_ATTRIBUTE)) {
+          String key = entry.getKey().toString();
+          if (key.equals(NAMING_ATTRIBUTE)) {
             namingConvention = NamingConvention.of(naming(entry.getValue().toString()));
-          } else if (entry.getKey().toString().equals(TYPEPROPERTY_ATTRIBUTE)) {
+          } else if (key.equals(TYPEPROPERTY_ATTRIBUTE)) {
             typeProperty = Util.trimQuotes(entry.getValue().toString());
+          } else if (key.equals(CASEINSENSITIVEKEYS_ATTRIBUTE)) {
+            caseInsensitiveKeys = Boolean.parseBoolean(entry.getValue().toString());
           }
         }
       }
@@ -42,5 +47,9 @@ class NamingConventionReader {
 
   String typeProperty() {
     return typeProperty != null ? typeProperty : "@type";
+  }
+
+  boolean isCaseInsensitiveKeys() {
+    return caseInsensitiveKeys;
   }
 }

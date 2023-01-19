@@ -18,7 +18,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Default implementation of Jsonb.
  */
-class DJsonb implements Jsonb {
+final class DJsonb implements Jsonb {
 
   private final CoreAdapterBuilder builder;
   private final JsonStreamAdapter io;

@@ -18,7 +18,7 @@ import javax.lang.model.element.TypeElement;
 
 import io.avaje.jsonb.Json;
 
-public class Processor extends AbstractProcessor {
+public final class Processor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
   private final ImportReader importReader = new ImportReader();

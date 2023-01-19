@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * A type with generic parameters and potentially nested.
  */
-class GenericType {
+final class GenericType {
 
   private static final GenericTypeMap TYPE_MAP = new GenericTypeMap();
 

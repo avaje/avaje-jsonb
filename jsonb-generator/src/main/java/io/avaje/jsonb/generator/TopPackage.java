@@ -2,7 +2,7 @@ package io.avaje.jsonb.generator;
 
 import java.util.Collection;
 
-class TopPackage {
+final class TopPackage {
 
   private String topPackage;
 

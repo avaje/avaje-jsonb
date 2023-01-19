@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class FieldReader {
+final class FieldReader {
 
   private final Map<String, TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
   private final List<String> genericTypeParams;
@@ -287,9 +287,7 @@ class FieldReader {
 
   void writeFromJsonVariablesRecord(Append writer) {
     final String type = genericTypeParameter ? "Object" : genericType.shortType();
-    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue);
-
-    writer.eol();
+    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue).eol();
   }
 
   private String pad(String value) {
@@ -304,20 +302,18 @@ class FieldReader {
     return sb.toString();
   }
 
-  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
+  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys) {
     if (unmapped) {
       return;
     }
-
     if (aliases != null) {
-
       for (final String alias : aliases) {
-        writer.append("        case \"%s\":", alias);
-        writer.eol();
+        String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
+        writer.append("        case \"%s\":", propertyKey).eol();
       }
     }
-
-    writer.append("        case \"%s\": {", propertyName).eol();
+    String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
+    writer.append("        case \"%s\": {", propertyKey).eol();
     if (!deserialize) {
       writer.append("          reader.skipValue();");
     } else if (defaultConstructor) {

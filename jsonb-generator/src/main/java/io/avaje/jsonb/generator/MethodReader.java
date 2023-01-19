@@ -7,7 +7,7 @@ import javax.lang.model.element.VariableElement;
 import java.util.ArrayList;
 import java.util.List;
 
-class MethodReader {
+final class MethodReader {
 
   private final ExecutableElement element;
   private final String methodName;

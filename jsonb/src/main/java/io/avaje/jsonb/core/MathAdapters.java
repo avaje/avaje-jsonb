@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-class MathAdapters implements JsonAdapter.Factory {
+final class MathAdapters implements JsonAdapter.Factory {
 
   private final JsonAdapter<BigDecimal> decimal;
   private final JsonAdapter<BigInteger> bigint;

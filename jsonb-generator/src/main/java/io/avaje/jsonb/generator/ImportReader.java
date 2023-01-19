@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class ImportReader {
+final class ImportReader {
 
   private static final String JSON_IMPORT = "io.avaje.jsonb.Json.Import";
   private static final String JSON_MIXIN = "io.avaje.jsonb.Json.MixIn";
