@@ -4,7 +4,7 @@
 
 # [Avaje-JsonB](https://avaje.io/jsonb/)
 
-Fast, Reflection-free Json binding via apt source code generation. A source code generation style alternative to ObjectMapper, Gson (source code generation approach vs reflection based approach)
+Fast, reflection-free Json binding via apt source code generation. A source code generation style alternative to ObjectMapper, Gson (code generation vs reflection)
 
 - Annotate java classes with `@Json` (or use `@Json.Import` for types we "don't own" or can't annotate)
 - `avaje-jsonb-generator` annotation processor generates java source code to convert to/from json
