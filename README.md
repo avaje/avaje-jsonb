@@ -76,7 +76,7 @@ public class Address {
   //add getters/setters
 }
 ```
-Record Version:
+Also works with records:
 ```java
 @Json
 public record Address(String street, String suburb, String city) { }
