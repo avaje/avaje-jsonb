@@ -70,9 +70,9 @@ For types we cannot annotate with `@Json` we can instead use `@Json.Import`.
 ```java
 @Json
 public class Address {
-  String street;
-  String suburb;
-  String city;
+  private String street;
+  private String suburb;
+  private String city;
   //add getters/setters
 }
 ```
