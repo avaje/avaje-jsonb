@@ -160,137 +160,144 @@ final class JGenerator implements JsonGenerator {
         _result[cur++] = ESCAPE;
         _result[cur++] = ESCAPE;
       } else if (c < 32) {
-        if (c == 8) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'b';
-        } else if (c == 9) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 't';
-        } else if (c == 10) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'n';
-        } else if (c == 12) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'f';
-        } else if (c == 13) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'r';
-        } else {
-          _result[cur] = ESCAPE;
-          _result[cur + 1] = 'u';
-          _result[cur + 2] = '0';
-          _result[cur + 3] = '0';
-          switch (c) {
-            case 0:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '0';
-              break;
-            case 1:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '1';
-              break;
-            case 2:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '2';
-              break;
-            case 3:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '3';
-              break;
-            case 4:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '4';
-              break;
-            case 5:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '5';
-              break;
-            case 6:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '6';
-              break;
-            case 7:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '7';
-              break;
-            case 11:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = 'B';
-              break;
-            case 14:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = 'E';
-              break;
-            case 15:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = 'F';
-              break;
-            case 16:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '0';
-              break;
-            case 17:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '1';
-              break;
-            case 18:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '2';
-              break;
-            case 19:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '3';
-              break;
-            case 20:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '4';
-              break;
-            case 21:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '5';
-              break;
-            case 22:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '6';
-              break;
-            case 23:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '7';
-              break;
-            case 24:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '8';
-              break;
-            case 25:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '9';
-              break;
-            case 26:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'A';
-              break;
-            case 27:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'B';
-              break;
-            case 28:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'C';
-              break;
-            case 29:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'D';
-              break;
-            case 30:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'E';
-              break;
-            default:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'F';
-              break;
-          }
-          cur += 6;
+        switch (c) {
+          case 8:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'b';
+            break;
+          case 9:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 't';
+            break;
+          case 10:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'n';
+            break;
+          case 12:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'f';
+            break;
+          case 13:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'r';
+            break;
+          default:
+            _result[cur] = ESCAPE;
+            _result[cur + 1] = 'u';
+            _result[cur + 2] = '0';
+            _result[cur + 3] = '0';
+            switch (c) {
+              case 0:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '0';
+                break;
+              case 1:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '1';
+                break;
+              case 2:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '2';
+                break;
+              case 3:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '3';
+                break;
+              case 4:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '4';
+                break;
+              case 5:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '5';
+                break;
+              case 6:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '6';
+                break;
+              case 7:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '7';
+                break;
+              case 11:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = 'B';
+                break;
+              case 14:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = 'E';
+                break;
+              case 15:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = 'F';
+                break;
+              case 16:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '0';
+                break;
+              case 17:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '1';
+                break;
+              case 18:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '2';
+                break;
+              case 19:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '3';
+                break;
+              case 20:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '4';
+                break;
+              case 21:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '5';
+                break;
+              case 22:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '6';
+                break;
+              case 23:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '7';
+                break;
+              case 24:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '8';
+                break;
+              case 25:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '9';
+                break;
+              case 26:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'A';
+                break;
+              case 27:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'B';
+                break;
+              case 28:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'C';
+                break;
+              case 29:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'D';
+                break;
+              case 30:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'E';
+                break;
+              default:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'F';
+                break;
+            }
+            cur += 6;
+            break;
         }
       } else if (c < 0x007F) {
         _result[cur++] = (byte) c;
@@ -301,20 +308,22 @@ final class JGenerator implements JsonGenerator {
         }
         if (cp == 0x007F) {
           _result[cur++] = (byte) cp;
-        } else if (cp <= 0x7FF) {
-          _result[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
-          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
-        } else if ((cp < 0xD800) || (cp > 0xDFFF && cp <= 0xFFFF)) {
-          _result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
-          _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
-        } else if (cp >= 0x10000 && cp <= 0x10FFFF) {
-          _result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
-          _result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
-          _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
         } else {
-          throw new JsonIoException("Unknown unicode codepoint in string! " + Integer.toHexString(cp));
+          if (cp <= 0x7FF) {
+            _result[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
+          } else {
+            if ((cp < 0xD800) || (cp > 0xDFFF && cp <= 0xFFFF)) {
+              _result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
+            } else if (cp >= 0x10000 && cp <= 0x10FFFF) {
+              _result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
+              _result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+            } else {
+              throw new JsonIoException(
+                  "Unknown unicode codepoint in string! " + Integer.toHexString(cp));
+            }
+            _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+          }
+          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
         }
       }
     }
@@ -359,16 +368,14 @@ final class JGenerator implements JsonGenerator {
       writeAscii("\"NaN\"");
     } else if (value == 0.0) {
       writeAscii("0.0");
-    } else {
-      if (Grisu3.tryConvert(value, doubleBuilder)) {
-        if (position + 24 >= buffer.length) {
-          enlargeOrFlush(position, 24);
-        }
-        final int len = doubleBuilder.copyTo(buffer, position);
-        position += len;
-      } else {
-        writeAscii(Double.toString(value));
+    } else if (Grisu3.tryConvert(value, doubleBuilder)) {
+      if (position + 24 >= buffer.length) {
+        enlargeOrFlush(position, 24);
       }
+      final int len = doubleBuilder.copyTo(buffer, position);
+      position += len;
+    } else {
+      writeAscii(Double.toString(value));
     }
   }
 

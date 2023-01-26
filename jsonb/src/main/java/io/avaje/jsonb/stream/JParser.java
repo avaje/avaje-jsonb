@@ -602,38 +602,37 @@ final class JParser implements JsonParser {
         }
         return false;
       case -30:
-        if (currentIndex + 1 < length) {
-          final byte b1 = buffer[currentIndex];
-          final byte b2 = buffer[currentIndex + 1];
-          if (b1 == -127 && b2 == -97) {
+        if (currentIndex + 1 >= length) {
+          return false;
+        }
+        final byte b1 = buffer[currentIndex];
+        final byte b2 = buffer[currentIndex + 1];
+        if (b1 == -127 && b2 == -97) {
+          currentIndex += 2;
+          last = ' ';
+          return true;
+        }
+        if (b1 != -128) return false;
+        switch (b2) {
+          case -128:
+          case -127:
+          case -126:
+          case -125:
+          case -124:
+          case -123:
+          case -122:
+          case -121:
+          case -120:
+          case -119:
+          case -118:
+          case -88:
+          case -87:
+          case -81:
             currentIndex += 2;
             last = ' ';
             return true;
-          }
-          if (b1 != -128) return false;
-          switch (b2) {
-            case -128:
-            case -127:
-            case -126:
-            case -125:
-            case -124:
-            case -123:
-            case -122:
-            case -121:
-            case -120:
-            case -119:
-            case -118:
-            case -88:
-            case -87:
-            case -81:
-              currentIndex += 2;
-              last = ' ';
-              return true;
-            default:
-              return false;
-          }
-        } else {
-          return false;
+          default:
+            return false;
         }
       case -29:
         if (currentIndex + 1 < length && buffer[currentIndex] == -128 && buffer[currentIndex + 1] == -128) {
@@ -813,24 +812,24 @@ final class JParser implements JsonParser {
    * @return next non-whitespace byte
    */
   private byte skipNextValue() {
-    if (last == '"') return skipString();
-    if (last == '{') {
-      return skipObject();
-    }
-    if (last == '[') {
-      return skipArray();
-    }
-    if (last == 'n') {
-      if (!isNullValue()) throw newParseErrorAt("Expecting 'null' for null constant", 0);
-      return nextToken();
-    }
-    if (last == 't') {
-      if (!wasTrue()) throw newParseErrorAt("Expecting 'true' for true constant", 0);
-      return nextToken();
-    }
-    if (last == 'f') {
-      if (!wasFalse()) throw newParseErrorAt("Expecting 'false' for false constant", 0);
-      return nextToken();
+    switch (last) {
+      case '"':
+        return skipString();
+      case '{':
+        return skipObject();
+      case '[':
+        return skipArray();
+      case 'n':
+        if (!isNullValue()) throw newParseErrorAt("Expecting 'null' for null constant", 0);
+        return nextToken();
+      case 't':
+        if (!wasTrue()) throw newParseErrorAt("Expecting 'true' for true constant", 0);
+        return nextToken();
+      case 'f':
+        if (!wasFalse()) throw newParseErrorAt("Expecting 'false' for false constant", 0);
+        return nextToken();
+      default:
+        break;
     }
     while (last != ',' && last != '}' && last != ']') {
       read();
@@ -901,10 +900,8 @@ final class JParser implements JsonParser {
       if (key == null) {
         key = lastFieldName();
       }
-      if (read() != ':') {
-        if (!wasWhiteSpace() || nextToken() != ':') {
-          throw newParseError("Expecting ':' after attribute name");
-        }
+      if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
+        throw newParseError("Expecting ':' after attribute name");
       }
       nextToken(); // position to read the value/next
       return key;
