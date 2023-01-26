@@ -308,22 +308,20 @@ final class JGenerator implements JsonGenerator {
         }
         if (cp == 0x007F) {
           _result[cur++] = (byte) cp;
-        } else {
-          if (cp <= 0x7FF) {
-            _result[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
-          } else {
-            if ((cp < 0xD800) || (cp > 0xDFFF && cp <= 0xFFFF)) {
-              _result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
-            } else if (cp >= 0x10000 && cp <= 0x10FFFF) {
-              _result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
-              _result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
-            } else {
-              throw new JsonIoException(
-                  "Unknown unicode codepoint in string! " + Integer.toHexString(cp));
-            }
-            _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-          }
+        } else if (cp <= 0x7FF) {
+          _result[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
           _result[cur++] = (byte) (0x80 | (cp & 0x3F));
+        } else if ((cp < 0xD800) || (cp > 0xDFFF && cp <= 0xFFFF)) {
+          _result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
+          _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
+        } else if (cp >= 0x10000 && cp <= 0x10FFFF) {
+          _result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
+          _result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+          _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
+        } else {
+          throw new JsonIoException("Unknown unicode codepoint in string! " + Integer.toHexString(cp));
         }
       }
     }
