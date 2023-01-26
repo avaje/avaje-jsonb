@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 
 /**
  * DslJson writes JSON into JsonWriter which has two primary modes of operation:
@@ -60,7 +62,7 @@ final class JGenerator implements JsonGenerator {
   private int position;
   private boolean pretty;
   private int depth;
-  private final ArrayStack<JsonNames> nameStack = new ArrayStack<>();
+  private final Deque<JsonNames> nameStack = new ArrayDeque<>();
   private JsonNames currentNames;
   private boolean allNames;
   private boolean incomplete;
@@ -452,7 +454,7 @@ final class JGenerator implements JsonGenerator {
   @Override
   public void endObject() {
     if (!allNames) {
-      currentNames = nameStack.pop();
+      currentNames = nameStack.poll();
     }
     if (pretty) {
       writeNewLine();

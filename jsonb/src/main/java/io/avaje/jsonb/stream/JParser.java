@@ -12,7 +12,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.Formatter;
 
 /**
@@ -85,7 +87,7 @@ final class JParser implements JsonParser {
   private final byte[] originalBuffer;
   private final int originalBufferLenWithExtraSpace;
 
-  private final ArrayStack<JsonNames> nameStack = new ArrayStack<>();
+  private final Deque<JsonNames> nameStack = new ArrayDeque<>();
   private JsonNames currentNames;
 
   final ErrorInfo errorInfo;
@@ -1036,7 +1038,7 @@ final class JParser implements JsonParser {
    */
   @Override
   public void endObject() {
-    currentNames = nameStack.pop();
+    currentNames = nameStack.poll();
     if (last != '}' && nextToken() != '}') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '}' as object end");
