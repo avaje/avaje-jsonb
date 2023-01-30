@@ -10,8 +10,9 @@ Fast, reflection-free Json binding via apt source code generation. A source code
 - `avaje-jsonb-generator` annotation processor generates java source code to convert to/from json
 - No need to manually register generated adapters. (Uses ServiceLoader to auto-register)
 - Constructors and accessors/getters/setters of any style "just work" (records, constructors, 'fluid setters')
-- Provides support for dynamic json views (similar in style to that presented by [LinkedIn at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
+- Jackson-like annotations: `@Json.Raw`, `@Json.Property`, `@Json.Ignore`, `@Json.Alias`, etc.
 - Support Mixins (adding jsonb features to types we can't directly annotate).
+- Provides support for dynamic json views (similar in style to that presented by [LinkedIn at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
 
 
 # Quick Start
@@ -68,10 +69,14 @@ when it is started using a service loader mechanism.
 For types we cannot annotate with `@Json` we can instead use `@Json.Import`.
 ```java
 @Json
-public class Customer {
-  ...
+public class Address {
+  private String street;
+  private String suburb;
+  private String city;
+  //add getters/setters
 }
 ```
+Also works with records:
 ```java
 @Json
 public record Address(String street, String suburb, String city) { }
