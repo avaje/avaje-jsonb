@@ -67,12 +67,8 @@ final class SimpleComponentWriter {
   }
 
   private String typeShortName(String adapterShortName) {
-    String typeName = adapterShortName.substring(0, adapterShortName.length() - 11);
-    int pos = typeName.lastIndexOf('$');
-    if (pos > -1) {
-      return typeName.substring(pos + 1);
-    }
-    return typeName;
+    final String typeName = adapterShortName.substring(0, adapterShortName.length() - 11);
+    return typeName.replace("$", ".");
   }
 
   private void writeClassEnd() {

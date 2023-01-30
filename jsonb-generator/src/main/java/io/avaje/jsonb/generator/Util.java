@@ -91,7 +91,13 @@ final class Util {
     if (posPrior == -1) {
       return adapterFullName.substring(posLast + 1, nameEnd);
     }
-    return adapterFullName.substring(0, posPrior)
-      + adapterFullName.substring(posLast, nameEnd).replace('$', '.');
+
+    final String className =
+        adapterFullName.substring(0, posPrior) + adapterFullName.substring(posLast, nameEnd);
+    final int $index = className.indexOf("$");
+
+    if ($index != -1) return className.substring(0, $index);
+
+    return className;
   }
 }
