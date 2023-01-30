@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 
 /**
  * DslJson writes JSON into JsonWriter which has two primary modes of operation:
@@ -60,7 +62,7 @@ final class JGenerator implements JsonGenerator {
   private int position;
   private boolean pretty;
   private int depth;
-  private final ArrayStack<JsonNames> nameStack = new ArrayStack<>();
+  private final Deque<JsonNames> nameStack = new ArrayDeque<>();
   private JsonNames currentNames;
   private boolean allNames;
   private boolean incomplete;
@@ -158,137 +160,144 @@ final class JGenerator implements JsonGenerator {
         _result[cur++] = ESCAPE;
         _result[cur++] = ESCAPE;
       } else if (c < 32) {
-        if (c == 8) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'b';
-        } else if (c == 9) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 't';
-        } else if (c == 10) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'n';
-        } else if (c == 12) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'f';
-        } else if (c == 13) {
-          _result[cur++] = ESCAPE;
-          _result[cur++] = 'r';
-        } else {
-          _result[cur] = ESCAPE;
-          _result[cur + 1] = 'u';
-          _result[cur + 2] = '0';
-          _result[cur + 3] = '0';
-          switch (c) {
-            case 0:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '0';
-              break;
-            case 1:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '1';
-              break;
-            case 2:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '2';
-              break;
-            case 3:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '3';
-              break;
-            case 4:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '4';
-              break;
-            case 5:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '5';
-              break;
-            case 6:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '6';
-              break;
-            case 7:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = '7';
-              break;
-            case 11:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = 'B';
-              break;
-            case 14:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = 'E';
-              break;
-            case 15:
-              _result[cur + 4] = '0';
-              _result[cur + 5] = 'F';
-              break;
-            case 16:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '0';
-              break;
-            case 17:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '1';
-              break;
-            case 18:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '2';
-              break;
-            case 19:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '3';
-              break;
-            case 20:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '4';
-              break;
-            case 21:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '5';
-              break;
-            case 22:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '6';
-              break;
-            case 23:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '7';
-              break;
-            case 24:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '8';
-              break;
-            case 25:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = '9';
-              break;
-            case 26:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'A';
-              break;
-            case 27:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'B';
-              break;
-            case 28:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'C';
-              break;
-            case 29:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'D';
-              break;
-            case 30:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'E';
-              break;
-            default:
-              _result[cur + 4] = '1';
-              _result[cur + 5] = 'F';
-              break;
-          }
-          cur += 6;
+        switch (c) {
+          case 8:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'b';
+            break;
+          case 9:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 't';
+            break;
+          case 10:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'n';
+            break;
+          case 12:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'f';
+            break;
+          case 13:
+            _result[cur++] = ESCAPE;
+            _result[cur++] = 'r';
+            break;
+          default:
+            _result[cur] = ESCAPE;
+            _result[cur + 1] = 'u';
+            _result[cur + 2] = '0';
+            _result[cur + 3] = '0';
+            switch (c) {
+              case 0:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '0';
+                break;
+              case 1:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '1';
+                break;
+              case 2:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '2';
+                break;
+              case 3:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '3';
+                break;
+              case 4:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '4';
+                break;
+              case 5:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '5';
+                break;
+              case 6:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '6';
+                break;
+              case 7:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = '7';
+                break;
+              case 11:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = 'B';
+                break;
+              case 14:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = 'E';
+                break;
+              case 15:
+                _result[cur + 4] = '0';
+                _result[cur + 5] = 'F';
+                break;
+              case 16:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '0';
+                break;
+              case 17:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '1';
+                break;
+              case 18:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '2';
+                break;
+              case 19:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '3';
+                break;
+              case 20:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '4';
+                break;
+              case 21:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '5';
+                break;
+              case 22:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '6';
+                break;
+              case 23:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '7';
+                break;
+              case 24:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '8';
+                break;
+              case 25:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = '9';
+                break;
+              case 26:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'A';
+                break;
+              case 27:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'B';
+                break;
+              case 28:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'C';
+                break;
+              case 29:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'D';
+                break;
+              case 30:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'E';
+                break;
+              default:
+                _result[cur + 4] = '1';
+                _result[cur + 5] = 'F';
+                break;
+            }
+            cur += 6;
+            break;
         }
       } else if (c < 0x007F) {
         _result[cur++] = (byte) c;
@@ -357,16 +366,14 @@ final class JGenerator implements JsonGenerator {
       writeAscii("\"NaN\"");
     } else if (value == 0.0) {
       writeAscii("0.0");
-    } else {
-      if (Grisu3.tryConvert(value, doubleBuilder)) {
-        if (position + 24 >= buffer.length) {
-          enlargeOrFlush(position, 24);
-        }
-        final int len = doubleBuilder.copyTo(buffer, position);
-        position += len;
-      } else {
-        writeAscii(Double.toString(value));
+    } else if (Grisu3.tryConvert(value, doubleBuilder)) {
+      if (position + 24 >= buffer.length) {
+        enlargeOrFlush(position, 24);
       }
+      final int len = doubleBuilder.copyTo(buffer, position);
+      position += len;
+    } else {
+      writeAscii(Double.toString(value));
     }
   }
 
@@ -452,7 +459,7 @@ final class JGenerator implements JsonGenerator {
   @Override
   public void endObject() {
     if (!allNames) {
-      currentNames = nameStack.pop();
+      currentNames = nameStack.poll();
     }
     if (pretty) {
       writeNewLine();
