@@ -92,12 +92,11 @@ final class Util {
       return adapterFullName.substring(posLast + 1, nameEnd);
     }
 
-    final String className =
-        adapterFullName.substring(0, posPrior) + adapterFullName.substring(posLast, nameEnd);
+    final String className = adapterFullName.substring(0, posPrior) + adapterFullName.substring(posLast, nameEnd);
     final int $index = className.indexOf("$");
-
-    if ($index != -1) return className.substring(0, $index);
-
+    if ($index != -1) {
+      return className.substring(0, $index);
+    }
     return className;
   }
 }
