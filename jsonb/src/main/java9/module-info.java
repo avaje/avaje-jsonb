@@ -9,7 +9,7 @@ module io.avaje.jsonb {
   uses io.avaje.jsonb.JsonbComponent;
   uses io.avaje.jsonb.Jsonb.GeneratedComponent;
 
-  requires static io.avaje.inject.spi.Plugin;
+  requires static io.avaje.inject;
 
-  provides io.avaje.inject.spi.Plugin with io.ebeaninternal.server.profile.DMetricFactory;
+  provides io.avaje.inject.spi.Plugin with io.avaje.jsonb.spi.DefaultJsonbProvider;
 }
