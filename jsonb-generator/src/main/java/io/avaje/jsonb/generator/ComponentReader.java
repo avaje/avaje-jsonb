@@ -1,5 +1,11 @@
 package io.avaje.jsonb.generator;
 
+import javax.annotation.processing.FilerException;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 import java.io.FileNotFoundException;
 import java.io.LineNumberReader;
 import java.io.Reader;
@@ -8,13 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import javax.annotation.processing.FilerException;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
 
 final class ComponentReader {
 
@@ -47,20 +46,18 @@ final class ComponentReader {
       final FactoryPrism metaDataFactory = FactoryPrism.getInstance(annotationMirror);
 
       if (metaData != null) {
-
         Optional.ofNullable(metaData.value()).stream()
-            .flatMap(List::stream)
-            .map(TypeMirror::toString)
-            .map(this::adapterNameFromEntry)
-            .forEach(componentMetaData::add);
+          .flatMap(List::stream)
+          .map(TypeMirror::toString)
+          .map(this::adapterNameFromEntry)
+          .forEach(componentMetaData::add);
 
       } else if (metaDataFactory != null) {
-
         Optional.ofNullable(metaDataFactory.value()).stream()
-            .flatMap(List::stream)
-            .map(TypeMirror::toString)
-            .map(this::adapterNameFromEntry)
-            .forEach(componentMetaData::add);
+          .flatMap(List::stream)
+          .map(TypeMirror::toString)
+          .map(this::adapterNameFromEntry)
+          .forEach(componentMetaData::add);
       }
     }
   }

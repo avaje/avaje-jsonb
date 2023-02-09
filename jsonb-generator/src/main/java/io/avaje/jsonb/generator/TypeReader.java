@@ -44,7 +44,7 @@ final class TypeReader {
     this.subTypes = new TypeSubTypeReader(baseType);
   }
 
-  public TypeReader(TypeElement baseType, TypeElement mixInType, ProcessingContext context, NamingConvention namingConvention) {
+  TypeReader(TypeElement baseType, TypeElement mixInType, ProcessingContext context, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
     this.mixInFields =

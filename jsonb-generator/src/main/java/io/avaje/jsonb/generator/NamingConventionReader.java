@@ -9,12 +9,10 @@ final class NamingConventionReader {
   private final NamingConvention namingConvention;
 
   NamingConventionReader(TypeElement element) {
-
     final JsonPrism jsonAnnotation = JsonPrism.getInstanceOn(element);
     if (jsonAnnotation == null) {
       typeProperty = null;
       namingConvention = null;
-
       caseInsensitiveKeys = false;
       return;
     }

@@ -51,7 +51,7 @@ final class Util {
     }
   }
 
-  public static String escapeQuotes(String input) {
+  static String escapeQuotes(String input) {
     return input.replaceAll("^\"|\"$", "\\\\\"");
   }
 

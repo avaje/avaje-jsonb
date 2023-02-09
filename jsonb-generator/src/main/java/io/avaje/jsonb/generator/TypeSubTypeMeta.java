@@ -1,12 +1,7 @@
 package io.avaje.jsonb.generator;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import javax.lang.model.element.TypeElement;
+import java.util.*;
 
 final class TypeSubTypeMeta {
 
@@ -21,7 +16,7 @@ final class TypeSubTypeMeta {
     return type;
   }
 
-  public TypeSubTypeMeta(SubTypePrism prism) {
+  TypeSubTypeMeta(SubTypePrism prism) {
     type = prism.type().toString();
     name = Optional.of(Util.escapeQuotes(prism.name())).filter(s -> s.length() > 0).orElse(null);
   }

@@ -10,12 +10,10 @@ final class PropertyIgnoreReader {
   private boolean ignoreDeserialize;
 
   PropertyIgnoreReader(Element element) {
-
     unmapped = UnmappedPrism.getInstanceOn(element) != null;
     raw = RawPrism.getInstanceOn(element) != null;
 
     final IgnorePrism ignored = IgnorePrism.getInstanceOn(element);
-
     if (ignored != null) {
       ignoreDeserialize = !ignored.deserialize();
       ignoreSerialize = !ignored.serialize();

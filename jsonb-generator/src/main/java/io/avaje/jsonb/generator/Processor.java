@@ -1,16 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.Constants.JSON;
-import static io.avaje.jsonb.generator.Constants.JSON_IMPORT;
-import static io.avaje.jsonb.generator.Constants.JSON_MIXIN;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -20,6 +9,10 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import java.io.IOException;
+import java.util.*;
+
+import static io.avaje.jsonb.generator.Constants.*;
 
 @SupportedAnnotationTypes({JSON, JSON_IMPORT, JSON_MIXIN})
 public final class Processor extends AbstractProcessor {
@@ -103,16 +96,16 @@ public final class Processor extends AbstractProcessor {
 
   private boolean ignoreType(String type) {
     return type.indexOf('.') == -1
-        || type.startsWith("java.")
-        || type.startsWith("javax.")
-        || sourceTypes.contains(type);
+      || type.startsWith("java.")
+      || type.startsWith("javax.")
+      || sourceTypes.contains(type);
   }
 
-  /** Elements that have a {@code @Json.MixIn} annotation. */
+  /**
+   * Elements that have a {@code @Json.MixIn} annotation.
+   */
   private void writeAdaptersForMixInTypes(Set<? extends Element> mixInElements) {
-
     for (final Element mixin : mixInElements) {
-
       final TypeMirror mirror = MixInPrism.getInstanceOn(mixin).value();
       final String importType = mirror.toString();
       final TypeElement element = (TypeElement) context.asElement(mirror);
@@ -122,19 +115,17 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-  /** Elements that have a {@code @Json.Import} annotation. */
+  /**
+   * Elements that have a {@code @Json.Import} annotation.
+   */
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
-
     for (final Element importedElement : importedElements) {
       for (final TypeMirror importType : ImportPrism.getInstanceOn(importedElement).value()) {
         // if imported by mixin annotation skip
         if (mixInImports.contains(importType.toString())) {
           continue;
         }
-
-        final TypeElement element = (TypeElement) context.asElement(importType);
-
-        writeAdapterForType(element);
+        writeAdapterForType((TypeElement) context.asElement(importType));
       }
     }
   }

@@ -1,15 +1,9 @@
 package io.avaje.jsonb.generator;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import java.util.*;
+import java.util.stream.Collectors;
 
 final class FieldReader {
 
@@ -37,11 +31,7 @@ final class FieldReader {
   private int genericTypeParamPosition;
   private final List<String> aliases;
 
-  FieldReader(
-      Element element,
-      NamingConvention namingConvention,
-      TypeSubTypeMeta subType,
-      List<String> genericTypeParams) {
+  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams) {
     addSubType(subType);
     this.genericTypeParams = genericTypeParams;
     this.fieldName = element.getSimpleName().toString();
@@ -56,19 +46,19 @@ final class FieldReader {
     this.deserialize = ignoreReader.deserialize();
 
     this.propertyName =
-        Optional.ofNullable(PropertyPrism.getInstanceOn(element))
-            .map(PropertyPrism::value)
-            .filter(Objects::nonNull)
-            .map(Util::escapeQuotes)
-            .orElse(namingConvention.from(fieldName));
+      Optional.ofNullable(PropertyPrism.getInstanceOn(element))
+        .map(PropertyPrism::value)
+        .filter(Objects::nonNull)
+        .map(Util::escapeQuotes)
+        .orElse(namingConvention.from(fieldName));
     this.aliases =
-        Optional.ofNullable(JsonAliasPrism.getInstanceOn(element))
-            .map(JsonAliasPrism::value)
-            .filter(Objects::nonNull)
-            .stream()
-            .flatMap(List::stream)
-            .map(Util::escapeQuotes)
-            .collect(Collectors.toList());
+      Optional.ofNullable(JsonAliasPrism.getInstanceOn(element))
+        .map(JsonAliasPrism::value)
+        .filter(Objects::nonNull)
+        .stream()
+        .flatMap(List::stream)
+        .map(Util::escapeQuotes)
+        .collect(Collectors.toList());
 
     if (raw) {
       genericType = GenericType.parse("java.lang.String");
@@ -96,7 +86,7 @@ final class FieldReader {
     String typeWrapped = "JsonAdapter<" + PrimitiveUtil.wrap(shortType) + ">";
     for (int i = 0; i < genericTypeParams.size(); i++) {
       String typeParam = genericTypeParams.get(i);
-      if (typeWrapped.contains("<" + typeParam + ">") ) {
+      if (typeWrapped.contains("<" + typeParam + ">")) {
         genericTypeParameter = true;
         genericTypeParamPosition = i;
         typeWrapped = typeWrapped.replace("<" + typeParam + ">", "<Object>");
