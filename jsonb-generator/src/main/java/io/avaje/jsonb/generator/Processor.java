@@ -1,9 +1,9 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.Constants.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -11,13 +11,14 @@ import java.util.TreeSet;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 
-import io.avaje.jsonb.Json;
 
+@SupportedAnnotationTypes({JSONB, JSONB_IMPORT, JSONB_MIXIN})
 public final class Processor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
@@ -30,9 +31,6 @@ public final class Processor extends AbstractProcessor {
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
 
-  public Processor() {
-  }
-
   @Override
   public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latest();
@@ -43,15 +41,6 @@ public final class Processor extends AbstractProcessor {
     super.init(processingEnv);
     this.context = new ProcessingContext(processingEnv);
     this.componentWriter = new SimpleComponentWriter(context, metaData);
-  }
-
-  @Override
-  public Set<String> getSupportedAnnotationTypes() {
-    Set<String> annotations = new LinkedHashSet<>();
-    annotations.add(Json.class.getCanonicalName());
-    annotations.add(Json.Import.class.getCanonicalName());
-    annotations.add(Json.MixIn.class.getCanonicalName());
-    return annotations;
   }
 
   /**
@@ -68,9 +57,9 @@ public final class Processor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     readModule();
-    writeAdapters(round.getElementsAnnotatedWith(Json.class));
-    writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(Json.MixIn.class));
-    writeAdaptersForImported(round.getElementsAnnotatedWith(Json.Import.class));
+    writeAdapters(round.getElementsAnnotatedWith(context.element(JSONB)));
+    writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(context.element(JSONB_MIXIN)));
+    writeAdaptersForImported(round.getElementsAnnotatedWith(context.element(JSONB_IMPORT)));
     initialiseComponent();
     cascadeTypes();
     writeComponent(round.processingOver());

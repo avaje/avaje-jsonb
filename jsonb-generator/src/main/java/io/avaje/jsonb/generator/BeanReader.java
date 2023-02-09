@@ -1,7 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.lang.reflect.InvocationTargetException;
@@ -107,7 +105,7 @@ final class BeanReader {
   }
 
   boolean hasJsonAnnotation() {
-    return beanType.getAnnotation(Json.class) != null;
+    return JsonPrism.getInstanceOn(beanType) != null;
   }
 
   void read() {

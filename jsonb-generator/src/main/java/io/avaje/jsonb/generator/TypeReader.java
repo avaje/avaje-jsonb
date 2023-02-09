@@ -1,7 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
-
 import javax.lang.model.element.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,7 +40,7 @@ final class TypeReader {
     this.context = context;
     this.mixInFields = new HashMap<>();
     this.namingConvention = namingConvention;
-    this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
+    this.hasJsonAnnotation = JsonPrism.getInstanceOn(baseType) != null;
     this.subTypes = new TypeSubTypeReader(baseType, context);
   }
 
@@ -55,7 +53,7 @@ final class TypeReader {
         .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     this.context = context;
     this.namingConvention = namingConvention;
-    this.hasJsonAnnotation = baseType.getAnnotation(Json.class) != null;
+    this.hasJsonAnnotation = JsonPrism.getInstanceOn(baseType) != null;
     this.subTypes = new TypeSubTypeReader(baseType, context);
   }
 

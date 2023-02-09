@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.avaje</groupId>
@@ -16,7 +18,17 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb</artifactId>
-      <version>1.2-SNAPSHOT</version>
+      <version>${project.version}</version>
+      <optional>true</optional>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>avaje-prisms</artifactId>
+      <version>1.0</version>
+      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
 
     <!-- test dependencies -->
@@ -39,20 +51,25 @@
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
-          <!-- Turn off annotation processing for building -->
-          <compilerArgument>-proc:none</compilerArgument>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>io.avaje</groupId>
+              <artifactId>avaje-prisms</artifactId>
+              <version>1.0</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
 
-<!--      <plugin>-->
-<!--        <artifactId>maven-surefire-plugin</artifactId>-->
-<!--        <version>3.0.0-M4</version>-->
-<!--        <configuration>-->
-<!--          <argLine>-->
-<!--            &#45;&#45;add-opens io.avaje.jsonb.generator/io.avaje.jsonb.generator=ALL-UNNAMED-->
-<!--          </argLine>-->
-<!--        </configuration>-->
-<!--      </plugin>-->
+      <!--      <plugin>-->
+      <!--        <artifactId>maven-surefire-plugin</artifactId>-->
+      <!--        <version>3.0.0-M4</version>-->
+      <!--        <configuration>-->
+      <!--          <argLine>-->
+      <!--            &#45;&#45;add-opens io.avaje.jsonb.generator/io.avaje.jsonb.generator=ALL-UNNAMED-->
+      <!--          </argLine>-->
+      <!--        </configuration>-->
+      <!--      </plugin>-->
 
       <plugin>
         <groupId>org.moditect</groupId>
@@ -66,6 +83,7 @@
               <goal>add-module-info</goal>
             </goals>
             <configuration>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
               <module>
                 <moduleInfoFile>src/main/java9/module-info.java</moduleInfoFile>
               </module>
