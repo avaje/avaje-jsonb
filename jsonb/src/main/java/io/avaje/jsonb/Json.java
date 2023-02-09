@@ -44,7 +44,7 @@ public @interface Json {
    * <p>
    * This defaults to {@code @type} when unspecified.
    */
-  String typeProperty() default "";
+  String typeProperty() default "@type";
 
   /**
    * When set to true on deserialization keys are matched insensitive to case.
