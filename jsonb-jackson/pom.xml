@@ -47,6 +47,7 @@
               <goal>add-module-info</goal>
             </goals>
             <configuration>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
               <module>
                 <moduleInfoFile>src/main/java9/module-info.java</moduleInfoFile>
               </module>

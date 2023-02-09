@@ -1,52 +1,42 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
-
-import javax.lang.model.element.*;
-import java.util.Map;
+import javax.lang.model.element.TypeElement;
 
 final class NamingConventionReader {
 
-  private static final String JSON_ANNOTATION = "io.avaje.jsonb.Json";
-  private static final String NAMING_ATTRIBUTE = "naming()";
-  private static final String TYPEPROPERTY_ATTRIBUTE = "typeProperty()";
-  private static final String CASEINSENSITIVEKEYS_ATTRIBUTE = "caseInsensitiveKeys()";
-
-  private String typeProperty;
-  private boolean caseInsensitiveKeys;
-  private NamingConvention namingConvention;
+  private final String typeProperty;
+  private final boolean caseInsensitiveKeys;
+  private final NamingConvention namingConvention;
 
   NamingConventionReader(TypeElement element) {
-    for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
-      if (JSON_ANNOTATION.equals(mirror.getAnnotationType().toString())) {
-        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
-          String key = entry.getKey().toString();
-          if (key.equals(NAMING_ATTRIBUTE)) {
-            namingConvention = NamingConvention.of(naming(entry.getValue().toString()));
-          } else if (key.equals(TYPEPROPERTY_ATTRIBUTE)) {
-            typeProperty = Util.trimQuotes(entry.getValue().toString());
-          } else if (key.equals(CASEINSENSITIVEKEYS_ATTRIBUTE)) {
-            caseInsensitiveKeys = Boolean.parseBoolean(entry.getValue().toString());
-          }
-        }
-      }
+
+    final JsonPrism jsonAnnotation = JsonPrism.getInstanceOn(element);
+    if (jsonAnnotation == null) {
+      typeProperty = null;
+      namingConvention = null;
+
+      caseInsensitiveKeys = false;
+      return;
     }
+    namingConvention = NamingConvention.of(naming(jsonAnnotation.naming()));
+    typeProperty = Util.escapeQuotes(jsonAnnotation.typeProperty());
+    caseInsensitiveKeys = jsonAnnotation.caseInsensitiveKeys();
   }
 
-  static Json.Naming naming(String entry) {
-    int pos = entry.lastIndexOf('.');
+  static Naming naming(String entry) {
+    final int pos = entry.lastIndexOf('.');
     if (pos > -1) {
       entry = entry.substring(pos + 1);
     }
-    return Json.Naming.valueOf(entry);
+    return Naming.valueOf(entry);
   }
 
   NamingConvention get() {
-    return namingConvention != null ? namingConvention : NamingConvention.of(Json.Naming.Match);
+    return namingConvention != null ? namingConvention : NamingConvention.of(Naming.Match);
   }
 
   String typeProperty() {
-    return typeProperty != null ? typeProperty : "@type";
+    return typeProperty;
   }
 
   boolean isCaseInsensitiveKeys() {
