@@ -23,8 +23,8 @@ final class NamingConventionReader {
     caseInsensitiveKeys = jsonAnnotation.caseInsensitiveKeys();
   }
 
-    int pos = entry.lastIndexOf('.');
   static Naming naming(String entry) {
+    final int pos = entry.lastIndexOf('.');
     if (pos > -1) {
       entry = entry.substring(pos + 1);
     }

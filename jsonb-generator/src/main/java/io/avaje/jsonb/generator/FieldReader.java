@@ -62,6 +62,8 @@ final class FieldReader {
             .map(Util::escapeQuotes)
             .orElse(namingConvention.from(fieldName));
     this.aliases =
+        Optional.ofNullable(JsonAliasPrism.getInstanceOn(element))
+            .map(JsonAliasPrism::value)
             .filter(Objects::nonNull)
             .stream()
             .flatMap(List::stream)
