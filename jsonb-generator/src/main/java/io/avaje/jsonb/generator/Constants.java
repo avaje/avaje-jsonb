@@ -6,8 +6,9 @@ final class Constants {
   static final String JSONB_WILD = "io.avaje.jsonb.*";
   static final String JSONB_SPI = "io.avaje.jsonb.spi.*";
   static final String JSONB = "io.avaje.jsonb.Jsonb";
-  static final String JSONB_IMPORT = "io.avaje.jsonb.Jsonb";
-  static final String JSONB_MIXIN = "io.avaje.jsonb.Jsonb";
+  static final String JSON = "io.avaje.jsonb.Json";
+  static final String JSON_IMPORT = "io.avaje.jsonb.Json.Import";
+  static final String JSON_MIXIN = "io.avaje.jsonb.Json.MixIn";
   static final String IOEXCEPTION = "java.io.IOException";
   static final String METHODHANDLE = "java.lang.invoke.MethodHandle";
   static final String REFLECT_TYPE = "java.lang.reflect.Type";

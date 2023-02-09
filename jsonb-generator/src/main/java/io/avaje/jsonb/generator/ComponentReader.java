@@ -1,12 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import javax.annotation.processing.FilerException;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
 import java.io.FileNotFoundException;
 import java.io.LineNumberReader;
 import java.io.Reader;
@@ -14,12 +7,17 @@ import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.processing.FilerException;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 
 final class ComponentReader {
 
-  private static final String META_DATA = "io.avaje.jsonb.spi.MetaData";
-  private static final String META_DATA_FACTORY = "io.avaje.jsonb.spi.MetaData.Factory";
   private final ProcessingContext ctx;
   private final ComponentMetaData componentMetaData;
 
@@ -43,23 +41,28 @@ final class ComponentReader {
    * Read the existing JsonAdapters from the MetaData annotation of the generated component.
    */
   private void readMetaData(TypeElement moduleType) {
-    for (AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
-      if (META_DATA.equals(annotationMirror.getAnnotationType().toString())) {
-        readValues(annotationMirror).forEach(componentMetaData::add);
-      } else if (META_DATA_FACTORY.equals(annotationMirror.getAnnotationType().toString())) {
-        readValues(annotationMirror).forEach(componentMetaData::addFactory);
-      }
-    }
-  }
+    for (final AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
 
-  private List<String> readValues(AnnotationMirror annotationMirror) {
-    List<String> adapterClasses = new ArrayList<>();
-    for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationMirror.getElementValues().entrySet()) {
-      for (Object adapterEntry : (List<?>) entry.getValue().getValue()) {
-        adapterClasses.add(adapterNameFromEntry(adapterEntry));
+      final MetaDataPrism metaData = MetaDataPrism.getInstance(annotationMirror);
+      final FactoryPrism metaDataFactory = FactoryPrism.getInstance(annotationMirror);
+
+      if (metaData != null) {
+
+        Optional.ofNullable(metaData.value()).stream()
+            .flatMap(List::stream)
+            .map(TypeMirror::toString)
+            .map(this::adapterNameFromEntry)
+            .forEach(componentMetaData::add);
+
+      } else if (metaDataFactory != null) {
+
+        Optional.ofNullable(metaDataFactory.value()).stream()
+            .flatMap(List::stream)
+            .map(TypeMirror::toString)
+            .map(this::adapterNameFromEntry)
+            .forEach(componentMetaData::add);
       }
     }
-    return adapterClasses;
   }
 
   private String adapterNameFromEntry(Object adapterEntry) {
@@ -103,5 +106,4 @@ final class ComponentReader {
     }
     return Collections.emptyList();
   }
-
 }

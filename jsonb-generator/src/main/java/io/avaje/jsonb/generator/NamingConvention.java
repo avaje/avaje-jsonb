@@ -1,17 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
-
 final class NamingConvention {
 
-  private final Json.Naming naming;
+  private final Naming naming;
   private final Convert convert;
 
-  static NamingConvention of(Json.Naming naming) {
+  static NamingConvention of(Naming naming) {
     return new NamingConvention(naming);
   }
 
-  private NamingConvention(Json.Naming naming) {
+  private NamingConvention(Naming naming) {
     this.naming = naming;
     this.convert = init(naming);
   }
@@ -21,7 +19,7 @@ final class NamingConvention {
     return naming.toString();
   }
 
-  Convert init(Json.Naming naming) {
+  Convert init(Naming naming) {
     switch (naming) {
       case Match: return fieldName -> fieldName;
       case LowerHyphen: return new LowerExtra('-');

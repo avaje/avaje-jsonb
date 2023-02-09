@@ -1,11 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 
 final class FieldReader {
 
@@ -33,20 +37,37 @@ final class FieldReader {
   private int genericTypeParamPosition;
   private final List<String> aliases;
 
-  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams) {
+  FieldReader(
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams) {
     addSubType(subType);
     this.genericTypeParams = genericTypeParams;
     this.fieldName = element.getSimpleName().toString();
-    this.propertyName = PropertyReader.name(namingConvention, fieldName, element);
+
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
     this.rawType = trimAnnotations(element.asType().toString());
-    this.aliases = AliasReader.getAliases(element);
 
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     this.unmapped = ignoreReader.unmapped();
     this.raw = ignoreReader.raw();
     this.serialize = ignoreReader.serialize();
     this.deserialize = ignoreReader.deserialize();
+
+    this.propertyName =
+        Optional.ofNullable(PropertyPrism.getInstanceOn(element))
+            .map(PropertyPrism::value)
+            .filter(Objects::nonNull)
+            .map(Util::escapeQuotes)
+            .orElse(namingConvention.from(fieldName));
+    this.aliases =
+            .filter(Objects::nonNull)
+            .stream()
+            .flatMap(List::stream)
+            .map(Util::escapeQuotes)
+            .collect(Collectors.toList());
+
     if (raw) {
       genericType = GenericType.parse("java.lang.String");
       adapterShortType = "JsonAdapter<String>";

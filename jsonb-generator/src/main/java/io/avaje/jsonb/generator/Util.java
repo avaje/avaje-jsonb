@@ -51,8 +51,8 @@ final class Util {
     }
   }
 
-  static String trimQuotes(String value) {
-    return value.substring(1, value.length() - 1);
+  public static String escapeQuotes(String input) {
+    return input.replaceAll("^\"|\"$", "\\\\\"");
   }
 
   /**

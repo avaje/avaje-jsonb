@@ -1,6 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import io.avaje.jsonb.Json;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,7 +8,7 @@ class NamingConventionTest {
 
   @Test
   void match_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.Match);
+    NamingConvention match = NamingConvention.of(Naming.Match);
 
     assertEquals("abcde", match.from("abcde"));
     assertEquals("aURL", match.from("aURL"));
@@ -18,7 +17,7 @@ class NamingConventionTest {
 
   @Test
   void lowerHyphen_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.LowerHyphen);
+    NamingConvention match = NamingConvention.of(Naming.LowerHyphen);
 
     assertEquals("ab-cde", match.from("abCde"));
     assertEquals("ab-cd-e", match.from("abCdE"));
@@ -29,7 +28,7 @@ class NamingConventionTest {
 
   @Test
   void lowerUnderscore_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.LowerUnderscore);
+    NamingConvention match = NamingConvention.of(Naming.LowerUnderscore);
 
     assertEquals("ab_cde", match.from("abCde"));
     assertEquals("ab_cd_e", match.from("abCdE"));
@@ -40,7 +39,7 @@ class NamingConventionTest {
 
   @Test
   void lowerSpace_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.LowerSpace);
+    NamingConvention match = NamingConvention.of(Naming.LowerSpace);
 
     assertEquals("ab cde", match.from("abCde"));
     assertEquals("ab cd e", match.from("abCdE"));
@@ -51,7 +50,7 @@ class NamingConventionTest {
 
   @Test
   void upperSpace_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.UpperSpace);
+    NamingConvention match = NamingConvention.of(Naming.UpperSpace);
 
     assertEquals("ABCDE", match.from("abcde"));
     assertEquals("AB CDE", match.from("abCde"));
@@ -63,7 +62,7 @@ class NamingConventionTest {
 
   @Test
   void upperUnderscore_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.UpperUnderscore);
+    NamingConvention match = NamingConvention.of(Naming.UpperUnderscore);
 
     assertEquals("ABCDE", match.from("abcde"));
     assertEquals("AB_CDE", match.from("abCde"));
@@ -75,7 +74,7 @@ class NamingConventionTest {
 
   @Test
   void upperHyphen_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.UpperHyphen);
+    NamingConvention match = NamingConvention.of(Naming.UpperHyphen);
 
     assertEquals("ABCDE", match.from("abcde"));
     assertEquals("AB-CDE", match.from("abCde"));
@@ -87,7 +86,7 @@ class NamingConventionTest {
 
   @Test
   void upperCamel_from() {
-    NamingConvention match = NamingConvention.of(Json.Naming.UpperCamel);
+    NamingConvention match = NamingConvention.of(Naming.UpperCamel);
 
     assertEquals("ABCDE", match.from("abcde"));
     assertEquals("AbCde", match.from("abCde"));

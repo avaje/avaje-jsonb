@@ -41,7 +41,7 @@ final class TypeReader {
     this.mixInFields = new HashMap<>();
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.getInstanceOn(baseType) != null;
-    this.subTypes = new TypeSubTypeReader(baseType, context);
+    this.subTypes = new TypeSubTypeReader(baseType);
   }
 
   public TypeReader(TypeElement baseType, TypeElement mixInType, ProcessingContext context, NamingConvention namingConvention) {
@@ -54,7 +54,7 @@ final class TypeReader {
     this.context = context;
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.getInstanceOn(baseType) != null;
-    this.subTypes = new TypeSubTypeReader(baseType, context);
+    this.subTypes = new TypeSubTypeReader(baseType);
   }
 
   private List<String> initTypeParams(TypeElement beanType) {
