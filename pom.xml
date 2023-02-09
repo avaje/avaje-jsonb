@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.avaje</groupId>
-    <artifactId>java8-oss</artifactId>
+    <artifactId>java11-oss</artifactId>
     <version>3.9</version>
   </parent>
 
@@ -21,7 +21,6 @@
   </scm>
 
   <properties>
-<!--    <java.version>11</java.version>-->
     <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
   </properties>
 
