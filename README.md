@@ -4,7 +4,7 @@
 
 # [Avaje-JsonB](https://avaje.io/jsonb/)
 
-Fast, reflection-free Json binding via apt source code generation. A light (~188kb size + generated code) source code generation style alternative to Jacksons ObjectMapper, Gson (code generation vs reflection)
+Fast, reflection-free Json binding via apt source code generation. A light (~188kb + generated code) source code generation style alternative to Jacksons ObjectMapper, Gson (code generation vs reflection)
 
 - Annotate java classes with `@Json` (or use `@Json.Import` for types we "don't own" or can't annotate)
 - `avaje-jsonb-generator` annotation processor generates java source code to convert to/from json
@@ -84,8 +84,8 @@ public class Address {
   private String street;
   private String suburb;
   private String city;
-  // object fields will automatically have adapters generated
-  // no @Json required, (though you can add @Json anyway to modify the adapters how you wish)
+  // object fields will automatically have adapters generated, no @Json required
+  // (though you can add @Json anyway to modify the generated adapter how you wish)
   private OtherClass;
   
   //add getters/setters
