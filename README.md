@@ -4,7 +4,7 @@
 
 # [Avaje-JsonB](https://avaje.io/jsonb/)
 
-Fast, reflection-free Json binding via apt source code generation. A source code generation style alternative to ObjectMapper, Gson (code generation vs reflection)
+Fast, reflection-free Json binding via apt source code generation. A light (~188kb + generated code) source code generation style alternative to Jacksons ObjectMapper, Gson (code generation vs reflection)
 
 - Annotate java classes with `@Json` (or use `@Json.Import` for types we "don't own" or can't annotate)
 - `avaje-jsonb-generator` annotation processor generates java source code to convert to/from json
@@ -14,7 +14,19 @@ Fast, reflection-free Json binding via apt source code generation. A source code
 - Support Mixins (adding jsonb features to types we can't directly annotate).
 - Provides support for dynamic json views (similar in style to that presented by [LinkedIn at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
 
+### Built-in Type Adapters
 
+Built-in support for reading and writing Java’s core data types:
+
+ * Primitives (int, float, char...) and their boxed counterparts (Integer, Float, Character...).
+ * BigInteger and BigDecimal
+ * java.time classes (Instant, LocalDate, LocalDateTime...)
+ * Arrays, Collections, Streams, Lists, Sets, and Maps
+ * Strings
+ * Enums
+ * Other miscellaneous types (UUID, URL, URI)
+
+ 
 # Quick Start
 
 ## Step 1 - Add dependency
@@ -66,21 +78,27 @@ The `avaje-jsonb-generator` annotation processor will generate a JsonAdapter as 
 for each type annotated with `@Json`. These will be automatically registered with Jsonb
 when it is started using a service loader mechanism.
 
-For types we cannot annotate with `@Json` we can instead use `@Json.Import`.
 ```java
 @Json
 public class Address {
   private String street;
   private String suburb;
   private String city;
+  // object fields will automatically have adapters generated, no @Json required
+  // (though you can add @Json anyway to modify the generated adapter how you wish)
+  private OtherClass;
+  
   //add getters/setters
 }
 ```
+
 Also works with records:
 ```java
 @Json
 public record Address(String street, String suburb, String city) { }
 ```
+
+For types we cannot annotate with `@Json` we can place `@Json.Import(TypeToimport.class)` on any class/package-info to generate the adpaters.
 
 ## Step 3 - Use
 
