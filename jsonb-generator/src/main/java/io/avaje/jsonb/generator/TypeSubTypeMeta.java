@@ -34,7 +34,7 @@ final class TypeSubTypeMeta {
   }
 
   String name() {
-    if (name.length() == 0) {
+    if (name.isBlank()) {
       name = Util.shortName(type);
     }
     return name;
