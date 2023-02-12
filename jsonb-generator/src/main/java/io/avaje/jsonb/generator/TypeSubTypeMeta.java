@@ -18,7 +18,7 @@ final class TypeSubTypeMeta {
 
   TypeSubTypeMeta(SubTypePrism prism) {
     type = prism.type().toString();
-    name = Optional.of(Util.escapeQuotes(prism.name())).filter(s -> s.length() > 0).orElse(null);
+    name = Util.escapeQuotes(prism.name());
   }
 
   void setElement(TypeElement element) {
@@ -34,7 +34,7 @@ final class TypeSubTypeMeta {
   }
 
   String name() {
-    if (name == null) {
+    if (name.isBlank()) {
       name = Util.shortName(type);
     }
     return name;
