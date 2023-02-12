@@ -13,7 +13,6 @@ import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 final class ComponentReader {
 
@@ -46,18 +45,18 @@ final class ComponentReader {
       final FactoryPrism metaDataFactory = FactoryPrism.getInstance(annotationMirror);
 
       if (metaData != null) {
-        Optional.ofNullable(metaData.value()).stream()
-          .flatMap(List::stream)
-          .map(TypeMirror::toString)
-          .map(this::adapterNameFromEntry)
-          .forEach(componentMetaData::add);
+
+        metaData.value().stream()
+            .map(TypeMirror::toString)
+            .map(this::adapterNameFromEntry)
+            .forEach(componentMetaData::add);
 
       } else if (metaDataFactory != null) {
-        Optional.ofNullable(metaDataFactory.value()).stream()
-          .flatMap(List::stream)
-          .map(TypeMirror::toString)
-          .map(this::adapterNameFromEntry)
-          .forEach(componentMetaData::add);
+
+        metaDataFactory.value().stream()
+            .map(TypeMirror::toString)
+            .map(this::adapterNameFromEntry)
+            .forEach(componentMetaData::add);
       }
     }
   }

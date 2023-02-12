@@ -46,19 +46,20 @@ final class FieldReader {
     this.deserialize = ignoreReader.deserialize();
 
     this.propertyName =
-      Optional.ofNullable(PropertyPrism.getInstanceOn(element))
-        .map(PropertyPrism::value)
-        .filter(Objects::nonNull)
-        .map(Util::escapeQuotes)
-        .orElse(namingConvention.from(fieldName));
+        PropertyPrism.getOptionalOn(element)
+            .map(PropertyPrism::value)
+            .filter(Objects::nonNull)
+            .map(Util::escapeQuotes)
+            .orElse(namingConvention.from(fieldName));
+    
     this.aliases =
-      Optional.ofNullable(JsonAliasPrism.getInstanceOn(element))
-        .map(JsonAliasPrism::value)
-        .filter(Objects::nonNull)
-        .stream()
-        .flatMap(List::stream)
-        .map(Util::escapeQuotes)
-        .collect(Collectors.toList());
+        JsonAliasPrism.getOptionalOn(element)
+            .map(JsonAliasPrism::value)
+            .filter(Objects::nonNull)
+            .stream()
+            .flatMap(List::stream)
+            .map(Util::escapeQuotes)
+            .collect(Collectors.toList());
 
     if (raw) {
       genericType = GenericType.parse("java.lang.String");
