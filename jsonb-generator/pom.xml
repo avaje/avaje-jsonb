@@ -17,7 +17,6 @@
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
