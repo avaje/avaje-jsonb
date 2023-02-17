@@ -51,7 +51,7 @@ final class FieldReader {
             .filter(Objects::nonNull)
             .map(Util::escapeQuotes)
             .orElse(namingConvention.from(fieldName));
-    
+
     this.aliases =
         JsonAliasPrism.getOptionalOn(element)
             .map(JsonAliasPrism::value)
@@ -94,6 +94,15 @@ final class FieldReader {
       }
     }
     return typeWrapped;
+  }
+
+  private String typeParamToObject(String shortType) {
+    for (String typeParam : genericTypeParams) {
+      if (shortType.contains("<" + typeParam + ">")) {
+        shortType = shortType.replace("<" + typeParam + ">", "<Object>");
+      }
+    }
+    return shortType;
   }
 
   private String initShortName() {
@@ -292,7 +301,8 @@ final class FieldReader {
     if (unmapped) {
       return;
     }
-    writer.append("    %s _val$%s = %s;", pad(genericType.shortType()), fieldName, defaultValue);
+    String shortType = typeParamToObject(genericType.shortType());
+    writer.append("    %s _val$%s = %s;", pad(shortType), fieldName, defaultValue);
     if (!constructorParam) {
       writer.append(" boolean _set$%s = false;", fieldName);
     }
