@@ -64,13 +64,11 @@ final class BeanReader {
   boolean isRecord(TypeElement beanType) {
     try {
       final List<? extends Element> recordComponents =
-        (List<? extends Element>)
-          TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
+        (List<? extends Element>) TypeElement.class
+          .getMethod("getRecordComponents")
+          .invoke(beanType);
       return !recordComponents.isEmpty();
-    } catch (IllegalAccessException
-             | InvocationTargetException
-             | NoSuchMethodException
-             | SecurityException e) {
+    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
       return false;
     }
   }
