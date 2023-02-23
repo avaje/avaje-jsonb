@@ -15,6 +15,6 @@ public final class DefaultJsonbProvider implements io.avaje.inject.spi.Plugin {
 
   @Override
   public void apply(BeanScopeBuilder builder) {
-    builder.provideDefault(Jsonb.class, () -> Jsonb.builder().build());
+    builder.provideDefault(null, Jsonb.class, () -> Jsonb.builder().build());
   }
 }
