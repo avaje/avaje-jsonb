@@ -24,7 +24,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-inject</artifactId>
-      <version>8.13-RC2</version>
+      <version>8.13-RC4</version>
       <optional>true</optional>
     </dependency>
 
