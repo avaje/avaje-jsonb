@@ -1,6 +1,7 @@
 [![Build](https://github.com/avaje/avaje-jsonb/actions/workflows/build.yml/badge.svg)](https://github.com/avaje/avaje-jsonb/actions/workflows/build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.avaje/avaje-jsonb.svg?label=Maven%20Central)](https://mvnrepository.com/artifact/io.avaje/avaje-jsonb)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/avaje/avaje-jsonb/blob/master/LICENSE)
+[![Discord](https://img.shields.io/discord/1074074312421683250?color=%237289da&label=discord)](https://discord.gg/Qcqf9R27BR)
 
 # [Avaje-JsonB](https://avaje.io/jsonb/)
 
@@ -26,7 +27,7 @@ Built-in support for reading and writing Java’s core data types:
  * Enums
  * Other miscellaneous types (UUID, URL, URI)
 
- 
+
 # Quick Start
 
 ## Step 1 - Add dependency
@@ -87,7 +88,7 @@ public class Address {
   // object fields will automatically have adapters generated, no @Json required
   // (though you can add @Json anyway to modify the generated adapter how you wish)
   private OtherClass;
-  
+
   //add getters/setters
 }
 ```
