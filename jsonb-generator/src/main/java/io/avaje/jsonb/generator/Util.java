@@ -55,13 +55,6 @@ final class Util {
     return input.replaceAll("^\"|\"$", "\\\\\"");
   }
 
-  /**
-   * Trim off the .class suffix.
-   */
-  static String trimClassSuffix(String nameWithSuffix) {
-    return nameWithSuffix.substring(0, nameWithSuffix.length() - 6);
-  }
-
   static String initLower(String name) {
     StringBuilder sb = new StringBuilder(name.length());
     boolean toLower = true;

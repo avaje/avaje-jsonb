@@ -48,21 +48,15 @@ final class ComponentReader {
 
         metaData.value().stream()
             .map(TypeMirror::toString)
-            .map(this::adapterNameFromEntry)
             .forEach(componentMetaData::add);
 
       } else if (metaDataFactory != null) {
 
         metaDataFactory.value().stream()
             .map(TypeMirror::toString)
-            .map(this::adapterNameFromEntry)
             .forEach(componentMetaData::add);
       }
     }
-  }
-
-  private String adapterNameFromEntry(Object adapterEntry) {
-    return Util.trimClassSuffix(adapterEntry.toString());
   }
 
   private String loadMetaInfServices() {
