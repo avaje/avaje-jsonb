@@ -103,7 +103,7 @@ final class BeanReader {
   }
 
   boolean hasJsonAnnotation() {
-    return JsonPrism.getInstanceOn(beanType) != null;
+    return JsonPrism.isPresent(beanType);
   }
 
   void read() {

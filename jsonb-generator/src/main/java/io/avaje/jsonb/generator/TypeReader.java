@@ -40,7 +40,7 @@ final class TypeReader {
     this.context = context;
     this.mixInFields = new HashMap<>();
     this.namingConvention = namingConvention;
-    this.hasJsonAnnotation = JsonPrism.getInstanceOn(baseType) != null;
+    this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
     this.subTypes = new TypeSubTypeReader(baseType);
   }
 
@@ -53,7 +53,7 @@ final class TypeReader {
         .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     this.context = context;
     this.namingConvention = namingConvention;
-    this.hasJsonAnnotation = JsonPrism.getInstanceOn(baseType) != null;
+    this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
     this.subTypes = new TypeSubTypeReader(baseType);
   }
 

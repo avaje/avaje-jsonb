@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 final class GenericTypeParser {
 
@@ -8,7 +9,7 @@ final class GenericTypeParser {
 
   private StringBuilder buf = new StringBuilder();
 
-  private final Stack<GenericType> stack = new Stack<>();
+  private final Deque<GenericType> stack = new ArrayDeque<>();
 
   GenericTypeParser(String raw) {
     this.raw = raw;
