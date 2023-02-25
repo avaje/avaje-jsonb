@@ -16,8 +16,8 @@ final class Recycle {
   private static ThreadLocal<JGenerator> managed;
 
   static {
-    if (Float.parseFloat(System.getProperty("java.specification.version")) >= 19
-      && !Boolean.getBoolean("jsonb.useTLBuffers")) {
+
+    if (Boolean.getBoolean("jsonb.useJVMBufferRecycling")) {
       jvmRecycle = true;
     } else {
       managed = ThreadLocal.withInitial(Recycle::createGenerator);
