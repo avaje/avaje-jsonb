@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.*;
 import javax.lang.model.element.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +24,6 @@ final class TypeReader {
   private final TypeSubTypeReader subTypes;
   private final TypeElement baseType;
   private final List<String> genericTypeParams;
-  private final ProcessingContext context;
   private final NamingConvention namingConvention;
   private final boolean hasJsonAnnotation;
   private MethodReader constructor;
@@ -34,24 +34,22 @@ final class TypeReader {
 
   private final Map<String, Element> mixInFields;
 
-  TypeReader(TypeElement baseType, ProcessingContext context, NamingConvention namingConvention) {
+  TypeReader(TypeElement baseType, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
-    this.context = context;
     this.mixInFields = new HashMap<>();
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
     this.subTypes = new TypeSubTypeReader(baseType);
   }
 
-  TypeReader(TypeElement baseType, TypeElement mixInType, ProcessingContext context, NamingConvention namingConvention) {
+  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
     this.mixInFields =
       mixInType.getEnclosedElements().stream()
         .filter(e -> e.getKind() == ElementKind.FIELD)
         .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
-    this.context = context;
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
     this.subTypes = new TypeSubTypeReader(baseType);
@@ -123,15 +121,15 @@ final class TypeReader {
   private void readConstructor(Element element, TypeElement type) {
     if (currentSubType != null) {
       if (currentSubType.element() != type) {
-        // context.logError("subType " + currentSubType.element() + " ignore constructor " + element);
+        // logError("subType " + currentSubType.element() + " ignore constructor " + element);
         return;
       }
     } else if (type != baseType) {
-      // context.logError("baseType " + baseType + " ignore constructor: " + element);
+      // logError("baseType " + baseType + " ignore constructor: " + element);
       return;
     }
     ExecutableElement ex = (ExecutableElement) element;
-    MethodReader methodReader = new MethodReader(context, ex, baseType).read();
+    MethodReader methodReader = new MethodReader(ex, baseType).read();
     if (methodReader.isPublic()) {
       if (currentSubType != null) {
         currentSubType.addConstructor(methodReader);
@@ -149,7 +147,7 @@ final class TypeReader {
     if (methodElement.getModifiers().contains(Modifier.PUBLIC)) {
       List<? extends VariableElement> parameters = methodElement.getParameters();
       final String methodKey = methodElement.getSimpleName().toString();
-      MethodReader methodReader = new MethodReader(context, methodElement, type).read();
+      MethodReader methodReader = new MethodReader(methodElement, type).read();
       if (parameters.size() == 1) {
         if (!maybeSetterMethods.containsKey(methodKey)) {
           maybeSetterMethods.put(methodKey, methodReader);
@@ -181,7 +179,7 @@ final class TypeReader {
       if (!matchFieldToSetter2(field, true)) {
         if (!matchFieldToSetterByParam(field)) {
           if (!field.isPublicField()) {
-            context.logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+            logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
           }
         }
       }
@@ -245,9 +243,9 @@ final class TypeReader {
         if (!field.isPublicField()) {
           nonAccessibleField = true;
           if (hasJsonAnnotation) {
-            context.logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
+            logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
           } else {
-            context.logDebug("Non accessible field " + baseType + " " + field.fieldName());
+            logDebug("Non accessible field " + baseType + " " + field.fieldName());
           }
         }
       }
@@ -364,7 +362,7 @@ final class TypeReader {
     if (hasSubTypes()) {
       for (TypeSubTypeMeta subType : subTypes.subTypes()) {
         currentSubType = subType;
-        TypeElement element = context.element(subType.type());
+        TypeElement element = element(subType.type());
         currentSubType.setElement(element);
         addSuperType(element, baseType);
       }
@@ -409,7 +407,7 @@ final class TypeReader {
   }
 
   private TypeElement superOf(TypeElement element) {
-    return (TypeElement) context.asElement(element.getSuperclass());
+    return (TypeElement) asElement(element.getSuperclass());
   }
 
   boolean hasSubTypes() {

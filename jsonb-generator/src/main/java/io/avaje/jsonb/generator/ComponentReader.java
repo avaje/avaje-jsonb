@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.*;
 import javax.annotation.processing.FilerException;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeElement;
@@ -15,19 +16,17 @@ import java.util.Collections;
 import java.util.List;
 
 final class ComponentReader {
-
-  private final ProcessingContext ctx;
+	
   private final ComponentMetaData componentMetaData;
 
-  ComponentReader(ProcessingContext ctx, ComponentMetaData metaData) {
-    this.ctx = ctx;
+  ComponentReader(ComponentMetaData metaData) {
     this.componentMetaData = metaData;
   }
 
   void read() {
     String componentFullName = loadMetaInfServices();
     if (componentFullName != null) {
-      TypeElement moduleType = ctx.element(componentFullName);
+      TypeElement moduleType = element(componentFullName);
       if (moduleType != null) {
         componentMetaData.setFullName(componentFullName);
         readMetaData(moduleType);
@@ -66,7 +65,7 @@ final class ComponentReader {
 
   private List<String> loadMetaInf() {
     try {
-      FileObject fileObject = ctx.env()
+      FileObject fileObject = env()
         .getFiler()
         .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT);
 
@@ -88,11 +87,11 @@ final class ComponentReader {
       // logDebug("no services file yet");
 
     } catch (FilerException e) {
-      ctx.logDebug("FilerException reading services file");
+      logDebug("FilerException reading services file");
 
     } catch (Exception e) {
       e.printStackTrace();
-      ctx.logWarn("Error reading services file: " + e.getMessage());
+      logWarn("Error reading services file: " + e.getMessage());
     }
     return Collections.emptyList();
   }

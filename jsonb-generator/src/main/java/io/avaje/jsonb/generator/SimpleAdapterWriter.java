@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.*;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
@@ -7,7 +8,6 @@ import java.io.Writer;
 final class SimpleAdapterWriter {
 
   private final BeanReader beanReader;
-  private final ProcessingContext context;
   private final String adapterShortName;
   private final String adapterPackage;
   private final String adapterFullName;
@@ -15,9 +15,8 @@ final class SimpleAdapterWriter {
 
   private Append writer;
 
-  SimpleAdapterWriter(BeanReader beanReader, ProcessingContext context) {
+  SimpleAdapterWriter(BeanReader beanReader) {
     this.beanReader = beanReader;
-    this.context = context;
     AdapterName adapterName = new AdapterName(beanReader.getBeanType());
     this.adapterShortName = adapterName.shortName();
     this.adapterPackage = adapterName.adapterPackage();
@@ -30,7 +29,7 @@ final class SimpleAdapterWriter {
   }
 
   private Writer createFileWriter() throws IOException {
-    JavaFileObject jfo = context.createWriter(adapterFullName);
+    JavaFileObject jfo = createWriter(adapterFullName);
     return jfo.openWriter();
   }
 
