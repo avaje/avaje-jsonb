@@ -13,7 +13,7 @@ final class MethodReader {
   private final String methodName;
   private final List<MethodParam> params = new ArrayList<>();
 
-  MethodReader(ProcessingContext context, ExecutableElement element, TypeElement beanType) {
+  MethodReader(ExecutableElement element, TypeElement beanType) {
     this.element = element;
     this.methodName = element.getSimpleName().toString();
   }

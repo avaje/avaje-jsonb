@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.*;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -10,20 +11,18 @@ import java.util.TreeSet;
 
 final class SimpleComponentWriter {
 
-  private final ProcessingContext context;
   private final ComponentMetaData metaData;
   private final Set<String> importTypes = new TreeSet<>();
   private Append writer;
   private JavaFileObject fileObject;
 
-  SimpleComponentWriter(ProcessingContext context, ComponentMetaData metaData) {
-    this.context = context;
+  SimpleComponentWriter(ComponentMetaData metaData) {
     this.metaData = metaData;
   }
 
   void initialise() throws IOException {
     if (fileObject == null) {
-      fileObject = context.createWriter(metaData.fullName());
+      fileObject = createWriter(metaData.fullName());
     }
   }
 
@@ -42,7 +41,7 @@ final class SimpleComponentWriter {
   }
 
   void writeMetaInf() throws IOException {
-    FileObject fileObject = context.createMetaInfWriterFor(Constants.META_INF_COMPONENT);
+    FileObject fileObject = createMetaInfWriterFor(Constants.META_INF_COMPONENT);
     if (fileObject != null) {
       Writer writer = fileObject.openWriter();
       writer.write(metaData.fullName());

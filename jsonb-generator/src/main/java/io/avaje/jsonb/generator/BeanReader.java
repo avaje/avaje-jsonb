@@ -27,7 +27,7 @@ final class BeanReader {
   private boolean hasRaw;
   private final boolean isRecord;
 
-  BeanReader(TypeElement beanType, ProcessingContext context) {
+  BeanReader(TypeElement beanType) {
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
@@ -35,7 +35,7 @@ final class BeanReader {
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
     this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
-    this.typeReader = new TypeReader(beanType, context, namingConvention);
+    this.typeReader = new TypeReader(beanType, namingConvention);
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
     this.hasSubTypes = typeReader.hasSubTypes();
@@ -44,7 +44,7 @@ final class BeanReader {
     this.isRecord = isRecord(beanType);
   }
 
-  public BeanReader(TypeElement beanType, TypeElement mixInElement, ProcessingContext context) {
+  public BeanReader(TypeElement beanType, TypeElement mixInElement) {
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
@@ -52,7 +52,7 @@ final class BeanReader {
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
     this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
-    this.typeReader = new TypeReader(beanType, mixInElement, context, namingConvention);
+    this.typeReader = new TypeReader(beanType, mixInElement, namingConvention);
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
     this.hasSubTypes = typeReader.hasSubTypes();

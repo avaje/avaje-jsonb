@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.*;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -22,7 +23,6 @@ public final class Processor extends AbstractProcessor {
   private final Set<String> sourceTypes = new HashSet<>();
   private final Set<String> mixInImports = new HashSet<>();
 
-  private ProcessingContext context;
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
 
@@ -34,8 +34,8 @@ public final class Processor extends AbstractProcessor {
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
-    this.context = new ProcessingContext(processingEnv);
-    this.componentWriter = new SimpleComponentWriter(context, metaData);
+    ProcessingContext.init(processingEnv);
+    this.componentWriter = new SimpleComponentWriter(metaData);
   }
 
   /**
@@ -46,15 +46,15 @@ public final class Processor extends AbstractProcessor {
       return;
     }
     readModuleInfo = true;
-    new ComponentReader(context, metaData).read();
+    new ComponentReader(metaData).read();
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     readModule();
-    writeAdapters(round.getElementsAnnotatedWith(context.element(JSON)));
-    writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(context.element(JSON_MIXIN)));
-    writeAdaptersForImported(round.getElementsAnnotatedWith(context.element(JSON_IMPORT)));
+    writeAdapters(round.getElementsAnnotatedWith(element(JSON)));
+    writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(element(JSON_MIXIN)));
+    writeAdaptersForImported(round.getElementsAnnotatedWith(element(JSON_IMPORT)));
     initialiseComponent();
     cascadeTypes();
     writeComponent(round.processingOver());
@@ -77,7 +77,7 @@ public final class Processor extends AbstractProcessor {
     }
     for (String type : extraTypes) {
       if (!ignoreType(type)) {
-        TypeElement element = context.element(type);
+        TypeElement element = element(type);
         if (cascadeElement(element)) {
           writeAdapterForType(element);
         }
@@ -108,10 +108,10 @@ public final class Processor extends AbstractProcessor {
     for (final Element mixin : mixInElements) {
       final TypeMirror mirror = MixInPrism.getInstanceOn(mixin).value();
       final String importType = mirror.toString();
-      final TypeElement element = (TypeElement) context.asElement(mirror);
+      final TypeElement element = (TypeElement) asElement(mirror);
 
       mixInImports.add(importType);
-      writeAdapterForMixInType(element, context.element(mixin.asType().toString()));
+      writeAdapterForMixInType(element, element(mixin.asType().toString()));
     }
   }
 
@@ -125,7 +125,7 @@ public final class Processor extends AbstractProcessor {
         if (mixInImports.contains(importType.toString())) {
           continue;
         }
-        writeAdapterForType((TypeElement) context.asElement(importType));
+        writeAdapterForType((TypeElement) asElement(importType));
       }
     }
   }
@@ -135,7 +135,7 @@ public final class Processor extends AbstractProcessor {
     try {
       componentWriter.initialise();
     } catch (final IOException e) {
-      context.logError("Error creating writer for JsonbComponent", e);
+      logError("Error creating writer for JsonbComponent", e);
     }
   }
 
@@ -145,7 +145,7 @@ public final class Processor extends AbstractProcessor {
         componentWriter.write();
         componentWriter.writeMetaInf();
       } catch (final IOException e) {
-        context.logError("Error writing component", e);
+        logError("Error writing component", e);
       }
     }
   }
@@ -156,7 +156,7 @@ public final class Processor extends AbstractProcessor {
   private void writeAdapters(Set<? extends Element> beans) {
     for (final Element element : beans) {
       if (!(element instanceof TypeElement)) {
-        context.logError("unexpected type [" + element + "]");
+        logError("unexpected type [" + element + "]");
       } else {
         writeAdapterForType((TypeElement) element);
       }
@@ -164,12 +164,12 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void writeAdapterForType(TypeElement typeElement) {
-    final BeanReader beanReader = new BeanReader(typeElement, context);
+    final BeanReader beanReader = new BeanReader(typeElement);
     writeAdapter(typeElement, beanReader);
   }
 
   private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {
-    final BeanReader beanReader = new BeanReader(typeElement, mixin, context);
+    final BeanReader beanReader = new BeanReader(typeElement, mixin);
     writeAdapter(typeElement, beanReader);
   }
 
@@ -177,12 +177,12 @@ public final class Processor extends AbstractProcessor {
     beanReader.read();
     if (beanReader.nonAccessibleField()) {
       if (beanReader.hasJsonAnnotation()) {
-        context.logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);
+        logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);
       }
       return;
     }
     try {
-      final SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader, context);
+      final SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader);
       metaData.add(beanWriter.fullName());
       if (beanWriter.hasGenericFactory()) {
         metaData.addFactory(beanWriter.fullName());
@@ -191,7 +191,7 @@ public final class Processor extends AbstractProcessor {
       allReaders.add(beanReader);
       sourceTypes.add(typeElement.getSimpleName().toString());
     } catch (final IOException e) {
-      context.logError("Error writing JsonAdapter for %s %s", beanReader, e);
+      logError("Error writing JsonAdapter for %s %s", beanReader, e);
     }
   }
 }
