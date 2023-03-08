@@ -179,12 +179,7 @@ final class TypeReader {
         && !matchFieldToSetter2(field, true)
         && !matchFieldToSetterByParam(field)
         && !field.isPublicField()) {
-      logError(
-          "Non public field "
-              + baseType
-              + " "
-              + field.fieldName()
-              + " with no matching setter or constructor?");
+      logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
     }
   }
 
@@ -245,12 +240,7 @@ final class TypeReader {
         && !field.isPublicField()) {
       nonAccessibleField = true;
       if (hasJsonAnnotation) {
-        logError(
-            "Non accessible field "
-                + baseType
-                + " "
-                + field.fieldName()
-                + " with no matching getter?");
+        logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
       } else {
         logDebug("Non accessible field " + baseType + " " + field.fieldName());
       }
@@ -357,7 +347,7 @@ final class TypeReader {
     }
     TypeElement superElement = superOf(baseType);
     if (superElement != null) {
-      addSuperType(superElement, null);
+      addSuperType(superElement);
     }
     readSubTypes();
     processCompleted();
@@ -369,7 +359,7 @@ final class TypeReader {
         currentSubType = subType;
         TypeElement element = element(subType.type());
         currentSubType.setElement(element);
-        addSuperType(element, baseType);
+        addSuperType(element);
       }
     }
   }
@@ -401,11 +391,11 @@ final class TypeReader {
     }
   }
 
-  private void addSuperType(TypeElement element, TypeElement matchType) {
+  private void addSuperType(TypeElement element) {
     String type = element.getQualifiedName().toString();
     if (!JAVA_LANG_OBJECT.equals(type) && !GenericType.isGeneric(type)) {
       read(element);
-      addSuperType(superOf(element), matchType);
+      addSuperType(superOf(element));
     }
   }
 
