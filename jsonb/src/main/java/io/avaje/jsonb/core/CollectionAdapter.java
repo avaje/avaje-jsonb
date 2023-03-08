@@ -19,7 +19,6 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Type;
 import java.util.*;

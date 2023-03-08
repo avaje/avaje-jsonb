@@ -175,14 +175,16 @@ final class TypeReader {
   }
 
   private void matchFieldToSetter(FieldReader field) {
-    if (!matchFieldToSetter2(field, false)) {
-      if (!matchFieldToSetter2(field, true)) {
-        if (!matchFieldToSetterByParam(field)) {
-          if (!field.isPublicField()) {
-            logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
-          }
-        }
-      }
+    if (!matchFieldToSetter2(field, false)
+        && !matchFieldToSetter2(field, true)
+        && !matchFieldToSetterByParam(field)
+        && !field.isPublicField()) {
+      logError(
+          "Non public field "
+              + baseType
+              + " "
+              + field.fieldName()
+              + " with no matching setter or constructor?");
     }
   }
 
@@ -238,16 +240,19 @@ final class TypeReader {
   }
 
   private void matchFieldToGetter(FieldReader field) {
-    if (!matchFieldToGetter2(field, false)) {
-      if (!matchFieldToGetter2(field, true)) {
-        if (!field.isPublicField()) {
-          nonAccessibleField = true;
-          if (hasJsonAnnotation) {
-            logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
-          } else {
-            logDebug("Non accessible field " + baseType + " " + field.fieldName());
-          }
-        }
+    if (!matchFieldToGetter2(field, false)
+        && !matchFieldToGetter2(field, true)
+        && !field.isPublicField()) {
+      nonAccessibleField = true;
+      if (hasJsonAnnotation) {
+        logError(
+            "Non accessible field "
+                + baseType
+                + " "
+                + field.fieldName()
+                + " with no matching getter?");
+      } else {
+        logDebug("Non accessible field " + baseType + " " + field.fieldName());
       }
     }
   }
@@ -398,11 +403,9 @@ final class TypeReader {
 
   private void addSuperType(TypeElement element, TypeElement matchType) {
     String type = element.getQualifiedName().toString();
-    if (!type.equals(JAVA_LANG_OBJECT)) {
-      if (!GenericType.isGeneric(type)) {
-        read(element);
-        addSuperType(superOf(element), matchType);
-      }
+    if (!JAVA_LANG_OBJECT.equals(type) && !GenericType.isGeneric(type)) {
+      read(element);
+      addSuperType(superOf(element), matchType);
     }
   }
 

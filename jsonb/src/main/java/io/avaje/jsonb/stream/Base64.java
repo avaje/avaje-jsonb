@@ -129,7 +129,7 @@ final class Base64 {
     return sArr.length;
   }
 
-  private final static byte[] EMPTY_ARRAY = new byte[0];
+  private final static byte[] EMPTY_ARRAY = {};
 
   static byte[] decodeFast(final byte[] sArr, final int start, final int end) {
     // Check special case
