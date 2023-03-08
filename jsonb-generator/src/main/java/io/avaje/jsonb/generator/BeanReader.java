@@ -61,14 +61,17 @@ final class BeanReader {
     this.isRecord = isRecord(beanType);
   }
 
+  @SuppressWarnings("unchecked")
   boolean isRecord(TypeElement beanType) {
     try {
-      final List<? extends Element> recordComponents =
-        (List<? extends Element>) TypeElement.class
-          .getMethod("getRecordComponents")
-          .invoke(beanType);
+      final var recordComponents =
+          (List<? extends Element>)
+              TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
       return !recordComponents.isEmpty();
-    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+    } catch (IllegalAccessException
+        | InvocationTargetException
+        | NoSuchMethodException
+        | SecurityException e) {
       return false;
     }
   }
@@ -173,10 +176,8 @@ final class BeanReader {
     }
     Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      if (allField.include() && !allField.isRaw()) {
-        if (uniqueTypes.add(allField.adapterShortType())) {
-          allField.writeField(writer);
-        }
+      if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
+        allField.writeField(writer);
       }
     }
     writer.append("  private final PropertyNames names;").eol();
@@ -189,10 +190,8 @@ final class BeanReader {
     }
     Set<String> uniqueTypes = new HashSet<>();
     for (FieldReader allField : allFields) {
-      if (allField.include() && !allField.isRaw()) {
-        if (uniqueTypes.add(allField.adapterShortType())) {
-          allField.writeConstructor(writer);
-        }
+      if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
+        allField.writeConstructor(writer);
       }
     }
     writer.append("    this.names = jsonb.properties(");
@@ -318,11 +317,9 @@ final class BeanReader {
     }
     if (!directLoad) {
       writeJsonBuildResult(writer, varName);
-    } else {
-      if (unmappedField != null) {
-        writer.append("   // unmappedField... ", varName).eol();
-        unmappedField.writeFromJsonUnmapped(writer, varName);
-      }
+    } else if (unmappedField != null) {
+      writer.append("   // unmappedField... ", varName).eol();
+      unmappedField.writeFromJsonUnmapped(writer, varName);
     }
     writer.append("    return _$%s;", varName).eol();
     writer.append("  }").eol();
@@ -358,10 +355,8 @@ final class BeanReader {
   }
 
   String constructorParamName(String name) {
-    if (unmappedField != null) {
-      if (unmappedField.fieldName().equals(name)) {
-        return "unmapped";
-      }
+    if ((unmappedField != null) && unmappedField.fieldName().equals(name)) {
+      return "unmapped";
     }
     return "_val$" + name;
   }

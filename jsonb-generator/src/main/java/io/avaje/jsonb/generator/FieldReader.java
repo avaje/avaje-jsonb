@@ -134,11 +134,11 @@ final class FieldReader {
   }
 
   boolean typeObjectBooleanWithIsPrefix() {
-    return nameHasIsPrefix() && genericType.topType().equals("java.lang.Boolean");
+    return nameHasIsPrefix() && "java.lang.Boolean".equals(genericType.topType());
   }
 
   boolean typeBooleanWithIsPrefix() {
-    return nameHasIsPrefix() && (genericType.topType().equals("boolean") || genericType.topType().equals("java.lang.Boolean"));
+    return nameHasIsPrefix() && ("boolean".equals(genericType.topType()) || "java.lang.Boolean".equals(genericType.topType()));
   }
 
   private boolean nameHasIsPrefix() {

@@ -26,7 +26,7 @@ import java.util.*;
  */
 public final class Util {
 
-  static final Type[] EMPTY_TYPE_ARRAY = new Type[]{};
+  static final Type[] EMPTY_TYPE_ARRAY = {};
 
   private Util() {
   }
