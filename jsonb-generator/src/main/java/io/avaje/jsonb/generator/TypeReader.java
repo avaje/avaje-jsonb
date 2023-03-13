@@ -98,6 +98,10 @@ final class TypeReader {
         } else {
           commonField.addSubType(currentSubType);
         }
+
+        if (commonField == null && currentSubType != null) {
+          localField.isSubTypeField(true);
+        }
       }
     }
   }
@@ -130,7 +134,7 @@ final class TypeReader {
     }
     ExecutableElement ex = (ExecutableElement) element;
     MethodReader methodReader = new MethodReader(ex, baseType).read();
-    if (methodReader.isPublic()) {
+    if (methodReader.isPublic() || hasSubTypes() && methodReader.isProtected()) {
       if (currentSubType != null) {
         currentSubType.addConstructor(methodReader);
       } else {
@@ -178,8 +182,14 @@ final class TypeReader {
     if (!matchFieldToSetter2(field, false)
         && !matchFieldToSetter2(field, true)
         && !matchFieldToSetterByParam(field)
-        && !field.isPublicField()) {
-      logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+        && !field.isPublicField()
+        && !field.isSubTypeField()) {
+      logError(
+          "Non public field "
+              + baseType
+              + " "
+              + field.fieldName()
+              + " with no matching setter or constructor?");
     }
   }
 
@@ -237,7 +247,8 @@ final class TypeReader {
   private void matchFieldToGetter(FieldReader field) {
     if (!matchFieldToGetter2(field, false)
         && !matchFieldToGetter2(field, true)
-        && !field.isPublicField()) {
+        && !field.isPublicField()
+        && !field.isSubTypeField()) {
       nonAccessibleField = true;
       if (hasJsonAnnotation) {
         logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
