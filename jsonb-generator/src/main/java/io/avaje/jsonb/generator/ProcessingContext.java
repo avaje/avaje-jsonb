@@ -17,59 +17,57 @@ import javax.tools.StandardLocation;
 
 final class ProcessingContext {
 
-  private static ProcessingEnvironment env;
-  private static Messager messager;
-  private static Filer filer;
-  private static Elements elementUtils;
-  private static Types typeUtils;
+  private static final ThreadLocal<ProcessingEnvironment> ENV = new ThreadLocal<>();
+  private static final ThreadLocal<Messager> MESSAGER = new ThreadLocal<>();
+  private static final ThreadLocal<Filer> FILER = new ThreadLocal<>();
+  private static final ThreadLocal<Elements> ELEMENT_UTILS = new ThreadLocal<>();
+  private static final ThreadLocal<Types> TYPE_UTILS = new ThreadLocal<>();
+
+  private ProcessingContext() {}
 
   public static void init(ProcessingEnvironment processingEnv) {
-    env = processingEnv;
-    messager = processingEnv.getMessager();
-    filer = processingEnv.getFiler();
-    elementUtils = processingEnv.getElementUtils();
-    typeUtils = processingEnv.getTypeUtils();
+    ENV.set(processingEnv);
+    MESSAGER.set(processingEnv.getMessager());
+    FILER.set(processingEnv.getFiler());
+    ELEMENT_UTILS.set(processingEnv.getElementUtils());
+    TYPE_UTILS.set(processingEnv.getTypeUtils());
   }
 
-  /**
-   * Log an error message.
-   */
+  /** Log an error message. */
   static void logError(Element e, String msg, Object... args) {
-    messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), e);
+    MESSAGER.get().printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), e);
   }
 
   static void logError(String msg, Object... args) {
-    messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args));
+    MESSAGER.get().printMessage(Diagnostic.Kind.ERROR, String.format(msg, args));
   }
 
   static void logWarn(String msg, Object... args) {
-    messager.printMessage(Diagnostic.Kind.WARNING, String.format(msg, args));
+    MESSAGER.get().printMessage(Diagnostic.Kind.WARNING, String.format(msg, args));
   }
 
   static void logDebug(String msg, Object... args) {
-    messager.printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
+    MESSAGER.get().printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
   }
 
-  /**
-   * Create a file writer for the given class name.
-   */
+  /** Create a file writer for the given class name. */
   static JavaFileObject createWriter(String cls) throws IOException {
-    return filer.createSourceFile(cls);
+    return FILER.get().createSourceFile(cls);
   }
 
   static FileObject createMetaInfWriterFor(String interfaceType) throws IOException {
-    return filer.createResource(StandardLocation.CLASS_OUTPUT, "", interfaceType);
+    return FILER.get().createResource(StandardLocation.CLASS_OUTPUT, "", interfaceType);
   }
 
   static TypeElement element(String rawType) {
-    return elementUtils.getTypeElement(rawType);
+    return ELEMENT_UTILS.get().getTypeElement(rawType);
   }
 
   static Element asElement(TypeMirror returnType) {
-    return typeUtils.asElement(returnType);
+    return TYPE_UTILS.get().asElement(returnType);
   }
 
   static ProcessingEnvironment env() {
-    return env;
+    return ENV.get();
   }
 }
