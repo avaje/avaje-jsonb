@@ -146,6 +146,8 @@ public final class Processor extends AbstractProcessor {
         componentWriter.writeMetaInf();
       } catch (final IOException e) {
         logError("Error writing component", e);
+      } finally {
+        ProcessingContext.clear();
       }
     }
   }
