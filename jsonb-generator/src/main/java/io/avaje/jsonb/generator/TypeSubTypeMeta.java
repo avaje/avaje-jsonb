@@ -49,17 +49,29 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(Append writer, String varName, BeanReader beanReader) {
-    writer.append("    if (\"%s\".equals(type)) {", name()).eol();
-    writeFromJsonConstructor(writer, varName, beanReader);
-    writeFromJsonSetters(writer, varName, beanReader);
-    writer.append("      return _$%s;", varName).eol();
-    writer.append("    }").eol();
+  void writeFromJsonBuild(Append writer, String varName, BeanReader beanReader, boolean useSwitch) {
+    if (useSwitch) {
+      writer.append("      case \"%s\":", name()).eol();
+      writer.append("  ");
+      writeFromJsonConstructor(writer, varName, beanReader);
+      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writer.append("        return _$%s;", varName).eol().eol();
+    } else {
+      writer.append("    if (\"%s\".equals(type)) {", name()).eol();
+      writeFromJsonConstructor(writer, varName, beanReader);
+      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writer.append("      return _$%s;", varName).eol();
+      writer.append("    }").eol();
+    }
   }
 
-  private void writeFromJsonSetters(Append writer, String varName, BeanReader beanReader) {
-    for (FieldReader field : beanReader.allFields()) {
+  private void writeFromJsonSetters(
+      Append writer, String varName, BeanReader beanReader, boolean useSwitch) {
+    for (final FieldReader field : beanReader.allFields()) {
       if (isIncludeSetter(field)) {
+        if (useSwitch) {
+          writer.append("  ");
+        }
         field.writeFromJsonSetter(writer, varName, "  ");
       }
     }

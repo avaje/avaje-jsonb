@@ -346,7 +346,7 @@ final class FieldReader {
       }
     }
     String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
-    writer.append("        case \"%s\": {", propertyKey).eol();
+    writer.append("        case \"%s\": ", propertyKey).eol();
     if (!deserialize) {
       writer.append("          reader.skipValue();");
     } else if (defaultConstructor) {
@@ -358,11 +358,10 @@ final class FieldReader {
     } else {
       writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
       if (!constructorParam) {
-        writer.append(" _set$%s = true;", fieldName);
+        writer.eol().append("          _set$%s = true;", fieldName);
       }
     }
-    writer.append(" break;").eol();
-    writer.append("        }").eol();
+    writer.eol().append("          break;").eol().eol();
   }
 
   void writeFromJsonSetter(Append writer, String varName, String prefix) {

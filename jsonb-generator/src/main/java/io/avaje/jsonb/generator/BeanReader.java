@@ -110,7 +110,7 @@ final class BeanReader {
   }
 
   void read() {
-    for (FieldReader field : allFields) {
+    for (final FieldReader field : allFields) {
       field.addImports(importTypes);
       if (field.isRaw()) {
         hasRaw = true;
@@ -271,7 +271,7 @@ final class BeanReader {
           writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort).eol();
         } else {
           writer.append("    %s (%s instanceof %s) {", elseIf, varName, subTypeShort).eol();
-          writer.append("      %s sub = (%s) %s;", subType, subTypeShort, varName).eol();
+          writer.append("      %s sub = (%s) %s;", subTypeShort, subTypeShort, varName).eol();
         }
         writer.append("      writer.name(0);").eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
@@ -282,7 +282,7 @@ final class BeanReader {
   }
 
   private void writeToJsonForType(Append writer, String varName, String prefix, String type) {
-    for (FieldReader allField : allFields) {
+    for (final FieldReader allField : allFields) {
       if (allField.includeToJson(type)) {
         allField.writeToJson(writer, varName, prefix);
       }
@@ -317,7 +317,7 @@ final class BeanReader {
     writeFromJsonSwitch(writer, directLoad, varName);
     writer.eol();
     if (hasSubTypes) {
-      writeFromJsonWithSubTypes(writer, varName);
+      writeFromJsonWithSubTypes(writer);
       return;
     }
     if (!directLoad) {
@@ -333,7 +333,7 @@ final class BeanReader {
   private void writeJsonBuildResult(Append writer, String varName) {
     writer.append("    // build and return %s", shortName).eol();
     writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
-    List<MethodReader.MethodParam> params = constructor.getParams();
+    final List<MethodReader.MethodParam> params = constructor.getParams();
     for (int i = 0, size = params.size(); i < size; i++) {
       if (i > 0) {
         writer.append(", ");
@@ -348,14 +348,36 @@ final class BeanReader {
     }
   }
 
-  private void writeFromJsonWithSubTypes(Append writer, String varName) {
+  private void writeFromJsonWithSubTypes(Append writer) {
     writer.append("    if (type == null) {").eol();
     writer.append("      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");", typeProperty).eol();
     writer.append("    }").eol();
-    for (TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
-      subTypeMeta.writeFromJsonBuild(writer, varName, this);
+
+    final var useSwitch = typeReader.subTypes().size() >= 3;
+
+    if (useSwitch) {
+      writer.append("    switch (type) {").eol();
     }
+
+    for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
+
+      final var varName = Util.initLower(Util.shortName(subTypeMeta.type()));
+
+      subTypeMeta.writeFromJsonBuild(writer, varName, this, useSwitch);
+    }
+
+    if(useSwitch) {
+    	writer.append("      default:").eol();
+
+        writer.append("    ");
+    }
+
     writer.append("    throw new IllegalStateException(\"Unknown value for %s property \" + type);", typeProperty).eol();
+
+    if (useSwitch) {
+      writer.append("    }").eol();
+    }
+
     writer.append("  }").eol();
   }
 
@@ -380,15 +402,15 @@ final class BeanReader {
     }
     writer.append("      switch (fieldName) {").eol();
     if (hasSubTypes) {
-      writer.append("        case \"%s\": {", typePropertyKey()).eol();
-      writer.append("          type = stringJsonAdapter.fromJson(reader); break;").eol();
-      writer.append("        }").eol();
+      writer.append("        case \"%s\":", typePropertyKey()).eol();
+      writer.append("          type = stringJsonAdapter.fromJson(reader);").eol();
+      writer.append("          break;").eol();
     }
     for (FieldReader allField : allFields) {
       allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys);
     }
-    writer.append("        default: {").eol();
-    String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
+    writer.append("        default:").eol();
+    final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
     if (unmappedField != null) {
       writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
       writer.append("          unmapped.put(%s, value);", unmappedFieldName).eol();
@@ -396,7 +418,6 @@ final class BeanReader {
       writer.append("          reader.unmappedField(%s);", unmappedFieldName).eol();
       writer.append("          reader.skipValue();").eol();
     }
-    writer.append("        }").eol();
     writer.append("      }").eol();
     writer.append("    }").eol();
     writer.append("    reader.endObject();").eol();
