@@ -30,6 +30,7 @@ final class FieldReader {
   private boolean genericTypeParameter;
   private int genericTypeParamPosition;
   private final List<String> aliases;
+  private boolean isSubTypeField;
 
   FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams) {
     addSubType(subType);
@@ -175,6 +176,14 @@ final class FieldReader {
     }
   }
 
+  void isSubTypeField(boolean isSubTypeField) {
+    this.isSubTypeField = isSubTypeField;
+  }
+
+  boolean isSubTypeField() {
+    return isSubTypeField;
+  }
+
   boolean includeForType(TypeSubTypeMeta subType) {
     return subTypes.containsKey(subType.type());
   }
@@ -293,7 +302,8 @@ final class FieldReader {
     } else if (publicField) {
       writer.append("%s.%s%s", varName, fieldName, suffix);
     } else {
-      writer.append("FIXME: field %s is not public and has not getter ? ", fieldName);
+      throw new IllegalStateException(
+          "Field" + fieldName + " is inaccessible. Add a getter or make the field public.");
     }
   }
 
@@ -386,5 +396,10 @@ final class FieldReader {
       }
       writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s));", propertyName, adapterFieldName, shortName, getter.getName(), topType).eol();
     }
+  }
+
+  @Override
+  public String toString() {
+    return fieldName;
   }
 }

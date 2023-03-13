@@ -44,6 +44,10 @@ final class MethodReader {
     return element.getModifiers().contains(Modifier.PUBLIC);
   }
 
+  public boolean isProtected() {
+    return element.getModifiers().contains(Modifier.PROTECTED);
+  }
+
   static class MethodParam {
 
     private final String simpleName;
