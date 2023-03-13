@@ -74,8 +74,7 @@ final class TypeSubTypeMeta {
   private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
   private void writeFromJsonConstructor(Append writer, String varName, BeanReader beanReader) {
-    
-	writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
+    writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     MethodReader constructor = findConstructor();
     if (constructor != null) {
       List<MethodReader.MethodParam> params = constructor.getParams();

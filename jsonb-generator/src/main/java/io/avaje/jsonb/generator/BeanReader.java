@@ -26,8 +26,7 @@ final class BeanReader {
   private FieldReader unmappedField;
   private boolean hasRaw;
   private final boolean isRecord;
-  private static final boolean PATTERN_MATCH =
-      Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
+  private static final boolean USE_PATTERN_MATCH = Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
 
   BeanReader(TypeElement beanType) {
     this.beanType = beanType;
@@ -43,7 +42,7 @@ final class BeanReader {
     this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
-    this.isRecord = isRecord(beanType); 
+    this.isRecord = isRecord(beanType);
     typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
   }
 
@@ -268,7 +267,7 @@ final class BeanReader {
         String subTypeName = subTypeMeta.name();
         String elseIf = i == 0 ? "if" : "else if";
         final String subTypeShort = Util.shortType(subTypeMeta.type());
-        if (PATTERN_MATCH) {
+        if (USE_PATTERN_MATCH) {
           writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort).eol();
         } else {
           writer.append("    %s (%s instanceof %s) {", elseIf, varName, subTypeShort).eol();

@@ -370,7 +370,7 @@ final class BasicTypeAdapters {
   private static JsonAdapter<?> enumMap(Class<?> type, Method method) {
     final Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
     final var returnType = method.getReturnType();
-    
+
     if (returnType == int.class) {
       return new EnumIntValueMap(method, enumType);
     } else if (returnType == boolean.class) {
@@ -547,27 +547,16 @@ final class BasicTypeAdapters {
 
     @Override
     public void toJson(JsonWriter writer, T value) {
-
       if (value == null) {
         writer.value((Boolean) null);
-      } else if (value == trueEnum) {
-        writer.value(true);
       } else {
-        writer.value(false);
+        writer.value(value == trueEnum);
       }
     }
 
     @Override
     public T fromJson(JsonReader reader) {
-      final boolean value = reader.readBoolean();
-      T enumConstant;
-
-      if (value) {
-        enumConstant = trueEnum;
-      } else {
-        enumConstant = falseEnum;
-      }
-      return enumConstant;
+      return reader.readBoolean() ? trueEnum : falseEnum;
     }
   }
 
@@ -595,8 +584,7 @@ final class BasicTypeAdapters {
     }
 
     protected final void throwException(Object value, String location) {
-      throw new JsonDataException(
-          "Unable to determine enum value " + enumType + " value for " + value + " at " + location);
+      throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + location);
     }
 
     @Override
