@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.*;
+
 import javax.lang.model.element.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -180,16 +181,11 @@ final class TypeReader {
 
   private void matchFieldToSetter(FieldReader field) {
     if (!matchFieldToSetter2(field, false)
-        && !matchFieldToSetter2(field, true)
-        && !matchFieldToSetterByParam(field)
-        && !field.isPublicField()
-        && !field.isSubTypeField()) {
-      logError(
-          "Non public field "
-              + baseType
-              + " "
-              + field.fieldName()
-              + " with no matching setter or constructor?");
+      && !matchFieldToSetter2(field, true)
+      && !matchFieldToSetterByParam(field)
+      && !field.isPublicField()
+      && !field.isSubTypeField()) {
+      logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
     }
   }
 
@@ -246,9 +242,9 @@ final class TypeReader {
 
   private void matchFieldToGetter(FieldReader field) {
     if (!matchFieldToGetter2(field, false)
-        && !matchFieldToGetter2(field, true)
-        && !field.isPublicField()
-        && !field.isSubTypeField()) {
+      && !matchFieldToGetter2(field, true)
+      && !field.isPublicField()
+      && !field.isSubTypeField()) {
       nonAccessibleField = true;
       if (hasJsonAnnotation) {
         logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
@@ -347,7 +343,6 @@ final class TypeReader {
         }
       }
     }
-
     return largestConstructor;
   }
 
