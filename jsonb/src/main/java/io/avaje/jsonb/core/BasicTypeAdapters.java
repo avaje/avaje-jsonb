@@ -370,13 +370,12 @@ final class BasicTypeAdapters {
   private static JsonAdapter<?> enumMap(Class<?> type, Method method) {
     final Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
     final var returnType = method.getReturnType();
+    
     if (returnType == int.class) {
       return new EnumIntValueMap(method, enumType);
     } else if (returnType == boolean.class) {
-
       return new EnumBoolValueMap(method, enumType);
     } else if (returnType == long.class) {
-
       return new EnumLongValueMap(method, enumType);
     } else if (returnType == double.class) {
       return new EnumDoubleValueMap(method, enumType);
