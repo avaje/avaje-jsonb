@@ -43,7 +43,8 @@ final class BeanReader {
     this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
-    this.isRecord = isRecord(beanType);
+    this.isRecord = isRecord(beanType); 
+    typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
   }
 
   public BeanReader(TypeElement beanType, TypeElement mixInElement) {
@@ -61,6 +62,7 @@ final class BeanReader {
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
     this.isRecord = isRecord(beanType);
+    typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
   }
 
   @SuppressWarnings("unchecked")
@@ -265,11 +267,12 @@ final class BeanReader {
         String subType = subTypeMeta.type();
         String subTypeName = subTypeMeta.name();
         String elseIf = i == 0 ? "if" : "else if";
+        final String subTypeShort = Util.shortType(subTypeMeta.type());
         if (PATTERN_MATCH) {
-          writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subType).eol();
+          writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort).eol();
         } else {
-          writer.append("    %s (%s instanceof %s) {", elseIf, varName, subType).eol();
-          writer.append("      %s sub = (%s)%s;", subType, subType, varName).eol();
+          writer.append("    %s (%s instanceof %s) {", elseIf, varName, subTypeShort).eol();
+          writer.append("      %s sub = (%s) %s;", subType, subTypeShort, varName).eol();
         }
         writer.append("      writer.name(0);").eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
@@ -348,7 +351,7 @@ final class BeanReader {
 
   private void writeFromJsonWithSubTypes(Append writer, String varName) {
     writer.append("    if (type == null) {").eol();
-    writer.append("      throw new IllegalStateException(\"Missing %s property which is required?\");", typeProperty).eol();
+    writer.append("      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");", typeProperty).eol();
     writer.append("    }").eol();
     for (TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
       subTypeMeta.writeFromJsonBuild(writer, varName, this);
