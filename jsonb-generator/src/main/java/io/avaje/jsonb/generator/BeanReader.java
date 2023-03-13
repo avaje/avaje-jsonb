@@ -26,7 +26,7 @@ final class BeanReader {
   private FieldReader unmappedField;
   private boolean hasRaw;
   private final boolean isRecord;
-  private final boolean patternMatch =
+  private static final boolean PATTERN_MATCH =
       Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
 
   BeanReader(TypeElement beanType) {
@@ -265,7 +265,7 @@ final class BeanReader {
         String subType = subTypeMeta.type();
         String subTypeName = subTypeMeta.name();
         String elseIf = i == 0 ? "if" : "else if";
-        if (patternMatch) {
+        if (PATTERN_MATCH) {
           writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subType).eol();
         } else {
           writer.append("    %s (%s instanceof %s) {", elseIf, varName, subType).eol();
