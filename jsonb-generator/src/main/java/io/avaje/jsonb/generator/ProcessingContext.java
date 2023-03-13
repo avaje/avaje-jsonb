@@ -70,4 +70,12 @@ final class ProcessingContext {
   static ProcessingEnvironment env() {
     return ENV.get();
   }
+
+  public static void clear() {
+    ENV.remove();
+    MESSAGER.remove();
+    FILER.remove();
+    ELEMENT_UTILS.remove();
+    TYPE_UTILS.remove();
+  }
 }
