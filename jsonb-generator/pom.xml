@@ -10,6 +10,9 @@
   <artifactId>avaje-jsonb-generator</artifactId>
   <name>jsonb generator</name>
   <description>annotation processor generating json adapters</description>
+  <properties>
+    <avaje.prisms.version>1.6</avaje.prisms.version>
+  </properties>
 
   <dependencies>
 
@@ -22,7 +25,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-prisms</artifactId>
-      <version>1.6</version>
+      <version>${avaje.prisms.version}</version>
       <optional>true</optional>
       <scope>provided</scope>
     </dependency>
@@ -50,7 +53,7 @@
             <path>
               <groupId>io.avaje</groupId>
               <artifactId>avaje-prisms</artifactId>
-              <version>1.6</version>
+              <version>${avaje.prisms.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>

@@ -20,6 +20,25 @@ final class Util {
     }
   }
 
+  static String shortType(String fullType) {
+    int p = fullType.lastIndexOf('.');
+    if (p == -1) {
+      return fullType;
+    } else if (fullType.startsWith("java")) {
+      return fullType.substring(p + 1);
+    } else {
+      var result = "";
+      var foundClass = false;
+      for (final String part : fullType.split("\\.")) {
+        if (foundClass || Character.isUpperCase(part.charAt(0))) {
+          foundClass = true;
+          result += (result.isEmpty() ? "" : ".") + part;
+        }
+      }
+      return result;
+    }
+  }
+
   /**
    * Return the common parent package.
    */

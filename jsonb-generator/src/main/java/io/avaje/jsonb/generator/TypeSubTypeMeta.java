@@ -7,6 +7,7 @@ final class TypeSubTypeMeta {
 
   private final String type;
   private String name;
+  private final String shortType;
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
   private final List<MethodReader> publicConstructors = new ArrayList<>();
@@ -19,6 +20,7 @@ final class TypeSubTypeMeta {
   TypeSubTypeMeta(SubTypePrism prism) {
     type = prism.type().toString();
     name = Util.escapeQuotes(prism.name());
+    shortType = Util.shortType(type);
   }
 
   void setElement(TypeElement element) {
@@ -35,7 +37,7 @@ final class TypeSubTypeMeta {
 
   String name() {
     if (name.isBlank()) {
-      name = Util.shortName(type);
+      name = Util.shortType(type);
     }
     return name;
   }
@@ -72,7 +74,8 @@ final class TypeSubTypeMeta {
   private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
   private void writeFromJsonConstructor(Append writer, String varName, BeanReader beanReader) {
-    writer.append("      %s _$%s = new %s(", type, varName, type);
+    
+	writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     MethodReader constructor = findConstructor();
     if (constructor != null) {
       List<MethodReader.MethodParam> params = constructor.getParams();
