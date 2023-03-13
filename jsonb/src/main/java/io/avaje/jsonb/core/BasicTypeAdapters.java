@@ -385,16 +385,17 @@ final class BasicTypeAdapters {
   static class EnumValueMap<T extends Enum<T>> extends JsonAdapter<T> {
 
     private final Class<T> enumType;
-    private final Map<String, String> toValue = new HashMap<>();
-    private final Map<String, String> toName = new HashMap<>();
+    private final Map<T, String> toValue;
+    private final Map<String, T> toEnum = new HashMap<>();
 
     EnumValueMap(Method method, Class<T> enumType) {
       this.enumType = enumType;
-      for (Enum<?> enumConstant : enumType.getEnumConstants()) {
+      this.toValue = new EnumMap<>(enumType);
+      for (var enumConstant : enumType.getEnumConstants()) {
         try {
           String val = String.valueOf(method.invoke(enumConstant));
-          toValue.put(enumConstant.name(), val);
-          toName.put(val, enumConstant.name());
+          toValue.put(enumConstant, val);
+          toEnum.put(val, enumConstant);
         } catch (Exception e) {
           throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
         }
@@ -403,17 +404,17 @@ final class BasicTypeAdapters {
 
     @Override
     public void toJson(JsonWriter writer, T value) {
-      writer.value(toValue.get(value.name()));
+      writer.value(toValue.get(value));
     }
 
     @Override
     public T fromJson(JsonReader reader) {
       String value = reader.readString();
-      String name = toName.get(value);
-      if (name == null) {
+      var enumConstant = toEnum.get(value);
+      if (enumConstant == null) {
         throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.location());
       }
-      return Enum.valueOf(enumType, name);
+      return enumConstant;
     }
 
     @Override
@@ -425,16 +426,17 @@ final class BasicTypeAdapters {
   static class EnumIntValueMap<T extends Enum<T>> extends JsonAdapter<T> {
 
     private final Class<T> enumType;
-    private final Map<String, Integer> toValue = new HashMap<>();
-    private final Map<Integer, String> toName = new HashMap<>();
+    private final Map<T, Integer> toValue;
+    private final Map<Integer, T> toEnum = new HashMap<>();
 
     EnumIntValueMap(Method method, Class<T> enumType) {
       this.enumType = enumType;
-      for (Enum<?> enumConstant : enumType.getEnumConstants()) {
+      this.toValue = new EnumMap<>(enumType);
+      for (var enumConstant : enumType.getEnumConstants()) {
         try {
           Integer val = (Integer) method.invoke(enumConstant);
-          toValue.put(enumConstant.name(), val);
-          toName.put(val, enumConstant.name());
+          toValue.put(enumConstant, val);
+          toEnum.put(val, enumConstant);
         } catch (Exception e) {
           throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
         }
@@ -443,18 +445,17 @@ final class BasicTypeAdapters {
 
     @Override
     public void toJson(JsonWriter writer, T value) {
-      int val = toValue.get(value.name());
-      writer.value(val);
+      writer.value(toValue.get(value));
     }
 
     @Override
     public T fromJson(JsonReader reader) {
       int value = reader.readInt();
-      String name = toName.get(value);
-      if (name == null) {
+      var enumConstant = toEnum.get(value);
+      if (enumConstant == null) {
         throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + reader.location());
       }
-      return Enum.valueOf(enumType, name);
+      return enumConstant;
     }
 
     @Override
