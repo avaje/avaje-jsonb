@@ -147,7 +147,7 @@ public final class Processor extends AbstractProcessor {
       } catch (final IOException e) {
         logError("Error writing component", e);
       } finally {
-    	  ProcessingContext.clear();
+        ProcessingContext.clear();
       }
     }
   }
