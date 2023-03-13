@@ -26,6 +26,8 @@ final class BeanReader {
   private FieldReader unmappedField;
   private boolean hasRaw;
   private final boolean isRecord;
+  private final boolean patternMatch =
+      Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
 
   BeanReader(TypeElement beanType) {
     this.beanType = beanType;
@@ -263,8 +265,12 @@ final class BeanReader {
         String subType = subTypeMeta.type();
         String subTypeName = subTypeMeta.name();
         String elseIf = i == 0 ? "if" : "else if";
-        writer.append("    %s (%s instanceof %s) {", elseIf, varName, subType).eol();
-        writer.append("      %s sub = (%s)%s;", subType, subType, varName).eol();
+        if (patternMatch) {
+          writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subType).eol();
+        } else {
+          writer.append("    %s (%s instanceof %s) {", elseIf, varName, subType).eol();
+          writer.append("      %s sub = (%s)%s;", subType, subType, varName).eol();
+        }
         writer.append("      writer.name(0);").eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
         writeToJsonForType(writer, "sub", "      ", subType);
