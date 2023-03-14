@@ -15,7 +15,7 @@ class CustomerTest {
 
   final String jsonStart = "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\",\"whenCreated\":";
 
-  Jsonb jsonb = Jsonb.builder().build();
+  Jsonb jsonb = Jsonb.builder().serializeEmpty(false).build();
 
   @Test
   void anyToJson() {
