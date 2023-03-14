@@ -49,7 +49,8 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(Append writer, String varName, BeanReader beanReader, boolean useSwitch) {
+  void writeFromJsonBuild(
+      Append writer, String typeVar, String varName, BeanReader beanReader, boolean useSwitch) {
     if (useSwitch) {
       writer.append("      case \"%s\":", name()).eol();
       writer.append("  ");
@@ -57,7 +58,7 @@ final class TypeSubTypeMeta {
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
       writer.append("        return _$%s;", varName).eol().eol();
     } else {
-      writer.append("    if (\"%s\".equals(type)) {", name()).eol();
+      writer.append("    if (\"%s\".equals(%s)) {", name(), typeVar).eol();
       writeFromJsonConstructor(writer, varName, beanReader);
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
       writer.append("      return _$%s;", varName).eol();

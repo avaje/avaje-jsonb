@@ -35,25 +35,28 @@ final class TypeReader {
 
   private final Map<String, Element> mixInFields;
 
-  TypeReader(TypeElement baseType, NamingConvention namingConvention) {
-    this.baseType = baseType;
-    this.genericTypeParams = initTypeParams(baseType);
-    this.mixInFields = new HashMap<>();
-    this.namingConvention = namingConvention;
-    this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
-    this.subTypes = new TypeSubTypeReader(baseType);
-  }
+  private final String typePropertyKey;
 
-  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention) {
+  TypeReader(
+      TypeElement baseType,
+      TypeElement mixInType,
+      NamingConvention namingConvention,
+      String typePropertyKey) {
+	  
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
-    this.mixInFields =
-      mixInType.getEnclosedElements().stream()
-        .filter(e -> e.getKind() == ElementKind.FIELD)
-        .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+    if (mixInType == null) {
+      this.mixInFields = new HashMap<>();
+    } else {
+      this.mixInFields =
+          mixInType.getEnclosedElements().stream()
+              .filter(e -> e.getKind() == ElementKind.FIELD)
+              .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+    }
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
     this.subTypes = new TypeSubTypeReader(baseType);
+    this.typePropertyKey = typePropertyKey;
   }
 
   private List<String> initTypeParams(TypeElement beanType) {
@@ -391,9 +394,16 @@ final class TypeReader {
    * Set the index position of the fields (for PropertyNames).
    */
   private void setFieldPositions() {
-    int offset = subTypes.hasSubTypes() ? 1 : 0;
-    for (int pos = 0, size = allFields.size(); pos < size; pos++) {
-      allFields.get(pos).position(pos + offset);
+
+    final int offset = subTypes.hasSubTypes() ? 1 : 0;
+    //skip position if property == a type property
+    final var fields = allFields.stream()
+        .filter(f -> !f.propertyName().equals(typePropertyKey))
+        .collect(Collectors.toList());
+
+    for (int pos = 0, size = fields.size(); pos < size; pos++) {
+      final var field = fields.get(pos);
+      field.position(pos + offset);
     }
   }
 

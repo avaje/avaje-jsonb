@@ -4,7 +4,6 @@ import io.avaje.jsonb.Json;
 
 @Json
 @Json.SubType(type = Car.class)
-@Json.SubType(type = Ship.class)
 @Json.SubType(type = Truck.class, name = "TRUCK")
 public abstract class Vehicle {
 
