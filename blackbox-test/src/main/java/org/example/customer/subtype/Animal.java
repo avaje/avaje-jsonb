@@ -9,4 +9,9 @@ import io.avaje.jsonb.Json;
 public interface Animal {
 
   String name();
+  enum AnimalEnum{
+	  Cat,
+	  Dog,
+	  Fish
+  }
 }

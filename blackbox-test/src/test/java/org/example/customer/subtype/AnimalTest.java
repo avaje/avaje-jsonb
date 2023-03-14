@@ -22,7 +22,7 @@ class AnimalTest {
     Animal animal = animalJsonType.fromJson(asJson);
     assertThat(animal).isInstanceOf(Cat.class);
     Cat cat1 = (Cat) animal;
-    assertThat(cat1.dtype()).isEqualTo("Cat");
+    assertThat(cat1.dtype().toString()).isEqualTo("Cat");
     cat1.dtype(null);
     assertThat(cat1.name()).isEqualTo("PussInBoots");
   }

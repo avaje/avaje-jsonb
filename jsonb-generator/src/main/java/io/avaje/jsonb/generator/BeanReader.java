@@ -191,16 +191,16 @@ final class BeanReader {
     }
     final StringBuilder builder = new StringBuilder();
     for (int i = 0, size = allFields.size(); i < size; i++) {
-      final FieldReader fieldReader = allFields.get(i);
-      if (usesTypeProperty && fieldReader.propertyName().equals(typePropertyKey())) {
-        builder.append(" ");
-        continue;
+        final FieldReader fieldReader = allFields.get(i);
+        if (i > 0) {
+          builder.append(", ");
+        }
+        if (usesTypeProperty && fieldReader.propertyName().equals(typePropertyKey())) {
+          builder.append(" ");
+          continue;
+        }
+        builder.append("\"").append(fieldReader.propertyName()).append("\"");
       }
-      if (i > 0) {
-        builder.append(", ");
-      }
-      builder.append("\"").append(fieldReader.propertyName()).append("\"");
-    }
     writer.append(builder.toString().replace(" , ", ""));
     writer.append(");").eol();
   }
@@ -357,7 +357,7 @@ final class BeanReader {
 
     final var useSwitch = typeReader.subTypes().size() >= 3;
     if (useSwitch) {
-      writer.append("    switch (%s) {", typeVar).eol();
+      writer.append("    switch (%s) {", usesTypeProperty ? typeVar + ".toString()" : typeVar).eol();
     }
 
     for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {

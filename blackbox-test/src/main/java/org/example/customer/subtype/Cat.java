@@ -2,17 +2,15 @@ package org.example.customer.subtype;
 
 public class Cat implements Animal {
 
-
-  private String dtype;
-
   private String name;
 
+  private AnimalEnum dtype;
 
-  public String dtype() {
+  public AnimalEnum dtype() {
     return dtype;
   }
 
-  public void dtype(String dtype) {
+  public void dtype(AnimalEnum dtype) {
     this.dtype = dtype;
   }
 
