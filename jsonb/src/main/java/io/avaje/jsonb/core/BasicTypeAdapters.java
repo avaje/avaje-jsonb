@@ -29,35 +29,37 @@ import static java.util.Objects.requireNonNull;
 
 final class BasicTypeAdapters {
 
-  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
-    if (type == Boolean.TYPE) return new BooleanAdapter();
-    if (type == Byte.TYPE) return new ByteAdapter();
-    if (type == Character.TYPE) return new CharacterAdapter();
-    if (type == Double.TYPE) return new DoubleAdapter();
-    if (type == Float.TYPE) return new FloatAdapter();
-    if (type == Integer.TYPE) return new IntegerAdapter();
-    if (type == Long.TYPE) return new LongAdapter();
-    if (type == Short.TYPE) return new ShortAdapter();
-    if (type == Boolean.class) return new BooleanAdapter().nullSafe();
-    if (type == Byte.class) return new ByteAdapter().nullSafe();
-    if (type == Character.class) return new CharacterAdapter().nullSafe();
-    if (type == Double.class) return new DoubleAdapter().nullSafe();
-    if (type == Float.class) return new FloatAdapter().nullSafe();
-    if (type == Integer.class) return new IntegerAdapter().nullSafe();
-    if (type == Long.class) return new LongAdapter().nullSafe();
-    if (type == Short.class) return new ShortAdapter().nullSafe();
-    if (type == String.class) return new StringAdapter().nullSafe();
-    if (type == UUID.class) return new UuidAdapter().nullSafe();
-    if (type == URL.class) return new UrlAdapter().nullSafe();
-    if (type == URI.class) return new UriAdapter().nullSafe();
-    if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  static final JsonAdapter.Factory FACTORY =
+      (type, jsonb) -> {
+        if (type == Boolean.TYPE) return new BooleanAdapter();
+        if (type == Byte.TYPE) return new ByteAdapter();
+        if (type == Character.TYPE) return new CharacterAdapter();
+        if (type == Double.TYPE) return new DoubleAdapter();
+        if (type == Float.TYPE) return new FloatAdapter();
+        if (type == Integer.TYPE) return new IntegerAdapter();
+        if (type == Long.TYPE) return new LongAdapter();
+        if (type == Short.TYPE) return new ShortAdapter();
+        if (type == Boolean.class) return new BooleanAdapter().nullSafe();
+        if (type == Byte.class) return new ByteAdapter().nullSafe();
+        if (type == Character.class) return new CharacterAdapter().nullSafe();
+        if (type == Double.class) return new DoubleAdapter().nullSafe();
+        if (type == Float.class) return new FloatAdapter().nullSafe();
+        if (type == Integer.class) return new IntegerAdapter().nullSafe();
+        if (type == Long.class) return new LongAdapter().nullSafe();
+        if (type == Short.class) return new ShortAdapter().nullSafe();
+        if (type == String.class) return new StringAdapter().nullSafe();
+        if (type == UUID.class) return new UuidAdapter().nullSafe();
+        if (type == URL.class) return new UrlAdapter().nullSafe();
+        if (type == URI.class) return new UriAdapter().nullSafe();
+        if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
 
-    Class<?> rawType = Util.rawType(type);
-    if (rawType.isEnum()) {
-      return createEnumAdapter(rawType);
-    }
-    return null;
-  };
+        final Class<?> rawType = Util.rawType(type);
+        if (rawType.isEnum()) {
+          return new EnumJsonAdapter(rawType).nullSafe();
+        }
+        return null;
+      };
 
   private static final class UuidAdapter extends JsonAdapter<UUID> {
     @Override
@@ -344,219 +346,9 @@ final class BasicTypeAdapters {
       }
     }
 
+    @Override
     public String toString() {
       return "JsonAdapter(Object)";
-    }
-  }
-
-  @SuppressWarnings("rawtypes")
-  private static JsonAdapter<?> createEnumAdapter(Class<?> rawType) {
-    for (Method declaredMethod : rawType.getDeclaredMethods()) {
-      for (Annotation annotation : declaredMethod.getDeclaredAnnotations()) {
-        if (isJsonValue(annotation)) {
-          return enumMap(rawType, declaredMethod);
-        }
-      }
-    }
-    return new EnumJsonAdapter(rawType).nullSafe();
-  }
-
-  private static boolean isJsonValue(Annotation annotation) {
-    return Json.Value.class == annotation.annotationType()
-      || annotation.annotationType().getCanonicalName().endsWith("JsonValue"); // e.g. Jackson annotation
-  }
-
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  private static JsonAdapter<?> enumMap(Class<?> type, Method method) {
-    final Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
-    final var returnType = method.getReturnType();
-
-    if (returnType == int.class) {
-      return new EnumIntValueMap(method, enumType);
-    } else if (returnType == boolean.class) {
-      return new EnumBoolValueMap(method, enumType);
-    } else if (returnType == long.class) {
-      return new EnumLongValueMap(method, enumType);
-    } else if (returnType == double.class) {
-      return new EnumDoubleValueMap(method, enumType);
-    } else {
-      return new EnumValueMap(method, enumType);
-    }
-  }
-
-  static class EnumValueMap<T extends Enum<T>> extends EnumJsonAdapter<T> {
-
-    private final Map<T, String> toValue;
-    private final Map<String, T> toEnum = new HashMap<>();
-
-    EnumValueMap(Method method, Class<T> enumType) {
-      super(enumType);
-      this.toValue = new EnumMap<>(enumType);
-      for (final var enumConstant : enumType.getEnumConstants()) {
-        try {
-          final var val = String.valueOf(method.invoke(enumConstant));
-          toValue.put(enumConstant, val);
-          toEnum.put(val, enumConstant);
-        } catch (final Exception e) {
-          throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
-        }
-      }
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, T value) {
-      writer.value(toValue.get(value));
-    }
-
-    @Override
-    public T fromJson(JsonReader reader) {
-      final String value = reader.readString();
-      final var enumConstant = toEnum.get(value);
-      if (enumConstant == null) {
-        throwException(value, reader.location());
-      }
-      return enumConstant;
-    }
-  }
-
-  static class EnumIntValueMap<T extends Enum<T>> extends EnumJsonAdapter<T> {
-
-    private final Map<T, Integer> toValue;
-    private final Map<Integer, T> toEnum = new HashMap<>();
-
-    EnumIntValueMap(Method method, Class<T> enumType) {
-      super(enumType);
-      this.toValue = new EnumMap<>(enumType);
-      for (final var enumConstant : enumType.getEnumConstants()) {
-        try {
-          final Integer val = (Integer) method.invoke(enumConstant);
-          toValue.put(enumConstant, val);
-          toEnum.put(val, enumConstant);
-        } catch (final Exception e) {
-          throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
-        }
-      }
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, T value) {
-      writer.value(toValue.get(value));
-    }
-
-    @Override
-    public T fromJson(JsonReader reader) {
-      final int value = reader.readInt();
-      final var enumConstant = toEnum.get(value);
-      if (enumConstant == null) {
-        throwException(value, reader.location());
-      }
-      return enumConstant;
-    }
-  }
-
-  static class EnumDoubleValueMap<T extends Enum<T>> extends EnumJsonAdapter<T> {
-
-    private final Map<T, Double> toValue;
-    private final Map<Double, T> toEnum = new HashMap<>();
-
-    EnumDoubleValueMap(Method method, Class<T> enumType) {
-      super(enumType);
-      this.toValue = new EnumMap<>(enumType);
-      for (final var enumConstant : enumType.getEnumConstants()) {
-        try {
-          final Double val = (Double) method.invoke(enumConstant);
-          toValue.put(enumConstant, val);
-          toEnum.put(val, enumConstant);
-        } catch (final Exception e) {
-          throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
-        }
-      }
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, T value) {
-      writer.value(toValue.get(value));
-    }
-
-    @Override
-    public T fromJson(JsonReader reader) {
-      final var value = reader.readDouble();
-      final var enumConstant = toEnum.get(value);
-      if (enumConstant == null) {
-        throwException(value, reader.location());
-      }
-      return enumConstant;
-    }
-  }
-
-  static final class EnumLongValueMap<T extends Enum<T>> extends EnumJsonAdapter<T> {
-
-    private final Map<T, Long> toValue;
-    private final Map<Long, T> toEnum = new HashMap<>();
-
-    EnumLongValueMap(Method method, Class<T> enumType) {
-      super(enumType);
-      this.toValue = new EnumMap<>(enumType);
-      for (final var enumConstant : enumType.getEnumConstants()) {
-        try {
-          final var val = (Long) method.invoke(enumConstant);
-          toValue.put(enumConstant, val);
-          toEnum.put(val, enumConstant);
-        } catch (final Exception e) {
-          throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
-        }
-      }
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, T value) {
-      writer.value(toValue.get(value));
-    }
-
-    @Override
-    public T fromJson(JsonReader reader) {
-      final var value = reader.readLong();
-      final var enumConstant = toEnum.get(value);
-      if (enumConstant == null) {
-        throwException(value, reader.location());
-      }
-      return enumConstant;
-    }
-  }
-
-  static final class EnumBoolValueMap<T extends Enum<T>> extends EnumJsonAdapter<T> {
-
-    private T trueEnum = null;
-    private T falseEnum = null;
-
-    EnumBoolValueMap(Method method, Class<T> enumType) {
-      super(enumType);
-      for (final var enumConstant : enumType.getEnumConstants()) {
-        try {
-          final boolean val = (boolean) method.invoke(enumConstant);
-          if (val) {
-            trueEnum = enumConstant;
-          } else {
-            falseEnum = enumConstant;
-          }
-        } catch (final Exception e) {
-          throw new JsonException("Error trying to invoke Json.Value method on " + enumConstant, e);
-        }
-      }
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, T value) {
-      if (value == null) {
-        writer.value((Boolean) null);
-      } else {
-        writer.value(value == trueEnum);
-      }
-    }
-
-    @Override
-    public T fromJson(JsonReader reader) {
-      return reader.readBoolean() ? trueEnum : falseEnum;
     }
   }
 

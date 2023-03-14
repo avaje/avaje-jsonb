@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.*;
+import static io.avaje.jsonb.generator.Constants.*;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -8,20 +9,22 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
+
 import java.io.IOException;
 import java.util.*;
 
-import static io.avaje.jsonb.generator.Constants.*;
-
-@SupportedAnnotationTypes({JSON, JSON_IMPORT, JSON_MIXIN})
+@SupportedAnnotationTypes({JSON, JSON_IMPORT, JSON_MIXIN, ValuePrism.PRISM_TYPE})
 public final class Processor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
   private final List<BeanReader> allReaders = new ArrayList<>();
   private final Set<String> sourceTypes = new HashSet<>();
   private final Set<String> mixInImports = new HashSet<>();
+  private final Set<String> enumElements = new HashSet<>();
 
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
@@ -53,12 +56,32 @@ public final class Processor extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     readModule();
     writeAdapters(round.getElementsAnnotatedWith(element(JSON)));
+    writeEnumAdapters(round.getElementsAnnotatedWith(element(ValuePrism.PRISM_TYPE)));
     writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(element(JSON_MIXIN)));
     writeAdaptersForImported(round.getElementsAnnotatedWith(element(JSON_IMPORT)));
     initialiseComponent();
     cascadeTypes();
     writeComponent(round.processingOver());
     return false;
+  }
+
+  private void writeEnumAdapters(Set<? extends Element> elements) {
+
+    for (final ExecutableElement element : ElementFilter.methodsIn(elements)) {
+      final var typeElement = (TypeElement) element.getEnclosingElement();
+      if (typeElement.getKind() != ElementKind.ENUM) {
+        logError("@Json.Value is only for enum methods");
+      } else {
+        writeEnumAdapterForType(typeElement, element);
+      }
+    }
+  }
+
+  private void writeEnumAdapterForType(TypeElement typeElement, ExecutableElement element) {
+    if (!enumElements.add(typeElement.asType().toString())) {
+      logError("@Json.Value can only be used once on a given enum methods");
+    }
+    writeAdapter(typeElement, new EnumReader(typeElement, element));
   }
 
   private void cascadeTypes() {
@@ -166,12 +189,12 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void writeAdapterForType(TypeElement typeElement) {
-    final BeanReader beanReader = new BeanReader(typeElement);
+    final ClassReader beanReader = new ClassReader(typeElement);
     writeAdapter(typeElement, beanReader);
   }
 
   private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {
-    final BeanReader beanReader = new BeanReader(typeElement, mixin);
+    final ClassReader beanReader = new ClassReader(typeElement, mixin);
     writeAdapter(typeElement, beanReader);
   }
 
