@@ -9,13 +9,14 @@
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-parent</artifactId>
-  <version>1.4-RC2</version>
+  <version>1.4-RC3</version>
 
   <packaging>pom</packaging>
   <name>jsonb parent</name>
   <description>parent pom for jsonb</description>
 
   <scm>
+    <connection>scm:git:git@github.com:avaje/avaje-jsonb.git</connection>
     <developerConnection>scm:git:git@github.com:avaje/avaje-jsonb.git</developerConnection>
     <tag>avaje-jsonb-parent-1.1</tag>
   </scm>
