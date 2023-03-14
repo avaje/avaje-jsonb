@@ -26,24 +26,11 @@ final class BeanReader {
   private FieldReader unmappedField;
   private boolean hasRaw;
   private final boolean isRecord;
+  private final boolean usesTypeProperty;
   private static final boolean USE_PATTERN_MATCH = Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
 
   BeanReader(TypeElement beanType) {
-    this.beanType = beanType;
-    this.type = beanType.getQualifiedName().toString();
-    this.shortName = shortName(beanType);
-    NamingConventionReader ncReader = new NamingConventionReader(beanType);
-    this.namingConvention = ncReader.get();
-    this.typeProperty = ncReader.typeProperty();
-    this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
-    this.typeReader = new TypeReader(beanType, namingConvention);
-    typeReader.process();
-    this.nonAccessibleField = typeReader.nonAccessibleField();
-    this.hasSubTypes = typeReader.hasSubTypes();
-    this.allFields = typeReader.allFields();
-    this.constructor = typeReader.constructor();
-    this.isRecord = isRecord(beanType);
-    typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
+    this(beanType, null);
   }
 
   public BeanReader(TypeElement beanType, TypeElement mixInElement) {
@@ -54,7 +41,7 @@ final class BeanReader {
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
     this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
-    this.typeReader = new TypeReader(beanType, mixInElement, namingConvention);
+    this.typeReader = new TypeReader(beanType, mixInElement, namingConvention, typePropertyKey());
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
     this.hasSubTypes = typeReader.hasSubTypes();
@@ -62,6 +49,10 @@ final class BeanReader {
     this.constructor = typeReader.constructor();
     this.isRecord = isRecord(beanType);
     typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
+    this.usesTypeProperty =
+        allFields.stream()
+            .map(FieldReader::propertyName)
+            .anyMatch(p -> p.equals(typePropertyKey()));
   }
 
   @SuppressWarnings("unchecked")
@@ -110,7 +101,7 @@ final class BeanReader {
   }
 
   void read() {
-    for (FieldReader field : allFields) {
+    for (final FieldReader field : allFields) {
       field.addImports(importTypes);
       if (field.isRaw()) {
         hasRaw = true;
@@ -198,13 +189,22 @@ final class BeanReader {
     if (hasSubTypes) {
       writer.append("\"").append(typeProperty).append("\", ");
     }
+    final StringBuilder builder = new StringBuilder();
     for (int i = 0, size = allFields.size(); i < size; i++) {
-      FieldReader fieldReader = allFields.get(i);
-      if (i > 0) {
-        writer.append(", ");
+      final FieldReader fieldReader = allFields.get(i);
+
+      if (usesTypeProperty && fieldReader.propertyName().equals(typePropertyKey())) {
+    	  builder.append(" ");
+    	  continue;
       }
-      writer.append("\"").append(fieldReader.propertyName()).append("\"");
+
+      if (i > 0) {
+    	  builder.append(", ");
+      }
+      builder.append("\"").append(fieldReader.propertyName()).append("\"");
     }
+
+    writer.append(builder.toString().replace(" , ", ""));
     writer.append(");").eol();
   }
 
@@ -271,7 +271,7 @@ final class BeanReader {
           writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort).eol();
         } else {
           writer.append("    %s (%s instanceof %s) {", elseIf, varName, subTypeShort).eol();
-          writer.append("      %s sub = (%s) %s;", subType, subTypeShort, varName).eol();
+          writer.append("      %s sub = (%s) %s;", subTypeShort, subTypeShort, varName).eol();
         }
         writer.append("      writer.name(0);").eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
@@ -282,7 +282,12 @@ final class BeanReader {
   }
 
   private void writeToJsonForType(Append writer, String varName, String prefix, String type) {
-    for (FieldReader allField : allFields) {
+    for (final FieldReader allField : allFields) {
+
+      if (usesTypeProperty && allField.propertyName().equals(typePropertyKey())) {
+        continue;
+      }
+
       if (allField.includeToJson(type)) {
         allField.writeToJson(writer, varName, prefix);
       }
@@ -308,7 +313,7 @@ final class BeanReader {
         }
       }
     }
-    if (hasSubTypes) {
+    if (hasSubTypes && !usesTypeProperty) {
       writer.eol().append("    String type = null;").eol();
     }
     if (unmappedField != null) {
@@ -317,7 +322,7 @@ final class BeanReader {
     writeFromJsonSwitch(writer, directLoad, varName);
     writer.eol();
     if (hasSubTypes) {
-      writeFromJsonWithSubTypes(writer, varName);
+      writeFromJsonWithSubTypes(writer);
       return;
     }
     if (!directLoad) {
@@ -333,7 +338,7 @@ final class BeanReader {
   private void writeJsonBuildResult(Append writer, String varName) {
     writer.append("    // build and return %s", shortName).eol();
     writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
-    List<MethodReader.MethodParam> params = constructor.getParams();
+    final List<MethodReader.MethodParam> params = constructor.getParams();
     for (int i = 0, size = params.size(); i < size; i++) {
       if (i > 0) {
         writer.append(", ");
@@ -348,14 +353,39 @@ final class BeanReader {
     }
   }
 
-  private void writeFromJsonWithSubTypes(Append writer, String varName) {
-    writer.append("    if (type == null) {").eol();
+  private void writeFromJsonWithSubTypes(Append writer) {
+
+    final var typeVar = usesTypeProperty ? "_val$" + typePropertyKey() : "type";
+
+    writer.append("    if (%s == null) {", typeVar).eol();
     writer.append("      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");", typeProperty).eol();
     writer.append("    }").eol();
-    for (TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
-      subTypeMeta.writeFromJsonBuild(writer, varName, this);
+
+    final var useSwitch = typeReader.subTypes().size() >= 3;
+
+    if (useSwitch) {
+      writer.append("    switch (%s) {", typeVar).eol();
     }
-    writer.append("    throw new IllegalStateException(\"Unknown value for %s property \" + type);", typeProperty).eol();
+
+    for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
+
+      final var varName = Util.initLower(Util.shortName(subTypeMeta.type()));
+
+      subTypeMeta.writeFromJsonBuild(writer, typeVar, varName, this, useSwitch);
+    }
+
+    if(useSwitch) {
+    	writer.append("      default:").eol();
+
+        writer.append("    ");
+    }
+
+    writer.append("    throw new IllegalStateException(\"Unknown value for %s property \" + %s);", typeProperty, typeVar).eol();
+
+    if (useSwitch) {
+      writer.append("    }").eol();
+    }
+
     writer.append("  }").eol();
   }
 
@@ -379,16 +409,16 @@ final class BeanReader {
       writer.append("      final String fieldName = reader.nextField();").eol();
     }
     writer.append("      switch (fieldName) {").eol();
-    if (hasSubTypes) {
-      writer.append("        case \"%s\": {", typePropertyKey()).eol();
-      writer.append("          type = stringJsonAdapter.fromJson(reader); break;").eol();
-      writer.append("        }").eol();
+    if (hasSubTypes && !usesTypeProperty) {
+      writer.append("        case \"%s\":", typePropertyKey()).eol();
+      writer.append("          type = stringJsonAdapter.fromJson(reader);").eol();
+      writer.append("          break;").eol();
     }
     for (FieldReader allField : allFields) {
       allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys);
     }
-    writer.append("        default: {").eol();
-    String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
+    writer.append("        default:").eol();
+    final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
     if (unmappedField != null) {
       writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
       writer.append("          unmapped.put(%s, value);", unmappedFieldName).eol();
@@ -396,7 +426,6 @@ final class BeanReader {
       writer.append("          reader.unmappedField(%s);", unmappedFieldName).eol();
       writer.append("          reader.skipValue();").eol();
     }
-    writer.append("        }").eol();
     writer.append("      }").eol();
     writer.append("    }").eol();
     writer.append("    reader.endObject();").eol();
