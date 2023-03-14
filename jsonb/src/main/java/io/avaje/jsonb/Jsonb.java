@@ -358,7 +358,7 @@ public interface Jsonb {
     /**
      * Set to serialise empty collections or not.
      * <p>
-     * Default is to not serialise empty collections.
+     * Default is to serialize empty collections.
      */
     Builder serializeEmpty(boolean serializeEmpty);
 

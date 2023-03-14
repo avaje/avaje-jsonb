@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class SomeAddressWrapperTest {
 
-  Jsonb jsonb = Jsonb.builder().build();
+  Jsonb jsonb = Jsonb.builder().serializeEmpty(false).build();
 
   @Test
   void test_when_null() {
@@ -45,7 +45,7 @@ class SomeAddressWrapperTest {
   @Test
   void includeNull_viaJsonB() {
 
-    Jsonb jsonb = Jsonb.builder().serializeNulls(true).build();
+    Jsonb jsonb = Jsonb.builder().serializeNulls(true).serializeEmpty(false).build();
 
     var type = jsonb.type(SomeAddressWrapper.class);
     String asJson = type.toJson(new SomeAddressWrapper(43L, null, Collections.emptyList()));

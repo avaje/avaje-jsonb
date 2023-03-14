@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ViewTest {
 
-  Jsonb jsonb = Jsonb.builder().build();
+  Jsonb jsonb = Jsonb.builder().serializeEmpty(false).build();
 
   @Test
   void jsonView_sameInstance() {

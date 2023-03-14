@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MyOtherClassTest {
 
-  Jsonb jsonb = Jsonb.builder().build();
+  Jsonb jsonb = Jsonb.builder().serializeEmpty(false).build();
   JsonType<MyOtherClass> jsonType = jsonb.type(MyOtherClass.class);
 
   @Test
