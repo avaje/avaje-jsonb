@@ -50,7 +50,7 @@ final class TypeSubTypeMeta {
   }
 
   void writeFromJsonBuild(
-      Append writer, String typeVar, String varName, BeanReader beanReader, boolean useSwitch) {
+      Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch) {
     if (useSwitch) {
       writer.append("      case \"%s\":", name()).eol();
       writer.append("  ");
@@ -67,7 +67,7 @@ final class TypeSubTypeMeta {
   }
 
   private void writeFromJsonSetters(
-      Append writer, String varName, BeanReader beanReader, boolean useSwitch) {
+      Append writer, String varName, ClassReader beanReader, boolean useSwitch) {
     for (final FieldReader field : beanReader.allFields()) {
       if (isIncludeSetter(field)) {
         if (useSwitch) {
@@ -86,7 +86,7 @@ final class TypeSubTypeMeta {
 
   private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
-  private void writeFromJsonConstructor(Append writer, String varName, BeanReader beanReader) {
+  private void writeFromJsonConstructor(Append writer, String varName, ClassReader beanReader) {
     writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     MethodReader constructor = findConstructor();
     if (constructor != null) {

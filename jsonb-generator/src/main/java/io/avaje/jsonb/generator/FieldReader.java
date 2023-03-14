@@ -38,7 +38,7 @@ final class FieldReader {
     this.fieldName = element.getSimpleName().toString();
 
     this.publicField = element.getModifiers().contains(Modifier.PUBLIC);
-    this.rawType = trimAnnotations(element.asType().toString());
+    this.rawType = Util.trimAnnotations(element.asType().toString());
 
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     this.unmapped = ignoreReader.unmapped();
