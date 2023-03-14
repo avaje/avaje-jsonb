@@ -1,6 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -15,35 +14,32 @@ final class EnumReader implements BeanReader {
   private final String shortName;
   private final String type;
   private final Set<String> importTypes = new TreeSet<>();
-  private final TypeMirror returnType;
   private final String returnTypeStr;
   private final GenericType genericType;
   private final String adapterShortType;
-  private final String adapterFieldName;
 
   public EnumReader(TypeElement beanType, ExecutableElement e) {
     this.method = e;
     this.enumType = beanType;
-    this.returnType = e.getReturnType();
+    final TypeMirror returnType = e.getReturnType();
     this.returnTypeStr =  PrimitiveUtil.wrap(Util.shortType(returnType.toString()));
     this.type = Util.trimAnnotations(returnType.toString());
     this.shortName = shortName(beanType);
 
     genericType = GenericType.parse(returnTypeStr);
     final String shortType = genericType.shortType();
-
     adapterShortType = "JsonAdapter<" + PrimitiveUtil.wrap(Util.shortType(shortType)) + ">";
-
-    adapterFieldName = Util.initLower(genericType.shortName()) + "JsonAdapter";
   }
 
   @Override
-  public void read() { // TODO Auto-generated method stub
+  public void read() {
+    // nothing to read here
   }
 
   @Override
-  public void cascadeTypes(Set<String> extraTypes) {}
-
+  public void cascadeTypes(Set<String> extraTypes) {
+    // no extra cascade types on enums
+  }
 
   @Override
   public String toString() {
@@ -58,10 +54,6 @@ final class EnumReader implements BeanReader {
   @Override
   public TypeElement getBeanType() {
     return enumType;
-  }
-
-  List<FieldReader> allFields() {
-    return List.of();
   }
 
   private Set<String> importTypes() {
@@ -92,28 +84,15 @@ final class EnumReader implements BeanReader {
 
   @Override
   public void writeFields(Append writer) {
-    writer
-        .append(
-            "  private static final Map<%s, %s> toValue = new EnumMap<>(%s.class);",
-            shortName, returnTypeStr, shortName)
-        .eol();
-    writer
-        .append(
-            "  private static final Map<%s, %s> toEnum = new HashMap<>();",
-            returnTypeStr, shortName)
-        .eol();
+    writer.append("  private static final Map<%s, %s> toValue = new EnumMap<>(%s.class);", shortName, returnTypeStr, shortName).eol();
+    writer.append("  private static final Map<%s, %s> toEnum = new HashMap<>();", returnTypeStr, shortName).eol();
     writer.append("  private final %s adapter;", adapterShortType).eol();
     writer.eol();
   }
 
   @Override
   public void writeConstructor(Append writer) {
-
-    writer
-        .append(
-            "    this.adapter = jsonb.adapter(%s);", genericType.asTypeDeclaration())
-        .eol();
-
+    writer.append("    this.adapter = jsonb.adapter(%s);", genericType.asTypeDeclaration()).eol();
     writer.append("    for(final var enumConst : %s.values()) {", shortName).eol();
     writer.append("      var val = enumConst.%s();", method.getSimpleName()).eol();
     writer.append("      toValue.put(enumConst, val);").eol();
@@ -123,7 +102,6 @@ final class EnumReader implements BeanReader {
 
   @Override
   public void writeToJson(Append writer) {
-    final String varName = Util.initLower(shortName);
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public void toJson(JsonWriter writer, %s value) {", shortName).eol();
@@ -137,15 +115,10 @@ final class EnumReader implements BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) {", shortName, varName).eol();
-
     writer.append("    final var value = adapter.fromJson(reader);").eol();
     writer.append("    final var enumConstant = toEnum.get(value);").eol();
     writer.append("    if (enumConstant == null) ", varName).eol();
-    writer
-        .append(
-            "      throw new JsonDataException(\"Unable to determine %s enum value for \" + value);",
-            shortName)
-        .eol();
+    writer.append("      throw new JsonDataException(\"Unable to determine %s enum value for \" + value);", shortName).eol();
     writer.append("    return enumConstant;").eol();
     writer.append("  }").eol();
   }

@@ -66,11 +66,10 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void writeEnumAdapters(Set<? extends Element> elements) {
-
     for (final ExecutableElement element : ElementFilter.methodsIn(elements)) {
       final var typeElement = (TypeElement) element.getEnclosingElement();
       if (typeElement.getKind() != ElementKind.ENUM) {
-        logError("@Json.Value is only for enum methods");
+        logError("@Json.Value is only for enum methods at: " + typeElement);
       } else {
         writeEnumAdapterForType(typeElement, element);
       }
@@ -79,7 +78,7 @@ public final class Processor extends AbstractProcessor {
 
   private void writeEnumAdapterForType(TypeElement typeElement, ExecutableElement element) {
     if (!enumElements.add(typeElement.asType().toString())) {
-      logError("@Json.Value can only be used once on a given enum methods");
+      logError("@Json.Value can only be used once on a given enum methods at: " + typeElement);
     }
     writeAdapter(typeElement, new EnumReader(typeElement, element));
   }
