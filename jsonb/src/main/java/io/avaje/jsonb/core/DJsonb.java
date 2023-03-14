@@ -211,7 +211,7 @@ final class DJsonb implements Jsonb {
     private boolean failOnUnknown;
     private boolean mathTypesAsString;
     private boolean serializeNulls;
-    private boolean serializeEmpty;
+    private boolean serializeEmpty = true;
     private JsonStreamAdapter adapter;
 
     @Override
