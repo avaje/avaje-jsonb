@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MyEnumTest {
 
-  Jsonb jsonb = Jsonb.builder().build();
+  Jsonb jsonb = Jsonb.builder().add(MyEnum.class, MyEnumJsonAdapter::new).build();
 
   @Test
   void toJson_withJsonValue_expect_valueInJson() {

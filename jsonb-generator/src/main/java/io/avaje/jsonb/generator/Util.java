@@ -39,9 +39,14 @@ final class Util {
     }
   }
 
-  /**
-   * Return the common parent package.
-   */
+  static String trimAnnotations(String type) {
+    final int pos = type.indexOf("@");
+    if (pos == -1) {
+      return type;
+    }
+    return type.substring(0, pos) + type.substring(type.lastIndexOf(' ') + 1);
+  }
+  /** Return the common parent package. */
   static String commonParent(String currentTop, String aPackage) {
     if (aPackage == null) return currentTop;
     if (currentTop == null) return packageOf(aPackage);
