@@ -50,17 +50,17 @@ final class BeanReader {
     this.isRecord = isRecord(beanType);
     typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
     this.usesTypeProperty =
-        allFields.stream()
-            .map(FieldReader::propertyName)
-            .anyMatch(p -> p.equals(typePropertyKey()));
+      allFields.stream()
+        .map(FieldReader::propertyName)
+        .anyMatch(p -> p.equals(typePropertyKey()));
   }
 
   @SuppressWarnings("unchecked")
   boolean isRecord(TypeElement beanType) {
     try {
       final var recordComponents =
-          (List<? extends Element>)
-              TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
+        (List<? extends Element>)
+          TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
       return !recordComponents.isEmpty();
     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
       return false;
@@ -192,18 +192,15 @@ final class BeanReader {
     final StringBuilder builder = new StringBuilder();
     for (int i = 0, size = allFields.size(); i < size; i++) {
       final FieldReader fieldReader = allFields.get(i);
-
       if (usesTypeProperty && fieldReader.propertyName().equals(typePropertyKey())) {
-    	  builder.append(" ");
-    	  continue;
+        builder.append(" ");
+        continue;
       }
-
       if (i > 0) {
-    	  builder.append(", ");
+        builder.append(", ");
       }
       builder.append("\"").append(fieldReader.propertyName()).append("\"");
     }
-
     writer.append(builder.toString().replace(" , ", ""));
     writer.append(");").eol();
   }
@@ -283,11 +280,9 @@ final class BeanReader {
 
   private void writeToJsonForType(Append writer, String varName, String prefix, String type) {
     for (final FieldReader allField : allFields) {
-
       if (usesTypeProperty && allField.propertyName().equals(typePropertyKey())) {
         continue;
       }
-
       if (allField.includeToJson(type)) {
         allField.writeToJson(writer, varName, prefix);
       }
@@ -354,7 +349,6 @@ final class BeanReader {
   }
 
   private void writeFromJsonWithSubTypes(Append writer) {
-
     final var typeVar = usesTypeProperty ? "_val$" + typePropertyKey() : "type";
 
     writer.append("    if (%s == null) {", typeVar).eol();
@@ -362,30 +356,22 @@ final class BeanReader {
     writer.append("    }").eol();
 
     final var useSwitch = typeReader.subTypes().size() >= 3;
-
     if (useSwitch) {
       writer.append("    switch (%s) {", typeVar).eol();
     }
 
     for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
-
       final var varName = Util.initLower(Util.shortName(subTypeMeta.type()));
-
       subTypeMeta.writeFromJsonBuild(writer, typeVar, varName, this, useSwitch);
     }
 
-    if(useSwitch) {
-    	writer.append("      default:").eol();
-
-        writer.append("    ");
+    if (useSwitch) {
+      writer.append("      default:").eol().append("    ");
     }
-
     writer.append("    throw new IllegalStateException(\"Unknown value for %s property \" + %s);", typeProperty, typeVar).eol();
-
     if (useSwitch) {
       writer.append("    }").eol();
     }
-
     writer.append("  }").eol();
   }
 

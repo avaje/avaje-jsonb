@@ -37,21 +37,16 @@ final class TypeReader {
 
   private final String typePropertyKey;
 
-  TypeReader(
-      TypeElement baseType,
-      TypeElement mixInType,
-      NamingConvention namingConvention,
-      String typePropertyKey) {
-	  
+  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
     if (mixInType == null) {
       this.mixInFields = new HashMap<>();
     } else {
       this.mixInFields =
-          mixInType.getEnclosedElements().stream()
-              .filter(e -> e.getKind() == ElementKind.FIELD)
-              .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+        mixInType.getEnclosedElements().stream()
+          .filter(e -> e.getKind() == ElementKind.FIELD)
+          .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     }
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
@@ -113,7 +108,6 @@ final class TypeReader {
   private void readField(Element element, List<FieldReader> localFields) {
     final Element mixInField = mixInFields.get(element.getSimpleName().toString());
     if (mixInField != null && mixInField.asType().equals(element.asType())) {
-
       element = mixInField;
     }
     if (includeField(element)) {
@@ -394,12 +388,11 @@ final class TypeReader {
    * Set the index position of the fields (for PropertyNames).
    */
   private void setFieldPositions() {
-
     final int offset = subTypes.hasSubTypes() ? 1 : 0;
     //skip position if property == a type property
     final var fields = allFields.stream()
-        .filter(f -> !f.propertyName().equals(typePropertyKey))
-        .collect(Collectors.toList());
+      .filter(f -> !f.propertyName().equals(typePropertyKey))
+      .collect(Collectors.toList());
 
     for (int pos = 0, size = fields.size(); pos < size; pos++) {
       final var field = fields.get(pos);
