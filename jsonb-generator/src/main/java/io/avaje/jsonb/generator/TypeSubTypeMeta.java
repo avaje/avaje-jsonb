@@ -7,6 +7,7 @@ final class TypeSubTypeMeta {
 
   private final String type;
   private String name;
+  private final String shortType;
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
   private final List<MethodReader> publicConstructors = new ArrayList<>();
@@ -19,6 +20,7 @@ final class TypeSubTypeMeta {
   TypeSubTypeMeta(SubTypePrism prism) {
     type = prism.type().toString();
     name = Util.escapeQuotes(prism.name());
+    shortType = Util.shortType(type);
   }
 
   void setElement(TypeElement element) {
@@ -35,7 +37,7 @@ final class TypeSubTypeMeta {
 
   String name() {
     if (name.isBlank()) {
-      name = Util.shortName(type);
+      name = Util.shortType(type);
     }
     return name;
   }
@@ -47,17 +49,30 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(Append writer, String varName, BeanReader beanReader) {
-    writer.append("    if (\"%s\".equals(type)) {", name()).eol();
-    writeFromJsonConstructor(writer, varName, beanReader);
-    writeFromJsonSetters(writer, varName, beanReader);
-    writer.append("      return _$%s;", varName).eol();
-    writer.append("    }").eol();
+  void writeFromJsonBuild(
+      Append writer, String typeVar, String varName, BeanReader beanReader, boolean useSwitch) {
+    if (useSwitch) {
+      writer.append("      case \"%s\":", name()).eol();
+      writer.append("  ");
+      writeFromJsonConstructor(writer, varName, beanReader);
+      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writer.append("        return _$%s;", varName).eol().eol();
+    } else {
+      writer.append("    if (\"%s\".equals(%s)) {", name(), typeVar).eol();
+      writeFromJsonConstructor(writer, varName, beanReader);
+      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writer.append("      return _$%s;", varName).eol();
+      writer.append("    }").eol();
+    }
   }
 
-  private void writeFromJsonSetters(Append writer, String varName, BeanReader beanReader) {
-    for (FieldReader field : beanReader.allFields()) {
+  private void writeFromJsonSetters(
+      Append writer, String varName, BeanReader beanReader, boolean useSwitch) {
+    for (final FieldReader field : beanReader.allFields()) {
       if (isIncludeSetter(field)) {
+        if (useSwitch) {
+          writer.append("  ");
+        }
         field.writeFromJsonSetter(writer, varName, "  ");
       }
     }
@@ -72,7 +87,7 @@ final class TypeSubTypeMeta {
   private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
   private void writeFromJsonConstructor(Append writer, String varName, BeanReader beanReader) {
-    writer.append("      %s _$%s = new %s(", type, varName, type);
+    writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     MethodReader constructor = findConstructor();
     if (constructor != null) {
       List<MethodReader.MethodParam> params = constructor.getParams();

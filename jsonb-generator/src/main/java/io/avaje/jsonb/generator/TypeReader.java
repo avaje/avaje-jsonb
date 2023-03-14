@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.*;
+
 import javax.lang.model.element.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,25 +35,23 @@ final class TypeReader {
 
   private final Map<String, Element> mixInFields;
 
-  TypeReader(TypeElement baseType, NamingConvention namingConvention) {
-    this.baseType = baseType;
-    this.genericTypeParams = initTypeParams(baseType);
-    this.mixInFields = new HashMap<>();
-    this.namingConvention = namingConvention;
-    this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
-    this.subTypes = new TypeSubTypeReader(baseType);
-  }
+  private final String typePropertyKey;
 
-  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention) {
+  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
-    this.mixInFields =
-      mixInType.getEnclosedElements().stream()
-        .filter(e -> e.getKind() == ElementKind.FIELD)
-        .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+    if (mixInType == null) {
+      this.mixInFields = new HashMap<>();
+    } else {
+      this.mixInFields =
+        mixInType.getEnclosedElements().stream()
+          .filter(e -> e.getKind() == ElementKind.FIELD)
+          .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+    }
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
     this.subTypes = new TypeSubTypeReader(baseType);
+    this.typePropertyKey = typePropertyKey;
   }
 
   private List<String> initTypeParams(TypeElement beanType) {
@@ -98,6 +97,10 @@ final class TypeReader {
         } else {
           commonField.addSubType(currentSubType);
         }
+
+        if (commonField == null && currentSubType != null) {
+          localField.isSubTypeField(true);
+        }
       }
     }
   }
@@ -105,7 +108,6 @@ final class TypeReader {
   private void readField(Element element, List<FieldReader> localFields) {
     final Element mixInField = mixInFields.get(element.getSimpleName().toString());
     if (mixInField != null && mixInField.asType().equals(element.asType())) {
-
       element = mixInField;
     }
     if (includeField(element)) {
@@ -130,7 +132,7 @@ final class TypeReader {
     }
     ExecutableElement ex = (ExecutableElement) element;
     MethodReader methodReader = new MethodReader(ex, baseType).read();
-    if (methodReader.isPublic()) {
+    if (methodReader.isPublic() || hasSubTypes() && methodReader.isProtected()) {
       if (currentSubType != null) {
         currentSubType.addConstructor(methodReader);
       } else {
@@ -176,9 +178,10 @@ final class TypeReader {
 
   private void matchFieldToSetter(FieldReader field) {
     if (!matchFieldToSetter2(field, false)
-        && !matchFieldToSetter2(field, true)
-        && !matchFieldToSetterByParam(field)
-        && !field.isPublicField()) {
+      && !matchFieldToSetter2(field, true)
+      && !matchFieldToSetterByParam(field)
+      && !field.isPublicField()
+      && !field.isSubTypeField()) {
       logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
     }
   }
@@ -236,8 +239,9 @@ final class TypeReader {
 
   private void matchFieldToGetter(FieldReader field) {
     if (!matchFieldToGetter2(field, false)
-        && !matchFieldToGetter2(field, true)
-        && !field.isPublicField()) {
+      && !matchFieldToGetter2(field, true)
+      && !field.isPublicField()
+      && !field.isSubTypeField()) {
       nonAccessibleField = true;
       if (hasJsonAnnotation) {
         logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
@@ -336,7 +340,6 @@ final class TypeReader {
         }
       }
     }
-
     return largestConstructor;
   }
 
@@ -385,9 +388,15 @@ final class TypeReader {
    * Set the index position of the fields (for PropertyNames).
    */
   private void setFieldPositions() {
-    int offset = subTypes.hasSubTypes() ? 1 : 0;
-    for (int pos = 0, size = allFields.size(); pos < size; pos++) {
-      allFields.get(pos).position(pos + offset);
+    final int offset = subTypes.hasSubTypes() ? 1 : 0;
+    //skip position if property == a type property
+    final var fields = allFields.stream()
+      .filter(f -> !f.propertyName().equals(typePropertyKey))
+      .collect(Collectors.toList());
+
+    for (int pos = 0, size = fields.size(); pos < size; pos++) {
+      final var field = fields.get(pos);
+      field.position(pos + offset);
     }
   }
 
