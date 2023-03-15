@@ -50,15 +50,29 @@ final class TypeSubTypeMeta {
   }
 
   void writeFromJsonBuild(
-      Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch) {
+      Append writer,
+      String typeVar,
+      String varName,
+      ClassReader beanReader,
+      boolean useSwitch,
+      boolean useEnum) {
+
     if (useSwitch) {
-      writer.append("      case \"%s\":", name()).eol();
+      if (useEnum) {
+        writer.append("      case %s:", name()).eol();
+      } else {
+        writer.append("      case \"%s\":", name()).eol();
+      }
       writer.append("  ");
       writeFromJsonConstructor(writer, varName, beanReader);
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
       writer.append("        return _$%s;", varName).eol().eol();
     } else {
-      writer.append("    if (\"%s\".equals(%s)) {", name(), typeVar).eol();
+      if (useEnum) {
+        writer.append("    if (%s.equals(%s)) {", name(), typeVar).eol();
+      } else {
+        writer.append("    if (\"%s\".equals(%s)) {", name(), typeVar).eol();
+      }
       writeFromJsonConstructor(writer, varName, beanReader);
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
       writer.append("      return _$%s;", varName).eol();
