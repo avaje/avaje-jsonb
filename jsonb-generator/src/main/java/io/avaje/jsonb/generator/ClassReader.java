@@ -3,10 +3,12 @@ package io.avaje.jsonb.generator;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 
 final class ClassReader implements BeanReader {
@@ -28,6 +30,7 @@ final class ClassReader implements BeanReader {
   private boolean hasRaw;
   private final boolean isRecord;
   private final boolean usesTypeProperty;
+  private final boolean useEnum;
   private static final boolean USE_PATTERN_MATCH =
       Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
 
@@ -51,10 +54,20 @@ final class ClassReader implements BeanReader {
     this.constructor = typeReader.constructor();
     this.isRecord = isRecord(beanType);
     typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
-    this.usesTypeProperty =
-        allFields.stream()
-            .map(FieldReader::propertyName)
-            .anyMatch(p -> p.equals(typePropertyKey()));
+
+    final var userTypeField =
+        allFields.stream().filter(f -> f.propertyName().equals(typePropertyKey())).findAny();
+
+    this.usesTypeProperty = userTypeField.isPresent();
+
+    this.useEnum =
+        userTypeField
+            .map(FieldReader::type)
+            .map(GenericType::topType)
+            .map(ProcessingContext::element)
+            .filter(Objects::nonNull)
+            .filter(e -> e.getKind() == ElementKind.ENUM)
+            .isPresent();
   }
 
   @SuppressWarnings("unchecked")
@@ -382,13 +395,13 @@ final class ClassReader implements BeanReader {
     final var useSwitch = typeReader.subTypes().size() >= 3;
     if (useSwitch) {
       writer
-          .append("    switch (%s) {", usesTypeProperty ? typeVar + ".toString()" : typeVar)
+          .append("    switch (%s) {", typeVar)
           .eol();
     }
 
     for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
       final var varName = Util.initLower(Util.shortName(subTypeMeta.type()));
-      subTypeMeta.writeFromJsonBuild(writer, typeVar, varName, this, useSwitch);
+      subTypeMeta.writeFromJsonBuild(writer, typeVar, varName, this, useSwitch, useEnum);
     }
 
     if (useSwitch) {

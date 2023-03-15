@@ -400,4 +400,8 @@ final class FieldReader {
   public String toString() {
     return fieldName;
   }
+
+  public GenericType type() {
+    return genericType;
+  }
 }
