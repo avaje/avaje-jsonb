@@ -41,7 +41,7 @@ final class ClassReader implements BeanReader {
     this(beanType, null);
   }
 
-  public ClassReader(TypeElement beanType, TypeElement mixInElement) {
+  ClassReader(TypeElement beanType, TypeElement mixInElement) {
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
