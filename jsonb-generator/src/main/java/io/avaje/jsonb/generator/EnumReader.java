@@ -18,7 +18,7 @@ final class EnumReader implements BeanReader {
   private final GenericType genericType;
   private final String adapterShortType;
 
-  public EnumReader(TypeElement beanType, ExecutableElement e) {
+  EnumReader(TypeElement beanType, ExecutableElement e) {
     this.method = e;
     this.enumType = beanType;
     final TypeMirror returnType = e.getReturnType();

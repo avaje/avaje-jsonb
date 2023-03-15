@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
-public interface BeanReader {
+interface BeanReader {
 
   void read();
 
