@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.getJdkVersion;
+import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
 import javax.lang.model.element.TypeElement;
 import java.util.*;
 
@@ -12,7 +12,7 @@ final class TypeSubTypeMeta {
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
   private final List<MethodReader> publicConstructors = new ArrayList<>();
-  private static final boolean ENHANCED_SWITCH = getJdkVersion() >= 14;
+  private static final boolean ENHANCED_SWITCH = jdkVersion() >= 14;
 
   @Override
   public String toString() {

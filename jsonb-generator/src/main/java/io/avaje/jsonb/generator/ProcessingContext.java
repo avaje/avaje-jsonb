@@ -36,7 +36,7 @@ final class ProcessingContext {
     TYPE_UTILS.set(processingEnv.getTypeUtils());
   }
 
-  public static Float getJdkVersion() {
+  public static Float jdkVersion() {
     return JDK_VERSION;
   }
 

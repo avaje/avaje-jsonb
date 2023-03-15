@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.getJdkVersion;
+import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
@@ -33,9 +33,9 @@ final class ClassReader implements BeanReader {
   private final boolean isRecord;
   private final boolean usesTypeProperty;
   private final boolean useEnum;
-  private static final boolean ENHANCED_SWITCH = getJdkVersion() >= 14;
-  private static final boolean USE_INSTANCEOF_PATTERN = getJdkVersion() >= 17;
-  private static final boolean NULL_SWITCH = getJdkVersion() >= 21;
+  private static final boolean ENHANCED_SWITCH = jdkVersion() >= 14;
+  private static final boolean USE_INSTANCEOF_PATTERN = jdkVersion() >= 17;
+  private static final boolean NULL_SWITCH = jdkVersion() >= 21;
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
