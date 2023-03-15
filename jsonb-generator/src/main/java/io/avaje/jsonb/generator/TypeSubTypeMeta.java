@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
+
 import javax.lang.model.element.TypeElement;
 import java.util.*;
 
@@ -51,14 +52,7 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(
-      Append writer,
-      String typeVar,
-      String varName,
-      ClassReader beanReader,
-      boolean useSwitch,
-      boolean useEnum) {
-
+  void writeFromJsonBuild(Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch, boolean useEnum) {
     if (useSwitch) {
       if (useEnum) {
         writer.append("      case %s", name()).appendSwitchCase().eol();
@@ -87,8 +81,7 @@ final class TypeSubTypeMeta {
     }
   }
 
-  private void writeFromJsonSetters(
-      Append writer, String varName, ClassReader beanReader, boolean useSwitch) {
+  private void writeFromJsonSetters(Append writer, String varName, ClassReader beanReader, boolean useSwitch) {
     for (final FieldReader field : beanReader.allFields()) {
       if (isIncludeSetter(field)) {
         if (useSwitch) {
@@ -100,9 +93,7 @@ final class TypeSubTypeMeta {
   }
 
   private boolean isIncludeSetter(FieldReader field) {
-    return field.includeFromJson()
-      && !constructorFieldNames.contains(field.fieldName())
-      && field.includeForType(this);
+    return field.includeFromJson() && !constructorFieldNames.contains(field.fieldName()) && field.includeForType(this);
   }
 
   private final Set<String> constructorFieldNames = new LinkedHashSet<>();

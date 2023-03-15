@@ -17,8 +17,7 @@ import javax.tools.StandardLocation;
 
 final class ProcessingContext {
 
-  private static final Float JDK_VERSION =
-      Float.parseFloat(System.getProperty("java.specification.version"));
+  private static final Float JDK_VERSION = Float.parseFloat(System.getProperty("java.specification.version"));
 
   private static final ThreadLocal<ProcessingEnvironment> ENV = new ThreadLocal<>();
   private static final ThreadLocal<Messager> MESSAGER = new ThreadLocal<>();
@@ -26,9 +25,10 @@ final class ProcessingContext {
   private static final ThreadLocal<Elements> ELEMENT_UTILS = new ThreadLocal<>();
   private static final ThreadLocal<Types> TYPE_UTILS = new ThreadLocal<>();
 
-  private ProcessingContext() {}
+  private ProcessingContext() {
+  }
 
-  public static void init(ProcessingEnvironment processingEnv) {
+  static void init(ProcessingEnvironment processingEnv) {
     ENV.set(processingEnv);
     MESSAGER.set(processingEnv.getMessager());
     FILER.set(processingEnv.getFiler());
@@ -36,11 +36,13 @@ final class ProcessingContext {
     TYPE_UTILS.set(processingEnv.getTypeUtils());
   }
 
-  public static Float jdkVersion() {
+  static Float jdkVersion() {
     return JDK_VERSION;
   }
 
-  /** Log an error message. */
+  /**
+   * Log an error message.
+   */
   static void logError(Element e, String msg, Object... args) {
     MESSAGER.get().printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), e);
   }
@@ -57,7 +59,9 @@ final class ProcessingContext {
     MESSAGER.get().printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
   }
 
-  /** Create a file writer for the given class name. */
+  /**
+   * Create a file writer for the given class name.
+   */
   static JavaFileObject createWriter(String cls) throws IOException {
     return FILER.get().createSourceFile(cls);
   }
@@ -78,7 +82,7 @@ final class ProcessingContext {
     return ENV.get();
   }
 
-  public static void clear() {
+  static void clear() {
     ENV.remove();
     MESSAGER.remove();
     FILER.remove();
