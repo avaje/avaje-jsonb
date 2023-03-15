@@ -17,6 +17,9 @@ import javax.tools.StandardLocation;
 
 final class ProcessingContext {
 
+  private static final Float JDK_VERSION =
+      Float.parseFloat(System.getProperty("java.specification.version"));
+
   private static final ThreadLocal<ProcessingEnvironment> ENV = new ThreadLocal<>();
   private static final ThreadLocal<Messager> MESSAGER = new ThreadLocal<>();
   private static final ThreadLocal<Filer> FILER = new ThreadLocal<>();
@@ -31,6 +34,10 @@ final class ProcessingContext {
     FILER.set(processingEnv.getFiler());
     ELEMENT_UTILS.set(processingEnv.getElementUtils());
     TYPE_UTILS.set(processingEnv.getTypeUtils());
+  }
+
+  public static Float getJdkVersion() {
+    return JDK_VERSION;
   }
 
   /** Log an error message. */

@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.getJdkVersion;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
@@ -31,8 +33,9 @@ final class ClassReader implements BeanReader {
   private final boolean isRecord;
   private final boolean usesTypeProperty;
   private final boolean useEnum;
-  private static final boolean USE_PATTERN_MATCH =
-      Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
+  private static final boolean ENHANCED_SWITCH = getJdkVersion() >= 14;
+  private static final boolean USE_INSTANCEOF_PATTERN = getJdkVersion() >= 17;
+  private static final boolean NULL_SWITCH = getJdkVersion() >= 21;
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
@@ -290,7 +293,7 @@ final class ClassReader implements BeanReader {
         final String subTypeName = subTypeMeta.name();
         final String elseIf = i == 0 ? "if" : "else if";
         final String subTypeShort = Util.shortType(subTypeMeta.type());
-        if (USE_PATTERN_MATCH) {
+        if (USE_INSTANCEOF_PATTERN) {
           writer
               .append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort)
               .eol();
@@ -384,19 +387,35 @@ final class ClassReader implements BeanReader {
   private void writeFromJsonWithSubTypes(Append writer) {
     final var typeVar = usesTypeProperty ? "_val$" + typePropertyKey() : "type";
 
-    writer.append("    if (%s == null) {", typeVar).eol();
-    writer
-        .append(
-            "      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");",
-            typeProperty)
-        .eol();
-    writer.append("    }").eol();
-
     final var useSwitch = typeReader.subTypes().size() >= 3;
-    if (useSwitch) {
+
+    if (useSwitch && NULL_SWITCH) {
+    } else {
+
+      writer.append("    if (%s == null) {", typeVar).eol();
       writer
-          .append("    switch (%s) {", typeVar)
+          .append(
+              "      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");",
+              typeProperty)
           .eol();
+      writer.append("    }").eol();
+    }
+
+    if (useSwitch) {
+      if (ENHANCED_SWITCH) {
+        writer.append("    return switch (%s) {", typeVar).eol();
+      } else {
+        writer.append("    switch (%s) {", typeVar).eol();
+      }
+
+      if (NULL_SWITCH) {
+        writer
+            .append("      case null -> ")
+            .append(
+                "throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");",
+                typeProperty)
+            .eol();
+      }
     }
 
     for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
@@ -405,7 +424,7 @@ final class ClassReader implements BeanReader {
     }
 
     if (useSwitch) {
-      writer.append("      default:").eol().append("    ");
+      writer.append("      default").appendSwitchCase().eol().append("    ");
     }
     writer
         .append(
@@ -413,7 +432,12 @@ final class ClassReader implements BeanReader {
             typeProperty, typeVar)
         .eol();
     if (useSwitch) {
-      writer.append("    }").eol();
+      if (ENHANCED_SWITCH) {
+        writer.append("        }").eol();
+        writer.append("    };").eol();
+      } else {
+        writer.append("    }").eol();
+      }
     }
     writer.append("  }").eol();
   }
