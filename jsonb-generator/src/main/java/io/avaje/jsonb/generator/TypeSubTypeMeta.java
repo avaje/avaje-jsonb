@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.getJdkVersion;
 import javax.lang.model.element.TypeElement;
 import java.util.*;
 
@@ -11,6 +12,7 @@ final class TypeSubTypeMeta {
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
   private final List<MethodReader> publicConstructors = new ArrayList<>();
+  private static final boolean ENHANCED_SWITCH = getJdkVersion() >= 14;
 
   @Override
   public String toString() {
@@ -49,17 +51,29 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch, boolean useEnum) {
+  void writeFromJsonBuild(
+      Append writer,
+      String typeVar,
+      String varName,
+      ClassReader beanReader,
+      boolean useSwitch,
+      boolean useEnum) {
+
     if (useSwitch) {
       if (useEnum) {
-        writer.append("      case %s:", name()).eol();
+        writer.append("      case %s", name()).appendSwitchCase().eol();
       } else {
-        writer.append("      case \"%s\":", name()).eol();
+        writer.append("      case \"%s\"", name()).appendSwitchCase().eol();
       }
       writer.append("  ");
       writeFromJsonConstructor(writer, varName, beanReader);
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
-      writer.append("        return _$%s;", varName).eol().eol();
+      if (ENHANCED_SWITCH) {
+        writer.append("        yield _$%s;", varName).eol();
+        writer.append("      }").eol();
+      } else {
+        writer.append("        return _$%s;", varName).eol();
+      }
     } else {
       if (useEnum) {
         writer.append("    if (%s.equals(%s)) {", name(), typeVar).eol();
@@ -95,14 +109,14 @@ final class TypeSubTypeMeta {
 
   private void writeFromJsonConstructor(Append writer, String varName, ClassReader beanReader) {
     writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
-    MethodReader constructor = findConstructor();
+    final MethodReader constructor = findConstructor();
     if (constructor != null) {
-      List<MethodReader.MethodParam> params = constructor.getParams();
+      final List<MethodReader.MethodParam> params = constructor.getParams();
       for (int i = 0, size = params.size(); i < size; i++) {
         if (i > 0) {
           writer.append(", ");
         }
-        String paramName = params.get(i).name();
+        final String paramName = params.get(i).name();
         constructorFieldNames.add(paramName);
         writer.append(beanReader.constructorParamName(paramName)); // assuming name matches field here?
       }

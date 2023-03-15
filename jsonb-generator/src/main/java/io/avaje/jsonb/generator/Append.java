@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.getJdkVersion;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -9,7 +11,8 @@ import java.io.Writer;
 final class Append {
 
   private final Writer writer;
-
+  private static final boolean ENHANCED_SWITCH = getJdkVersion() >= 14;
+  
   Append(Writer writer) {
     this.writer = writer;
   }
@@ -48,4 +51,7 @@ final class Append {
     return append(String.format(format, args));
   }
 
+  public Append appendSwitchCase() {
+    return append(ENHANCED_SWITCH ? " -> {" : ":");
+  }
 }
