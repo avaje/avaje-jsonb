@@ -16,7 +16,6 @@ final class ClassReader implements BeanReader {
   private final TypeElement beanType;
   private final String shortName;
   private final String type;
-
   private final MethodReader constructor;
   private final List<FieldReader> allFields;
   private final Set<String> importTypes = new TreeSet<>();
@@ -31,8 +30,7 @@ final class ClassReader implements BeanReader {
   private final boolean isRecord;
   private final boolean usesTypeProperty;
   private final boolean useEnum;
-  private static final boolean USE_PATTERN_MATCH =
-      Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
+  private static final boolean USE_PATTERN_MATCH = Float.parseFloat(System.getProperty("java.specification.version")) >= 17;
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
@@ -55,32 +53,18 @@ final class ClassReader implements BeanReader {
     this.isRecord = isRecord(beanType);
     typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
 
-    final var userTypeField =
-        allFields.stream().filter(f -> f.propertyName().equals(typePropertyKey())).findAny();
+    final var userTypeField = allFields.stream().filter(f -> f.propertyName().equals(typePropertyKey())).findAny();
 
     this.usesTypeProperty = userTypeField.isPresent();
-
-    this.useEnum =
-        userTypeField
-            .map(FieldReader::type)
-            .map(GenericType::topType)
-            .map(ProcessingContext::element)
-            .filter(Objects::nonNull)
-            .filter(e -> e.getKind() == ElementKind.ENUM)
-            .isPresent();
+    this.useEnum = userTypeField.map(FieldReader::type).map(GenericType::topType).map(ProcessingContext::element).filter(Objects::nonNull).filter(e -> e.getKind() == ElementKind.ENUM).isPresent();
   }
 
   @SuppressWarnings("unchecked")
   boolean isRecord(TypeElement beanType) {
     try {
-      final var recordComponents =
-          (List<? extends Element>)
-              TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
+      final var recordComponents = (List<? extends Element>) TypeElement.class.getMethod("getRecordComponents").invoke(beanType);
       return !recordComponents.isEmpty();
-    } catch (IllegalAccessException
-        | InvocationTargetException
-        | NoSuchMethodException
-        | SecurityException e) {
+    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
       return false;
     }
   }
@@ -249,9 +233,7 @@ final class ClassReader implements BeanReader {
 
   private void writeViewBuild(Append writer) {
     writer.append("  @Override").eol();
-    writer
-        .append("  public void build(ViewBuilder builder, String name, MethodHandle handle) {")
-        .eol();
+    writer.append("  public void build(ViewBuilder builder, String name, MethodHandle handle) {").eol();
     writer.append("    builder.beginObject(name, handle);").eol();
     if (!hasSubTypes) {
       for (final FieldReader allField : allFields) {
@@ -291,9 +273,7 @@ final class ClassReader implements BeanReader {
         final String elseIf = i == 0 ? "if" : "else if";
         final String subTypeShort = Util.shortType(subTypeMeta.type());
         if (USE_PATTERN_MATCH) {
-          writer
-              .append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort)
-              .eol();
+          writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort).eol();
         } else {
           writer.append("    %s (%s instanceof %s) {", elseIf, varName, subTypeShort).eol();
           writer.append("      %s sub = (%s) %s;", subTypeShort, subTypeShort, varName).eol();
@@ -328,10 +308,7 @@ final class ClassReader implements BeanReader {
       // default public constructor
       writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
     } else {
-      writer
-          .append(
-              "    // variables to read json values into, constructor params don't need _set$ flags")
-          .eol();
+      writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
       for (final FieldReader allField : allFields) {
         if (isRecord) {
           allField.writeFromJsonVariablesRecord(writer);
@@ -370,8 +347,7 @@ final class ClassReader implements BeanReader {
       if (i > 0) {
         writer.append(", ");
       }
-      writer.append(
-          constructorParamName(params.get(i).name())); // assuming name matches field here?
+      writer.append(constructorParamName(params.get(i).name())); // assuming name matches field here?
     }
     writer.append(");").eol();
     for (final FieldReader allField : allFields) {
@@ -385,18 +361,12 @@ final class ClassReader implements BeanReader {
     final var typeVar = usesTypeProperty ? "_val$" + typePropertyKey() : "type";
 
     writer.append("    if (%s == null) {", typeVar).eol();
-    writer
-        .append(
-            "      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");",
-            typeProperty)
-        .eol();
+    writer.append("      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");", typeProperty).eol();
     writer.append("    }").eol();
 
     final var useSwitch = typeReader.subTypes().size() >= 3;
     if (useSwitch) {
-      writer
-          .append("    switch (%s) {", typeVar)
-          .eol();
+      writer.append("    switch (%s) {", typeVar).eol();
     }
 
     for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
@@ -407,11 +377,7 @@ final class ClassReader implements BeanReader {
     if (useSwitch) {
       writer.append("      default:").eol().append("    ");
     }
-    writer
-        .append(
-            "    throw new IllegalStateException(\"Unknown value for %s property \" + %s);",
-            typeProperty, typeVar)
-        .eol();
+    writer.append("    throw new IllegalStateException(\"Unknown value for %s property \" + %s);", typeProperty, typeVar).eol();
     if (useSwitch) {
       writer.append("    }").eol();
     }

@@ -49,14 +49,7 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(
-      Append writer,
-      String typeVar,
-      String varName,
-      ClassReader beanReader,
-      boolean useSwitch,
-      boolean useEnum) {
-
+  void writeFromJsonBuild(Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch, boolean useEnum) {
     if (useSwitch) {
       if (useEnum) {
         writer.append("      case %s:", name()).eol();
