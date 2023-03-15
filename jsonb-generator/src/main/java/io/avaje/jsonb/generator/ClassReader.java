@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
+import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
@@ -33,9 +34,8 @@ final class ClassReader implements BeanReader {
   private final boolean isRecord;
   private final boolean usesTypeProperty;
   private final boolean useEnum;
-  private static final boolean ENHANCED_SWITCH = jdkVersion() >= 14;
-  private static final boolean USE_INSTANCEOF_PATTERN = jdkVersion() >= 17;
-  private static final boolean NULL_SWITCH = jdkVersion() >= 21;
+  private final boolean useInstanceofPattern = jdkVersion() >= 17;
+  private final boolean nullSwitch = jdkVersion() >= 21;
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
@@ -284,7 +284,7 @@ final class ClassReader implements BeanReader {
         final String subTypeName = subTypeMeta.name();
         final String elseIf = i == 0 ? "if" : "else if";
         final String subTypeShort = Util.shortType(subTypeMeta.type());
-        if (USE_INSTANCEOF_PATTERN) {
+        if (useInstanceofPattern) {
           writer.append("    %s (%s instanceof final %s sub) {", elseIf, varName, subTypeShort).eol();
         } else {
           writer.append("    %s (%s instanceof %s) {", elseIf, varName, subTypeShort).eol();
@@ -373,18 +373,18 @@ final class ClassReader implements BeanReader {
     final var typeVar = usesTypeProperty ? "_val$" + typePropertyKey() : "type";
     final var useSwitch = typeReader.subTypes().size() >= 3;
 
-    if (!useSwitch || !NULL_SWITCH) {
+    if (!useSwitch || !nullSwitch) {
       writer.append("    if (%s == null) {", typeVar).eol();
       writer.append("      throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");", typeProperty).eol();
       writer.append("    }").eol();
     }
     if (useSwitch) {
-      if (ENHANCED_SWITCH) {
+      if (useEnhancedSwitch()) {
         writer.append("    return switch (%s) {", typeVar).eol();
       } else {
         writer.append("    switch (%s) {", typeVar).eol();
       }
-      if (NULL_SWITCH) {
+      if (nullSwitch) {
         writer.append("      case null -> ").append("throw new IllegalStateException(\"Missing Required %s property that determines deserialization type\");", typeProperty).eol();
       }
     }
@@ -398,7 +398,7 @@ final class ClassReader implements BeanReader {
     }
     writer.append("    throw new IllegalStateException(\"Unknown value for %s property \" + %s);", typeProperty, typeVar).eol();
     if (useSwitch) {
-      if (ENHANCED_SWITCH) {
+      if (useEnhancedSwitch()) {
         writer.append("        }").eol();
         writer.append("    };").eol();
       } else {

@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
+import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 
 import javax.lang.model.element.TypeElement;
 import java.util.*;
@@ -13,7 +13,6 @@ final class TypeSubTypeMeta {
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
   private final List<MethodReader> publicConstructors = new ArrayList<>();
-  private static final boolean ENHANCED_SWITCH = jdkVersion() >= 14;
 
   @Override
   public String toString() {
@@ -62,7 +61,7 @@ final class TypeSubTypeMeta {
       writer.append("  ");
       writeFromJsonConstructor(writer, varName, beanReader);
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
-      if (ENHANCED_SWITCH) {
+      if (useEnhancedSwitch()) {
         writer.append("        yield _$%s;", varName).eol();
         writer.append("      }").eol();
       } else {
