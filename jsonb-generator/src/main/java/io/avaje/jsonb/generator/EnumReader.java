@@ -93,6 +93,7 @@ final class EnumReader implements BeanReader {
   @Override
   public void writeConstructor(Append writer) {
     writer.append("    this.adapter = jsonb.adapter(%s);", genericType.asTypeDeclaration()).eol();
+    writer.append("    if(!toValue.isEmpty()) return;").eol();
     writer.append("    for(final var enumConst : %s.values()) {", shortName).eol();
     writer.append("      var val = enumConst.%s();", method.getSimpleName()).eol();
     writer.append("      toValue.put(enumConst, val);").eol();
