@@ -97,7 +97,7 @@ final class EnumReader implements BeanReader {
     writer.append("    for(final var enumConst : %s.values()) {", shortName).eol();
     writer.append("      var val = enumConst.%s();", method.getSimpleName()).eol();
     writer.append("      toValue.put(enumConst, val);").eol();
-    writer.append("      if(toEnum.containsKey(val)) throw new IllegalArgumentException(\"Values from enum method %s are not unique\");", method.getSimpleName()).eol();
+    writer.append("      if(toEnum.containsKey(val)) throw new IllegalArgumentException(\"Duplicate value \"+ val + \" from enum method %s. @Json.Value methods must return unique values\");", method.getSimpleName()).eol();
     writer.append("      toEnum.put(val, enumConst);").eol();
     writer.append("    }").eol();
   }
