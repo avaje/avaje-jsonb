@@ -20,8 +20,8 @@ public final class DefaultJsonbProvider implements io.avaje.inject.spi.Plugin {
           var props = builder.propertyPlugin();
 
           return Jsonb.builder()
-              .failOnUnknown(props.equalTo("jsonb.failOnUnknown", "true"))
-              .mathTypesAsString(props.equalTo("jsonb.mathTypesAsString", "true"))
+              .failOnUnknown(props.equalTo("jsonb.deserialize.failOnUnknown", "true"))
+              .mathTypesAsString(props.equalTo("jsonb.deserialize.mathTypesAsString", "true"))
               .serializeEmpty(props.notEqualTo("jsonb.serialize.empty", "false"))
               .serializeNulls(props.equalTo("jsonb.serialize.nulls", "true"))
               .build();
