@@ -8,7 +8,7 @@ import io.avaje.jsonb.Jsonb;
 
 @Configuration
 @ConditionalOnClass(name = "org.springframework.http.converter.GenericHttpMessageConverter")
-public class JsonbMVCAutoConfiguration {
+public class JsonbHttpConverterAutoConfiguration {
 
   @Bean
   JsonbHttpMessageConverter jsonbConverter(Jsonb jsonb) {
