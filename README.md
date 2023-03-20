@@ -13,6 +13,7 @@ Fast, reflection-free Json binding via apt source code generation. A light (~188
 - Constructors and accessors/getters/setters of any style "just work" (records, constructors, 'fluid setters')
 - Jackson-like annotations: `@Json.Raw`, `@Json.Property`, `@Json.Ignore`, `@Json.Alias`, etc.
 - Support Mixins (adding jsonb features to types we can't directly annotate).
+- Supports Generic Types.
 - Provides support for dynamic json views (similar in style to that presented by [LinkedIn at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
 
 ### Built-in Type Adapters
