@@ -1,0 +1,2 @@
+io.avaje.jsonb.spring.JsonBAutoConfiguration
+io.avaje.jsonb.spring.JsonbMVCAutoConfiguration
