@@ -30,14 +30,21 @@ Built-in support for reading and writing Java’s core data types:
 
 # Quick Start
 
-## Step 1 - Add dependency
+## Step 1 - Add dependencies
 ```xml
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb</artifactId>
   <version>${avaje-jsonb-version}</version>
 </dependency>
+<!-- if using spring web, add the below to use jsonb for http messaging
+<dependency>
+  <groupId>io.avaje</groupId>
+  <artifactId>avaje-jsonb-spring-starter</artifactId>
+  <version>${avaje-jsonb-version}</version>
+</dependency>
 ```
+
 And add avaje-jsonb-generator as a annotation processor
 ```xml
 
@@ -48,27 +55,6 @@ And add avaje-jsonb-generator as a annotation processor
   <version>${avaje.jsonb.version}</version>
   <scope>provided</scope>
 </dependency>
-```
-NOTE: If you have another annotation processor defined in the maven compiler plugin you will need to add it there.
-```xml
-<build>
-  <plugins>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-compiler-plugin</artifactId>
-      <version>${maven-compiler-plugin.version}</version>
-      <configuration>
-        <annotationProcessorPaths>
-          <path>
-            <groupId>io.avaje</groupId>
-            <artifactId>avaje-jsonb-generator</artifactId>
-            <version>${avaje-jsonb-version}</version>
-          </path>
-        </annotationProcessorPaths>
-      </configuration>
-    </plugin>
-  </plugins>
-</build>
 ```
 
 ## Step 2 - Add `@Json`
