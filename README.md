@@ -37,7 +37,7 @@ Built-in support for reading and writing Java’s core data types:
   <artifactId>avaje-jsonb</artifactId>
   <version>${avaje-jsonb-version}</version>
 </dependency>
-<!-- if using spring web, add the below to use jsonb for http messaging
+<!-- if using spring web, add the below to use jsonb for http messaging -->
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-spring-starter</artifactId>
