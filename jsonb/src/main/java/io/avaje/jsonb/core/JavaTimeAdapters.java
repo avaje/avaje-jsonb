@@ -1,6 +1,7 @@
 package io.avaje.jsonb.core;
 
 import java.util.Date;
+
 import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
@@ -26,32 +27,31 @@ final class JavaTimeAdapters {
     if (type == ZonedDateTime.class) return JavaTimeAdapters.ZONED_DATE_TIME_ADAPTER.nullSafe();
     if (type == ZoneId.class) return JavaTimeAdapters.ZONE_ID_ADAPTER.nullSafe();
     if (type == ZoneOffset.class) return JavaTimeAdapters.ZONE_OFFSET_ADAPTER.nullSafe();
-	if (type == Date.class) return JavaTimeAdapters.UTIL_DATE.nullSafe();
+    if (type == Date.class) return JavaTimeAdapters.UTIL_DATE.nullSafe();
 
-	return null;
+    return null;
   };
 
   /**
    * Using ISO-8601
    */
 
-  private static final JsonAdapter<Date> UTIL_DATE =
-	      new JsonAdapter<>() {
-	        @Override
-	        public Date fromJson(JsonReader reader) {
-	          return Date.from(Instant.parse(reader.readString()));
-	        }
+  private static final JsonAdapter<Date> UTIL_DATE = new JsonAdapter<>() {
+      @Override
+      public Date fromJson(JsonReader reader) {
+        return Date.from(Instant.parse(reader.readString()));
+      }
 
-	        @Override
-	        public void toJson(JsonWriter writer, Date value) {
-	          writer.value(value.toInstant().toString());
-	        }
+      @Override
+      public void toJson(JsonWriter writer, Date value) {
+        writer.value(value.toInstant().toString());
+      }
 
-	        @Override
-	        public String toString() {
-	          return "JsonAdapter(Date)";
-	        }
-	      };
+      @Override
+      public String toString() {
+        return "JsonAdapter(Date)";
+      }
+    };
 
   private static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<>() {
     @Override
