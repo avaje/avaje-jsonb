@@ -7,8 +7,11 @@ import org.springframework.context.annotation.Configuration;
 
 import io.avaje.jsonb.Jsonb;
 
+/**
+ * Autoconfiguration of Avaje Jsonb.
+ */
 @Configuration
-public class JsonBAutoConfiguration {
+public class JsonbAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean

@@ -13,6 +13,9 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import io.avaje.jsonb.Jsonb;
 
+/**
+ * Avaje Jsonb message converter.
+ */
 public class JsonbHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object>
     implements GenericHttpMessageConverter<Object> {
 
@@ -32,7 +35,6 @@ public class JsonbHttpMessageConverter extends AbstractGenericHttpMessageConvert
   @Override
   public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage)
       throws IOException, HttpMessageNotReadableException {
-
     return serializer.type(type).fromJson(inputMessage.getBody());
   }
 
