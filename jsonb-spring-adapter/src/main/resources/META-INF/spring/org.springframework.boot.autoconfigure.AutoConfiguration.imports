@@ -1,0 +1,2 @@
+io.avaje.jsonb.spring.JsonbAutoConfiguration
+io.avaje.jsonb.spring.JsonbHttpConverterAutoConfiguration
