@@ -3,7 +3,6 @@ package io.avaje.jsonb.stream;
 import io.avaje.jsonb.JsonIoException;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -57,7 +56,7 @@ final class JGenerator implements JsonGenerator {
 
   private final Grisu3.FastDtoaBuilder doubleBuilder = new Grisu3.FastDtoaBuilder();
   private byte[] buffer;
-  private OutputStream target;
+  private JsonOutput target;
   private int lastOp;
   private int position;
   private boolean pretty;
@@ -79,7 +78,7 @@ final class JGenerator implements JsonGenerator {
     this.buffer = buffer;
   }
 
-  JsonGenerator prepare(OutputStream targetStream) {
+  JsonGenerator prepare(JsonOutput targetStream) {
     target = targetStream;
     lastOp = 0;
     position = 0;
@@ -399,7 +398,7 @@ final class JGenerator implements JsonGenerator {
   public void flush() {
     if (target != null && position != 0) {
       try {
-        target.write(buffer, 0, position);
+        target.writeLast(buffer, 0, position);
       } catch (IOException ex) {
         throw new JsonIoException("Unable to write to target stream.", ex);
       }

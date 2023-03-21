@@ -10,6 +10,7 @@ import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
 import io.avaje.jsonb.spi.JsonStreamAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.*;
 
@@ -207,11 +208,20 @@ public class JacksonAdapter implements JsonStreamAdapter {
     }
   }
 
-
   @Override
   public JsonWriter writer(OutputStream outputStream) {
     try {
       return new JacksonWriter(jsonFactory.createGenerator(outputStream), serializeNulls, serializeEmpty);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
+  }
+
+  @Override
+  public JsonWriter writer(JsonOutput output) {
+    try {
+      // just unwrap the underlying OutputStream, not supporting JsonOutput per say
+      return new JacksonWriter(jsonFactory.createGenerator(output.unwrapOutputStream()), serializeNulls, serializeEmpty);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }

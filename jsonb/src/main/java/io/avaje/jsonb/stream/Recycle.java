@@ -28,7 +28,7 @@ final class Recycle {
   /**
    * Return a recycled generator with the given target OutputStream.
    */
-  static JsonGenerator generator(OutputStream target) {
+  static JsonGenerator generator(JsonOutput target) {
     return (jvmRecycle ? createGenerator() : managed.get()).prepare(target);
   }
 

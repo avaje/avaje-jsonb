@@ -124,7 +124,12 @@ public final class JsonStream implements JsonStreamAdapter {
 
   @Override
   public JsonWriter writer(OutputStream outputStream) {
-    return wrap(gen(outputStream));
+    return writer(JsonOutput.of(outputStream));
+  }
+
+  @Override
+  public JsonWriter writer(JsonOutput output) {
+    return wrap(gen(output));
   }
 
   @Override
@@ -139,8 +144,8 @@ public final class JsonStream implements JsonStreamAdapter {
     return new BytesWriter(wrap(generator), generator);
   }
 
-  private JsonGenerator gen(OutputStream outputStream) {
-    return Recycle.generator(outputStream);
+  private JsonGenerator gen(JsonOutput output) {
+    return Recycle.generator(output);
   }
 
   private JsonWriteAdapter wrap(JsonGenerator generator) {

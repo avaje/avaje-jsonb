@@ -5,6 +5,7 @@ import io.avaje.jsonb.spi.AdapterFactory;
 import io.avaje.jsonb.spi.Bootstrap;
 import io.avaje.jsonb.spi.JsonStreamAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -313,6 +314,11 @@ public interface Jsonb {
    * Return the JsonWriter used to write json to the given outputStream.
    */
   JsonWriter writer(OutputStream outputStream);
+
+  /**
+   * Return the JsonWriter used to write json to the given output.
+   */
+  JsonWriter writer(JsonOutput output);
 
   /**
    * Return the property names as PropertyNames.
