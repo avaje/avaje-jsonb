@@ -11,7 +11,7 @@ class JsonWriterTest {
   @Test
   void recycle() {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
-    JsonGenerator generator = Recycle.generator(os);
+    JsonGenerator generator = Recycle.generator(JsonOutput.of(os));
 
     writeHello(generator, "hello");
 
@@ -19,7 +19,7 @@ class JsonWriterTest {
     assertThat(asJson).isEqualTo("{\"one\":\"hello\"}");
 
     ByteArrayOutputStream os1 = new ByteArrayOutputStream();
-    JsonGenerator generator1 = Recycle.generator(os1);
+    JsonGenerator generator1 = Recycle.generator(JsonOutput.of(os1));
 
     writeHello(generator1, "hi");
 
@@ -54,7 +54,7 @@ class JsonWriterTest {
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     JGenerator dJsonWriter = new JGenerator();
-    dJsonWriter.prepare(os);
+    dJsonWriter.prepare(JsonOutput.of(os));
 
     JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, true, true);
 
@@ -89,7 +89,7 @@ class JsonWriterTest {
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     JGenerator dJsonWriter = new JGenerator();
-    dJsonWriter.prepare(os);
+    dJsonWriter.prepare(JsonOutput.of(os));
 
     JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, true, true);
 

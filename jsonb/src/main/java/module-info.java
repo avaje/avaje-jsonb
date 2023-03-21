@@ -2,6 +2,7 @@
 module io.avaje.jsonb {
 
   exports io.avaje.jsonb;
+  exports io.avaje.jsonb.stream;
   exports io.avaje.jsonb.spi;
 
   uses io.avaje.jsonb.spi.AdapterFactory;
@@ -10,6 +11,7 @@ module io.avaje.jsonb {
   uses io.avaje.jsonb.Jsonb.GeneratedComponent;
 
   requires static io.avaje.inject;
+  requires static io.helidon.nima.webserver;
 
   provides io.avaje.inject.spi.Plugin with io.avaje.jsonb.spi.DefaultJsonbProvider;
 }

@@ -2,6 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.*;
+import io.avaje.jsonb.stream.JsonOutput;
 import io.avaje.jsonb.stream.JsonStream;
 
 import java.io.InputStream;
@@ -92,6 +93,11 @@ final class DJsonb implements Jsonb {
   @Override
   public JsonWriter writer(OutputStream outputStream) {
     return io.writer(outputStream);
+  }
+
+  @Override
+  public JsonWriter writer(JsonOutput output) {
+    return io.writer(output);
   }
 
   @Override

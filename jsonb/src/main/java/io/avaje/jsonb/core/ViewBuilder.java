@@ -4,6 +4,7 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
 import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -240,6 +241,13 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
     @Override
     public void toJson(T value, OutputStream outputStream) {
       try (JsonWriter writer = jsonb.writer(outputStream)) {
+        toJson(value, writer);
+      }
+    }
+
+    @Override
+    public void toJson(T value, JsonOutput output) {
+      try (JsonWriter writer = jsonb.writer(output)) {
         toJson(value, writer);
       }
     }

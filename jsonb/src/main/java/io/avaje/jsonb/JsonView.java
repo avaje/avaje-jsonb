@@ -1,5 +1,7 @@
 package io.avaje.jsonb;
 
+import io.avaje.jsonb.stream.JsonOutput;
+
 import java.io.OutputStream;
 import java.io.Writer;
 
@@ -58,4 +60,9 @@ public interface JsonView<T> {
    * Write to the given outputStream.
    */
   void toJson(T value, OutputStream outputStream);
+
+  /**
+   * Write to the given output.
+   */
+  void toJson(T value, JsonOutput output);
 }
