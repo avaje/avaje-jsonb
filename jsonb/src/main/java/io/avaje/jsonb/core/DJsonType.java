@@ -3,6 +3,7 @@ package io.avaje.jsonb.core;
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
+import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -98,7 +99,15 @@ class DJsonType<T> implements JsonType<T> {
     close(outputStream);
   }
 
-  private void close(OutputStream outputStream) {
+  @Override
+  public final void toJson(T value, JsonOutput output) {
+    try (JsonWriter writer = jsonb.writer(output)) {
+      toJson(value, writer);
+    }
+    close(output);
+  }
+
+  private void close(Closeable outputStream) {
     try {
       outputStream.close();
     } catch (IOException e) {

@@ -2,6 +2,7 @@ package io.avaje.jsonb.spi;
 
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.*;
 
@@ -39,6 +40,11 @@ public interface JsonStreamAdapter {
    * Return the JsonWriter given the outputStream.
    */
   JsonWriter writer(OutputStream outputStream);
+
+  /**
+   * Return the JsonWriter given the output.
+   */
+  JsonWriter writer(JsonOutput output);
 
   /**
    * Return a JsonWriter for use for writing to json string.
