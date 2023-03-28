@@ -87,7 +87,7 @@ final class JParser implements JsonParser {
   private final byte[] originalBuffer;
   private final int originalBufferLenWithExtraSpace;
 
-  private final Deque<JsonNames> nameStack = new ArrayDeque<>();
+  private final ArrayDeque<JsonNames> nameStack = new ArrayDeque<>();
   private JsonNames currentNames;
 
   final ErrorInfo errorInfo;
@@ -1025,7 +1025,7 @@ final class JParser implements JsonParser {
   public void startObject() {
     readStartObject();
     if (currentNames != null) {
-      nameStack.push(currentNames);
+      nameStack.addFirst(currentNames);
       currentNames = JsonNames.EMPTY;
     }
   }
@@ -1034,7 +1034,7 @@ final class JParser implements JsonParser {
   public void startObject(final JsonNames names) {
     readStartObject();
     if (currentNames != null) {
-      nameStack.push(currentNames);
+      nameStack.addFirst(currentNames);
     }
     currentNames = names;
   }
@@ -1044,7 +1044,7 @@ final class JParser implements JsonParser {
    */
   @Override
   public void endObject() {
-    currentNames = nameStack.poll();
+    currentNames = nameStack.pollFirst();
     if (last != '}' && nextToken() != '}') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '}' as object end");
