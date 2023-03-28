@@ -8,6 +8,7 @@ import io.avaje.jsonb.spi.PropertyNames;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ final class JacksonWriter implements JsonWriter {
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
-  private final ArrayStack<JacksonNames> nameStack = new ArrayStack<>();
+  private final ArrayDeque<JacksonNames> nameStack = new ArrayDeque<>();
   private JacksonNames currentNames;
   private boolean allNames;
   private int namePos = -1;
@@ -114,8 +115,7 @@ final class JacksonWriter implements JsonWriter {
     }
   }
 
-  @Override
-  public void beginObject() {
+  private void writeBeginObject() {
     try {
       writeDeferredName();
       generator.writeStartObject();
@@ -125,11 +125,29 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
+  public void beginObject() {
+    writeBeginObject();
+    if (currentNames != null && !allNames) {
+      nameStack.addFirst(currentNames);
+      currentNames = JacksonNames.EMPTY;
+    }
+  }
+
+  @Override
+  public void beginObject(PropertyNames names) {
+    writeBeginObject();
+    if (currentNames != null) {
+      nameStack.addFirst(currentNames);
+    }
+    currentNames = (JacksonNames) names;
+  }
+
+  @Override
   public void endObject() {
     try {
       generator.writeEndObject();
       if (!allNames) {
-        currentNames = nameStack.pop();
+        currentNames = nameStack.pollFirst();
       }
     } catch (IOException e) {
       throw new JsonIoException(e);
@@ -144,14 +162,6 @@ final class JacksonWriter implements JsonWriter {
   @Override
   public void allNames(PropertyNames names) {
     allNames = true;
-    currentNames = (JacksonNames) names;
-  }
-
-  @Override
-  public void names(PropertyNames names) {
-    if (currentNames != null) {
-      nameStack.push(currentNames);
-    }
     currentNames = (JacksonNames) names;
   }
 

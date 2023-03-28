@@ -50,8 +50,7 @@ public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBu
 
   @Override
   public void toJson(JsonWriter writer, Customer customer) {
-    writer.beginObject();
-    writer.names(names);
+    writer.beginObject(names);
     writer.name( 0);
     intAdapter.toJson(writer, customer.id());
     writer.name( 1);

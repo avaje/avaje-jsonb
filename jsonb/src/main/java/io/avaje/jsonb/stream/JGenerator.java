@@ -85,6 +85,7 @@ final class JGenerator implements JsonGenerator {
     pretty = false;
     nameStack.clear();
     allNames = false;
+    currentNames = null;
     incomplete = false;
     return this;
   }
@@ -442,8 +443,7 @@ final class JGenerator implements JsonGenerator {
     this.pretty = pretty;
   }
 
-  @Override
-  public void startObject() {
+  private void writeStartObject() {
     if (pretty) {
       prettyIndent();
       depth++;
@@ -453,6 +453,24 @@ final class JGenerator implements JsonGenerator {
     }
     writeByte(OBJECT_START);
     lastOp = OP_START;
+  }
+
+  @Override
+  public void startObject() {
+    writeStartObject();
+    if (currentNames != null && !allNames) {
+      nameStack.push(currentNames);
+      currentNames = JsonNames.EMPTY;
+    }
+  }
+
+  @Override
+  public void startObject(JsonNames nextNames) {
+    writeStartObject();
+    if (currentNames != null) {
+      nameStack.push(currentNames);
+    }
+    currentNames = nextNames;
   }
 
   @Override
@@ -505,14 +523,6 @@ final class JGenerator implements JsonGenerator {
   public void allNames(JsonNames names) {
     allNames = true;
     currentNames = names;
-  }
-
-  @Override
-  public void names(JsonNames nextNames) {
-    if (currentNames != null) {
-      nameStack.push(currentNames);
-    }
-    currentNames = nextNames;
   }
 
   @Override

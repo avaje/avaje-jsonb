@@ -264,8 +264,7 @@ final class ClassReader implements BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public void toJson(JsonWriter writer, %s %s) {", shortName, varName).eol();
-    writer.append("    writer.beginObject();").eol();
-    writer.append("    writer.names(names);").eol();
+    writer.append("    writer.beginObject(names);").eol();
     if (hasSubTypes) {
       writeToJsonForSubtypes(writer, varName);
     } else {
@@ -418,8 +417,7 @@ final class ClassReader implements BeanReader {
   private void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
     writer.eol();
     writer.append("    // read json").eol();
-    writer.append("    reader.beginObject();").eol();
-    writer.append("    reader.names(names);").eol();
+    writer.append("    reader.beginObject(names);").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
     if (caseInsensitiveKeys) {
       writer.append("      final String origFieldName = reader.nextField();").eol();
