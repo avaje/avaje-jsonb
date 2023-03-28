@@ -17,11 +17,6 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
-  public void names(PropertyNames names) {
-    reader.names((JsonNames) names);
-  }
-
-  @Override
   public void beginStream() {
     reader.startStream();
   }
@@ -39,6 +34,11 @@ final class JsonReadAdapter implements JsonReader {
   @Override
   public void endArray() {
     reader.endArray();
+  }
+
+  @Override
+  public void beginObject(PropertyNames names) {
+    reader.startObject((JsonNames) names);
   }
 
   @Override

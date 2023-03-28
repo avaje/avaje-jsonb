@@ -25,11 +25,6 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public void names(PropertyNames names) {
-    // ignore
-  }
-
-  @Override
   public void unmappedField(String fieldName) {
 
   }
@@ -68,6 +63,11 @@ final class ObjectJsonReader implements JsonReader {
   public void beginObject() {
     Map<String, Object> map = (Map<String, Object>) currentValue;
     mapIterator = map.entrySet().iterator();
+  }
+
+  @Override
+  public void beginObject(PropertyNames names) {
+    beginObject();
   }
 
   @Override

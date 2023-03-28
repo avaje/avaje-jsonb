@@ -67,7 +67,12 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public final  void beginObject() {
+  public final void beginObject(PropertyNames names) {
+    delegate.beginObject(names);
+  }
+
+  @Override
+  public final void beginObject() {
     delegate.beginObject();
   }
 
@@ -84,11 +89,6 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   @Override
   public void allNames(PropertyNames names) {
     delegate.allNames(names);
-  }
-
-  @Override
-  public final void names(PropertyNames names) {
-    delegate.names(names);
   }
 
   @Override

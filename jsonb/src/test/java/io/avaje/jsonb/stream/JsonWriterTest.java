@@ -97,16 +97,14 @@ class JsonWriterTest {
 
     fw.beginArray();
 
-    fw.beginObject();
-    fw.names(names);
+    fw.beginObject(names);
     fw.name(0);
     fw.value("hello");
     fw.name(1);
     fw.value(43);
     fw.endObject();
 
-    fw.beginObject();
-    fw.names(names);
+    fw.beginObject(names);
     fw.name(0);
     fw.value("another");
     fw.name(2);

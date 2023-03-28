@@ -10,15 +10,6 @@ import java.math.BigInteger;
 interface JsonParser extends Closeable {
 
   /**
-   * Set the current object names that can are "prepared" and can be used
-   * to optimise the reading of <code>nextField()</code>.
-   * <p>
-   * Using this means that the parser can lookup the name allowing it to skip
-   * reading the name as chars and creating a string instance.
-   */
-  void names(JsonNames names);
-
-  /**
    * Return the current token.
    */
   byte currentToken();
@@ -58,6 +49,15 @@ interface JsonParser extends Closeable {
    * Read the end of an ARRAY.
    */
   void endArray();
+
+  /**
+   * Set the current object names that can are "prepared" and can be used
+   * to optimise the reading of <code>nextField()</code>.
+   * <p>
+   * Using this means that the parser can lookup the name allowing it to skip
+   * reading the name as chars and creating a string instance.
+   */
+  void startObject(JsonNames names);
 
   /**
    * Read the start of an OBJECT.

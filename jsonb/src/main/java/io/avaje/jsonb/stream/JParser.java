@@ -180,14 +180,6 @@ final class JParser implements JsonParser {
     return this;
   }
 
-  @Override
-  public void names(final JsonNames names) {
-    if (currentNames != null) {
-      nameStack.push(currentNames);
-    }
-    currentNames = names;
-  }
-
   /**
    * Valid length of the input buffer.
    */
@@ -1022,12 +1014,29 @@ final class JParser implements JsonParser {
   /**
    * Ensure object start
    */
-  @Override
-  public void startObject() {
+  private void readStartObject() {
     if (last != '{' && nextToken() != '{') {
       if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
       throw newParseError("Expecting '{' as object start");
     }
+  }
+
+  @Override
+  public void startObject() {
+    readStartObject();
+    if (currentNames != null) {
+      nameStack.push(currentNames);
+      currentNames = JsonNames.EMPTY;
+    }
+  }
+
+  @Override
+  public void startObject(final JsonNames names) {
+    readStartObject();
+    if (currentNames != null) {
+      nameStack.push(currentNames);
+    }
+    currentNames = names;
   }
 
   /**

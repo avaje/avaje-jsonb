@@ -27,13 +27,6 @@ import java.math.BigInteger;
 public interface JsonReader extends Closeable {
 
   /**
-   * Set the current property names.
-   * <p>
-   * Can be used by the reader to optimise the reading of known names.
-   */
-  void names(PropertyNames names);
-
-  /**
    * Read the beginning of an ARRAY or x-json-stream (new line delimited json content).
    */
   default void beginStream() {
@@ -61,6 +54,13 @@ public interface JsonReader extends Closeable {
    * Return true if there is a next element in an ARRAY.
    */
   boolean hasNextElement();
+
+  /**
+   * Set the current property names.
+   * <p>
+   * Can be used by the reader to optimise the reading of known names.
+   */
+  void beginObject(PropertyNames names);
 
   /**
    * Read begin object.
