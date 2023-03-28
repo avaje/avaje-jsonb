@@ -212,8 +212,7 @@ public interface JsonWriter extends Closeable, Flushable {
   void rawValue(String value);
 
   /**
-   * Write raw content. This is typically used to write new line characters for
-   * {@code x-json-stream} content.
+   * Write new line characters typically for {@code x-json-stream} content.
    */
   void writeNewLine();
 
