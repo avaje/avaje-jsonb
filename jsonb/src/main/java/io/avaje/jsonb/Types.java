@@ -35,28 +35,28 @@ public class Types {
   /**
    * Returns an array type whose elements are all instances of {@code componentType}.
    */
-  public static Type arrayOf(Type elementType) {
+  public static GenericArrayType arrayOf(Type elementType) {
     return Util.arrayOf(elementType);
   }
 
   /**
    * Returns a Type that is a List of the given element type.
    */
-  public static Type listOf(Type elementType) {
+  public static ParameterizedType listOf(Type elementType) {
     return newParameterizedType(List.class, elementType);
   }
 
   /**
    * Returns a Type that is a Set of the given element type.
    */
-  public static Type setOf(Type elementType) {
+  public static ParameterizedType setOf(Type elementType) {
     return newParameterizedType(Set.class, elementType);
   }
 
   /**
    * Returns a Type that is a Stream of the given element type.
    */
-  public static Type streamOf(Type elementType) {
+  public static ParameterizedType streamOf(Type elementType) {
     return newParameterizedType(Stream.class, elementType);
   }
 
@@ -66,7 +66,7 @@ public class Types {
    * @param valueElementType The type of the values in the Map.
    * @return Type for a Map with String keys and the given value element type.
    */
-  public static Type mapOf(Type valueElementType) {
+  public static ParameterizedType mapOf(Type valueElementType) {
     return newParameterizedType(Map.class, String.class, valueElementType);
   }
 
