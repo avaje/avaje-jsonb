@@ -48,8 +48,7 @@ public final class MyBasicJsonAdapter extends JsonAdapter<StreamBasicTest.MyBasi
 
   @Override
   public void toJson(JsonWriter writer, StreamBasicTest.MyBasic myBasic) {
-    writer.beginObject();
-    writer.names(names);
+    writer.beginObject(names);
     writer.name(0);
     pintJsonAdapter.toJson(writer, myBasic.id);
     writer.name(1);
@@ -64,8 +63,7 @@ public final class MyBasicJsonAdapter extends JsonAdapter<StreamBasicTest.MyBasi
     String     _val$name = null;
 
     // read json
-    reader.beginObject();
-    reader.names(names);
+    reader.beginObject(names);
     while (reader.hasNextField()) {
       String fieldName = reader.nextField();
       switch (fieldName) {

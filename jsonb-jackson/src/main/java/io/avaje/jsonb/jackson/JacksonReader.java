@@ -23,11 +23,6 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
-  public void names(PropertyNames names) {
-    // ignore
-  }
-
-  @Override
   public void close() {
     try {
       parser.close();
@@ -212,6 +207,11 @@ final class JacksonReader implements JsonReader {
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
+  }
+
+  @Override
+  public void beginObject(PropertyNames names) {
+    beginObject();
   }
 
   @Override

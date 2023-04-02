@@ -12,6 +12,7 @@ import java.util.Map;
  */
 final class JsonNames implements PropertyNames {
 
+  static final JsonNames EMPTY = new JsonNames(new byte[0][0], Collections.emptyMap());
   private final byte[][] nameArray;
   private final Map<Long, String> nameHash;
 

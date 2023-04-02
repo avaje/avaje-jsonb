@@ -5,6 +5,8 @@ import io.avaje.jsonb.spi.PropertyNames;
 
 final class JacksonNames implements PropertyNames {
 
+  static final JacksonNames EMPTY = new JacksonNames(new String[0]);
+
   private static final NameCache NAME_CACHE = new NameCache();
 
   private final SerializedString[] keys;

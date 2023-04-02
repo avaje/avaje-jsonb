@@ -85,19 +85,12 @@ public interface JsonWriter extends Closeable, Flushable {
    * Set the property names that will be used for all json generation.
    * <p>
    * These names should be used for all json generation for this generator and set once
-   * rather than set per object via {@link #names(PropertyNames)}.
+   * rather than set per object via {@link #beginObject(PropertyNames)} (PropertyNames)}.
    * <p>
    * This is used by view json generation where all the names are known at the point
    * when the view is created (a sort of flattened nested tree).
    */
   void allNames(PropertyNames names);
-
-  /**
-   * Set the current property names.
-   * <p>
-   * This is expected to be called per object after each call to {@link #beginObject()}.
-   */
-  void names(PropertyNames names);
 
   /**
    * Set the next property name to write by position. This uses the already encoded
@@ -108,7 +101,8 @@ public interface JsonWriter extends Closeable, Flushable {
   /**
    * Set the next property name to write.
    * <p>
-   * This is generally less efficient than using {@link JsonWriter#names(PropertyNames)} and {@link JsonWriter#name(int)}.
+   * This is generally less efficient than using {@link JsonWriter#beginObject(PropertyNames)}
+   * and {@link JsonWriter#name(int)}.
    */
   void name(String name);
 
@@ -131,6 +125,11 @@ public interface JsonWriter extends Closeable, Flushable {
    * Write object begin.
    */
   void beginObject();
+
+  /**
+   * Write object being and use the already encoded property names.
+   */
+  void beginObject(PropertyNames names);
 
   /**
    * Write object end.
@@ -213,8 +212,7 @@ public interface JsonWriter extends Closeable, Flushable {
   void rawValue(String value);
 
   /**
-   * Write raw content. This is typically used to write new line characters for
-   * {@code x-json-stream} content.
+   * Write new line characters typically for {@code x-json-stream} content.
    */
   void writeNewLine();
 
