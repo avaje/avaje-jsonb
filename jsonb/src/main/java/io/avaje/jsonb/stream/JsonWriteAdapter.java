@@ -28,7 +28,7 @@ final class JsonWriteAdapter implements JsonWriter {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T unwrap(Class<T> underlying) {
-    return (T)generator;
+    return (T) generator;
   }
 
   @Override
@@ -102,6 +102,16 @@ final class JsonWriteAdapter implements JsonWriter {
   }
 
   @Override
+  public void beginObject(PropertyNames names) {
+    try {
+      writeDeferredName();
+      generator.startObject((JsonNames) names);
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
+  }
+
+  @Override
   public void endObject() {
     generator.endObject();
   }
@@ -114,11 +124,6 @@ final class JsonWriteAdapter implements JsonWriter {
   @Override
   public void allNames(PropertyNames names) {
     generator.allNames((JsonNames) names);
-  }
-
-  @Override
-  public void names(PropertyNames names) {
-    generator.names((JsonNames) names);
   }
 
   @Override
