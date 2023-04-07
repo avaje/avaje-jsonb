@@ -13,7 +13,7 @@ public class CustomTypeComponent implements JsonbComponent {
     builder.add(MyCustomScalarType.class, new CustomTypeAdapterWithStar().nullSafe());
   }
 
-  static class CustomTypeAdapterWithStar extends JsonAdapter<MyCustomScalarType> {
+  static class CustomTypeAdapterWithStar implements JsonAdapter<MyCustomScalarType> {
 
     @Override
     public void toJson(JsonWriter writer, MyCustomScalarType value) {

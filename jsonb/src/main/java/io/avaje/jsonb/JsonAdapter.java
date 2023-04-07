@@ -15,29 +15,29 @@
  */
 package io.avaje.jsonb;
 
-import io.avaje.jsonb.spi.ViewBuilderAware;
-
 import java.lang.reflect.Type;
+
+import io.avaje.jsonb.spi.ViewBuilderAware;
 
 /**
  * The core API for serialization to and from json.
  */
-public abstract class JsonAdapter<T> {
+public interface JsonAdapter<T> {
 
   /**
    * Write the value to the writer.
    */
-  public abstract void toJson(JsonWriter writer, T value);
+  void toJson(JsonWriter writer, T value);
 
   /**
    * Read the type from the reader.
    */
-  public abstract T fromJson(JsonReader reader);
+  T fromJson(JsonReader reader);
 
   /**
    * Return a null safe version of this adapter.
    */
-  public final JsonAdapter<T> nullSafe() {
+  default JsonAdapter<T> nullSafe() {
     if (this instanceof NullSafeAdapter) {
       return this;
     }
@@ -47,14 +47,14 @@ public abstract class JsonAdapter<T> {
   /**
    * Return true if this adapter represents a json object or json array of objects that supports json views.
    */
-  public boolean isViewBuilderAware() {
+  default boolean isViewBuilderAware() {
     return false;
   }
 
   /**
    * Return the ViewBuilder.Aware for this adapter.
    */
-  public ViewBuilderAware viewBuild() {
+  default ViewBuilderAware viewBuild() {
     throw new IllegalStateException("This adapter is not ViewBuilderAware");
   }
 

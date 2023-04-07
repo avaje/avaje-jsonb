@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * Converts collection types to JSON arrays containing their converted contents.
  */
-abstract class CollectionAdapter<C extends Collection<T>, T> extends JsonAdapter<C> implements ViewBuilderAware {
+abstract class CollectionAdapter<C extends Collection<T>, T> implements JsonAdapter<C>, ViewBuilderAware {
 
   static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
     Class<?> rawType = Util.rawType(type);

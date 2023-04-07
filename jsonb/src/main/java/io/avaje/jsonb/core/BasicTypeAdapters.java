@@ -61,7 +61,7 @@ final class BasicTypeAdapters {
         return null;
       };
 
-  private static final class UuidAdapter extends JsonAdapter<UUID> {
+  private static final class UuidAdapter implements JsonAdapter<UUID> {
     @Override
     public UUID fromJson(JsonReader reader) {
       return UUID.fromString(reader.readString());
@@ -78,7 +78,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  private static final class UrlAdapter extends JsonAdapter<URL> {
+  private static final class UrlAdapter implements JsonAdapter<URL> {
     @Override
     public URL fromJson(JsonReader reader) {
       try {
@@ -99,7 +99,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  private static final class UriAdapter extends JsonAdapter<URI> {
+  private static final class UriAdapter implements JsonAdapter<URI> {
     @Override
     public URI fromJson(JsonReader reader) {
       return URI.create(reader.readString());
@@ -116,7 +116,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class BooleanAdapter extends JsonAdapter<Boolean> {
+  static final class BooleanAdapter implements JsonAdapter<Boolean> {
     @Override
     public Boolean fromJson(JsonReader reader) {
       return reader.readBoolean();
@@ -133,7 +133,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class ByteAdapter extends JsonAdapter<Byte> {
+  static final class ByteAdapter implements JsonAdapter<Byte> {
     @Override
     public Byte fromJson(JsonReader reader) {
       return (byte) rangeCheckNextInt(reader, "a byte", -128, 255);
@@ -150,7 +150,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class CharacterAdapter extends JsonAdapter<Character> {
+  static final class CharacterAdapter implements JsonAdapter<Character> {
     @Override
     public Character fromJson(JsonReader reader) {
       String value = reader.readString();
@@ -172,7 +172,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class DoubleAdapter extends JsonAdapter<Double> {
+  static final class DoubleAdapter implements JsonAdapter<Double> {
     @Override
     public Double fromJson(JsonReader reader) {
       return reader.readDouble();
@@ -189,7 +189,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class FloatAdapter extends JsonAdapter<Float> {
+  static final class FloatAdapter implements JsonAdapter<Float> {
     @Override
     public Float fromJson(JsonReader reader) {
       float value = (float) reader.readDouble();
@@ -212,7 +212,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class IntegerAdapter extends JsonAdapter<Integer> {
+  static final class IntegerAdapter implements JsonAdapter<Integer> {
     @Override
     public Integer fromJson(JsonReader reader) {
       return reader.readInt();
@@ -229,7 +229,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class LongAdapter extends JsonAdapter<Long> {
+  static final class LongAdapter implements JsonAdapter<Long> {
     @Override
     public Long fromJson(JsonReader reader) {
       return reader.readLong();
@@ -246,7 +246,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class ShortAdapter extends JsonAdapter<Short> {
+  static final class ShortAdapter implements JsonAdapter<Short> {
     @Override
     public Short fromJson(JsonReader reader) {
       return (short) rangeCheckNextInt(reader, "a short", -32768, 32767);
@@ -263,7 +263,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class StringAdapter extends JsonAdapter<String> {
+  static final class StringAdapter implements JsonAdapter<String> {
     @Override
     public String fromJson(JsonReader reader) {
       return reader.readString();
@@ -290,7 +290,7 @@ final class BasicTypeAdapters {
   }
 
   @SuppressWarnings("rawtypes")
-  static final class ObjectJsonAdapter extends JsonAdapter<Object> {
+  static final class ObjectJsonAdapter implements JsonAdapter<Object> {
     private final Jsonb jsonb;
     private final JsonAdapter<List> listJsonAdapter;
     private final JsonAdapter<Map> mapAdapter;
@@ -352,7 +352,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static class EnumJsonAdapter<T extends Enum<T>> extends JsonAdapter<T> {
+  static class EnumJsonAdapter<T extends Enum<T>> implements JsonAdapter<T> {
 
     protected final Class<T> enumType;
 

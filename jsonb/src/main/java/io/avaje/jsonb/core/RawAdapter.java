@@ -8,7 +8,7 @@ final class RawAdapter {
 
   static final JsonAdapter<String> STR = new Str().nullSafe();
 
-  private static final class Str extends JsonAdapter<String> {
+  private static final class Str implements JsonAdapter<String> {
 
     @Override
     public void toJson(JsonWriter writer, String value) {

@@ -17,7 +17,7 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
-final class NullSafeAdapter<T> extends JsonAdapter<T> {
+final class NullSafeAdapter<T> implements JsonAdapter<T> {
 
   private final JsonAdapter<T> delegate;
 
@@ -43,7 +43,8 @@ final class NullSafeAdapter<T> extends JsonAdapter<T> {
     }
   }
 
-  public boolean isViewBuilderAware() {
+  @Override
+public boolean isViewBuilderAware() {
     return delegate.isViewBuilderAware();
   }
 
