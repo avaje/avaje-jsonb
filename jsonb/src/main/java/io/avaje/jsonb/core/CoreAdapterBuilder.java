@@ -80,8 +80,7 @@ final class CoreAdapterBuilder {
         return adapterFromCall;
       }
       // Ask each factory to create the JSON adapter.
-      for (int i = 0; i < factories.size(); i++) {
-        JsonAdapter.Factory factory = factories.get(i);
+      for (JsonAdapter.Factory factory : factories) {
         JsonAdapter<T> result = (JsonAdapter<T>) factory.create(type, context);
         if (result != null) {
           // Success! Notify the LookupChain so it is cached and can be used by re-entrant calls.
@@ -129,8 +128,7 @@ final class CoreAdapterBuilder {
      */
     <T> JsonAdapter<T> push(Type type, Object cacheKey) {
       // Try to find a lookup with the same key for the same call.
-      for (int i = 0; i < callLookups.size(); i++) {
-        Lookup<?> lookup = callLookups.get(i);
+      for (Lookup<?> lookup : callLookups) {
         if (lookup.cacheKey.equals(cacheKey)) {
           Lookup<T> hit = (Lookup<T>) lookup;
           stack.add(hit);
@@ -167,8 +165,7 @@ final class CoreAdapterBuilder {
       if (success) {
         lock.lock();
         try {
-          for (int i = 0; i < callLookups.size(); i++) {
-            Lookup<?> lookup = callLookups.get(i);
+          for (Lookup<?> lookup : callLookups) {
             JsonAdapter<?> replaced = adapterCache.put(lookup.cacheKey, lookup.adapter);
             if (replaced != null) {
               ((Lookup<Object>) lookup).adapter = (JsonAdapter<Object>) replaced;
