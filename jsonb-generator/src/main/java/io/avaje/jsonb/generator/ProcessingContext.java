@@ -1,7 +1,6 @@
 package io.avaje.jsonb.generator;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -21,7 +20,7 @@ final class ProcessingContext {
   private static final ThreadLocal<Ctx> CTX = new ThreadLocal<>();
 
   private static int jdkVersion;
-  private static boolean preview;
+  private static boolean previewEnabled;
 
   private static final class Ctx {
     private final ProcessingEnvironment env;
@@ -44,21 +43,14 @@ final class ProcessingContext {
   static void init(ProcessingEnvironment processingEnv) {
     CTX.set(new Ctx(processingEnv));
     jdkVersion = processingEnv.getSourceVersion().ordinal();
-    if (jdkVersion >= 13) {
-      try {
-        preview =
-            (boolean)
-                ProcessingEnvironment.class
-                    .getDeclaredMethod("isPreviewEnabled")
-                    .invoke(processingEnv);
-      } catch (IllegalAccessException
-          | InvocationTargetException
-          | NoSuchMethodException
-          | SecurityException e) {
-        preview = false;
-      }
-    } else {
-      preview = false;
+    previewEnabled = jdkVersion >= 13 ? initPreviewEnabled(processingEnv) : false;
+  }
+
+  private static boolean initPreviewEnabled(ProcessingEnvironment processingEnv) {
+    try {
+      return (boolean) ProcessingEnvironment.class.getDeclaredMethod("isPreviewEnabled").invoke(processingEnv);
+    } catch (Throwable e) {
+      return false;
     }
   }
 
@@ -70,8 +62,8 @@ final class ProcessingContext {
     return jdkVersion;
   }
 
-  public static boolean isPreview() {
-    return preview;
+  public static boolean previewEnabled() {
+    return previewEnabled;
   }
 
   /** Log an error message. */
