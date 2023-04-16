@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.isPreview;
+import static io.avaje.jsonb.generator.ProcessingContext.previewEnabled;
 import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 
@@ -36,8 +36,7 @@ final class ClassReader implements BeanReader {
   private final boolean usesTypeProperty;
   private final boolean useEnum;
   private static final boolean useInstanceofPattern = jdkVersion() >= 17;
-  private static final boolean nullSwitch =
-      jdkVersion() >= 21 || (jdkVersion() >= 17 && isPreview());
+  private static final boolean nullSwitch = jdkVersion() >= 21 || (jdkVersion() >= 17 && previewEnabled());
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
