@@ -1,4 +1,4 @@
-package io.avaje.jsonb.spi;
+package io.avaje.jsonb.inject;
 
 import io.avaje.inject.BeanScopeBuilder;
 import io.avaje.jsonb.Jsonb;
