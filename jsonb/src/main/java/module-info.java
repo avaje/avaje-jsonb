@@ -13,5 +13,7 @@ module io.avaje.jsonb {
   requires static io.avaje.inject;
   requires static io.helidon.nima.webserver;
 
-  provides io.avaje.inject.spi.Plugin with io.avaje.jsonb.spi.DefaultJsonbProvider;
+  //JDK doesn't allow optional serviceloader
+  //so inject has it's own ServiceLoader impl that will optionally load
+  //provides io.avaje.inject.spi.Plugin with io.avaje.jsonb.spi.DefaultJsonbProvider;
 }
