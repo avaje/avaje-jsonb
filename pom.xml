@@ -30,6 +30,7 @@
     <module>jsonb</module>
     <module>jsonb-generator</module>
     <module>jsonb-jackson</module>
+    <module>jsonb-inject-plugin</module>
     <module>jsonb-spring-adapter</module>
   </modules>
 
