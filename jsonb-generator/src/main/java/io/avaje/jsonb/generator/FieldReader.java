@@ -31,8 +31,15 @@ final class FieldReader {
   private int genericTypeParamPosition;
   private final List<String> aliases;
   private boolean isSubTypeField;
+private final String num;
 
-  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams) {
+  FieldReader(
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency) {
+     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
     this.genericTypeParams = genericTypeParams;
     this.fieldName = element.getSimpleName().toString();
@@ -310,17 +317,17 @@ final class FieldReader {
     if (unmapped) {
       return;
     }
-    String shortType = typeParamToObject(genericType.shortType());
-    writer.append("    %s _val$%s = %s;", pad(shortType), fieldName, defaultValue);
+    final String shortType = typeParamToObject(genericType.shortType());
+    writer.append("    %s _val$%s = %s;", pad(shortType), fieldName + num, defaultValue);
     if (!constructorParam) {
-      writer.append(" boolean _set$%s = false;", fieldName);
+      writer.append(" boolean _set$%s = false;", fieldName + num);
     }
     writer.eol();
   }
 
   void writeFromJsonVariablesRecord(Append writer) {
     final String type = genericTypeParameter ? "Object" : genericType.shortType();
-    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue).eol();
+    writer.append("    %s _val$%s = %s;", pad(type), fieldName + num, defaultValue).eol();
   }
 
   private String pad(String value) {

@@ -37,6 +37,8 @@ final class TypeReader {
 
   private final String typePropertyKey;
 
+  private final Map<String, Integer> frequencyMap  = new HashMap<>();
+
   TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
@@ -85,15 +87,15 @@ final class TypeReader {
     }
     if (currentSubType == null && type != baseType) {
       allFields.addAll(0, localFields);
-      for (FieldReader localField : localFields) {
-        allFieldMap.put(localField.fieldName(), localField);
+      for (final FieldReader localField : localFields) {
+        allFieldMap.put(localField.fieldName()+localField.adapterShortType(), localField);
       }
     } else {
-      for (FieldReader localField : localFields) {
-        FieldReader commonField = allFieldMap.get(localField.fieldName());
+      for (final FieldReader localField : localFields) {
+        final FieldReader commonField = allFieldMap.get(localField.fieldName()+localField.adapterShortType());
         if (commonField == null) {
           allFields.add(localField);
-          allFieldMap.put(localField.fieldName(), localField);
+          allFieldMap.put(localField.fieldName()+localField.adapterShortType(), localField);
         } else {
           commonField.addSubType(currentSubType);
         }
@@ -111,7 +113,10 @@ final class TypeReader {
       element = mixInField;
     }
     if (includeField(element)) {
-      localFields.add(new FieldReader(element, namingConvention, currentSubType, genericTypeParams));
+      final var frequency =
+          frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
+      localFields.add(
+          new FieldReader(element, namingConvention, currentSubType, genericTypeParams,frequency));
     }
   }
 
