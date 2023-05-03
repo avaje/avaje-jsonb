@@ -560,9 +560,15 @@ final class ClassReader implements BeanReader {
           writer.eol().append("            _set$%s = true;", fieldName);
         }
       }
-      writer.eol().append("          }").eol().eol();
+      writer.eol().append("          }").eol();
     }
-      writer.eol().append("          break;").eol().eol();
+    writer
+        .append("          else {").eol()
+        .append("            throw new IllegalStateException(\"Missing Required type3 property that determines deserialization type\");")
+        .eol()
+        .append("          }")
+        .eol()
+        .append("          break;").eol().eol();
   }
 
 private String typePropertyKey() {
