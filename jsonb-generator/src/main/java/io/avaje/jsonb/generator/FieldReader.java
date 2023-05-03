@@ -358,15 +358,18 @@ final class FieldReader {
   }
 
   void writeFromJsonSwitch(
-      Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys) {
+      Append writer,
+      boolean defaultConstructor,
+      String varName,
+      boolean caseInsensitiveKeys,
+      List<String> moreAlias) {
     if (unmapped) {
       return;
     }
-    if (aliases != null) {
-      for (final String alias : aliases) {
-        final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
-        writer.append("        case \"%s\":", propertyKey).eol();
-      }
+    aliases.addAll(moreAlias);
+    for (final String alias : aliases) {
+      final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
+      writer.append("        case \"%s\":", propertyKey).eol();
     }
     final String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
     writer.append("        case \"%s\": ", propertyKey).eol();

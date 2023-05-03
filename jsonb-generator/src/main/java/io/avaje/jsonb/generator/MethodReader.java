@@ -51,14 +51,19 @@ final class MethodReader {
   static class MethodParam {
 
     private final String simpleName;
+    private final String type;
 
     MethodParam(VariableElement param) {
       this.simpleName = param.getSimpleName().toString();
+      this.type = param.asType().toString();
     }
 
     String name() {
       return simpleName;
     }
 
+    public String type() {
+      return type;
+    }
   }
 }

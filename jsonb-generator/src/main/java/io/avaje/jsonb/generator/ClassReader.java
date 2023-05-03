@@ -1,7 +1,7 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.previewEnabled;
 import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
+import static io.avaje.jsonb.generator.ProcessingContext.previewEnabled;
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 import static java.util.stream.Collectors.toList;
 
@@ -42,6 +42,7 @@ final class ClassReader implements BeanReader {
   private static final boolean nullSwitch =
       jdkVersion() >= 21 || (jdkVersion() >= 17 && previewEnabled());
   private final Map<String, Integer> frequencyMap = new HashMap<>();
+  private final Map<String, Boolean> isCommonFieldMap = new HashMap<>();
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
@@ -206,6 +207,13 @@ final class ClassReader implements BeanReader {
     final Set<String> uniqueTypes = new HashSet<>();
     for (final FieldReader allField : allFields) {
       if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
+        if (hasSubTypes) {
+          final var isCommonDiffType =
+              allFields.stream()
+                  .filter(s -> s.fieldName().equals(allField.fieldName()))
+                  .anyMatch(f -> !allField.adapterShortType().equals(f.adapterShortType()));
+          isCommonFieldMap.put(allField.fieldName(), isCommonDiffType);
+        }
         allField.writeConstructor(writer);
       }
     }
@@ -415,7 +423,7 @@ final class ClassReader implements BeanReader {
 
     for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
       final var varName = Util.initLower(Util.shortName(subTypeMeta.type()));
-         subTypeMeta.writeFromJsonBuild(writer, typeVar, varName, this, useSwitch, useEnum, frequencyMap2);
+         subTypeMeta.writeFromJsonBuild(writer, typeVar, varName, this, useSwitch, useEnum, frequencyMap2, isCommonFieldMap);
     }
     if (useSwitch) {
       writer.append("      default").appendSwitchCase().eol().append("    ");
@@ -465,18 +473,28 @@ final class ClassReader implements BeanReader {
       }
       if (hasSubTypes) {
         final var commonFields =
-            allFields.stream().filter(x -> x.fieldName().equals(name)).collect(toList());
+            allFields.stream()
+                .filter(x -> x.fieldName().equals(name))
+                .filter(x -> !x.adapterShortType().equals(allField.adapterShortType()))
+                .collect(toList());
 
-        if (commonFields.size() == 1) {
-          allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys);
+        if (commonFields.size() < 1) {
+          allField.writeFromJsonSwitch(
+              writer,
+              defaultConstructor,
+              varName,
+              caseInsensitiveKeys,
+              allFields.stream()
+                  .filter(x -> x.fieldName().equals(name))
+                  .flatMap(f -> f.getAliases().stream())
+                  .collect(toList()));
         } else {
           // if subclass shares a field name with another subclass
           // write a special case statement
-          writeSubTypeCase(
-              name, writer, commonFields, defaultConstructor, varName);
+          writeSubTypeCase(name, writer, commonFields, defaultConstructor, varName);
         }
 
-      } else allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys);
+      } else allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
     }
     writer.append("        default:").eol();
     final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";

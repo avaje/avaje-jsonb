@@ -1,15 +1,27 @@
 package io.avaje.jsonb.generator.models.valid;
 
+import io.avaje.jsonb.Json.JsonAlias;
 
 public class Example2Packet extends Packet {
+  @JsonAlias("packer")
+  private final String ids;
+  @JsonAlias("long-ring-long-land")
+  private Long longy;
 
-    private final String ids;
+  public Example2Packet(String ids, Long longy) {
+    this.ids = ids;
+    this.longy = longy;
+  }
 
-    public Example2Packet (final String ids) {
-        this.ids = ids;
-    }
+  public Long getLongy() {
+    return longy;
+  }
 
-    public String getIds() {
-        return this.ids;
-    }
+  public void setLongy(Long longy) {
+    this.longy = longy;
+  }
+
+  public String getIds() {
+    return ids;
+  }
 }
