@@ -472,13 +472,8 @@ final class ClassReader implements BeanReader {
         continue;
       }
       if (hasSubTypes) {
-        final var commonFields =
-            allFields.stream()
-                .filter(x -> x.fieldName().equals(name))
-                .filter(x -> !x.adapterShortType().equals(allField.adapterShortType()))
-                .collect(toList());
-
-        if (commonFields.size() < 1) {
+        final var isCommonFieldDiffType = isCommonFieldMap.get(name);
+        if (isCommonFieldDiffType == null || !isCommonFieldDiffType) {
           allField.writeFromJsonSwitch(
               writer,
               defaultConstructor,
@@ -491,10 +486,17 @@ final class ClassReader implements BeanReader {
         } else {
           // if subclass shares a field name with another subclass
           // write a special case statement
-          writeSubTypeCase(name, writer, commonFields, defaultConstructor, varName);
+          writeSubTypeCase(
+              name,
+              writer,
+              allFields.stream().filter(x -> x.fieldName().equals(name)).collect(toList()),
+              defaultConstructor,
+              varName);
         }
 
-      } else allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
+      } else
+        allField.writeFromJsonSwitch(
+            writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
     }
     writer.append("        default:").eol();
     final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
@@ -518,12 +520,13 @@ final class ClassReader implements BeanReader {
       String varName) {
 
     writer.append("        case \"%s\":", name).eol();
-    //get all possible aliases of this field from the subtypes
+    // get all possible aliases of this field from the subtypes
     for (final String alias :
         commonFields.stream().map(FieldReader::getAliases).findFirst().orElseGet(List::of)) {
       final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
       writer.append("        case \"%s\":", propertyKey).eol();
     }
+    var elseIf = false;
     // write the case statements with subtypeCheck
     for (final FieldReader fieldReader : commonFields) {
       final var subtype = fieldReader.getSubTypes().values().stream().collect(toList()).get(0);
@@ -531,38 +534,36 @@ final class ClassReader implements BeanReader {
       final var adapterFieldName = fieldReader.getAdapterFieldName();
       final var fieldName = fieldReader.getFieldNameWithNum();
       if (useEnum) {
-        writer.append("    if (%s.equals(%s)) {", subtype.name(), "type").eol();
+        writer
+            .append("          %sif (%s.equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type")
+            .eol();
       } else {
-        writer.append("    if (\"%s\".equals(%s)) {", subtype.name(), "type").eol();
+        writer
+            .append("          %sif (\"%s\".equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type")
+            .eol();
       }
+      elseIf = true;
       if (!fieldReader.isDeserialize()) {
-        writer.append("          reader.skipValue();");
+        writer.append("            reader.skipValue();");
       } else if (defaultConstructor) {
         if (setter != null) {
           writer.append(
-              "          _$%s.%s(%s.fromJson(reader));",
+              "            _$%s.%s(%s.fromJson(reader));",
               varName, setter.getName(), adapterFieldName);
         } else if (fieldReader.isPublicField()) {
           writer.append(
-              "          _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
+              "            _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
         }
       } else {
-        writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
+        writer.append("            _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
         if (!fieldReader.isConstructorParam()) {
-          writer.eol().append("          _set$%s = true;", fieldName);
+          writer.eol().append("            _set$%s = true;", fieldName);
         }
       }
       writer.eol().append("          }").eol().eol();
     }
       writer.eol().append("          break;").eol().eol();
   }
-
-  void writeFromJsonSwitchSubtype(
-	      Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys) {
-
-
-	  }
-
 
 private String typePropertyKey() {
     return caseInsensitiveKeys ? typeProperty.toLowerCase() : typeProperty;
