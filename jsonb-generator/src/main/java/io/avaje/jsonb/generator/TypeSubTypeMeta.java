@@ -2,8 +2,13 @@ package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.lang.model.element.TypeElement;
-import java.util.*;
 
 final class TypeSubTypeMeta {
 
@@ -51,7 +56,14 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch, boolean useEnum) {
+  void writeFromJsonBuild(
+      Append writer,
+      String typeVar,
+      String varName,
+      ClassReader beanReader,
+      boolean useSwitch,
+      boolean useEnum,
+      Map<String, Integer> frequencyMap2) {
     if (useSwitch) {
       if (useEnum) {
         writer.append("      case %s", name()).appendSwitchCase().eol();
@@ -59,7 +71,7 @@ final class TypeSubTypeMeta {
         writer.append("      case \"%s\"", name()).appendSwitchCase().eol();
       }
       writer.append("  ");
-      writeFromJsonConstructor(writer, varName, beanReader);
+      writeFromJsonConstructor(writer, varName, beanReader, frequencyMap2);
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
       if (useEnhancedSwitch()) {
         writer.append("        yield _$%s;", varName).eol();
@@ -73,7 +85,7 @@ final class TypeSubTypeMeta {
       } else {
         writer.append("    if (\"%s\".equals(%s)) {", name(), typeVar).eol();
       }
-      writeFromJsonConstructor(writer, varName, beanReader);
+      writeFromJsonConstructor(writer, varName, beanReader, frequencyMap2);
       writeFromJsonSetters(writer, varName, beanReader, useSwitch);
       writer.append("      return _$%s;", varName).eol();
       writer.append("    }").eol();
@@ -97,7 +109,8 @@ final class TypeSubTypeMeta {
 
   private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
-  private void writeFromJsonConstructor(Append writer, String varName, ClassReader beanReader) {
+  private void writeFromJsonConstructor(
+      Append writer, String varName, ClassReader beanReader, Map<String, Integer> frequencyMap2) {
     writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     final MethodReader constructor = findConstructor();
     if (constructor != null) {
@@ -108,7 +121,13 @@ final class TypeSubTypeMeta {
         }
         final String paramName = params.get(i).name();
         constructorFieldNames.add(paramName);
-        writer.append(beanReader.constructorParamName(paramName)); // assuming name matches field here?
+        var constructParamName = beanReader.constructorParamName(paramName);
+        if (constructParamName.startsWith("_val$")) {
+          final var frequency = frequencyMap2.compute(constructParamName, (k, v) -> v == null ? 0 : v + 1);
+          constructParamName = constructParamName + (frequency == 0 ? "" : frequency.toString());
+        }
+
+        writer.append(constructParamName); // assuming name matches field here?
       }
     }
     writer.append(");").eol();
