@@ -39,12 +39,7 @@ final class FieldReader {
   private boolean isSubTypeField;
   private final String num;
 
-  FieldReader(
-      Element element,
-      NamingConvention namingConvention,
-      TypeSubTypeMeta subType,
-      List<String> genericTypeParams,
-      Integer frequency) {
+  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams, Integer frequency) {
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
     this.genericTypeParams = genericTypeParams;
@@ -152,15 +147,11 @@ final class FieldReader {
   }
 
   boolean typeBooleanWithIsPrefix() {
-    return nameHasIsPrefix()
-        && ("boolean".equals(genericType.topType())
-            || "java.lang.Boolean".equals(genericType.topType()));
+    return nameHasIsPrefix() && ("boolean".equals(genericType.topType()) || "java.lang.Boolean".equals(genericType.topType()));
   }
 
   private boolean nameHasIsPrefix() {
-    return fieldName.length() > 2
-        && fieldName.startsWith("is")
-        && Character.isUpperCase(fieldName.charAt(2));
+    return fieldName.length() > 2 && fieldName.startsWith("is") && Character.isUpperCase(fieldName.charAt(2));
   }
 
   boolean isRaw() {
@@ -277,9 +268,7 @@ final class FieldReader {
     if (raw) {
       writer.append("    this.%s = jsonb.rawAdapter();", adapterFieldName).eol();
     } else {
-      writer
-          .append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asTypeDeclaration())
-          .eol();
+      writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asTypeDeclaration()).eol();
     }
   }
 
@@ -302,9 +291,7 @@ final class FieldReader {
       writeGetValue(writer, varName, ";");
       writer.eol();
       writer.append("%sif (unmapped != null) {", prefix).eol();
-      writer
-          .append("%s for (Map.Entry<String, Object> entry : unmapped.entrySet()) {", prefix)
-          .eol();
+      writer.append("%s for (Map.Entry<String, Object> entry : unmapped.entrySet()) {", prefix).eol();
       writer.append("%s   writer.name(entry.getKey());", prefix).eol();
       writer.append("%s   objectJsonAdapter.toJson(writer, entry.getValue());", prefix).eol();
       writer.append("%s }", prefix).eol();
@@ -323,8 +310,7 @@ final class FieldReader {
     } else if (publicField) {
       writer.append("%s.%s%s", varName, fieldName, suffix);
     } else {
-      throw new IllegalStateException(
-          "Field" + fieldName + " is inaccessible. Add a getter or make the field public.");
+      throw new IllegalStateException("Field" + fieldName + " is inaccessible. Add a getter or make the field public.");
     }
   }
 
@@ -351,18 +337,11 @@ final class FieldReader {
       return value;
     }
     final StringBuilder sb = new StringBuilder(10).append(value);
-    for (int i = 0; i < pad; i++) {
-      sb.append(" ");
-    }
+    sb.append(" ".repeat(pad));
     return sb.toString();
   }
 
-  void writeFromJsonSwitch(
-      Append writer,
-      boolean defaultConstructor,
-      String varName,
-      boolean caseInsensitiveKeys,
-      List<String> moreAlias) {
+  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys, List<String> moreAlias) {
     if (unmapped) {
       return;
     }
@@ -377,11 +356,9 @@ final class FieldReader {
       writer.append("          reader.skipValue();");
     } else if (defaultConstructor) {
       if (setter != null) {
-        writer.append(
-            "          _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
+        writer.append("          _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
       } else if (publicField) {
-        writer.append(
-            "          _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
+        writer.append("          _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
       }
     } else {
       writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
@@ -398,17 +375,9 @@ final class FieldReader {
       return;
     }
     if (setter != null) {
-      writer
-          .append(
-              "%s    if (_set$%s) _$%s.%s(_val$%s);",
-              prefix, fieldName + num, varName, setter.getName(), fieldName + num)
-          .eol();
+      writer.append("%s    if (_set$%s) _$%s.%s(_val$%s);", prefix, fieldName + num, varName, setter.getName(), fieldName + num).eol();
     } else if (publicField) {
-      writer
-          .append(
-              "%s    if (_set$%s) _$%s.%s = _val$%s;",
-              prefix, fieldName + num, varName, fieldName, fieldName + num)
-          .eol();
+      writer.append("%s    if (_set$%s) _$%s.%s = _val$%s;", prefix, fieldName + num, varName, fieldName, fieldName + num).eol();
     }
   }
 
@@ -422,21 +391,13 @@ final class FieldReader {
 
   void writeViewBuilder(Append writer, String shortName) {
     if (getter == null) {
-      writer
-          .append(
-              "    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));",
-              propertyName, adapterFieldName, shortName, fieldName)
-          .eol();
+      writer.append("    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));", propertyName, adapterFieldName, shortName, fieldName).eol();
     } else {
       String topType = genericType.topType() + ".class";
       if (genericTypeParameter) {
         topType = genericTypeReplacement(topType, "Object.class");
       }
-      writer
-          .append(
-              "    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s));",
-              propertyName, adapterFieldName, shortName, getter.getName(), topType)
-          .eol();
+      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s));", propertyName, adapterFieldName, shortName, getter.getName(), topType).eol();
     }
   }
 

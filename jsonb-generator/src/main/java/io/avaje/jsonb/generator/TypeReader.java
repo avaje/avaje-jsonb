@@ -113,10 +113,8 @@ final class TypeReader {
       element = mixInField;
     }
     if (includeField(element)) {
-      final var frequency =
-          frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
-      localFields.add(
-          new FieldReader(element, namingConvention, currentSubType, genericTypeParams,frequency));
+      final var frequency = frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
+      localFields.add(new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency));
     }
   }
 
