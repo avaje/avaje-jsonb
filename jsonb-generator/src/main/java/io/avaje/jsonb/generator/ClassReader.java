@@ -66,7 +66,6 @@ final class ClassReader implements BeanReader {
         .map(FieldReader::type)
         .map(GenericType::topType)
         .map(ProcessingContext::element)
-        .filter(Objects::nonNull)
         .filter(e -> e.getKind() == ElementKind.ENUM)
         .isPresent();
   }
