@@ -6,13 +6,7 @@ import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -39,8 +33,7 @@ final class ClassReader implements BeanReader {
   private final boolean usesTypeProperty;
   private final boolean useEnum;
   private static final boolean useInstanceofPattern = jdkVersion() >= 17;
-  private static final boolean nullSwitch =
-      jdkVersion() >= 21 || (jdkVersion() >= 17 && previewEnabled());
+  private static final boolean nullSwitch = jdkVersion() >= 21 || (jdkVersion() >= 17 && previewEnabled());
   private final Map<String, Integer> frequencyMap = new HashMap<>();
   private final Map<String, Boolean> isCommonFieldMap = new HashMap<>();
 
@@ -379,16 +372,10 @@ final class ClassReader implements BeanReader {
         writer.append(", ");
       }
       final var name = params.get(i).name();
-
       // append increasing numbers to constructor params sharing names with other subtypes
       final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
-
-      writer.append(
-          constructorParamName(
-              name
-                  + (frequency == 0
-                      ? ""
-                      : frequency.toString()))); // assuming name matches field here?
+      // assuming name matches field here?
+      writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
     }
     writer.append(");").eol();
     for (final FieldReader allField : allFields) {
@@ -495,8 +482,7 @@ final class ClassReader implements BeanReader {
         }
 
       } else
-        allField.writeFromJsonSwitch(
-            writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
+        allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
     }
     writer.append("        default:").eol();
     final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
@@ -512,13 +498,7 @@ final class ClassReader implements BeanReader {
     writer.append("    reader.endObject();").eol();
   }
 
-  private void writeSubTypeCase(
-      String name,
-      Append writer,
-      List<FieldReader> commonFields,
-      boolean defaultConstructor,
-      String varName) {
-
+  private void writeSubTypeCase(String name, Append writer, List<FieldReader> commonFields, boolean defaultConstructor, String varName) {
     writer.append("        case \"%s\":", name).eol();
     // get all possible aliases of this field from the subtypes
     for (final String alias :
@@ -529,30 +509,23 @@ final class ClassReader implements BeanReader {
     var elseIf = false;
     // write the case statements with subtypeCheck
     for (final FieldReader fieldReader : commonFields) {
-      final var subtype = fieldReader.getSubTypes().values().stream().collect(toList()).get(0);
+      final var subtype = new ArrayList<>(fieldReader.getSubTypes().values()).get(0);
       final var setter = fieldReader.getSetter();
       final var adapterFieldName = fieldReader.getAdapterFieldName();
       final var fieldName = fieldReader.getFieldNameWithNum();
       if (useEnum) {
-        writer
-            .append("          %sif (%s.equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type")
-            .eol();
+        writer.append("          %sif (%s.equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type").eol();
       } else {
-        writer
-            .append("          %sif (\"%s\".equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type")
-            .eol();
+        writer.append("          %sif (\"%s\".equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type").eol();
       }
       elseIf = true;
       if (!fieldReader.isDeserialize()) {
         writer.append("            reader.skipValue();");
       } else if (defaultConstructor) {
         if (setter != null) {
-          writer.append(
-              "            _$%s.%s(%s.fromJson(reader));",
-              varName, setter.getName(), adapterFieldName);
+          writer.append("            _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
         } else if (fieldReader.isPublicField()) {
-          writer.append(
-              "            _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
+          writer.append("            _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
         }
       } else {
         writer.append("            _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
@@ -564,14 +537,12 @@ final class ClassReader implements BeanReader {
     }
     writer
         .append("          else {").eol()
-        .append("            throw new IllegalStateException(\"Missing Required type3 property that determines deserialization type\");")
-        .eol()
-        .append("          }")
-        .eol()
+        .append("            throw new IllegalStateException(\"Missing Required type3 property that determines deserialization type\");").eol()
+        .append("          }").eol()
         .append("          break;").eol().eol();
   }
 
-private String typePropertyKey() {
+  private String typePropertyKey() {
     return caseInsensitiveKeys ? typeProperty.toLowerCase() : typeProperty;
   }
 }

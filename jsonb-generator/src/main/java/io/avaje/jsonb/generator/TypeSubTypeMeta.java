@@ -56,14 +56,7 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(
-      Append writer,
-      String typeVar,
-      String varName,
-      ClassReader beanReader,
-      boolean useSwitch,
-      boolean useEnum,
-      Map<String, Integer> frequencyMap2, Map<String, Boolean> isCommonFieldMap) {
+  void writeFromJsonBuild(Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch, boolean useEnum, Map<String, Integer> frequencyMap2, Map<String, Boolean> isCommonFieldMap) {
     if (useSwitch) {
       if (useEnum) {
         writer.append("      case %s", name()).appendSwitchCase().eol();
@@ -109,12 +102,7 @@ final class TypeSubTypeMeta {
 
   private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
-  private void writeFromJsonConstructor(
-      Append writer,
-      String varName,
-      ClassReader beanReader,
-      Map<String, Integer> frequencyMap2,
-      Map<String, Boolean> isCommonFieldMap) {
+  private void writeFromJsonConstructor(Append writer, String varName, ClassReader beanReader, Map<String, Integer> frequencyMap2, Map<String, Boolean> isCommonFieldMap) {
     writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     final MethodReader constructor = findConstructor();
     if (constructor != null) {
@@ -129,9 +117,7 @@ final class TypeSubTypeMeta {
         var constructParamName = beanReader.constructorParamName(paramName);
         final var writeWithNum = isCommonFieldMap.get(paramName);
         if (constructParamName.startsWith("_val$") && writeWithNum != null && writeWithNum) {
-          final var frequency =
-              frequencyMap2.compute(constructParamName, (k, v) -> v == null ? 0 : v + 1);
-          final var suffix = (frequency == 0 ? "" : frequency.toString());
+          final var frequency = frequencyMap2.compute(constructParamName, (k, v) -> v == null ? 0 : v + 1);
           constructParamName = constructParamName + (frequency == 0 ? "" : frequency.toString());
         }
 
