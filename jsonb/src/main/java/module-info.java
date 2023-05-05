@@ -10,8 +10,6 @@ module io.avaje.jsonb {
   uses io.avaje.jsonb.JsonbComponent;
   uses io.avaje.jsonb.Jsonb.GeneratedComponent;
 
-  requires static io.avaje.inject;
   requires static io.helidon.nima.webserver;
 
-  provides io.avaje.inject.spi.Plugin with io.avaje.jsonb.spi.DefaultJsonbProvider;
 }

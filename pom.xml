@@ -9,7 +9,7 @@
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-parent</artifactId>
-  <version>1.5-SNAPSHOT</version>
+  <version>1.5-RC1</version>
 
   <packaging>pom</packaging>
   <name>jsonb parent</name>
@@ -30,6 +30,7 @@
     <module>jsonb</module>
     <module>jsonb-generator</module>
     <module>jsonb-jackson</module>
+    <module>jsonb-inject-plugin</module>
     <module>jsonb-spring-adapter</module>
   </modules>
 

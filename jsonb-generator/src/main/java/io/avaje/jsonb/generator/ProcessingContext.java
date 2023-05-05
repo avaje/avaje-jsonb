@@ -19,13 +19,15 @@ final class ProcessingContext {
 
   private static final ThreadLocal<Ctx> CTX = new ThreadLocal<>();
 
+  private static int jdkVersion;
+  private static boolean previewEnabled;
+
   private static final class Ctx {
-    private final ProcessingEnvironment env;;
+    private final ProcessingEnvironment env;
     private final Messager messager;
     private final Filer filer;
     private final Elements elements;
     private final Types types;
-    private final int jdkVersion;
 
     Ctx(ProcessingEnvironment env) {
       this.env = env;
@@ -33,15 +35,23 @@ final class ProcessingContext {
       this.filer = env.getFiler();
       this.elements = env.getElementUtils();
       this.types = env.getTypeUtils();
-      this.jdkVersion = env.getSourceVersion().ordinal();
     }
   }
 
-  private ProcessingContext() {
-  }
+  private ProcessingContext() {}
 
   static void init(ProcessingEnvironment processingEnv) {
     CTX.set(new Ctx(processingEnv));
+    jdkVersion = processingEnv.getSourceVersion().ordinal();
+    previewEnabled = jdkVersion >= 13 ? initPreviewEnabled(processingEnv) : false;
+  }
+
+  private static boolean initPreviewEnabled(ProcessingEnvironment processingEnv) {
+    try {
+      return (boolean) ProcessingEnvironment.class.getDeclaredMethod("isPreviewEnabled").invoke(processingEnv);
+    } catch (Throwable e) {
+      return false;
+    }
   }
 
   static boolean useEnhancedSwitch() {
@@ -49,12 +59,14 @@ final class ProcessingContext {
   }
 
   static int jdkVersion() {
-    return CTX.get().jdkVersion;
+    return jdkVersion;
   }
 
-  /**
-   * Log an error message.
-   */
+  public static boolean previewEnabled() {
+    return previewEnabled;
+  }
+
+  /** Log an error message. */
   static void logError(Element e, String msg, Object... args) {
     CTX.get().messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), e);
   }
@@ -71,9 +83,7 @@ final class ProcessingContext {
     CTX.get().messager.printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
   }
 
-  /**
-   * Create a file writer for the given class name.
-   */
+  /** Create a file writer for the given class name. */
   static JavaFileObject createWriter(String cls) throws IOException {
     return CTX.get().filer.createSourceFile(cls);
   }

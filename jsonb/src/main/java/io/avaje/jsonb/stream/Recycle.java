@@ -1,7 +1,6 @@
 package io.avaje.jsonb.stream;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
 final class Recycle {
   private Recycle() {

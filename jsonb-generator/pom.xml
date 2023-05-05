@@ -4,14 +4,14 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5-RC1</version>
   </parent>
 
   <artifactId>avaje-jsonb-generator</artifactId>
   <name>jsonb generator</name>
   <description>annotation processor generating json adapters</description>
   <properties>
-    <avaje.prisms.version>1.6</avaje.prisms.version>
+    <avaje.prisms.version>1.8</avaje.prisms.version>
   </properties>
 
   <dependencies>

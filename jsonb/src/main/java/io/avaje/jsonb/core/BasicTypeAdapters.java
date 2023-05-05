@@ -17,11 +17,10 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
@@ -82,8 +81,8 @@ final class BasicTypeAdapters {
     @Override
     public URL fromJson(JsonReader reader) {
       try {
-        return new URL(reader.readString());
-      } catch (MalformedURLException e) {
+        return new URI(reader.readString()).toURL();
+      } catch (MalformedURLException | URISyntaxException e) {
         throw new JsonDataException(e);
       }
     }

@@ -1,5 +1,11 @@
 package io.avaje.jsonb.generator;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import java.util.*;
@@ -31,8 +37,10 @@ final class FieldReader {
   private int genericTypeParamPosition;
   private final List<String> aliases;
   private boolean isSubTypeField;
+  private final String num;
 
-  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams) {
+  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams, Integer frequency) {
+    num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
     this.genericTypeParams = genericTypeParams;
     this.fieldName = element.getSimpleName().toString();
@@ -87,7 +95,7 @@ final class FieldReader {
   private String initAdapterShortType(String shortType) {
     String typeWrapped = "JsonAdapter<" + PrimitiveUtil.wrap(shortType) + ">";
     for (int i = 0; i < genericTypeParams.size(); i++) {
-      String typeParam = genericTypeParams.get(i);
+      final String typeParam = genericTypeParams.get(i);
       if (typeWrapped.contains("<" + typeParam + ">")) {
         genericTypeParameter = true;
         genericTypeParamPosition = i;
@@ -98,7 +106,7 @@ final class FieldReader {
   }
 
   private String typeParamToObject(String shortType) {
-    for (String typeParam : genericTypeParams) {
+    for (final String typeParam : genericTypeParams) {
       if (shortType.contains("<" + typeParam + ">")) {
         shortType = shortType.replace("<" + typeParam + ">", "<Object>");
       }
@@ -115,7 +123,7 @@ final class FieldReader {
   }
 
   static String trimAnnotations(String type) {
-    int pos = type.indexOf("@");
+    final int pos = type.indexOf("@");
     if (pos == -1) {
       return type;
     }
@@ -265,7 +273,7 @@ final class FieldReader {
   }
 
   String asTypeDeclaration() {
-    String asType = genericType.asTypeDeclaration().replace("? extends ", "");
+    final String asType = genericType.asTypeDeclaration().replace("? extends ", "");
     if (genericTypeParameter) {
       return genericTypeReplacement(asType, "param" + genericTypeParamPosition);
     }
@@ -273,7 +281,7 @@ final class FieldReader {
   }
 
   private String genericTypeReplacement(String asType, String replaceWith) {
-    String typeParam = genericTypeParams.get(genericTypeParamPosition);
+    final String typeParam = genericTypeParams.get(genericTypeParamPosition);
     return asType.replace(typeParam + ".class", replaceWith);
   }
 
@@ -310,17 +318,17 @@ final class FieldReader {
     if (unmapped) {
       return;
     }
-    String shortType = typeParamToObject(genericType.shortType());
-    writer.append("    %s _val$%s = %s;", pad(shortType), fieldName, defaultValue);
+    final String shortType = typeParamToObject(genericType.shortType());
+    writer.append("    %s _val$%s = %s;", pad(shortType), fieldName + num, defaultValue);
     if (!constructorParam) {
-      writer.append(" boolean _set$%s = false;", fieldName);
+      writer.append(" boolean _set$%s = false;", fieldName + num);
     }
     writer.eol();
   }
 
   void writeFromJsonVariablesRecord(Append writer) {
     final String type = genericTypeParameter ? "Object" : genericType.shortType();
-    writer.append("    %s _val$%s = %s;", pad(type), fieldName, defaultValue).eol();
+    writer.append("    %s _val$%s = %s;", pad(type), fieldName + num, defaultValue).eol();
   }
 
   private String pad(String value) {
@@ -329,23 +337,20 @@ final class FieldReader {
       return value;
     }
     final StringBuilder sb = new StringBuilder(10).append(value);
-    for (int i = 0; i < pad; i++) {
-      sb.append(" ");
-    }
+    sb.append(" ".repeat(pad));
     return sb.toString();
   }
 
-  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys) {
+  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys, List<String> moreAlias) {
     if (unmapped) {
       return;
     }
-    if (aliases != null) {
-      for (final String alias : aliases) {
-        String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
-        writer.append("        case \"%s\":", propertyKey).eol();
-      }
+    aliases.addAll(moreAlias);
+    for (final String alias : aliases) {
+      final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
+      writer.append("        case \"%s\":", propertyKey).eol();
     }
-    String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
+    final String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
     writer.append("        case \"%s\": ", propertyKey).eol();
     if (!deserialize) {
       writer.append("          reader.skipValue();");
@@ -370,9 +375,9 @@ final class FieldReader {
       return;
     }
     if (setter != null) {
-      writer.append("%s    if (_set$%s) _$%s.%s(_val$%s);", prefix, fieldName, varName, setter.getName(), fieldName).eol();
+      writer.append("%s    if (_set$%s) _$%s.%s(_val$%s);", prefix, fieldName + num, varName, setter.getName(), fieldName + num).eol();
     } else if (publicField) {
-      writer.append("%s    if (_set$%s) _$%s.%s = _val$%s;", prefix, fieldName, varName, fieldName, fieldName).eol();
+      writer.append("%s    if (_set$%s) _$%s.%s = _val$%s;", prefix, fieldName + num, varName, fieldName, fieldName + num).eol();
     }
   }
 
@@ -403,5 +408,37 @@ final class FieldReader {
 
   public GenericType type() {
     return genericType;
+  }
+
+  public boolean isConstructorParam() {
+    return constructorParam;
+  }
+
+  public String getFieldNameWithNum() {
+    return fieldName + num;
+  }
+
+  public String getAdapterFieldName() {
+    return adapterFieldName;
+  }
+
+  public MethodReader getSetter() {
+    return setter;
+  }
+
+  public void setSetter(MethodReader setter) {
+    this.setter = setter;
+  }
+
+  public boolean isDeserialize() {
+    return deserialize;
+  }
+
+  public Map<String, TypeSubTypeMeta> getSubTypes() {
+    return subTypes;
+  }
+
+  public List<String> getAliases() {
+    return aliases;
   }
 }
