@@ -44,7 +44,7 @@ final class NullSafeAdapter<T> implements JsonAdapter<T> {
   }
 
   @Override
-public boolean isViewBuilderAware() {
+  public boolean isViewBuilderAware() {
     return delegate.isViewBuilderAware();
   }
 
