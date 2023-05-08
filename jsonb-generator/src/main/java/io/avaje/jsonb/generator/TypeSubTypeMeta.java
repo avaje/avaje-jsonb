@@ -5,7 +5,6 @@ import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
@@ -18,6 +17,7 @@ final class TypeSubTypeMeta {
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
   private final List<MethodReader> publicConstructors = new ArrayList<>();
+  private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
   @Override
   public String toString() {
@@ -56,16 +56,16 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch, boolean useEnum, Map<String, Integer> frequencyMap2, Map<String, Boolean> isCommonFieldMap) {
-    if (useSwitch) {
-      if (useEnum) {
+  void writeFromJsonBuild(Append writer, String varName, SubTypeRequest req) {
+    if (req.useSwitch()) {
+      if (req.useEnum()) {
         writer.append("      case %s", name()).appendSwitchCase().eol();
       } else {
         writer.append("      case \"%s\"", name()).appendSwitchCase().eol();
       }
       writer.append("  ");
-      writeFromJsonConstructor(writer, varName, beanReader, frequencyMap2,isCommonFieldMap);
-      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writeFromJsonConstructor(writer, varName, req);
+      writeFromJsonSetters(writer, varName, req);
       if (useEnhancedSwitch()) {
         writer.append("        yield _$%s;", varName).eol();
         writer.append("      }").eol();
@@ -73,22 +73,22 @@ final class TypeSubTypeMeta {
         writer.append("        return _$%s;", varName).eol();
       }
     } else {
-      if (useEnum) {
-        writer.append("    if (%s.equals(%s)) {", name(), typeVar).eol();
+      if (req.useEnum()) {
+        writer.append("    if (%s.equals(%s)) {", name(), req.typeVar()).eol();
       } else {
-        writer.append("    if (\"%s\".equals(%s)) {", name(), typeVar).eol();
+        writer.append("    if (\"%s\".equals(%s)) {", name(), req.typeVar()).eol();
       }
-      writeFromJsonConstructor(writer, varName, beanReader, frequencyMap2, isCommonFieldMap);
-      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writeFromJsonConstructor(writer, varName, req);
+      writeFromJsonSetters(writer, varName, req);
       writer.append("      return _$%s;", varName).eol();
       writer.append("    }").eol();
     }
   }
 
-  private void writeFromJsonSetters(Append writer, String varName, ClassReader beanReader, boolean useSwitch) {
-    for (final FieldReader field : beanReader.allFields()) {
+  private void writeFromJsonSetters(Append writer, String varName, SubTypeRequest req) {
+    for (final FieldReader field : req.beanReader().allFields()) {
       if (isIncludeSetter(field)) {
-        if (useSwitch) {
+        if (req.useSwitch()) {
           writer.append("  ");
         }
         field.writeFromJsonSetter(writer, varName, "  ");
@@ -100,9 +100,8 @@ final class TypeSubTypeMeta {
     return field.includeFromJson() && !constructorFieldNames.contains(field.fieldName()) && field.includeForType(this);
   }
 
-  private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
-  private void writeFromJsonConstructor(Append writer, String varName, ClassReader beanReader, Map<String, Integer> frequencyMap2, Map<String, Boolean> isCommonFieldMap) {
+  private void writeFromJsonConstructor(Append writer, String varName, SubTypeRequest req) {
     writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     final MethodReader constructor = findConstructor();
     if (constructor != null) {
@@ -114,11 +113,10 @@ final class TypeSubTypeMeta {
         final var param = params.get(i);
         final String paramName = param.name();
         constructorFieldNames.add(paramName);
-        var constructParamName = beanReader.constructorParamName(paramName);
-        final var writeWithNum = isCommonFieldMap.get(paramName);
-        if (constructParamName.startsWith("_val$") && writeWithNum != null && writeWithNum) {
-          final var frequency = frequencyMap2.compute(constructParamName, (k, v) -> v == null ? 0 : v + 1);
-          constructParamName = constructParamName + (frequency == 0 ? "" : frequency.toString());
+        var constructParamName = req.beanReader().constructorParamName(paramName);
+        if (constructParamName.startsWith("_val$") && req.isCommonField(paramName)) {
+          final var frequencySuffix = req.frequencySuffix(constructParamName);
+          constructParamName = constructParamName + frequencySuffix;
         }
 
         writer.append(constructParamName); // assuming name matches field here?

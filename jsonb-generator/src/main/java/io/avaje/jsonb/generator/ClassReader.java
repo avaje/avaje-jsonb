@@ -406,10 +406,11 @@ final class ClassReader implements BeanReader {
     }
     // another frequency map to append numbers to the subtype constructor params
     final Map<String, Integer> frequencyMap2 = new HashMap<>();
+    final var req = new SubTypeRequest(typeVar, this, useSwitch, useEnum, frequencyMap2, isCommonFieldMap);
 
     for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
       final var varName = Util.initLower(Util.shortName(subTypeMeta.type()));
-         subTypeMeta.writeFromJsonBuild(writer, typeVar, varName, this, useSwitch, useEnum, frequencyMap2, isCommonFieldMap);
+      subTypeMeta.writeFromJsonBuild(writer, varName, req);
     }
     if (useSwitch) {
       writer.append("      default").appendSwitchCase().eol().append("    ");
