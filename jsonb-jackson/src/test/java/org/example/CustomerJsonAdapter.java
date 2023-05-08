@@ -9,7 +9,7 @@ import java.lang.invoke.MethodHandle;
 import java.time.Instant;
 import java.util.List;
 
-public class CustomerJsonAdapter extends JsonAdapter<Customer> implements ViewBuilderAware {
+public class CustomerJsonAdapter implements JsonAdapter<Customer>, ViewBuilderAware {
 
   private final JsonAdapter<Integer> intAdapter;
   private final JsonAdapter<String> stringAdapter;

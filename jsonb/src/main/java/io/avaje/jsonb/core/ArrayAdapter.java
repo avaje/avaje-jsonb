@@ -28,7 +28,7 @@ import java.util.List;
  * Converts arrays to JSON arrays containing their converted contents.
  * This supports both primitive and object arrays.
  */
-final class ArrayAdapter extends JsonAdapter<Object> {
+final class ArrayAdapter implements JsonAdapter<Object> {
   static final Factory FACTORY = (type, jsonb) -> {
     Type elementType = Util.arrayComponentType(type);
     if (elementType == null) return null;
@@ -75,7 +75,7 @@ final class ArrayAdapter extends JsonAdapter<Object> {
     return elementAdapter + ".array()";
   }
 
-  static final class ByteArray extends JsonAdapter<byte[]> {
+  static final class ByteArray implements JsonAdapter<byte[]> {
     @Override
     public byte[] fromJson(JsonReader reader) {
       return reader.readBinary();

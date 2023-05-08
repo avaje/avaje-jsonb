@@ -9,7 +9,7 @@ import io.avaje.jsonb.spi.ViewBuilderAware;
 
 import java.lang.invoke.MethodHandle;
 
-public class ContactJsonAdapter extends JsonAdapter<Contact> implements ViewBuilderAware {
+public class ContactJsonAdapter implements JsonAdapter<Contact>, ViewBuilderAware {
 
   private final JsonAdapter<Long> longAdapter;
   private final JsonAdapter<String> stringAdapter;

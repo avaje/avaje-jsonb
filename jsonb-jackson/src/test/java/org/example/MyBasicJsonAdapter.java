@@ -12,7 +12,7 @@ import io.avaje.jsonb.spi.ViewBuilderAware;
 import java.lang.invoke.MethodHandle;
 
 @Generated
-public final class MyBasicJsonAdapter extends JsonAdapter<StreamBasicTest.MyBasic> implements ViewBuilderAware {
+public final class MyBasicJsonAdapter implements JsonAdapter<StreamBasicTest.MyBasic>, ViewBuilderAware {
 
   // naming convention Match
   // id [int] name:id constructor
