@@ -10,6 +10,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -198,7 +199,18 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void writeAdapter(TypeElement typeElement, BeanReader beanReader) {
+    if ((typeElement.getModifiers().contains(Modifier.ABSTRACT)
+            || typeElement.getKind() == ElementKind.INTERFACE)
+        && !SubTypePrism.isPresent(typeElement)
+        && !SubTypesPrism.isPresent(typeElement)) {
+      logNote(
+          "Type %s is abstract and has no configured subtypes. No Adapter will be generated for it.",
+          typeElement);
+      return;
+    }
+
     beanReader.read();
+    
     if (beanReader.nonAccessibleField()) {
       if (beanReader.hasJsonAnnotation()) {
         logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);

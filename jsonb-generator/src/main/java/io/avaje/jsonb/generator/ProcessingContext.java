@@ -79,6 +79,10 @@ final class ProcessingContext {
     CTX.get().messager.printMessage(Diagnostic.Kind.WARNING, String.format(msg, args));
   }
 
+  static void logNote(String msg, Object... args) {
+    CTX.get().messager.printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
+  }
+
   static void logDebug(String msg, Object... args) {
     CTX.get().messager.printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
   }
