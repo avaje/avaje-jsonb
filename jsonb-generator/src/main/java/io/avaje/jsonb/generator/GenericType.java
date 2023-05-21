@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import static io.avaje.jsonb.generator.ProcessingContext.*;
 
 /**
  * A type with generic parameters and potentially nested.
@@ -152,7 +153,8 @@ final class GenericType {
       return asTypeBasic();
     }
     if (params.size() == 1) {
-      return asTypeContainer();
+      var result = asTypeContainer();
+      if (result != null) return result;
     }
     StringBuilder sb = new StringBuilder();
     writeType("Types.newParameterizedType(", sb);
@@ -171,19 +173,16 @@ final class GenericType {
   private String asTypeContainer() {
     GenericType param = params.get(0);
     String containerType = topType();
-    switch (containerType) {
-      case "java.util.List":
-        return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
-      case "java.util.Set":
-        return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
-      case "java.util.stream.Stream":
-        return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
-      default:
-        throw new IllegalArgumentException(
-            "Unsupported Container Type "
-                + containerType
-                + ", only java.util List/Set/Stream allowed");
+    if (isAssignable2Interface(containerType, "java.util.List")) {
+      return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
     }
+    if (isAssignable2Interface(containerType, "java.util.Set")) {
+      return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
+    }
+    if (isAssignable2Interface(containerType, "java.util.stream.Stream")) {
+      return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
+    }
+    return null;
   }
 
   String firstParamType() {

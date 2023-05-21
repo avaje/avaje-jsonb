@@ -49,7 +49,7 @@ final class ProcessingContext {
   private static boolean initPreviewEnabled(ProcessingEnvironment processingEnv) {
     try {
       return (boolean) ProcessingEnvironment.class.getDeclaredMethod("isPreviewEnabled").invoke(processingEnv);
-    } catch (Throwable e) {
+    } catch (final Throwable e) {
       return false;
     }
   }
@@ -79,6 +79,10 @@ final class ProcessingContext {
     CTX.get().messager.printMessage(Diagnostic.Kind.WARNING, String.format(msg, args));
   }
 
+  static void logNote(String msg, Object... args) {
+    CTX.get().messager.printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
+  }
+
   static void logDebug(String msg, Object... args) {
     CTX.get().messager.printMessage(Diagnostic.Kind.NOTE, String.format(msg, args));
   }
@@ -90,6 +94,10 @@ final class ProcessingContext {
 
   static FileObject createMetaInfWriterFor(String interfaceType) throws IOException {
     return CTX.get().filer.createResource(StandardLocation.CLASS_OUTPUT, "", interfaceType);
+  }
+
+  static boolean isAssignable2Interface(String type, String superType) {
+    return element(type).getInterfaces().stream().anyMatch(t -> t.toString().contains(superType));
   }
 
   static TypeElement element(String rawType) {

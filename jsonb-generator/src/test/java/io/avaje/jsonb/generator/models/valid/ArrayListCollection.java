@@ -1,11 +1,11 @@
-package io.avaje.jsonb.generator.models.invalid;
+package io.avaje.jsonb.generator.models.valid;
 
 import java.util.ArrayList;
 
 import io.avaje.jsonb.Json;
 
 @Json
-public class InvalidCollection {
+public class ArrayListCollection {
   private ArrayList<String> list;
 
   public ArrayList<String> getList() {
