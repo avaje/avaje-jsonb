@@ -32,8 +32,8 @@ final class ProcessingContext {
     private final Filer filer;
     private final Elements elements;
     private final Types types;
-    private final Map<String, JsonPrism> importedJsonMap= new HashMap<>();
-    private final Map<String, List< SubTypePrism>> importedSubtypeMap= new HashMap<>();
+    private final Map<String, JsonPrism> importedJsonMap = new HashMap<>();
+    private final Map<String, List<SubTypePrism>> importedSubtypeMap = new HashMap<>();
 
     Ctx(ProcessingEnvironment env) {
       this.env = env;
@@ -49,7 +49,7 @@ final class ProcessingContext {
   static void init(ProcessingEnvironment processingEnv) {
     CTX.set(new Ctx(processingEnv));
     jdkVersion = processingEnv.getSourceVersion().ordinal();
-    previewEnabled = jdkVersion >= 13 ? initPreviewEnabled(processingEnv) : false;
+    previewEnabled = jdkVersion >= 13 && initPreviewEnabled(processingEnv);
   }
 
   private static boolean initPreviewEnabled(ProcessingEnvironment processingEnv) {
@@ -119,30 +119,26 @@ final class ProcessingContext {
   }
 
   static void addImportedPrism(ImportPrism prism) {
-
     if (!prism.subtypes().isEmpty() && prism.value().size() > 1) {
-
-      throw new IllegalStateException(
-          "subtypes cannot be used when an import annotation imports more than one class");
+      throw new IllegalStateException("subtypes cannot be used when an import annotation imports more than one class");
     }
     final var json = CTX.get().importedJsonMap;
     final var subtypes = CTX.get().importedSubtypeMap;
-
     prism
-        .value()
-        .forEach(
-            m -> {
-              final var type = m.toString();
-              json.put(type, prism.jsonSettings());
-              subtypes.put(type, prism.subtypes());
-            });
+      .value()
+      .forEach(
+        m -> {
+          final var type = m.toString();
+          json.put(type, prism.jsonSettings());
+          subtypes.put(type, prism.subtypes());
+        });
   }
 
-  static Optional<JsonPrism> getImportedJson(TypeElement type) {
+  static Optional<JsonPrism> importedJson(TypeElement type) {
     return Optional.ofNullable(CTX.get().importedJsonMap.get(type.asType().toString()));
   }
 
-  static List<SubTypePrism> getImportedSubtypes(TypeElement type) {
+  static List<SubTypePrism> importedSubtypes(TypeElement type) {
     return CTX.get().importedSubtypeMap.getOrDefault(type.asType().toString(), List.of());
   }
 

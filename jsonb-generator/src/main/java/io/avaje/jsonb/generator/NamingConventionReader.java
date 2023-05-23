@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.getImportedJson;
+import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 
 import javax.lang.model.element.TypeElement;
 
@@ -11,8 +11,7 @@ final class NamingConventionReader {
   private final NamingConvention namingConvention;
 
   NamingConventionReader(TypeElement element) {
-    final var jsonOptional =
-        JsonPrism.getOptionalOn(element).or(() -> getImportedJson(element));
+    final var jsonOptional = JsonPrism.getOptionalOn(element).or(() -> importedJson(element));
     if (jsonOptional.isEmpty()) {
       typeProperty = null;
       namingConvention = null;

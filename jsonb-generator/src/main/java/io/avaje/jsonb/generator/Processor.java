@@ -143,20 +143,19 @@ public final class Processor extends AbstractProcessor {
    */
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
     importedElements.stream()
-        .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream())
-        .flatMap(
-            prism -> {
-              addImportedPrism(prism);
-              return prism.value().stream();
-            })
-        .forEach(
-            importType -> {
-              // if imported by mixin annotation skip
-              if (mixInImports.contains(importType.toString())) {
-                return;
-              }
-              writeAdapterForType((TypeElement) asElement(importType));
-            });
+      .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream())
+      .flatMap(prism -> {
+        addImportedPrism(prism);
+        return prism.value().stream();
+      })
+      .forEach(
+        importType -> {
+          // if imported by mixin annotation skip
+          if (mixInImports.contains(importType.toString())) {
+            return;
+          }
+          writeAdapterForType((TypeElement) asElement(importType));
+        });
   }
 
   private void initialiseComponent() {
@@ -209,10 +208,8 @@ public final class Processor extends AbstractProcessor {
             || typeElement.getKind() == ElementKind.INTERFACE)
         && !SubTypePrism.isPresent(typeElement)
         && !SubTypesPrism.isPresent(typeElement)
-        && getImportedSubtypes(typeElement).isEmpty()) {
-      logNote(
-          "Type %s is abstract and has no configured subtypes. No Adapter will be generated for it.",
-          typeElement);
+        && importedSubtypes(typeElement).isEmpty()) {
+      logNote("Type %s is abstract and has no configured subtypes. No Adapter will be generated for it.", typeElement);
       return;
     }
 
