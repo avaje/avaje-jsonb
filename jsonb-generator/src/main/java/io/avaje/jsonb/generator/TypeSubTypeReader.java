@@ -2,7 +2,7 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeElement;
-import static io.avaje.jsonb.generator.ProcessingContext.getImportedSubtypes;
+import static io.avaje.jsonb.generator.ProcessingContext.importedSubtypes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +28,7 @@ final class TypeSubTypeReader {
   }
 
   void read() {
-    getImportedSubtypes(baseType).stream().map(TypeSubTypeMeta::new).forEach(subTypes::add);
+    importedSubtypes(baseType).stream().map(TypeSubTypeMeta::new).forEach(subTypes::add);
     for (final AnnotationMirror mirror : baseType.getAnnotationMirrors()) {
       final SubTypePrism subtypePrism = SubTypePrism.getInstance(mirror);
       final SubTypesPrism subtypesPrism = SubTypesPrism.getInstance(mirror);
