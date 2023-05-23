@@ -52,7 +52,7 @@ And add avaje-jsonb-generator as a annotation processor.
 <!-- Annotation processors -->
 <dependency>
   <groupId>io.avaje</groupId>
-  <artifactId>avaje.jsonb-generator</artifactId>
+  <artifactId>avaje-jsonb-generator</artifactId>
   <version>${avaje.jsonb.version}</version>
   <scope>provided</scope>
 </dependency>
