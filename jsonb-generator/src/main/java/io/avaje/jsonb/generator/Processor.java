@@ -91,16 +91,16 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void cascadeTypesInner() {
-    ArrayList<BeanReader> copy = new ArrayList<>(allReaders);
+    final ArrayList<BeanReader> copy = new ArrayList<>(allReaders);
     allReaders.clear();
 
-    Set<String> extraTypes = new TreeSet<>();
-    for (BeanReader reader : copy) {
+    final Set<String> extraTypes = new TreeSet<>();
+    for (final BeanReader reader : copy) {
       reader.cascadeTypes(extraTypes);
     }
-    for (String type : extraTypes) {
+    for (final String type : extraTypes) {
       if (!ignoreType(type)) {
-        TypeElement element = element(type);
+        final TypeElement element = element(type);
         if (cascadeElement(element)) {
           writeAdapterForType(element);
         }
@@ -142,15 +142,21 @@ public final class Processor extends AbstractProcessor {
    * Elements that have a {@code @Json.Import} annotation.
    */
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
-    for (final Element importedElement : importedElements) {
-      for (final TypeMirror importType : ImportPrism.getInstanceOn(importedElement).value()) {
-        // if imported by mixin annotation skip
-        if (mixInImports.contains(importType.toString())) {
-          continue;
-        }
-        writeAdapterForType((TypeElement) asElement(importType));
-      }
-    }
+    importedElements.stream()
+        .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream())
+        .flatMap(
+            prism -> {
+              addImportedPrism(prism);
+              return prism.value().stream();
+            })
+        .forEach(
+            importType -> {
+              // if imported by mixin annotation skip
+              if (mixInImports.contains(importType.toString())) {
+                return;
+              }
+              writeAdapterForType((TypeElement) asElement(importType));
+            });
   }
 
   private void initialiseComponent() {
@@ -202,7 +208,8 @@ public final class Processor extends AbstractProcessor {
     if ((typeElement.getModifiers().contains(Modifier.ABSTRACT)
             || typeElement.getKind() == ElementKind.INTERFACE)
         && !SubTypePrism.isPresent(typeElement)
-        && !SubTypesPrism.isPresent(typeElement)) {
+        && !SubTypesPrism.isPresent(typeElement)
+        && getImportedSubtypes(typeElement).isEmpty()) {
       logNote(
           "Type %s is abstract and has no configured subtypes. No Adapter will be generated for it.",
           typeElement);
@@ -210,7 +217,7 @@ public final class Processor extends AbstractProcessor {
     }
 
     beanReader.read();
-    
+
     if (beanReader.nonAccessibleField()) {
       if (beanReader.hasJsonAnnotation()) {
         logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);

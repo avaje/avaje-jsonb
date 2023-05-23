@@ -51,7 +51,8 @@ final class TypeReader {
           .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     }
     this.namingConvention = namingConvention;
-    this.hasJsonAnnotation = JsonPrism.isPresent(baseType);
+    this.hasJsonAnnotation =
+        JsonPrism.isPresent(baseType) || getImportedJson(baseType).isPresent();
     this.subTypes = new TypeSubTypeReader(baseType);
     this.typePropertyKey = typePropertyKey;
   }

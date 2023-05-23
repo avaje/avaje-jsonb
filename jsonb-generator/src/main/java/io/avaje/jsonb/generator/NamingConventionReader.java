@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.getImportedJson;
+
 import javax.lang.model.element.TypeElement;
 
 final class NamingConventionReader {
@@ -9,13 +11,15 @@ final class NamingConventionReader {
   private final NamingConvention namingConvention;
 
   NamingConventionReader(TypeElement element) {
-    final JsonPrism jsonAnnotation = JsonPrism.getInstanceOn(element);
-    if (jsonAnnotation == null) {
+    final var jsonOptional =
+        JsonPrism.getOptionalOn(element).or(() -> getImportedJson(element));
+    if (jsonOptional.isEmpty()) {
       typeProperty = null;
       namingConvention = null;
       caseInsensitiveKeys = false;
       return;
     }
+    final var jsonAnnotation = jsonOptional.get();
     namingConvention = NamingConvention.of(naming(jsonAnnotation.naming()));
     typeProperty = Util.escapeQuotes(jsonAnnotation.typeProperty());
     caseInsensitiveKeys = jsonAnnotation.caseInsensitiveKeys();

@@ -8,6 +8,8 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import io.avaje.jsonb.Json.Import.List;
+
 /**
  * Marks a type for JSON support.
  *
@@ -53,27 +55,38 @@ public @interface Json {
 
   /**
    * Specify types to generate JsonAdapters for.
-   * <p>
-   * These types are typically in an external project / dependency or otherwise
-   * types that we can't or don't want to explicitly annotate with {@code @Json}.
-   * <p>
-   * Typically, we put this annotation on a package.
+   *
+   * <p>These types are typically in an external project / dependency or otherwise types that we
+   * can't or don't want to explicitly annotate with {@code @Json}.
+   *
+   * <p>Typically, we put this annotation on a package.
    *
    * <pre>{@code
-   *
-   *   @Json.Import({Customer.class, Product.class, ...})
-   *   package org.example.processor;
+   * @Json.Import({Customer.class, Product.class, ...})
+   * package org.example.processor;
    *
    * }</pre>
    */
   @Retention(CLASS)
+  @Repeatable(List.class)
   @Target({ElementType.TYPE, ElementType.PACKAGE})
   @interface Import {
 
-    /**
-     * Specify types to generate Json Adapters for.
-     */
+    /** Specify types to generate Json Adapters for. */
     Class<?>[] value();
+
+    /** Specify the Json setting to apply to the imported classes */
+    Json jsonSettings() default @Json;
+
+    /** Specify the Subtype information. Can only be used if there is only one abstract type being imported */
+    SubType[] subtypes() default {};
+
+    @Retention(CLASS)
+    @Target({ElementType.TYPE, ElementType.PACKAGE})
+    public @interface List {
+
+      Import[] value();
+    }
   }
 
   /**
