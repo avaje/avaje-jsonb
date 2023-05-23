@@ -1,6 +1,10 @@
 package io.avaje.jsonb.generator;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -28,6 +32,8 @@ final class ProcessingContext {
     private final Filer filer;
     private final Elements elements;
     private final Types types;
+    private final Map<String, JsonPrism> importedJsonMap= new HashMap<>();
+    private final Map<String, List< SubTypePrism>> importedSubtypeMap= new HashMap<>();
 
     Ctx(ProcessingEnvironment env) {
       this.env = env;
@@ -110,6 +116,34 @@ final class ProcessingContext {
 
   static ProcessingEnvironment env() {
     return CTX.get().env;
+  }
+
+  static void addImportedPrism(ImportPrism prism) {
+
+    if (!prism.subtypes().isEmpty() && prism.value().size() > 1) {
+
+      throw new IllegalStateException(
+          "subtypes cannot be used when an import annotation imports more than one class");
+    }
+    final var json = CTX.get().importedJsonMap;
+    final var subtypes = CTX.get().importedSubtypeMap;
+
+    prism
+        .value()
+        .forEach(
+            m -> {
+              final var type = m.toString();
+              json.put(type, prism.jsonSettings());
+              subtypes.put(type, prism.subtypes());
+            });
+  }
+
+  static Optional<JsonPrism> getImportedJson(TypeElement type) {
+    return Optional.ofNullable(CTX.get().importedJsonMap.get(type.asType().toString()));
+  }
+
+  static List<SubTypePrism> getImportedSubtypes(TypeElement type) {
+    return CTX.get().importedSubtypeMap.getOrDefault(type.asType().toString(), List.of());
   }
 
   static void clear() {
