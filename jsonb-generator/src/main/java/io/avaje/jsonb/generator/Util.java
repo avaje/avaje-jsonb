@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.element;
+
 final class Util {
 
   static boolean validImportType(String type) {
@@ -102,18 +104,15 @@ final class Util {
    * Remove the "jsonb" sub-package and the "JsonAdapter" suffix.
    */
   static String baseTypeOfAdapter(String adapterFullName) {
-    int posLast = adapterFullName.lastIndexOf('.');
-    int posPrior = adapterFullName.lastIndexOf('.', posLast - 1);
-    int nameEnd = adapterFullName.length() - 11; // "JsonAdapter".length();
-    if (posPrior == -1) {
-      return adapterFullName.substring(posLast + 1, nameEnd);
-    }
-
-    final String className = adapterFullName.substring(0, posPrior) + adapterFullName.substring(posLast, nameEnd);
-    final int $index = className.indexOf("$");
-    if ($index != -1) {
-      return className.substring(0, $index);
-    }
-    return className;
+    return element(adapterFullName).getInterfaces().stream()
+        .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
+        .findFirst()
+        .map(Object::toString)
+        .map(GenericType::parse)
+        .map(GenericType::firstParamType)
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "Adapter: " + adapterFullName + " does not directly implement JsonAdapter"));
   }
 }
