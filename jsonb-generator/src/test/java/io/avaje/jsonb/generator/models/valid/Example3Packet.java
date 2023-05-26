@@ -11,4 +11,8 @@ public class Example3Packet extends Packet {
   public Character getIds() {
     return ids;
   }
+
+ public static class Example2Packet {
+
+ }
 }

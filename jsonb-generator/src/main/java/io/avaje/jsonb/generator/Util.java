@@ -99,10 +99,7 @@ final class Util {
     return sb.toString();
   }
 
-  /**
-   * Return the base type given the JsonAdapter type.
-   * Remove the "jsonb" sub-package and the "JsonAdapter" suffix.
-   */
+  /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
     return element(adapterFullName).getInterfaces().stream()
         .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
@@ -110,9 +107,35 @@ final class Util {
         .map(Object::toString)
         .map(GenericType::parse)
         .map(GenericType::firstParamType)
+        .map(Util::extractTypeWithNest)
         .orElseThrow(
             () ->
                 new IllegalStateException(
                     "Adapter: " + adapterFullName + " does not directly implement JsonAdapter"));
+  }
+
+  static String extractTypeWithNest(String fullType) {
+    final int p = fullType.lastIndexOf('.');
+    if (p == -1 || fullType.startsWith("java")) {
+      return fullType;
+    } else {
+      final StringBuilder result = new StringBuilder();
+      var foundClass = false;
+      var firstClass = true;
+      for (final String part : fullType.split("\\.")) {
+
+        if (Character.isUpperCase(part.charAt(0))) {
+          foundClass = true;
+        }
+        result.append(foundClass && !firstClass ? "$" : ".").append(part);
+        if (foundClass) {
+          firstClass = false;
+        }
+      }
+      if (result.charAt(0) == '.') {
+        result.deleteCharAt(0);
+      }
+      return result.toString();
+    }
   }
 }
