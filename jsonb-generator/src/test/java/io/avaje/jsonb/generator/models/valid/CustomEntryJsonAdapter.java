@@ -1,6 +1,5 @@
 package io.avaje.jsonb.generator.models.valid;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
@@ -20,14 +19,12 @@ public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
   private final JsonAdapter<V> generic2;
   private final PropertyNames names;
 
-  public static final JsonAdapter.Factory FACTORY =
-      (type, jsonb) -> {
-        if (Types.isGenericTypeOf(type, Entry.class)) {
-
-          return new CustomEntryJsonAdapter<>(jsonb, Types.typeArguments(type));
-        }
-        return null;
-      };
+  public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+    if (Types.isGenericTypeOf(type, Entry.class)) {
+      return new CustomEntryJsonAdapter<>(jsonb, Types.typeArguments(type));
+    }
+    return null;
+  };
 
   public CustomEntryJsonAdapter(Jsonb jsonb, Type[] types) {
     this.generic1 = jsonb.adapter(types[0]);
@@ -37,7 +34,6 @@ public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
 
   @Override
   public void toJson(JsonWriter writer, Entry<K, V> value) {
-
     writer.beginObject(names);
     writer.name(0);
     generic1.toJson(writer, value.getKey());
@@ -70,7 +66,6 @@ public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
       }
     }
     reader.endObject();
-
     return new SimpleImmutableEntry<>(key, val);
   }
 }

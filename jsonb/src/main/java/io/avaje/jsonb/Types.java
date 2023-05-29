@@ -126,7 +126,6 @@ public class Types {
 
   /** Helper method to determine if the given type can be handled by an adapter */
   public static boolean isGenericTypeOf(Type jsonType, Class<?> adapterClass) {
-
     return (jsonType instanceof GenericArrayType || jsonType instanceof ParameterizedType)
             && rawType(jsonType) == adapterClass;
   }

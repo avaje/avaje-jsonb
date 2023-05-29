@@ -33,16 +33,17 @@ import java.lang.annotation.Target;
  * <pre>{@code
  * @CustomAdapter(isGeneric=true)
  * public class CustomJsonAdapter<T> implements JsonAdapter<GenericType<T>> {
+ *
  *   private final JsonAdapter<T> genericTypeAdapter;
  *   private final PropertyNames names;
- *   public static final JsonAdapter.Factory FACTORY =
- *     (type, jsonb) -> {
- *       if (Types.isGenericTypeOf(type, GenericType.class)) {
  *
- *          return new CustomJsonAdapter<>(jsonb, Types.typeArguments(type));
- *        }
- *        return null;
- *      };
+ *   public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+ *       if (Types.isGenericTypeOf(type, GenericType.class)) {
+ *         return new CustomJsonAdapter<>(jsonb, Types.typeArguments(type))
+ *       }
+ *       return null;
+ *     };
+ *
  *   public CustomJsonAdapter(Jsonb jsonb, Type[] types) {
  *     //use the jsonb adapter method to get type serializers
  *     genericTypeAdapter = jsonb.adapter(types[0]);
@@ -55,5 +56,9 @@ import java.lang.annotation.Target;
  */
 @Target(TYPE)
 public @interface CustomAdapter {
+
+  /**
+   * Set to true when the adapter is for a type that uses generics.
+   */
   boolean isGeneric() default false;
 }
