@@ -76,7 +76,24 @@ public final class Processor extends AbstractProcessor {
   private void registerCustomAdapters(Set<? extends Element> elements) {
 
     for (final var typeElement : ElementFilter.typesIn(elements)) {
-      metaData.add(typeElement.getQualifiedName().toString());
+      final var type = typeElement.getQualifiedName().toString();
+      if (CustomAdapterPrism.getInstanceOn(typeElement).isGeneric()) {
+
+        ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
+            .filter(
+                v ->
+                    v.getModifiers().contains(Modifier.STATIC)
+                        && "FACTORY".equals(v.getSimpleName().toString()))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Generic Adapters require a public static JsonAdapter.Factory FACTORY field"));
+
+        metaData.addFactory(type);
+      } else {
+        metaData.add(type);
+      }
     }
   }
 

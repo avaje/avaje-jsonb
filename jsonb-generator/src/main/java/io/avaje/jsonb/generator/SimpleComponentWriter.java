@@ -58,7 +58,7 @@ final class SimpleComponentWriter {
     final List<String> strings = metaData.allFactories();
     for (final String adapterFullName : strings) {
       final String adapterShortName = Util.shortName(adapterFullName);
-      writer.append("    builder.add(%s.Factory);", adapterShortName).eol();
+      writer.append("    builder.add(%s.FACTORY);", adapterShortName).eol();
     }
 
     for (final String adapterFullName : metaData.all()) {

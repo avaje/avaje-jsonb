@@ -72,6 +72,10 @@ final class ComponentMetaData {
 
       packageImports.add($index != -1 ? className.substring(0, $index) : className);
     }
+
+    for (final String adapterFullName : factoryTypes) {
+      packageImports.add(Util.packageOf(adapterFullName) + ".*");
+    }
     return packageImports;
   }
 }

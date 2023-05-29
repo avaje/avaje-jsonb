@@ -28,4 +28,6 @@ import java.lang.annotation.Target;
  * }</pre>
  */
 @Target(TYPE)
-public @interface CustomAdapter {}
+public @interface CustomAdapter {
+  boolean isGeneric() default false;
+}

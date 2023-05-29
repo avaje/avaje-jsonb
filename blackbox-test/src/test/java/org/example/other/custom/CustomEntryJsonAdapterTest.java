@@ -1,22 +1,21 @@
 package org.example.other.custom;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.example.other.place.MyOtherClass;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 
+import org.junit.jupiter.api.Test;
+
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.Types;
 
-class CustomJsonAdapterTest {
+class CustomEntryJsonAdapterTest {
 
   Jsonb jsonb = Jsonb.builder().build();
-  JsonType<Entry> jsonType = jsonb.type(Entry.class);
+  JsonType<Entry<String, String>> jsonType =
+      jsonb.type(Types.newParameterizedType(Entry.class, String.class, String.class));
 
   @Test
   void toFromJson() {
