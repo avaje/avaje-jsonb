@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  *   private final PropertyNames names;
  *   public static final JsonAdapter.Factory FACTORY =
  *     (type, jsonb) -> {
- *       if (Types.isTypeOf(type, GenericType.class)) {
+ *       if (Types.isGenericTypeOf(type, GenericType.class)) {
  *
  *          return new CustomJsonAdapter<>(jsonb, Types.typeArguments(type));
  *        }
