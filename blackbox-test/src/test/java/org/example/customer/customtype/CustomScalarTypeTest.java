@@ -50,7 +50,7 @@ class CustomScalarTypeTest {
     assertThat(wrapper1.custom()).isEqualTo(wrapper.custom());
   }
 
-  static class CustomTypeAdapter extends JsonAdapter<MyCustomScalarType> {
+  static class CustomTypeAdapter implements JsonAdapter<MyCustomScalarType> {
 
     @Override
     public void toJson(JsonWriter writer, MyCustomScalarType value) {

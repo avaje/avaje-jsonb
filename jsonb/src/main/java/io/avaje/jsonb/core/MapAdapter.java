@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Converts maps with string keys to JSON objects.
  */
-final class MapAdapter<V> extends JsonAdapter<Map<String, V>> {
+final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
 
   static final Factory FACTORY = (type, jsonb) -> {
     Class<?> rawType = Util.rawType(type);

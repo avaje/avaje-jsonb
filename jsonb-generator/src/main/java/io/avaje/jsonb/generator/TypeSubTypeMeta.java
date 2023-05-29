@@ -2,8 +2,12 @@ package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.lang.model.element.TypeElement;
-import java.util.*;
 
 final class TypeSubTypeMeta {
 
@@ -13,6 +17,7 @@ final class TypeSubTypeMeta {
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
   private final List<MethodReader> publicConstructors = new ArrayList<>();
+  private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
   @Override
   public String toString() {
@@ -51,16 +56,16 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
-  void writeFromJsonBuild(Append writer, String typeVar, String varName, ClassReader beanReader, boolean useSwitch, boolean useEnum) {
-    if (useSwitch) {
-      if (useEnum) {
+  void writeFromJsonBuild(Append writer, String varName, SubTypeRequest req) {
+    if (req.useSwitch()) {
+      if (req.useEnum()) {
         writer.append("      case %s", name()).appendSwitchCase().eol();
       } else {
         writer.append("      case \"%s\"", name()).appendSwitchCase().eol();
       }
       writer.append("  ");
-      writeFromJsonConstructor(writer, varName, beanReader);
-      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writeFromJsonConstructor(writer, varName, req);
+      writeFromJsonSetters(writer, varName, req);
       if (useEnhancedSwitch()) {
         writer.append("        yield _$%s;", varName).eol();
         writer.append("      }").eol();
@@ -68,22 +73,22 @@ final class TypeSubTypeMeta {
         writer.append("        return _$%s;", varName).eol();
       }
     } else {
-      if (useEnum) {
-        writer.append("    if (%s.equals(%s)) {", name(), typeVar).eol();
+      if (req.useEnum()) {
+        writer.append("    if (%s.equals(%s)) {", name(), req.typeVar()).eol();
       } else {
-        writer.append("    if (\"%s\".equals(%s)) {", name(), typeVar).eol();
+        writer.append("    if (\"%s\".equals(%s)) {", name(), req.typeVar()).eol();
       }
-      writeFromJsonConstructor(writer, varName, beanReader);
-      writeFromJsonSetters(writer, varName, beanReader, useSwitch);
+      writeFromJsonConstructor(writer, varName, req);
+      writeFromJsonSetters(writer, varName, req);
       writer.append("      return _$%s;", varName).eol();
       writer.append("    }").eol();
     }
   }
 
-  private void writeFromJsonSetters(Append writer, String varName, ClassReader beanReader, boolean useSwitch) {
-    for (final FieldReader field : beanReader.allFields()) {
+  private void writeFromJsonSetters(Append writer, String varName, SubTypeRequest req) {
+    for (final FieldReader field : req.beanReader().allFields()) {
       if (isIncludeSetter(field)) {
-        if (useSwitch) {
+        if (req.useSwitch()) {
           writer.append("  ");
         }
         field.writeFromJsonSetter(writer, varName, "  ");
@@ -95,9 +100,8 @@ final class TypeSubTypeMeta {
     return field.includeFromJson() && !constructorFieldNames.contains(field.fieldName()) && field.includeForType(this);
   }
 
-  private final Set<String> constructorFieldNames = new LinkedHashSet<>();
 
-  private void writeFromJsonConstructor(Append writer, String varName, ClassReader beanReader) {
+  private void writeFromJsonConstructor(Append writer, String varName, SubTypeRequest req) {
     writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
     final MethodReader constructor = findConstructor();
     if (constructor != null) {
@@ -106,9 +110,16 @@ final class TypeSubTypeMeta {
         if (i > 0) {
           writer.append(", ");
         }
-        final String paramName = params.get(i).name();
+        final var param = params.get(i);
+        final String paramName = param.name();
         constructorFieldNames.add(paramName);
-        writer.append(beanReader.constructorParamName(paramName)); // assuming name matches field here?
+        var constructParamName = req.beanReader().constructorParamName(paramName);
+        if (constructParamName.startsWith("_val$") && req.isCommonField(paramName)) {
+          final var frequencySuffix = req.frequencySuffix(constructParamName);
+          constructParamName = constructParamName + frequencySuffix;
+        }
+
+        writer.append(constructParamName); // assuming name matches field here?
       }
     }
     writer.append(");").eol();

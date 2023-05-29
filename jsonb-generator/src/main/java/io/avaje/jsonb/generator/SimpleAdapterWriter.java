@@ -1,9 +1,11 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.*;
-import javax.tools.JavaFileObject;
+import static io.avaje.jsonb.generator.ProcessingContext.createWriter;
+
 import java.io.IOException;
 import java.io.Writer;
+
+import javax.tools.JavaFileObject;
 
 final class SimpleAdapterWriter {
 
@@ -17,7 +19,7 @@ final class SimpleAdapterWriter {
 
   SimpleAdapterWriter(BeanReader beanReader) {
     this.beanReader = beanReader;
-    AdapterName adapterName = new AdapterName(beanReader.getBeanType());
+    final AdapterName adapterName = new AdapterName(beanReader.getBeanType());
     this.adapterShortName = adapterName.shortName();
     this.adapterPackage = adapterName.adapterPackage();
     this.adapterFullName = adapterName.fullName();
@@ -29,7 +31,7 @@ final class SimpleAdapterWriter {
   }
 
   private Writer createFileWriter() throws IOException {
-    JavaFileObject jfo = createWriter(adapterFullName);
+    final JavaFileObject jfo = createWriter(adapterFullName);
     return jfo.openWriter();
   }
 
@@ -53,12 +55,12 @@ final class SimpleAdapterWriter {
   private void writeFactory() {
     if (genericParamsCount > 0) {
       String typeName = adapterShortName;
-      int nestedIndex = adapterShortName.indexOf("$");
+      final int nestedIndex = adapterShortName.indexOf("$");
       if (nestedIndex != -1) {
         typeName = typeName.substring(nestedIndex + 1);
       }
-      writer.append("  public static final JsonAdapter.Factory Factory = (type, jsonb) -> {").eol();
-      writer.append("    if (type instanceof ParameterizedType && Types.rawType(type) == %s.class) {", typeName).eol();
+      writer.append("  public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {").eol();
+      writer.append("    if (Types.isGenericTypeOf(type, %s.class)) {", typeName).eol();
       writer.append("      Type[] args = Types.typeArguments(type);").eol();
       writer.append("      return new %sJsonAdapter(jsonb", adapterShortName);
       for (int i = 0; i < genericParamsCount; i++) {
@@ -107,9 +109,9 @@ final class SimpleAdapterWriter {
 
   private void writeClassStart() {
     writer.append("@Generated").eol();
-    writer.append("public final class %sJsonAdapter extends JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
+    writer.append("public final class %sJsonAdapter implements JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
     if (!beanReader.hasSubtypes()) {
-      writer.append("implements ViewBuilderAware ");
+      writer.append(", ViewBuilderAware ");
     }
     writer.append("{").eol().eol();
   }

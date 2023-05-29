@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.element;
+
 final class Util {
 
   static boolean validImportType(String type) {
@@ -97,23 +99,43 @@ final class Util {
     return sb.toString();
   }
 
-  /**
-   * Return the base type given the JsonAdapter type.
-   * Remove the "jsonb" sub-package and the "JsonAdapter" suffix.
-   */
+  /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
-    int posLast = adapterFullName.lastIndexOf('.');
-    int posPrior = adapterFullName.lastIndexOf('.', posLast - 1);
-    int nameEnd = adapterFullName.length() - 11; // "JsonAdapter".length();
-    if (posPrior == -1) {
-      return adapterFullName.substring(posLast + 1, nameEnd);
-    }
+    return element(adapterFullName).getInterfaces().stream()
+        .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
+        .findFirst()
+        .map(Object::toString)
+        .map(GenericType::parse)
+        .map(GenericType::firstParamType)
+        .map(Util::extractTypeWithNest)
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "Adapter: " + adapterFullName + " does not directly implement JsonAdapter"));
+  }
 
-    final String className = adapterFullName.substring(0, posPrior) + adapterFullName.substring(posLast, nameEnd);
-    final int $index = className.indexOf("$");
-    if ($index != -1) {
-      return className.substring(0, $index);
+  static String extractTypeWithNest(String fullType) {
+    final int p = fullType.lastIndexOf('.');
+    if (p == -1 || fullType.startsWith("java")) {
+      return fullType;
+    } else {
+      final StringBuilder result = new StringBuilder();
+      var foundClass = false;
+      var firstClass = true;
+      for (final String part : fullType.split("\\.")) {
+
+        if (Character.isUpperCase(part.charAt(0))) {
+          foundClass = true;
+        }
+        result.append(foundClass && !firstClass ? "$" : ".").append(part);
+        if (foundClass) {
+          firstClass = false;
+        }
+      }
+      if (result.charAt(0) == '.') {
+        result.deleteCharAt(0);
+      }
+      return result.toString();
     }
-    return className;
   }
 }

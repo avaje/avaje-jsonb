@@ -10,7 +10,7 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 
-public final class MyIntEnumJsonAdapter extends JsonAdapter<MyIntEnum> {
+public final class MyIntEnumJsonAdapter implements JsonAdapter<MyIntEnum> {
 
   private static final Map<MyIntEnum, Integer> toValue = new EnumMap<>(MyIntEnum.class);
   private static final Map<Integer, MyIntEnum> toEnum = new HashMap<>();

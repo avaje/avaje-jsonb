@@ -1,7 +1,6 @@
 package io.avaje.jsonb.generator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +57,7 @@ class ProcessorTest {
 
     final CompilationTask task =
         compiler.getTask(
-            new PrintWriter(System.out), null, null, Arrays.asList("--release=8"), null, files);
+            new PrintWriter(System.out), null, null, Arrays.asList("--release=11"), null, files);
     task.setProcessors(Arrays.asList(new Processor()));
 
     assertThat(task.call()).isTrue();
@@ -73,7 +72,7 @@ class ProcessorTest {
 
     final CompilationTask task =
         compiler.getTask(
-            new PrintWriter(System.out), null, null, Arrays.asList("--release=8"), null, files);
+            new PrintWriter(System.out), null, null, Arrays.asList("--release=11"), null, files);
     task.setProcessors(Arrays.asList(new Processor()));
 
     assertThat(task.call()).isFalse();
@@ -81,24 +80,6 @@ class ProcessorTest {
         .sorted(Comparator.reverseOrder())
         .map(Path::toFile)
         .forEach(File::delete);
-  }
-
-  @Test
-  void testInvalidCollection() throws Exception {
-
-    final Iterable<JavaFileObject> files = getInvalidSourceFile("InvalidCollection");
-
-    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-
-    final CompilationTask task =
-        compiler.getTask(
-            new PrintWriter(System.out), null, null, Arrays.asList("--release=8"), null, files);
-    task.setProcessors(Arrays.asList(new Processor()));
-
-    assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(task::call)
-        .havingCause()
-        .isInstanceOf(IllegalArgumentException.class);
   }
 
   private Iterable<JavaFileObject> getInvalidSourceFile(String name) throws Exception {

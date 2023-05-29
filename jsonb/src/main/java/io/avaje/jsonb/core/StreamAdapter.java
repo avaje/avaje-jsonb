@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
-final class StreamAdapter<T> extends JsonAdapter<Stream<T>> implements DJsonClosable<Stream<T>> {
+final class StreamAdapter<T> implements JsonAdapter<Stream<T>>, DJsonClosable<Stream<T>> {
 
   private final JsonAdapter<T> elementAdapter;
 

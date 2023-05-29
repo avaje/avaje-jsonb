@@ -5,16 +5,17 @@
 
 # [Avaje-JsonB](https://avaje.io/jsonb/)
 
-Fast, reflection-free Json binding via apt source code generation. A light (~188kb + generated code) source code generation style alternative to Jacksons ObjectMapper, Gson (code generation vs reflection)
+Fast, reflection-free Json binding via apt source code generation. A light (~188kb + generated code) source code generation style alternative to Jackson's ObjectMapper or Gson. (code generation vs reflection)
 
 - Annotate java classes with `@Json` (or use `@Json.Import` for types we "don't own" or can't annotate)
 - `avaje-jsonb-generator` annotation processor generates java source code to convert to/from json
 - No need to manually register generated adapters. (Uses ServiceLoader to auto-register)
 - Constructors and accessors/getters/setters of any style "just work" (records, constructors, 'fluid setters')
 - Jackson-like annotations: `@Json.Raw`, `@Json.Property`, `@Json.Ignore`, `@Json.Alias`, etc.
-- Support Mixins (adding jsonb features to types we can't directly annotate).
+- Support Imports and Mixins (adding jsonb features to types we can't directly annotate).
 - Supports Generic Types.
 - Provides support for dynamic json views (similar in style to that presented by [LinkedIn at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
+- One of the top three [fastest JSON libraries](https://github.com/fabienrenaud/java-json-benchmark#users-model)
 
 ### Built-in Type Adapters
 
@@ -46,13 +47,13 @@ Built-in support for reading and writing Java’s core data types:
 </dependency>
 ```
 
-And add avaje-jsonb-generator as a annotation processor
+And add avaje-jsonb-generator as a annotation processor.
 ```xml
 
 <!-- Annotation processors -->
 <dependency>
   <groupId>io.avaje</groupId>
-  <artifactId>avaje.jsonb-generator</artifactId>
+  <artifactId>avaje-jsonb-generator</artifactId>
   <version>${avaje.jsonb.version}</version>
   <scope>provided</scope>
 </dependency>
@@ -98,17 +99,17 @@ JsonType<Customer> customerType = jsonb.type(Customer.class);
 
 Customer customer = ...;
 
-// serialise to json
+// serialize to json
 String asJson =  customerType.toJson(customer);
 
-// deserialse from json
+// deserialize from json
 Customer customer = customerType.fromJson(asJson);
 ```
 
 ## Step 4 - Use Json views
 
 `avaje-jsonb` supports dynamic json views. This allows us to specify which specific properties
-to include when serialising to json.
+to include when serializing to json.
 
 For example:
 
@@ -139,7 +140,7 @@ String asJson =  myView.toJson(customer);
 - Has no fallback to reflection - jsonb is code generation or bust.`
 - JsonReader - Make JsonReader an interface, default implementation using `Jsonb JsonReadAdapter`
 - JsonWriter - Make JsonWriter an interface, default implementation using `Jsonb JsonWriteAdapter`
-- JsonAdapter -> JsonAdapter, the key design principal of Moshi remains as is.
+- JsonAdapter -> Make JsonAdapter an interface.
 - Moshi -> Jsonb - Rename Moshi to Jsonb and make it an interface
 - Moshi.Builder -> Jsonb.Builder - Basically the same but Jsonb.Builder as interface plus added Component and AdapterBuilder
 - Add JsonType for a more friendly API to use rather than underlying JsonAdapter

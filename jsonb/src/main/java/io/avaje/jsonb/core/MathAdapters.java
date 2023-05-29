@@ -26,7 +26,7 @@ final class MathAdapters implements JsonAdapter.Factory {
     return null;
   }
 
-  private static final class DecimalString extends JsonAdapter<BigDecimal> {
+  private static final class DecimalString implements JsonAdapter<BigDecimal> {
     @Override
     public BigDecimal fromJson(JsonReader reader) {
       return new BigDecimal(reader.readString());
@@ -43,7 +43,7 @@ final class MathAdapters implements JsonAdapter.Factory {
     }
   }
 
-  private static final class DecimalNumber extends JsonAdapter<BigDecimal> {
+  private static final class DecimalNumber implements JsonAdapter<BigDecimal> {
     @Override
     public BigDecimal fromJson(JsonReader reader) {
       return reader.readDecimal();
@@ -60,7 +60,7 @@ final class MathAdapters implements JsonAdapter.Factory {
     }
   }
 
-  private static final class BigIntString extends JsonAdapter<BigInteger> {
+  private static final class BigIntString implements JsonAdapter<BigInteger> {
     @Override
     public BigInteger fromJson(JsonReader reader) {
       return new BigInteger(reader.readString());
@@ -77,7 +77,7 @@ final class MathAdapters implements JsonAdapter.Factory {
     }
   }
 
-  private static final class BigIntNumber extends JsonAdapter<BigInteger> {
+  private static final class BigIntNumber implements JsonAdapter<BigInteger> {
     @Override
     public BigInteger fromJson(JsonReader reader) {
       return reader.readBigInteger();

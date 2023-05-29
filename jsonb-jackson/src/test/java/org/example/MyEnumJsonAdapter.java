@@ -12,7 +12,7 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.spi.Generated;
 
 @Generated
-public final class MyEnumJsonAdapter extends JsonAdapter<MyEnum> {
+public final class MyEnumJsonAdapter implements JsonAdapter<MyEnum> {
 
   private static final Map<MyEnum, String> toValue = new EnumMap<>(MyEnum.class);
   private static final Map<String, MyEnum> toEnum = new HashMap<>();

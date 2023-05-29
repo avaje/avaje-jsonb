@@ -200,7 +200,7 @@ final class CoreAdapterBuilder {
   /**
    * This class implements {@code JsonAdapter} so it can be used as a stub for re-entrant calls.
    */
-  static final class Lookup<T> extends JsonAdapter<T> {
+  static final class Lookup<T> implements JsonAdapter<T> {
     final Type type;
     final Object cacheKey;
     JsonAdapter<T> adapter;

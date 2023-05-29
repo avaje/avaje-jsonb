@@ -1,18 +1,10 @@
 package io.avaje.jsonb.generator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class UtilTest {
-
-  @Test
-  void baseTypeOfAdapter() {
-    assertEquals("com.My", Util.baseTypeOfAdapter("com.jsonb.MyJsonAdapter"));
-    assertEquals("com.foo.My", Util.baseTypeOfAdapter("com.foo.jsonb.MyJsonAdapter"));
-    assertEquals("com.foo.bar.SomeType", Util.baseTypeOfAdapter("com.foo.bar.jsonb.SomeTypeJsonAdapter"));
-    assertEquals("SomeType", Util.baseTypeOfAdapter("jsonb.SomeTypeJsonAdapter"));
-  }
 
   @Test
   void initCap() {
