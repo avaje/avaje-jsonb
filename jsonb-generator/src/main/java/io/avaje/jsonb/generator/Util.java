@@ -102,16 +102,13 @@ final class Util {
   /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
     return element(adapterFullName).getInterfaces().stream()
-        .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
-        .findFirst()
-        .map(Object::toString)
-        .map(GenericType::parse)
-        .map(GenericType::firstParamType)
-        .map(Util::extractTypeWithNest)
-        .orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "Adapter: " + adapterFullName + " does not directly implement JsonAdapter"));
+      .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
+      .findFirst()
+      .map(Object::toString)
+      .map(GenericType::parse)
+      .map(GenericType::firstParamType)
+      .map(Util::extractTypeWithNest)
+      .orElseThrow(() -> new IllegalStateException("Adapter: " + adapterFullName + " does not directly implement JsonAdapter"));
   }
 
   static String extractTypeWithNest(String fullType) {
@@ -123,7 +120,6 @@ final class Util {
       var foundClass = false;
       var firstClass = true;
       for (final String part : fullType.split("\\.")) {
-
         if (Character.isUpperCase(part.charAt(0))) {
           foundClass = true;
         }
