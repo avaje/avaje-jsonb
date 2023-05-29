@@ -22,7 +22,7 @@ public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
 
   public static final JsonAdapter.Factory FACTORY =
       (type, jsonb) -> {
-        if (Types.isGenericType(type, Entry.class)) {
+        if (Types.isTypeOf(type, Entry.class)) {
 
           return new CustomEntryJsonAdapter<>(jsonb, Types.typeArguments(type));
         }
