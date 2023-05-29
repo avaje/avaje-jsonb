@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Marks a type as a basic user-provided JsonAdapter to be registered automatically.
  *
- * <p> A custom adapter registered using this annotation must have a public constructor accepting a Jsonb instance, and must directly implement the JsonAdapter Interface.
+ * <p> A custom adapter registered using this annotation must have a public constructor accepting a Jsonb instance (or a public static JsonAdapter.Factory FACTORY field for generic adapters), and must directly implement the JsonAdapter Interface.
  *
  * <h3>Example:</h3>
  *
