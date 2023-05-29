@@ -18,7 +18,13 @@ import javax.lang.model.util.ElementFilter;
 import java.io.IOException;
 import java.util.*;
 
-@SupportedAnnotationTypes({JSON, JSON_IMPORT, JSON_MIXIN, ValuePrism.PRISM_TYPE})
+@SupportedAnnotationTypes({
+  CustomAdapterPrism.PRISM_TYPE,
+  JSON,
+  JSON_IMPORT,
+  JSON_MIXIN,
+  ValuePrism.PRISM_TYPE
+})
 public final class Processor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
@@ -60,13 +66,38 @@ public final class Processor extends AbstractProcessor {
     writeEnumAdapters(round.getElementsAnnotatedWith(element(ValuePrism.PRISM_TYPE)));
     writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(element(JSON_MIXIN)));
     writeAdaptersForImported(round.getElementsAnnotatedWith(element(JSON_IMPORT)));
+    registerCustomAdapters(round.getElementsAnnotatedWith(element(CustomAdapterPrism.PRISM_TYPE)));
     initialiseComponent();
     cascadeTypes();
     writeComponent(round.processingOver());
     return false;
   }
 
-  private void writeEnumAdapters(Set<? extends Element> elements) {
+  private void registerCustomAdapters(Set<? extends Element> elements) {
+
+    for (final var typeElement : ElementFilter.typesIn(elements)) {
+      final var type = typeElement.getQualifiedName().toString();
+      if (CustomAdapterPrism.getInstanceOn(typeElement).isGeneric()) {
+
+        ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
+            .filter(
+                v ->
+                    v.getModifiers().contains(Modifier.STATIC)
+                        && "FACTORY".equals(v.getSimpleName().toString()))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Generic Adapters require a public static JsonAdapter.Factory FACTORY field"));
+
+        metaData.addFactory(type);
+      } else {
+        metaData.add(type);
+      }
+    }
+  }
+
+private void writeEnumAdapters(Set<? extends Element> elements) {
     for (final ExecutableElement element : ElementFilter.methodsIn(elements)) {
       final var typeElement = (TypeElement) element.getEnclosingElement();
       if (typeElement.getKind() != ElementKind.ENUM) {

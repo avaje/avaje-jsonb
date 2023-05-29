@@ -123,4 +123,11 @@ public class Types {
     String className = type == null ? "null" : type.getClass().getName();
     throw new IllegalArgumentException("Expected ParameterizedType but <" + type + "> is of type " + className);
   }
+
+  /** Helper method to determine if the given type can be handled by an adapter */
+  public static boolean isGenericTypeOf(Type jsonType, Class<?> adapterClass) {
+
+    return (jsonType instanceof GenericArrayType || jsonType instanceof ParameterizedType)
+            && rawType(jsonType) == adapterClass;
+  }
 }

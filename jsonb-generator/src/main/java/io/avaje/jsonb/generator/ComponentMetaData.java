@@ -66,7 +66,15 @@ final class ComponentMetaData {
     Set<String> packageImports = new TreeSet<>();
     for (String adapterFullName : allTypes) {
       packageImports.add(Util.packageOf(adapterFullName) + ".*");
-      packageImports.add(Util.baseTypeOfAdapter(adapterFullName));
+
+      final String className = Util.baseTypeOfAdapter(adapterFullName);
+      final int $index = className.indexOf("$");
+
+      packageImports.add($index != -1 ? className.substring(0, $index) : className);
+    }
+
+    for (final String adapterFullName : factoryTypes) {
+      packageImports.add(Util.packageOf(adapterFullName) + ".*");
     }
     return packageImports;
   }
