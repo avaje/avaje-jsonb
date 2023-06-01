@@ -9,7 +9,7 @@
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-parent</artifactId>
-  <version>1.6-RC1</version>
+  <version>1.6-RC2</version>
 
   <packaging>pom</packaging>
   <name>jsonb parent</name>
