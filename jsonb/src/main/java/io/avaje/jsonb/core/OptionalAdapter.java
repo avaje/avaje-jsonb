@@ -10,7 +10,6 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
-/** Converts collection types to JSON arrays containing their converted contents. */
 class OptionalAdapter<T> implements JsonAdapter<Optional<T>> {
 
   public static final JsonAdapter.Factory FACTORY =
