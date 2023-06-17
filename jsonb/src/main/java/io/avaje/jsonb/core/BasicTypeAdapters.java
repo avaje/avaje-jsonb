@@ -152,7 +152,7 @@ final class BasicTypeAdapters {
   static final class CharacterAdapter implements JsonAdapter<Character> {
     @Override
     public Character fromJson(JsonReader reader) {
-      String value = reader.readString();
+      final String value = reader.readString();
       if (value.length() > 1) {
         throw new JsonDataException(String.format("Expected %s but was %s at path %s", "a char", '"' + value + '"', reader.location()));
       } else {
@@ -328,12 +328,15 @@ final class BasicTypeAdapters {
 
     @Override
     public void toJson(JsonWriter writer, Object value) {
-      Class<?> valueClass = value.getClass();
+      final Class<?> valueClass = value.getClass();
       if (valueClass == Object.class) {
         writer.beginObject();
         writer.endObject();
+      } else if (value instanceof Optional) {
+        final var opValue = ((Optional<Object>) value).orElseThrow();
+        toJson(writer, opValue);
       } else {
-        this.jsonb.adapter(this.toJsonType(valueClass)).toJson(writer, value);
+        this.jsonb.adapter(toJsonType(valueClass)).toJson(writer, value);
       }
     }
 

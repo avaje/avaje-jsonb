@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator.models.valid;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.avaje.jsonb.Json;
 
@@ -21,6 +22,8 @@ public class TestClass {
   private Character chara;
 
   private List<String> list;
+
+  private Optional<String> op;
 
   public String getAlias() {
     return alias;
@@ -76,5 +79,13 @@ public class TestClass {
 
   public void setList(List<String> list) {
     this.list = list;
+  }
+
+  public Optional<String> getOp() {
+    return op;
+  }
+
+  public void setOp(Optional<String> op) {
+    this.op = op;
   }
 }

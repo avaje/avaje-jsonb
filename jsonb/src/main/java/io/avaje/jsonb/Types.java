@@ -20,6 +20,7 @@ import io.avaje.jsonb.core.Util;
 import java.lang.reflect.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -68,6 +69,13 @@ public class Types {
    */
   public static ParameterizedType mapOf(Type valueElementType) {
     return newParameterizedType(Map.class, String.class, valueElementType);
+  }
+  
+  /**
+   * Returns a Type that is an Optional of the given element type.
+   */
+  public static ParameterizedType optionalOf(Type valueElementType) {
+    return newParameterizedType(Optional.class, valueElementType);
   }
 
   /**
