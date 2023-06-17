@@ -4,12 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import java.util.*;
-import java.util.stream.Collectors;
 
 final class FieldReader {
 
@@ -33,6 +32,7 @@ final class FieldReader {
   private MethodReader getter;
   private int position;
   private boolean constructorParam;
+  private final boolean optional;
   private boolean genericTypeParameter;
   private int genericTypeParamPosition;
   private final List<String> aliases;
@@ -53,7 +53,7 @@ final class FieldReader {
     this.raw = ignoreReader.raw();
     this.serialize = ignoreReader.serialize();
     this.deserialize = ignoreReader.deserialize();
-
+    optional = rawType.startsWith("java.util.Optional");
     this.propertyName =
         PropertyPrism.getOptionalOn(element)
             .map(PropertyPrism::value)
@@ -320,7 +320,7 @@ final class FieldReader {
     }
     final String shortType = typeParamToObject(genericType.shortType());
     writer.append("    %s _val$%s = %s;", pad(shortType), fieldName + num, defaultValue);
-    if (!constructorParam) {
+    if (!constructorParam && !optional) {
       writer.append(" boolean _set$%s = false;", fieldName + num);
     }
     writer.eol();
@@ -362,7 +362,7 @@ final class FieldReader {
       }
     } else {
       writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
-      if (!constructorParam) {
+      if (!constructorParam && !optional) {
         writer.eol().append("          _set$%s = true;", fieldName);
       }
     }
@@ -374,7 +374,9 @@ final class FieldReader {
       writeFromJsonUnmapped(writer, varName);
       return;
     }
-    if (setter != null) {
+    if (setter != null && optional) {
+      writer.append("%s    _$%s.%s(_val$%s);", prefix, varName, setter.getName(), fieldName + num).eol();
+    } else if (setter != null) {
       writer.append("%s    if (_set$%s) _$%s.%s(_val$%s);", prefix, fieldName + num, varName, setter.getName(), fieldName + num).eol();
     } else if (publicField) {
       writer.append("%s    if (_set$%s) _$%s.%s = _val$%s;", prefix, fieldName + num, varName, fieldName, fieldName + num).eol();

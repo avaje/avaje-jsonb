@@ -14,6 +14,7 @@ public class Optionals {
   OptionalInt intOp;
   OptionalDouble doubleOp;
   OptionalLong longOp;
+  String stringyString;
 
   public Optional<String> getOp() {
     return op;
@@ -46,4 +47,10 @@ public class Optionals {
   public void setLongOp(OptionalLong longOp) {
     this.longOp = longOp;
   }
+
+public String getStringyString() {
+return stringyString;}
+
+public void setStringyString(String stringyString) {
+this.stringyString = stringyString;}
 }

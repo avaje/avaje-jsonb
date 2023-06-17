@@ -39,6 +39,8 @@ final class TypeReader {
 
   private final Map<String, Integer> frequencyMap  = new HashMap<>();
 
+  private boolean optional;
+
   TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
@@ -111,6 +113,9 @@ final class TypeReader {
     final Element mixInField = mixInFields.get(element.getSimpleName().toString());
     if (mixInField != null && mixInField.asType().equals(element.asType())) {
       element = mixInField;
+    }
+    if (element.asType().toString().contains("java.util.Optional")) {
+      optional = true;
     }
     if (includeField(element)) {
       final var frequency = frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
@@ -417,5 +422,9 @@ final class TypeReader {
 
   boolean hasSubTypes() {
     return subTypes.hasSubTypes();
+  }
+
+  public boolean hasOptional() {
+    return optional;
   }
 }
