@@ -48,10 +48,10 @@ class OptionalsTest {
   private Optionals optionals() {
     final var optionals = new Optionals();
 
+    optionals.setStringyString("StringyMcStringFace");
     optionals.setIntOp(21);
     optionals.setDoubleOp(6.9);
     optionals.setLongOp(420);
-    optionals.setStringyString("StringyMcStringFace");
     return optionals;
   }
 
