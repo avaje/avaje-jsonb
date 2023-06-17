@@ -45,7 +45,7 @@ final class CoreAdapterBuilder {
     this.factories.add(CollectionAdapter.FACTORY);
     this.factories.add(MapAdapter.FACTORY);
     this.factories.add(ArrayAdapter.FACTORY);
-    this.factories.add(OptionalAdapter.FACTORY);
+    this.factories.add(OptionalAdapters.FACTORY);
   }
 
   /**
