@@ -327,14 +327,15 @@ final class BasicTypeAdapters {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void toJson(JsonWriter writer, Object value) {
       final Class<?> valueClass = value.getClass();
       if (valueClass == Object.class) {
         writer.beginObject();
         writer.endObject();
       } else if (value instanceof Optional) {
-        final var opValue = ((Optional<Object>) value).orElseThrow();
-        toJson(writer, opValue);
+        final var op = (Optional<Object>) value;
+        op.ifPresentOrElse(v -> toJson(writer, v), writer::nullValue);
       } else {
         this.jsonb.adapter(toJsonType(valueClass)).toJson(writer, value);
       }
