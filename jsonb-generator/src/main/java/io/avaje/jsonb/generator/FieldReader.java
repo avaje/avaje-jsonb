@@ -88,7 +88,7 @@ final class FieldReader {
       primitive = PrimitiveUtil.isPrimitive(shortType);
       defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
       adapterShortType = initAdapterShortType(shortType);
-      adapterFieldName = (primitive ? "p" : "") + initShortName();
+      adapterFieldName = (primitive && !optional ? "p" : "") + initShortName();
     }
   }
 

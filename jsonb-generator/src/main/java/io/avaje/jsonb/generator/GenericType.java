@@ -149,7 +149,7 @@ final class GenericType {
   }
 
   String asTypeDeclaration() {
-    if (params.size() == 0) {
+    if (params.isEmpty()) {
       return asTypeBasic();
     }
     if (params.size() == 1) {
