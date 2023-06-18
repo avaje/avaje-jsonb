@@ -47,7 +47,6 @@ class OptionalAdapters {
 
     @Override
     public Optional<T> fromJson(JsonReader reader) {
-
       return Optional.ofNullable(delegate.fromJson(reader));
     }
 

@@ -48,9 +48,11 @@ public class Optionals {
     this.longOp = longOp;
   }
 
-public String getStringyString() {
-return stringyString;}
+  public String getStringyString() {
+    return stringyString;
+  }
 
-public void setStringyString(String stringyString) {
-this.stringyString = stringyString;}
+  public void setStringyString(String stringyString) {
+    this.stringyString = stringyString;
+  }
 }

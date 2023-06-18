@@ -105,7 +105,9 @@ public interface JsonType<T> extends JsonView<T> {
    */
   JsonType<Map<String, T>> map();
 
-  /** Return the Optional type for this JsonType. */
+  /**
+   * Return the Optional type for this JsonType.
+   */
   JsonType<Optional<T>> optional();
 
   /**
