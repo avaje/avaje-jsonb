@@ -29,7 +29,7 @@ final class PrimitiveUtil {
   }
 
   static String defaultValue(String shortType) {
-    if (shortType.subString(0, 7).equals("Optional")) {
+    if (shortType.length() > 8 && "Optional".equals(shortType.substring(0, 8))) {
       if (shortType.contains("<")) {
         return "Optional.empty()";
       }
