@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -103,6 +104,9 @@ public interface JsonType<T> extends JsonView<T> {
    * Return the map with this type as the value type and string keys.
    */
   JsonType<Map<String, T>> map();
+
+  /** Return the Optional type for this JsonType. */
+  JsonType<Optional<T>> optional();
 
   /**
    * Read the return the value from the reader.
