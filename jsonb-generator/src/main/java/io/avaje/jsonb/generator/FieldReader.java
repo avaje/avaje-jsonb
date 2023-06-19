@@ -3,7 +3,6 @@ package io.avaje.jsonb.generator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,6 @@ final class FieldReader {
   private final String adapterFieldName;
   private final String adapterShortType;
   private final String fieldName;
-  private final boolean primitive;
   private final String defaultValue;
   private final String propertyName;
   private final boolean serialize;
@@ -55,37 +53,33 @@ final class FieldReader {
     this.deserialize = ignoreReader.deserialize();
     optional = rawType.startsWith("java.util.Optional");
     this.propertyName =
-        PropertyPrism.getOptionalOn(element)
-            .map(PropertyPrism::value)
-            .filter(Objects::nonNull)
-            .map(Util::escapeQuotes)
-            .orElse(namingConvention.from(fieldName));
+      PropertyPrism.getOptionalOn(element)
+        .map(PropertyPrism::value)
+        .map(Util::escapeQuotes)
+        .orElse(namingConvention.from(fieldName));
 
     this.aliases =
-        JsonAliasPrism.getOptionalOn(element)
-            .map(JsonAliasPrism::value)
-            .filter(Objects::nonNull)
-            .stream()
-            .flatMap(List::stream)
-            .map(Util::escapeQuotes)
-            .collect(Collectors.toList());
+      JsonAliasPrism.getOptionalOn(element)
+        .map(JsonAliasPrism::value)
+        .stream()
+        .flatMap(List::stream)
+        .map(Util::escapeQuotes)
+        .collect(Collectors.toList());
 
     if (raw) {
       genericType = GenericType.parse("java.lang.String");
       adapterShortType = "JsonAdapter<String>";
       adapterFieldName = "rawAdapter";
       defaultValue = "null";
-      primitive = false;
     } else if (unmapped) {
       genericType = GenericType.parse("java.lang.Object");
       adapterShortType = "JsonAdapter<Object>";
       adapterFieldName = "objectJsonAdapter";
       defaultValue = "null";
-      primitive = false;
     } else {
       genericType = GenericType.parse(rawType);
       final String shortType = genericType.shortType();
-      primitive = PrimitiveUtil.isPrimitive(shortType);
+      boolean primitive = PrimitiveUtil.isPrimitive(shortType);
       defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
       adapterShortType = initAdapterShortType(shortType);
       adapterFieldName = (primitive && !optional ? "p" : "") + initShortName();
@@ -120,14 +114,6 @@ final class FieldReader {
       return Util.initLower(name) + "JsonAdapterGeneric";
     }
     return Util.initLower(genericType.shortName()) + "JsonAdapter";
-  }
-
-  static String trimAnnotations(String type) {
-    final int pos = type.indexOf("@");
-    if (pos == -1) {
-      return type;
-    }
-    return type.substring(0, pos) + type.substring(type.lastIndexOf(' ') + 1);
   }
 
   void position(int pos) {
@@ -336,9 +322,7 @@ final class FieldReader {
     if (pad < 1) {
       return value;
     }
-    final StringBuilder sb = new StringBuilder(10).append(value);
-    sb.append(" ".repeat(pad));
-    return sb.toString();
+    return value + " ".repeat(pad);
   }
 
   void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys, List<String> moreAlias) {
