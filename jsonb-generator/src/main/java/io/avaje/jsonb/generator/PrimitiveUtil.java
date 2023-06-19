@@ -28,11 +28,11 @@ final class PrimitiveUtil {
   }
 
   static boolean isPrimitive(String typeShortName) {
-    return wrapperMap.containsKey(typeShortName) || isOptional(typeShortName);
+    return wrapperMap.containsKey(typeShortName) || typeShortName.startsWith("Optional<");
   }
 
   static String defaultValue(String shortType) {
-    if (shortType.contains("Optional")) {
+    if (shortType.startsWith("Optional")) {
       if (shortType.contains("<")) {
         return "Optional.empty()";
       }
@@ -40,9 +40,5 @@ final class PrimitiveUtil {
     }
 
     return "boolean".equals(shortType) ? "false" : "0";
-  }
-
-  private static boolean isOptional(String typeShortName) {
-    return typeShortName.length() > 9 && "Optional<".equals(typeShortName.substring(0, 9));
   }
 }
