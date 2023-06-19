@@ -5,7 +5,7 @@ import java.util.Map;
 
 final class PrimitiveUtil {
 
-  static Map<String, String> wrapperMap = new HashMap<>();
+  private static Map<String, String> wrapperMap = new HashMap<>();
 
   static {
     wrapperMap.put("char", "Character");
@@ -17,9 +17,9 @@ final class PrimitiveUtil {
     wrapperMap.put("float", "Float");
     wrapperMap.put("boolean", "Boolean");
     //optionals
-    wrapperMap.put("OptionalInt", "OptionalInt");
-    wrapperMap.put("OptionalDouble", "OptionalDouble");
-    wrapperMap.put("OptionalLong", "OptionalLong");
+    wrapperMap.put("OptionalInt", "");
+    wrapperMap.put("OptionalDouble", "");
+    wrapperMap.put("OptionalLong", "");
   }
 
   static String wrap(String shortName) {
