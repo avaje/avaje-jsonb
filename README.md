@@ -24,7 +24,8 @@ Built-in support for reading and writing Java’s core data types:
  * Primitives (int, float, char...) and their boxed counterparts (Integer, Float, Character...).
  * BigInteger and BigDecimal
  * java.time classes (Instant, LocalDate, LocalDateTime...)
- * Arrays, Collections, Streams, Optionals, Lists, Sets, and Maps
+ * Arrays, Collections, Streams, Lists, Sets, and Maps
+ * Optionals (will unwrap and serialize the contained value)
  * Strings
  * Enums
  * Other miscellaneous types (UUID, URL, URI)

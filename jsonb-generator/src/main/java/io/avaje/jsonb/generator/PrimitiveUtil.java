@@ -5,7 +5,7 @@ import java.util.Map;
 
 final class PrimitiveUtil {
 
-  static Map<String, String> wrapperMap = new HashMap<>();
+  private static Map<String, String> wrapperMap = new HashMap<>();
 
   static {
     wrapperMap.put("char", "Character");
@@ -16,6 +16,10 @@ final class PrimitiveUtil {
     wrapperMap.put("double", "Double");
     wrapperMap.put("float", "Float");
     wrapperMap.put("boolean", "Boolean");
+    // optionals
+    wrapperMap.put("OptionalInt", "OptionalInt");
+    wrapperMap.put("OptionalDouble", "OptionalDouble");
+    wrapperMap.put("OptionalLong", "OptionalLong");
   }
 
   static String wrap(String shortName) {
@@ -24,16 +28,14 @@ final class PrimitiveUtil {
   }
 
   static boolean isPrimitive(String typeShortName) {
-    return wrapperMap.containsKey(typeShortName)
-        || typeShortName.startsWith("Optional");
+    return wrapperMap.containsKey(typeShortName) || typeShortName.startsWith("Optional<");
   }
 
   static String defaultValue(String shortType) {
-    if (shortType.length() > 8 && "Optional".equals(shortType.substring(0, 8))) {
+    if (shortType.startsWith("Optional")) {
       if (shortType.contains("<")) {
         return "Optional.empty()";
       }
-
       return shortType + ".empty()";
     }
 
