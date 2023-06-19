@@ -17,9 +17,9 @@ final class PrimitiveUtil {
     wrapperMap.put("float", "Float");
     wrapperMap.put("boolean", "Boolean");
     // optionals
-    wrapperMap.put("OptionalInt", "");
-    wrapperMap.put("OptionalDouble", "");
-    wrapperMap.put("OptionalLong", "");
+    wrapperMap.put("OptionalInt", "OptionalInt");
+    wrapperMap.put("OptionalDouble", "OptionalDouble");
+    wrapperMap.put("OptionalLong", "OptionalLong");
   }
 
   static String wrap(String shortName) {
