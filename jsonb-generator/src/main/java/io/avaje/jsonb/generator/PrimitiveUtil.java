@@ -16,7 +16,7 @@ final class PrimitiveUtil {
     wrapperMap.put("double", "Double");
     wrapperMap.put("float", "Float");
     wrapperMap.put("boolean", "Boolean");
-    //optionals
+    // optionals
     wrapperMap.put("OptionalInt", "");
     wrapperMap.put("OptionalDouble", "");
     wrapperMap.put("OptionalLong", "");
@@ -28,12 +28,11 @@ final class PrimitiveUtil {
   }
 
   static boolean isPrimitive(String typeShortName) {
-    return wrapperMap.containsKey(typeShortName)
-        || isOptional(typeShortName);
+    return wrapperMap.containsKey(typeShortName) || isOptional(typeShortName);
   }
 
   static String defaultValue(String shortType) {
-    if (isOptional(shortType)) {
+    if (shortType.contains("Optional")) {
       if (shortType.contains("<")) {
         return "Optional.empty()";
       }
@@ -44,7 +43,6 @@ final class PrimitiveUtil {
   }
 
   private static boolean isOptional(String typeShortName) {
-    return wrapperMap.containsKey(typeShortName)
-        || typeShortName.length() > 9 && "Optional<".equals(typeShortName.substring(0, 9));
+    return typeShortName.length() > 9 && "Optional<".equals(typeShortName.substring(0, 9));
   }
 }
