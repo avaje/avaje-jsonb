@@ -397,13 +397,16 @@ final class JGenerator implements JsonGenerator {
 
   @Override
   public void flush() {
-    if (target != null && position != 0) {
+    if (target != null) {
       try {
-        target.writeLast(buffer, 0, position);
+        if (position != 0) {
+          target.writeLast(buffer, 0, position);
+          position = 0;
+        }
+        target.flush();
       } catch (IOException ex) {
         throw new JsonIoException("Unable to write to target stream.", ex);
       }
-      position = 0;
     }
   }
 
@@ -411,13 +414,6 @@ final class JGenerator implements JsonGenerator {
   public void close() {
     if (incomplete) return;
     flush();
-    if (target != null) {
-      try {
-        target.flush();
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
-    }
   }
 
   private void prefixName() {
