@@ -149,7 +149,7 @@ final class GenericType {
   }
 
   String asTypeDeclaration() {
-    if (params.size() == 0) {
+    if (params.isEmpty()) {
       return asTypeBasic();
     }
     if (params.size() == 1) {
@@ -181,6 +181,9 @@ final class GenericType {
     }
     if (isAssignable2Interface(containerType, "java.util.stream.Stream")) {
       return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
+    }
+    if (isAssignable2Interface(containerType, "java.util.Optional")) {
+      return "Types.optionalOf(" + Util.shortName(param.topType()) + ".class)";
     }
     return null;
   }

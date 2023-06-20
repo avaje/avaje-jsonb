@@ -60,9 +60,7 @@ final class SimpleComponentWriter {
       final String adapterShortName = Util.shortName(adapterFullName);
       writer.append("    builder.add(%s.FACTORY);", adapterShortName).eol();
     }
-
     for (final String adapterFullName : metaData.all()) {
-
       final String adapterShortName = Util.shortName(adapterFullName);
       final String typeName = Util.shortType(Util.baseTypeOfAdapter(adapterFullName).replace("$", "."));
       writer.append("    builder.add(%s.class, %s::new);", typeName, adapterShortName).eol();

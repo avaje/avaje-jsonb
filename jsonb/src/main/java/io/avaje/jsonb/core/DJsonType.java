@@ -9,6 +9,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -49,6 +50,11 @@ class DJsonType<T> implements JsonType<T> {
     return jsonb.type(Types.mapOf(type));
   }
 
+  @Override
+  public final JsonType<Optional<T>> optional() {
+    return jsonb.type(Types.optionalOf(type));
+  }
+  
   @Override
   public final String toJson(T value) {
     try (BufferedJsonWriter writer = jsonb.bufferedWriter()) {

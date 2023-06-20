@@ -3,13 +3,11 @@ package io.avaje.jsonb.generator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import java.util.*;
-import java.util.stream.Collectors;
 
 final class FieldReader {
 
@@ -21,7 +19,6 @@ final class FieldReader {
   private final String adapterFieldName;
   private final String adapterShortType;
   private final String fieldName;
-  private final boolean primitive;
   private final String defaultValue;
   private final String propertyName;
   private final boolean serialize;
@@ -33,6 +30,7 @@ final class FieldReader {
   private MethodReader getter;
   private int position;
   private boolean constructorParam;
+  private final boolean optional;
   private boolean genericTypeParameter;
   private int genericTypeParamPosition;
   private final List<String> aliases;
@@ -53,42 +51,38 @@ final class FieldReader {
     this.raw = ignoreReader.raw();
     this.serialize = ignoreReader.serialize();
     this.deserialize = ignoreReader.deserialize();
-
+    optional = rawType.startsWith("java.util.Optional");
     this.propertyName =
-        PropertyPrism.getOptionalOn(element)
-            .map(PropertyPrism::value)
-            .filter(Objects::nonNull)
-            .map(Util::escapeQuotes)
-            .orElse(namingConvention.from(fieldName));
+      PropertyPrism.getOptionalOn(element)
+        .map(PropertyPrism::value)
+        .map(Util::escapeQuotes)
+        .orElse(namingConvention.from(fieldName));
 
     this.aliases =
-        JsonAliasPrism.getOptionalOn(element)
-            .map(JsonAliasPrism::value)
-            .filter(Objects::nonNull)
-            .stream()
-            .flatMap(List::stream)
-            .map(Util::escapeQuotes)
-            .collect(Collectors.toList());
+      JsonAliasPrism.getOptionalOn(element)
+        .map(JsonAliasPrism::value)
+        .stream()
+        .flatMap(List::stream)
+        .map(Util::escapeQuotes)
+        .collect(Collectors.toList());
 
     if (raw) {
       genericType = GenericType.parse("java.lang.String");
       adapterShortType = "JsonAdapter<String>";
       adapterFieldName = "rawAdapter";
       defaultValue = "null";
-      primitive = false;
     } else if (unmapped) {
       genericType = GenericType.parse("java.lang.Object");
       adapterShortType = "JsonAdapter<Object>";
       adapterFieldName = "objectJsonAdapter";
       defaultValue = "null";
-      primitive = false;
     } else {
       genericType = GenericType.parse(rawType);
       final String shortType = genericType.shortType();
-      primitive = PrimitiveUtil.isPrimitive(shortType);
+      boolean primitive = PrimitiveUtil.isPrimitive(shortType);
       defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
       adapterShortType = initAdapterShortType(shortType);
-      adapterFieldName = (primitive ? "p" : "") + initShortName();
+      adapterFieldName = (primitive && !optional ? "p" : "") + initShortName();
     }
   }
 
@@ -120,14 +114,6 @@ final class FieldReader {
       return Util.initLower(name) + "JsonAdapterGeneric";
     }
     return Util.initLower(genericType.shortName()) + "JsonAdapter";
-  }
-
-  static String trimAnnotations(String type) {
-    final int pos = type.indexOf("@");
-    if (pos == -1) {
-      return type;
-    }
-    return type.substring(0, pos) + type.substring(type.lastIndexOf(' ') + 1);
   }
 
   void position(int pos) {
@@ -320,7 +306,7 @@ final class FieldReader {
     }
     final String shortType = typeParamToObject(genericType.shortType());
     writer.append("    %s _val$%s = %s;", pad(shortType), fieldName + num, defaultValue);
-    if (!constructorParam) {
+    if (!constructorParam && !optional) {
       writer.append(" boolean _set$%s = false;", fieldName + num);
     }
     writer.eol();
@@ -336,9 +322,7 @@ final class FieldReader {
     if (pad < 1) {
       return value;
     }
-    final StringBuilder sb = new StringBuilder(10).append(value);
-    sb.append(" ".repeat(pad));
-    return sb.toString();
+    return value + " ".repeat(pad);
   }
 
   void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys, List<String> moreAlias) {
@@ -362,7 +346,7 @@ final class FieldReader {
       }
     } else {
       writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
-      if (!constructorParam) {
+      if (!constructorParam && !optional) {
         writer.eol().append("          _set$%s = true;", fieldName);
       }
     }
@@ -374,7 +358,9 @@ final class FieldReader {
       writeFromJsonUnmapped(writer, varName);
       return;
     }
-    if (setter != null) {
+    if (setter != null && optional) {
+      writer.append("%s    _$%s.%s(_val$%s);", prefix, varName, setter.getName(), fieldName + num).eol();
+    } else if (setter != null) {
       writer.append("%s    if (_set$%s) _$%s.%s(_val$%s);", prefix, fieldName + num, varName, setter.getName(), fieldName + num).eol();
     } else if (publicField) {
       writer.append("%s    if (_set$%s) _$%s.%s = _val$%s;", prefix, fieldName + num, varName, fieldName, fieldName + num).eol();

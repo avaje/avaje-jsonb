@@ -19,13 +19,12 @@ class CustomEntryJsonAdapterTest {
 
   @Test
   void toFromJson() {
-
     final var bean = new SimpleImmutableEntry<>("master", "sword");
 
     final String asJson = jsonType.toJson(bean);
+    assertThat(asJson).isEqualTo("{\"key\":\"master\",\"val\":\"sword\"}");
 
     final var fromJson = jsonType.fromJson(asJson);
-
     assertThat(fromJson.getKey()).isEqualTo(bean.getKey());
     assertThat(fromJson.getValue()).isEqualTo(bean.getValue());
   }

@@ -7,16 +7,13 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 
 @SupportedAnnotationTypes({
   CustomAdapterPrism.PRISM_TYPE,
@@ -74,21 +71,13 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void registerCustomAdapters(Set<? extends Element> elements) {
-
     for (final var typeElement : ElementFilter.typesIn(elements)) {
       final var type = typeElement.getQualifiedName().toString();
       if (CustomAdapterPrism.getInstanceOn(typeElement).isGeneric()) {
-
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
-            .filter(
-                v ->
-                    v.getModifiers().contains(Modifier.STATIC)
-                        && "FACTORY".equals(v.getSimpleName().toString()))
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "Generic Adapters require a public static JsonAdapter.Factory FACTORY field"));
+          .filter(isStaticFactory())
+          .findFirst()
+          .orElseThrow(() -> new IllegalStateException("Generic Adapters require a public static JsonAdapter.Factory FACTORY field"));
 
         metaData.addFactory(type);
       } else {
@@ -97,7 +86,11 @@ public final class Processor extends AbstractProcessor {
     }
   }
 
-private void writeEnumAdapters(Set<? extends Element> elements) {
+  private static Predicate<VariableElement> isStaticFactory() {
+    return v -> v.getModifiers().contains(Modifier.STATIC) && "FACTORY".equals(v.getSimpleName().toString());
+  }
+
+  private void writeEnumAdapters(Set<? extends Element> elements) {
     for (final ExecutableElement element : ElementFilter.methodsIn(elements)) {
       final var typeElement = (TypeElement) element.getEnclosingElement();
       if (typeElement.getKind() != ElementKind.ENUM) {

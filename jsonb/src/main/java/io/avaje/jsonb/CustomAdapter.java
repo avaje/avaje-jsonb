@@ -15,13 +15,14 @@ import java.lang.annotation.Target;
  * <pre>{@code
  * @CustomAdapter
  * public class CustomJsonAdapter implements JsonAdapter<CustomType> {
+ *
  *   private final JsonAdapter<String> stringJsonAdapter;
  *   private final PropertyNames names;
  *
  *   public CustomJsonAdapter(Jsonb jsonb) {
- *     //use the jsonb adapter method to get type serializers
+ *     // use the jsonb adapter method to get type serializers
  *     stringJsonAdapter = jsonb.adapter(String.class);
- *     //add serialization names
+ *     // add serialization names
  *     jsonb.properties("prop1","prop2", ...);
  *   }
  * ...
@@ -31,6 +32,7 @@ import java.lang.annotation.Target;
  * <h3>Example of Generic Adapter:</h3>
  *
  * <pre>{@code
+ *
  * @CustomAdapter(isGeneric=true)
  * public class CustomJsonAdapter<T> implements JsonAdapter<GenericType<T>> {
  *

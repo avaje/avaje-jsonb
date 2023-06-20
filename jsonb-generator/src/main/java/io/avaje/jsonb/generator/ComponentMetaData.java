@@ -69,7 +69,6 @@ final class ComponentMetaData {
 
       final String className = Util.baseTypeOfAdapter(adapterFullName);
       final int $index = className.indexOf("$");
-
       packageImports.add($index != -1 ? className.substring(0, $index) : className);
     }
 

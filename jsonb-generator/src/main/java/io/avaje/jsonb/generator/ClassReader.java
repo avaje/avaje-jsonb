@@ -36,6 +36,7 @@ final class ClassReader implements BeanReader {
   private static final boolean nullSwitch = jdkVersion() >= 21 || (jdkVersion() >= 17 && previewEnabled());
   private final Map<String, Integer> frequencyMap = new HashMap<>();
   private final Map<String, Boolean> isCommonFieldMap = new HashMap<>();
+  private final boolean optional;
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
@@ -55,6 +56,7 @@ final class ClassReader implements BeanReader {
     this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
     this.constructor = typeReader.constructor();
+    this.optional = typeReader.hasOptional();
     this.isRecord = isRecord(beanType);
     typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
 
@@ -326,7 +328,7 @@ final class ClassReader implements BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) {", shortName, varName).eol();
-    final boolean directLoad = (constructor == null && !hasSubTypes);
+    final boolean directLoad = (constructor == null && !hasSubTypes && !optional);
     if (directLoad) {
       // default public constructor
       writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
@@ -365,16 +367,18 @@ final class ClassReader implements BeanReader {
   private void writeJsonBuildResult(Append writer, String varName) {
     writer.append("    // build and return %s", shortName).eol();
     writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
-    final List<MethodReader.MethodParam> params = constructor.getParams();
-    for (int i = 0, size = params.size(); i < size; i++) {
-      if (i > 0) {
-        writer.append(", ");
+    if (constructor != null) {
+      final List<MethodReader.MethodParam> params = constructor.getParams();
+      for (int i = 0, size = params.size(); i < size; i++) {
+        if (i > 0) {
+          writer.append(", ");
+        }
+        final var name = params.get(i).name();
+        // append increasing numbers to constructor params sharing names with other subtypes
+        final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
+        // assuming name matches field here?
+        writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
       }
-      final var name = params.get(i).name();
-      // append increasing numbers to constructor params sharing names with other subtypes
-      final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
-      // assuming name matches field here?
-      writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
     }
     writer.append(");").eol();
     for (final FieldReader allField : allFields) {

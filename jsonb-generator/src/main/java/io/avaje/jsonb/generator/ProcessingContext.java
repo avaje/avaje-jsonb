@@ -103,7 +103,8 @@ final class ProcessingContext {
   }
 
   static boolean isAssignable2Interface(String type, String superType) {
-    return element(type).getInterfaces().stream().anyMatch(t -> t.toString().contains(superType));
+    return type.equals(superType)
+        || element(type).getInterfaces().stream().anyMatch(t -> t.toString().contains(superType));
   }
 
   static TypeElement element(String rawType) {
