@@ -1,12 +1,28 @@
 package io.avaje.jsonb.stream;
 
+import io.avaje.jsonb.JsonWriter;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonWriterTest {
+
+  @Test
+  void flush_expect_flushUnderlyingWriter() {
+    JsonStream build = JsonStream.builder().serializeNulls(true).build();
+
+    CharArrayWriter writer = new CharArrayWriter();
+    JsonWriter jsonWriter = build.writer(writer);
+
+    jsonWriter.value("test");
+    jsonWriter.flush();
+    assertThat(writer.toCharArray()).isEqualTo("\"test\"".toCharArray());
+    jsonWriter.close();
+    assertThat(writer.toCharArray()).isEqualTo("\"test\"".toCharArray());
+  }
 
   @Test
   void recycle() {

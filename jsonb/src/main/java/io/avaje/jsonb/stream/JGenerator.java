@@ -400,6 +400,7 @@ final class JGenerator implements JsonGenerator {
     if (target != null && position != 0) {
       try {
         target.writeLast(buffer, 0, position);
+        target.flush();
       } catch (IOException ex) {
         throw new JsonIoException("Unable to write to target stream.", ex);
       }
@@ -411,13 +412,6 @@ final class JGenerator implements JsonGenerator {
   public void close() {
     if (incomplete) return;
     flush();
-    if (target != null) {
-      try {
-        target.flush();
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
-    }
   }
 
   private void prefixName() {
