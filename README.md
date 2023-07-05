@@ -48,7 +48,7 @@ Built-in support for reading and writing Java’s core data types:
 </dependency>
 ```
 
-And add avaje-jsonb-generator as a annotation processor.
+And add avaje-jsonb-generator as an annotation processor.
 ```xml
 
 <!-- Annotation processors -->
@@ -62,7 +62,7 @@ And add avaje-jsonb-generator as a annotation processor.
 
 ## Step 2 - Add `@Json`
 
-Add `@Json` onto types we want to serialise.
+Add `@Json` onto the types we want to serialize.
 
 The `avaje-jsonb-generator` annotation processor will generate a JsonAdapter as java source code
 for each type annotated with `@Json`. These will be automatically registered with Jsonb
@@ -76,7 +76,7 @@ public class Address {
   private String city;
   // object fields will automatically have adapters generated, no @Json required
   // (though you can add @Json anyway to modify the generated adapter how you wish)
-  private OtherClass;
+  private OtherClass other;
 
   //add getters/setters
 }
