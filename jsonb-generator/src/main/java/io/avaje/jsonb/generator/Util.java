@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 final class Util {
-	
+
   // whitespace not in quotes
   private static final Pattern WHITE_SPACE_REGEX =
       Pattern.compile("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
@@ -53,7 +53,6 @@ final class Util {
 
   /** Trim off annotations from the raw type if present. */
   public static String trimAnnotations(String input) {
-
     input = COMMA_PATTERN.matcher(input).replaceAll(",");
 
     return cutAnnotations(input);
@@ -66,7 +65,6 @@ final class Util {
     }
 
     final Matcher matcher = WHITE_SPACE_REGEX.matcher(input);
-
     int currentIndex = 0;
     if (matcher.find()) {
       currentIndex = matcher.start();
@@ -75,6 +73,7 @@ final class Util {
 
     return cutAnnotations(result);
   }
+
   /** Return the common parent package. */
   static String commonParent(String currentTop, String aPackage) {
     if (aPackage == null) return currentTop;
