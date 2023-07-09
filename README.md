@@ -8,14 +8,14 @@
 Fast, reflection-free Json binding via apt source code generation. A light (~200kb + generated code) source code generation style alternative to Jackson's ObjectMapper or Gson. (code generation vs reflection)
 
 - Annotate java classes with `@Json` (or use `@Json.Import` for types we "don't own" or can't annotate)
-- `avaje-jsonb-generator` annotation processor generates java source code to convert to/from json
+- `avaje-jsonb-generator` annotation processor generates Java source code to convert to/from json
 - No need to manually register generated adapters. (Uses ServiceLoader to auto-register)
 - Constructors and accessors/getters/setters of any style "just work" (records, constructors, 'fluid setters')
 - Jackson-like annotations: `@Json.Raw`, `@Json.Property`, `@Json.Ignore`, `@Json.Alias`, etc.
 - Support Imports and Mixins (adding jsonb features to types we can't directly annotate).
 - Supports Generic Types.
 - Provides support for dynamic json views (similar in style to that presented by [LinkedIn at java one in 2009](https://www.slideshare.net/linkedin/building-consistent-restful-apis-in-a-highperformance-environment)
-- One of the top three [fastest JSON libraries](https://github.com/fabienrenaud/java-json-benchmark#users-model)
+- One of the top three [fastest Java JSON libraries](https://github.com/fabienrenaud/java-json-benchmark#users-model)
 
 ### Built-in Type Adapters
 
@@ -62,7 +62,7 @@ And add avaje-jsonb-generator as an annotation processor.
 
 ## Step 2 - Add `@Json`
 
-Add `@Json` onto the types we want to serialize.
+Add `@Json` to the types we want to serialize.
 
 The `avaje-jsonb-generator` annotation processor will generate a JsonAdapter as java source code
 for each type annotated with `@Json`. These will be automatically registered with Jsonb
@@ -82,13 +82,13 @@ public class Address {
 }
 ```
 
-Also works with records:
+This also works with records:
 ```java
 @Json
 public record Address(String street, String suburb, String city) { }
 ```
 
-For types we cannot annotate with `@Json` we can place `@Json.Import(TypeToimport.class)` on any class/package-info to generate the adpaters.
+For types we cannot annotate with `@Json` we can place `@Json.Import(TypeToimport.class)` on any class/package-info to generate the adapters.
 
 ## Step 3 - Use
 
@@ -131,9 +131,9 @@ JsonView<Customer> myView =
 String asJson =  myView.toJson(customer);
 ```
 
-## Based off Moshi
+## Based on Moshi
 
-`avaje-jsonb` is based off [Moshi](https://github.com/square/moshi) with some changes as summarised below:
+`avaje-jsonb` is based on [Moshi](https://github.com/square/moshi) with some changes as summarised below:
 
 #### Changes from Moshi
 - Generates Java source code (rather than Kotlin)
@@ -144,16 +144,16 @@ String asJson =  myView.toJson(customer);
 - JsonAdapter -> Make JsonAdapter an interface.
 - Moshi -> Jsonb - Rename Moshi to Jsonb and make it an interface
 - Moshi.Builder -> Jsonb.Builder - Basically the same but Jsonb.Builder as interface plus added Component and AdapterBuilder
-- Add JsonType for a more friendly API to use rather than underlying JsonAdapter
+- Add JsonType for a more friendly API to use rather than the underlying JsonAdapter
 - Add Jsonb.Component interface - allows easy service loading of adapters
-- Additionally, generates a Jsonb.Component and uses service loading to auto-register all generated adapters. This means there is no need to manually register the generated adapters.
+- Additionally, it generates a Jsonb.Component and uses service loading to auto-register all generated adapters. This means there is no need to register the generated adapters manually.
 - Add fromObject() as a "covert from object" feature like Jackson ObjectMapper
 - Add naming convention support
 - Add `@Json.Import` to generate adapters for types that we can't put the annotation on (types we might not 'own')
 - Add Mixin feature similar to Jackson Mixins
 - Add Types.listOf(), Types.setOf(), Types.mapOf() helper methods
-- Provide an SPI with the view to target other json-p implementations JSONP/Yasson, GSON etc
-- Adds more common java types with default built-in support - java.time types, java.util.UUID
+- Provide an SPI with the view to target other json-p implementations JSONP/Yasson, GSON, etc
+- Adds more common Java types with default built-in support - java.time types, java.util.UUID
 - Adds support for json views
 
 ## Related works
