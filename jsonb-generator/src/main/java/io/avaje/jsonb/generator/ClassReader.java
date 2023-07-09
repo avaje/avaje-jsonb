@@ -176,6 +176,7 @@ final class ClassReader implements BeanReader {
   @Override
   public void writeFields(Append writer) {
     writer.append("  // naming convention %s", namingConvention).eol();
+
     for (final FieldReader allField : allFields) {
       allField.writeDebug(writer);
     }
@@ -183,10 +184,11 @@ final class ClassReader implements BeanReader {
     if (hasRaw) {
       writer.append("  private final JsonAdapter<String> rawAdapter;").eol();
     }
-    if (hasSubTypes) {
-      writer.append("  private final JsonAdapter<String> subTypeAdapter;").eol();
-    }
     final Set<String> uniqueTypes = new HashSet<>();
+    if (hasSubTypes) {
+      writer.append("  private final JsonAdapter<String> stringJsonAdapter;").eol();
+      uniqueTypes.add("String");
+    }
     for (final FieldReader allField : allFields) {
       if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
         allField.writeField(writer);
@@ -201,10 +203,12 @@ final class ClassReader implements BeanReader {
     if (hasRaw) {
       writer.append("    this.rawAdapter = jsonb.rawAdapter();").eol();
     }
-    if (hasSubTypes) {
-      writer.append("    this.subTypeAdapter = jsonb.adapter(String.class);").eol();
-    }
+
     final Set<String> uniqueTypes = new HashSet<>();
+    if (hasSubTypes) {
+      writer.append("    this.stringJsonAdapter = jsonb.adapter(String.class);").eol();
+      uniqueTypes.add("String");
+    }
     for (final FieldReader allField : allFields) {
       if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
         if (hasSubTypes) {
@@ -310,7 +314,7 @@ final class ClassReader implements BeanReader {
           writer.append("      %s sub = (%s) %s;", subTypeShort, subTypeShort, varName).eol();
         }
         writer.append("      writer.name(0);").eol();
-        writer.append("      subTypeAdapter.toJson(writer, \"%s\");", subTypeName).eol();
+        writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
         writeToJsonForType(writer, "sub", "      ", subType);
         writer.append("    }").eol();
       }
@@ -458,7 +462,7 @@ final class ClassReader implements BeanReader {
     writer.append("      switch (fieldName) {").eol();
     if (hasSubTypes && !usesTypeProperty) {
       writer.append("        case \"%s\":", typePropertyKey()).eol();
-      writer.append("          type = subTypeAdapter.fromJson(reader);").eol();
+      writer.append("          type = stringJsonAdapter.fromJson(reader);").eol();
       writer.append("          break;").eol();
     }
     // don't write same switch case twice
