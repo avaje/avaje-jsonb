@@ -205,6 +205,9 @@ final class JParser implements JsonParser {
   }
 
   private static class EmptyEOFException extends EOFException {
+
+    static final long serialVersionUID = 1L;
+
     @Override
     public Throwable fillInStackTrace() {
       return this;
