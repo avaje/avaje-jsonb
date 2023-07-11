@@ -109,7 +109,7 @@ final class SimpleAdapterWriter {
 
   private void writeClassStart() {
     if (genericParamsCount > 0) {
-      writer.append("@SuppressWarnings({\"unchecked\",\"rawtypes\"})").eol();
+      writer.append("@SuppressWarnings({\"unchecked\", \"rawtypes\"})").eol();
     }
     writer.append("@Generated").eol();
     writer.append("public final class %sJsonAdapter implements JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
