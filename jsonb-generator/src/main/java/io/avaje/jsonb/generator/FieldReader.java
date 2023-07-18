@@ -197,6 +197,7 @@ final class FieldReader {
       if ("java.util.List".equals(topType) || "java.util.Set".equals(topType)) {
         types.add(genericType.firstParamType());
       } else if ("java.util.Map".equals(topType)) {
+        types.add(genericType.firstParamType());
         types.add(genericType.secondParamType());
       } else {
         types.add(topType);

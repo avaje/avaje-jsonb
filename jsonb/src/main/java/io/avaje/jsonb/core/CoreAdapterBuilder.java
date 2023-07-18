@@ -44,6 +44,7 @@ final class CoreAdapterBuilder {
     this.factories.add(new MathAdapters(mathAsString));
     this.factories.add(CollectionAdapter.FACTORY);
     this.factories.add(MapAdapter.FACTORY);
+    this.factories.add(EnumMapAdapter.FACTORY);
     this.factories.add(ArrayAdapter.FACTORY);
     this.factories.add(OptionalAdapters.FACTORY);
   }

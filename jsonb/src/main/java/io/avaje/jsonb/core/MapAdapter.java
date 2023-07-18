@@ -26,14 +26,19 @@ import java.util.Map;
  */
 final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
 
-  static final Factory FACTORY = (type, jsonb) -> {
-    Class<?> rawType = Util.rawType(type);
-    if (rawType != Map.class) {
-      return null;
-    }
-    Type valueType = Util.mapValueType(type, rawType);
-    return new MapAdapter<>(jsonb, valueType).nullSafe();
-  };
+  static final Factory FACTORY =
+      (type, jsonb) -> {
+        final Class<?> rawType = Util.rawType(type);
+        if (rawType != Map.class) {
+          return null;
+        }
+        final var valueTypes = Util.mapValueTypes(type, rawType);
+
+        if (valueTypes[0] != String.class) {
+          return null;
+        }
+        return new MapAdapter<>(jsonb, valueTypes[1]).nullSafe();
+      };
 
   private final JsonAdapter<V> valueAdapter;
 
