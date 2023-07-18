@@ -3,12 +3,12 @@ package io.avaje.jsonb.core;
 import io.avaje.jsonb.*;
 
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /** Converts maps with Enum keys to JSON objects. */
 @SuppressWarnings("unchecked")
-final class EnumMapAdapter<K extends Enum, V> implements JsonAdapter<Map<K, V>> {
+final class EnumMapAdapter<K extends Enum<K>, V> implements JsonAdapter<Map<K, V>> {
 
   static final Factory FACTORY =
       (type, jsonb) -> {
@@ -45,11 +45,11 @@ final class EnumMapAdapter<K extends Enum, V> implements JsonAdapter<Map<K, V>> 
 
   @Override
   public Map<K, V> fromJson(JsonReader reader) {
-    final Map<K, V> result = new LinkedHashMap<>();
+    final Map<K, V> result = new EnumMap<>(enumClass);
     reader.beginObject();
     while (reader.hasNextField()) {
       final String name = reader.nextField();
-      final var enumVal = (K) Enum.valueOf(enumClass, name);
+      final var enumVal = Enum.valueOf(enumClass, name);
       final V value = valueAdapter.fromJson(reader);
       final V replaced = result.put(enumVal, value);
       if (replaced != null) {
