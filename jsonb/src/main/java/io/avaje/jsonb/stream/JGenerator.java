@@ -422,7 +422,6 @@ final class JGenerator implements JsonGenerator {
     }
     lastOp = OP_FIELD;
     if (pretty) {
-      writeNewLine();
       prettyIndent();
     }
   }
@@ -432,7 +431,6 @@ final class JGenerator implements JsonGenerator {
       writeByte(COMMA);
     }
     if (pretty && (depth > 1)) {
-      writeNewLine();
       prettyIndent();
     }
     lastOp = OP_END;
@@ -478,7 +476,6 @@ final class JGenerator implements JsonGenerator {
       currentNames = nameStack.poll();
     }
     if (pretty) {
-      writeNewLine();
       depth--;
       prettyIndent();
     }
@@ -498,7 +495,6 @@ final class JGenerator implements JsonGenerator {
   @Override
   public void endArray() {
     if (pretty) {
-      writeNewLine();
       depth--;
       prettyIndent();
     }
@@ -507,6 +503,7 @@ final class JGenerator implements JsonGenerator {
   }
 
   private void prettyIndent() {
+    writeByte(NEWLINE);
     for (int i = 0; i < depth; i++) {
       writeAscii(INDENT);
     }
