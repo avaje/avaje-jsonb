@@ -554,18 +554,18 @@ public final class Util {
    * Returns a two element array containing this map's key and value types in positions 0 and 1
    * respectively.
    */
-  static Type mapValueType(Type context, Class<?> contextRawType) {
+  static Type[] mapValueTypes(Type context, Class<?> contextRawType) {
     // Work around a problem with the declaration of java.util.Properties. That class should extend
     // Hashtable<String, String>, but it's declared to extend Hashtable<Object, Object>.
     if (context == Properties.class) {
-      return String.class;
+      return new Type[]{String.class,String.class};
     }
     Type mapType = supertype(context, contextRawType, Map.class);
     if (mapType instanceof ParameterizedType) {
       ParameterizedType mapParameterizedType = (ParameterizedType) mapType;
-      return mapParameterizedType.getActualTypeArguments()[1];
+      return mapParameterizedType.getActualTypeArguments();
     }
-    return Object.class;
+    return new Type[] {String.class, Object.class};
   }
 
   /**
