@@ -26,9 +26,16 @@ class CustomerTest {
 
   @Test
   void anyToJsonPretty() {
-    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
-    String asJson = jsonb.toJsonPretty(customer).replace("\" : ", "\": ");
-    assertThat(asJson).isEqualTo("{\n  \"id\": 42,\n  \"name\": \"rob\",\n  \"status\": \"ACTIVE\"\n}");
+    final var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    final String asJson = jsonb.toJsonPretty(customer).replace("\" : ", "\": ");
+    assertThat(asJson)
+        .isEqualTo(
+            """
+  	{
+  	    "id": 42,
+  	    "name": "rob",
+  	    "status": "ACTIVE"
+  	}""");
   }
 
   @Test
@@ -173,13 +180,15 @@ class CustomerTest {
       Customer customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
       jsonb.type(Customer.class).toJson(customer, writer);
     }
-    String prettyJson = stringWriter.toString().replace("\" : ", "\": ");
-    assertThat(prettyJson).isEqualTo("""
-      {
-        "id": 42,
-        "name": "rob",
-        "status": "ACTIVE"
-      }""");
+    final String prettyJson = stringWriter.toString().replace("\" : ", "\": ");
+    assertThat(prettyJson)
+        .isEqualTo(
+            """
+      	{
+      	    "id": 42,
+      	    "name": "rob",
+      	    "status": "ACTIVE"
+      	}""");
   }
 
   @Test
@@ -202,9 +211,11 @@ class CustomerTest {
     }
     String streamJson = writer.toString().replace(" ", "");
     assertThat(streamJson).isEqualTo(
-      "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}\n" +
-      "{\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
-      "{\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
+    	      """
+    	  	{"id":42,"name":"rob","status":"ACTIVE"}
+    	  	{"id":43,"name":"job","status":"NEW"}
+    	  	{"id":44,"name":"bob","status":"ACTIVE"}
+    	  	""");
   }
 
   @Test
@@ -221,9 +232,11 @@ class CustomerTest {
 
     String streamJson = writer.toString().replace(" ", "");
     assertThat(streamJson).isEqualTo(
-      "{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}\n" +
-      "{\"id\":43,\"name\":\"job\",\"status\":\"NEW\"}\n" +
-      "{\"id\":44,\"name\":\"bob\",\"status\":\"ACTIVE\"}\n");
+      """
+  	{"id":42,"name":"rob","status":"ACTIVE"}
+  	{"id":43,"name":"job","status":"NEW"}
+  	{"id":44,"name":"bob","status":"ACTIVE"}
+  	""");
   }
 
   <T> void toStream(Iterator<T> iterator, JsonWriter jsonWriter) {

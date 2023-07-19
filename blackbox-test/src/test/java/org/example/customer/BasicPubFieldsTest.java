@@ -28,8 +28,12 @@ class BasicPubFieldsTest {
     String viewJson = view.toJson(b);
     assertThat(viewJson).isEqualTo("{\"two\":43,\"four\":\"fourValue\"}");
 
-    String viewJsonPretty = view.toJsonPretty(b).replace("\" : ", "\": ");
-    assertThat(viewJsonPretty).isEqualTo("{\n  \"two\": 43,\n  \"four\": \"fourValue\"\n}");
+    String viewJsonPretty = view.toJsonPretty(b);
+    assertThat(viewJsonPretty).isEqualTo("""
+  	{
+  	    "two": 43,
+  	    "four": "fourValue"
+  	}""");
   }
 
   @Test

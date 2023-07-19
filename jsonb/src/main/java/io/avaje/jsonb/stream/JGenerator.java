@@ -37,7 +37,7 @@ final class JGenerator implements JsonGenerator {
   private static final byte[] NULL = "null".getBytes(StandardCharsets.UTF_8);
   private static final byte[] TRUE = "true".getBytes(StandardCharsets.UTF_8);
   private static final byte[] FALSE = "false".getBytes(StandardCharsets.UTF_8);
-  private static final byte[] INDENT = "  ".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] INDENT = "    ".getBytes(StandardCharsets.UTF_8);
 
   private static final byte OBJECT_START = '{';
   private static final byte OBJECT_END = '}';
@@ -431,6 +431,10 @@ final class JGenerator implements JsonGenerator {
     if (lastOp == OP_END) {
       writeByte(COMMA);
     }
+    if (pretty && (depth > 1)) {
+      writeNewLine();
+      prettyIndent();
+    }
     lastOp = OP_END;
   }
 
@@ -441,7 +445,6 @@ final class JGenerator implements JsonGenerator {
 
   private void writeStartObject() {
     if (pretty) {
-      prettyIndent();
       depth++;
     }
     if (lastOp == OP_END) {
@@ -485,28 +488,22 @@ final class JGenerator implements JsonGenerator {
 
   @Override
   public void startArray() {
-    if (pretty) {
-      prettyIndent();
-      depth++;
-    }
     writeByte(ARRAY_START);
     lastOp = OP_START;
     if (pretty) {
-      writeNewLine();
+      depth++;
     }
   }
 
   @Override
   public void endArray() {
     if (pretty) {
-      prettyIndent();
+      writeNewLine();
       depth--;
+      prettyIndent();
     }
     writeByte(ARRAY_END);
     lastOp = OP_END;
-    if (pretty) {
-      writeNewLine();
-    }
   }
 
   private void prettyIndent() {
