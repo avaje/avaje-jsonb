@@ -28,14 +28,12 @@ class CustomerTest {
   void anyToJsonPretty() {
     final var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
     final String asJson = jsonb.toJsonPretty(customer).replace("\" : ", "\": ");
-    assertThat(asJson)
-        .isEqualTo(
-            """
-  	{
-  	    "id": 42,
-  	    "name": "rob",
-  	    "status": "ACTIVE"
-  	}""");
+    assertThat(asJson).isEqualTo("""
+   {
+     "id": 42,
+     "name": "rob",
+     "status": "ACTIVE"
+   }""");
   }
 
   @Test
@@ -182,13 +180,12 @@ class CustomerTest {
     }
     final String prettyJson = stringWriter.toString().replace("\" : ", "\": ");
     assertThat(prettyJson)
-        .isEqualTo(
-            """
-      	{
-      	    "id": 42,
-      	    "name": "rob",
-      	    "status": "ACTIVE"
-      	}""");
+        .isEqualTo("""
+       {
+         "id": 42,
+         "name": "rob",
+         "status": "ACTIVE"
+       }""");
   }
 
   @Test
