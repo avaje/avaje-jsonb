@@ -37,7 +37,7 @@ final class JGenerator implements JsonGenerator {
   private static final byte[] NULL = "null".getBytes(StandardCharsets.UTF_8);
   private static final byte[] TRUE = "true".getBytes(StandardCharsets.UTF_8);
   private static final byte[] FALSE = "false".getBytes(StandardCharsets.UTF_8);
-  private static final byte[] INDENT = "    ".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] INDENT = "  ".getBytes(StandardCharsets.UTF_8);
 
   private static final byte OBJECT_START = '{';
   private static final byte OBJECT_END = '}';
