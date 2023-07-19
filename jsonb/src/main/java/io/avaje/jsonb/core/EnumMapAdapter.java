@@ -12,7 +12,7 @@ final class EnumMapAdapter<K extends Enum<K>, V> implements JsonAdapter<Map<K, V
 
   static final Factory FACTORY =
       (type, jsonb) -> {
-        final Class<?> rawType = Util.rawType(type);
+        final var rawType = Util.rawType(type);
         if (rawType != EnumMap.class && rawType != Map.class) {
           return null;
         }

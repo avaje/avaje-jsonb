@@ -28,7 +28,7 @@ final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
 
   static final Factory FACTORY =
       (type, jsonb) -> {
-        final Class<?> rawType = Util.rawType(type);
+        final var rawType = Util.rawType(type);
         if (rawType != Map.class) {
           return null;
         }
@@ -49,7 +49,7 @@ final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
   @Override
   public void toJson(JsonWriter writer, Map<String, V> map) {
     writer.beginObject();
-    for (Map.Entry<String, V> entry : map.entrySet()) {
+    for (var entry : map.entrySet()) {
       if (entry.getKey() == null) {
         throw new JsonDataException("Map key is null at " + writer.path());
       }
