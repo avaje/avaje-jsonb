@@ -20,6 +20,8 @@ package io.avaje.jsonb;
  */
 public class JsonDataException extends JsonException {
 
+  static final long serialVersionUID = 1L;
+
   public JsonDataException(String message) {
     super(message);
   }

@@ -2,7 +2,17 @@ package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.element;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 final class Util {
+
+  // whitespace not in quotes
+  private static final Pattern WHITE_SPACE_REGEX =
+      Pattern.compile("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+  // comma not in quotes
+  private static final Pattern COMMA_PATTERN =
+      Pattern.compile(", (?=(?:[^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)");
 
   static boolean validImportType(String type) {
     return type.indexOf('.') > 0;
@@ -41,13 +51,29 @@ final class Util {
     }
   }
 
-  static String trimAnnotations(String type) {
-    final int pos = type.indexOf("@");
-    if (pos == -1) {
-      return type;
-    }
-    return type.substring(0, pos) + type.substring(type.lastIndexOf(' ') + 1);
+  /** Trim off annotations from the raw type if present. */
+  public static String trimAnnotations(String input) {
+    input = COMMA_PATTERN.matcher(input).replaceAll(",");
+
+    return cutAnnotations(input);
   }
+
+  private static String cutAnnotations(String input) {
+    final int pos = input.indexOf("@");
+    if (pos == -1) {
+      return input;
+    }
+
+    final Matcher matcher = WHITE_SPACE_REGEX.matcher(input);
+    int currentIndex = 0;
+    if (matcher.find()) {
+      currentIndex = matcher.start();
+    }
+    final var result = input.substring(0, pos) + input.substring(currentIndex + 1);
+
+    return cutAnnotations(result);
+  }
+
   /** Return the common parent package. */
   static String commonParent(String currentTop, String aPackage) {
     if (aPackage == null) return currentTop;

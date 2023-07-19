@@ -176,6 +176,7 @@ final class ClassReader implements BeanReader {
   @Override
   public void writeFields(Append writer) {
     writer.append("  // naming convention %s", namingConvention).eol();
+
     for (final FieldReader allField : allFields) {
       allField.writeDebug(writer);
     }
@@ -184,6 +185,10 @@ final class ClassReader implements BeanReader {
       writer.append("  private final JsonAdapter<String> rawAdapter;").eol();
     }
     final Set<String> uniqueTypes = new HashSet<>();
+    if (hasSubTypes) {
+      writer.append("  private final JsonAdapter<String> stringJsonAdapter;").eol();
+      uniqueTypes.add("String");
+    }
     for (final FieldReader allField : allFields) {
       if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
         allField.writeField(writer);
@@ -198,7 +203,12 @@ final class ClassReader implements BeanReader {
     if (hasRaw) {
       writer.append("    this.rawAdapter = jsonb.rawAdapter();").eol();
     }
+
     final Set<String> uniqueTypes = new HashSet<>();
+    if (hasSubTypes) {
+      writer.append("    this.stringJsonAdapter = jsonb.adapter(String.class);").eol();
+      uniqueTypes.add("String");
+    }
     for (final FieldReader allField : allFields) {
       if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
         if (hasSubTypes) {
