@@ -103,7 +103,7 @@ final class TypeReader {
         }
 
         if (commonField == null && currentSubType != null) {
-          localField.isSubTypeField(true);
+          localField.setSubTypeField();
         }
       }
     }
@@ -176,7 +176,7 @@ final class TypeReader {
     for (FieldReader field : allFields) {
       if (field.includeFromJson()) {
         if (constructorParamMap.get(field.fieldName()) != null) {
-          field.constructorParam();
+          field.setConstructorParam();
         } else {
           matchFieldToSetter(field);
         }
