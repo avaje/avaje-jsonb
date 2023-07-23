@@ -126,7 +126,7 @@ final class EnumReader implements BeanReader {
   }
 
   @Override
-  public boolean hasSubtypes() {
-    return true;
+  public boolean supportsViewBuilder() {
+    return false;
   }
 }

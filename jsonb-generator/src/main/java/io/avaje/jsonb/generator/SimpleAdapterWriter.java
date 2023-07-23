@@ -113,7 +113,7 @@ final class SimpleAdapterWriter {
     }
     writer.append("@Generated").eol();
     writer.append("public final class %sJsonAdapter implements JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
-    if (!beanReader.hasSubtypes()) {
+    if (beanReader.supportsViewBuilder()) {
       writer.append(", ViewBuilderAware ");
     }
     writer.append("{").eol().eol();

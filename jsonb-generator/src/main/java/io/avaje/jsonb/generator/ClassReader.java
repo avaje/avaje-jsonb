@@ -107,8 +107,8 @@ final class ClassReader implements BeanReader {
   }
 
   @Override
-  public boolean hasSubtypes() {
-    return hasSubTypes;
+  public boolean supportsViewBuilder() {
+    return !hasSubTypes;
   }
 
   @Override
