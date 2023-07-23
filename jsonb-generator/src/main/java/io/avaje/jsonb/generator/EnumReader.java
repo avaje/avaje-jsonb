@@ -52,7 +52,7 @@ final class EnumReader implements BeanReader {
   }
 
   @Override
-  public TypeElement getBeanType() {
+  public TypeElement beanType() {
     return enumType;
   }
 

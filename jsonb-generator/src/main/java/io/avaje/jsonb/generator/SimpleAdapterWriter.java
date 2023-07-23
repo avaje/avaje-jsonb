@@ -19,7 +19,7 @@ final class SimpleAdapterWriter {
 
   SimpleAdapterWriter(BeanReader beanReader) {
     this.beanReader = beanReader;
-    final AdapterName adapterName = new AdapterName(beanReader.getBeanType());
+    final AdapterName adapterName = new AdapterName(beanReader.beanType());
     this.adapterShortName = adapterName.shortName();
     this.adapterPackage = adapterName.adapterPackage();
     this.adapterFullName = adapterName.fullName();

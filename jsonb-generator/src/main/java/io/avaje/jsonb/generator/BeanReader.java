@@ -34,7 +34,7 @@ interface BeanReader {
     return 0;
   }
 
-  TypeElement getBeanType();
+  TypeElement beanType();
 
   void cascadeTypes(Set<String> extraTypes);
 

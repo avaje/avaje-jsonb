@@ -4,7 +4,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.Set;
 
-class FieldProperty {
+final class FieldProperty {
 
   private final boolean raw;
   private final boolean unmapped;
@@ -65,6 +65,14 @@ class FieldProperty {
 
   void setGetterMethod(MethodReader getter) {
     this.getter = getter;
+  }
+
+  void setSetterMethod(MethodReader setter) {
+    this.setter = setter;
+  }
+
+  public MethodReader setter() {
+    return setter;
   }
 
   boolean isConstructorParam() {
@@ -258,14 +266,6 @@ class FieldProperty {
       }
       writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s));", propertyName, adapterFieldName, shortName, getter.getName(), topType).eol();
     }
-  }
-
-  void setSetter(MethodReader setter) {
-    this.setter = setter;
-  }
-
-  public MethodReader setter() {
-    return setter;
   }
 
   void writeFromJsonSetter(Append writer, String varName, String prefix, String num) {

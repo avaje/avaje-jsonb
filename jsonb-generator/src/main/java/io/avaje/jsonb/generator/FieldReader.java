@@ -121,7 +121,7 @@ final class FieldReader {
   }
 
   void setterMethod(MethodReader setter) {
-    property.setSetter(setter);
+    property.setSetterMethod(setter);
   }
 
   void getterMethod(MethodReader getter) {
@@ -226,31 +226,31 @@ final class FieldReader {
     return property.isConstructorParam();
   }
 
-  public String getFieldNameWithNum() {
+  public String fieldNameWithNum() {
     return property.fieldName() + num;
   }
 
-  public String getAdapterFieldName() {
+  public String adapterFieldName() {
     return property.adapterFieldName();
   }
 
-  public MethodReader getSetter() {
+  public MethodReader setter() {
     return property.setter();
   }
 
   public void setSetter(MethodReader setter) {
-    property.setSetter(setter);
+    property.setSetterMethod(setter);
   }
 
   public boolean isDeserialize() {
     return deserialize;
   }
 
-  public Map<String, TypeSubTypeMeta> getSubTypes() {
+  public Map<String, TypeSubTypeMeta> subTypes() {
     return subTypes;
   }
 
-  public List<String> getAliases() {
+  public List<String> aliases() {
     return aliases;
   }
 }
