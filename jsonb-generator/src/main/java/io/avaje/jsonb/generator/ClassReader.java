@@ -98,7 +98,7 @@ final class ClassReader implements BeanReader {
   }
 
   @Override
-  public TypeElement getBeanType() {
+  public TypeElement beanType() {
     return beanType;
   }
 
@@ -107,8 +107,8 @@ final class ClassReader implements BeanReader {
   }
 
   @Override
-  public boolean hasSubtypes() {
-    return hasSubTypes;
+  public boolean supportsViewBuilder() {
+    return !hasSubTypes;
   }
 
   @Override
@@ -482,7 +482,7 @@ final class ClassReader implements BeanReader {
               caseInsensitiveKeys,
               allFields.stream()
                   .filter(x -> x.fieldName().equals(name))
-                  .flatMap(f -> f.getAliases().stream())
+                  .flatMap(f -> f.aliases().stream())
                   .collect(toList()));
         } else {
           // if subclass shares a field name with another subclass
@@ -516,17 +516,17 @@ final class ClassReader implements BeanReader {
     writer.append("        case \"%s\":", name).eol();
     // get all possible aliases of this field from the subtypes
     for (final String alias :
-        commonFields.stream().map(FieldReader::getAliases).findFirst().orElseGet(List::of)) {
+        commonFields.stream().map(FieldReader::aliases).findFirst().orElseGet(List::of)) {
       final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
       writer.append("        case \"%s\":", propertyKey).eol();
     }
     var elseIf = false;
     // write the case statements with subtypeCheck
     for (final FieldReader fieldReader : commonFields) {
-      final var subtype = new ArrayList<>(fieldReader.getSubTypes().values()).get(0);
-      final var setter = fieldReader.getSetter();
-      final var adapterFieldName = fieldReader.getAdapterFieldName();
-      final var fieldName = fieldReader.getFieldNameWithNum();
+      final var subtype = new ArrayList<>(fieldReader.subTypes().values()).get(0);
+      final var setter = fieldReader.setter();
+      final var adapterFieldName = fieldReader.adapterFieldName();
+      final var fieldName = fieldReader.fieldNameWithNum();
       if (useEnum) {
         writer.append("          %sif (%s.equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type").eol();
       } else {
