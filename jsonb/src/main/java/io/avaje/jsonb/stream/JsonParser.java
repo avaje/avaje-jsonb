@@ -20,10 +20,15 @@ interface JsonParser extends Closeable {
   byte nextToken();
 
   /**
+   * Return true if there is a next element of an ARRAY.
+   */
+  boolean hasNextElement();
+
+  /**
    * Return true if there is a next element of an ARRAY or stream.
    * Support x-json-stream new line delimited json.
    */
-  boolean hasNextElement();
+  boolean hasNextStreamElement();
 
   /**
    * Read and return the field name.

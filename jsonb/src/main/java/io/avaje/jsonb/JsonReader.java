@@ -41,6 +41,15 @@ public interface JsonReader extends Closeable {
   }
 
   /**
+   * Return true if there is a next element in an ARRAY or x-json-stream (new line delimited json content).
+   * <p>
+   * Effectively this allows for new line delimited rather than commas between array elements.
+   */
+  default boolean hasNextStreamElement() {
+    return hasNextElement();
+  }
+
+  /**
    * Read array begin.
    */
   void beginArray();
