@@ -39,6 +39,8 @@ final class TypeReader {
 
   private final Map<String, Integer> frequencyMap  = new HashMap<>();
 
+  private final List<MethodProperty> methodProperties = new ArrayList<>();
+
   private boolean optional;
 
   TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
@@ -390,6 +392,9 @@ final class TypeReader {
     }
     matchFieldsToSetterOrConstructor();
     matchFieldsToGetter();
+    if (allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
+      initReadOnlyMethods();
+    }
   }
 
   /**
@@ -427,4 +432,31 @@ final class TypeReader {
   public boolean hasOptional() {
     return optional;
   }
+
+  public List<MethodProperty> methodProperties() {
+    return methodProperties;
+  }
+
+  private void initReadOnlyMethods() {
+    int pos = 0;
+    for (MethodReader methodReader : maybeGetterMethods.values()) {
+      var property = new FieldProperty(methodReader);
+      property.setGetterMethod(methodReader);
+      property.setPosition(pos++);
+      String name = initPropertyName(methodReader.getName(), property);
+      String propertyName = namingConvention.from(name);
+      methodProperties.add(new MethodProperty(propertyName, property));
+    }
+  }
+
+  private String initPropertyName(String name, FieldProperty property) {
+    if (property.typeBooleanWithIsPrefix()) {
+      return Util.initLower(name.substring(2));
+    } else if (name.length() > 3 && name.startsWith("get") && Character.isUpperCase(name.charAt(3))) {
+      return Util.initLower(name.substring(3));
+    } else {
+      return name;
+    }
+  }
+
 }

@@ -20,6 +20,7 @@ final class ClassReader implements BeanReader {
 
   private final MethodReader constructor;
   private final List<FieldReader> allFields;
+  private final List<MethodProperty> methodProperties;
   private final Set<String> importTypes = new TreeSet<>();
   private final NamingConvention namingConvention;
   private final boolean hasSubTypes;
@@ -27,6 +28,7 @@ final class ClassReader implements BeanReader {
   private final String typeProperty;
   private final boolean nonAccessibleField;
   private final boolean caseInsensitiveKeys;
+  private final boolean readOnlyInterface;
   private FieldReader unmappedField;
   private boolean hasRaw;
   private final boolean isRecord;
@@ -37,6 +39,7 @@ final class ClassReader implements BeanReader {
   private final Map<String, Integer> frequencyMap = new HashMap<>();
   private final Map<String, Boolean> isCommonFieldMap = new HashMap<>();
   private final boolean optional;
+  private final List<TypeSubTypeMeta> subTypes;
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
@@ -58,7 +61,11 @@ final class ClassReader implements BeanReader {
     this.constructor = typeReader.constructor();
     this.optional = typeReader.hasOptional();
     this.isRecord = isRecord(beanType);
-    typeReader.subTypes().stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
+    this.subTypes = typeReader.subTypes();
+    this.readOnlyInterface = allFields.isEmpty() && subTypes.isEmpty();
+    this.methodProperties = typeReader.methodProperties();
+
+    subTypes.stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
 
     final var userTypeField = allFields.stream().filter(f -> f.propertyName().equals(typePropertyKey())).findAny();
 
@@ -132,6 +139,9 @@ final class ClassReader implements BeanReader {
         unmappedField = field;
       }
     }
+    for (final MethodProperty methodProperty : methodProperties) {
+      methodProperty.addImports(importTypes);
+    }
   }
 
   private Set<String> importTypes() {
@@ -150,6 +160,9 @@ final class ClassReader implements BeanReader {
     }
     for (final FieldReader allField : allFields) {
       allField.addImports(importTypes);
+    }
+    for (final MethodProperty methodProperty : methodProperties) {
+      methodProperty.addImports(importTypes);
     }
     return importTypes;
   }
@@ -194,6 +207,11 @@ final class ClassReader implements BeanReader {
         allField.writeField(writer);
       }
     }
+    for (final MethodProperty methodProperty : methodProperties) {
+      if (uniqueTypes.add(methodProperty.adapterShortType())) {
+        methodProperty.writeField(writer);
+      }
+    }
     writer.append("  private final PropertyNames names;").eol();
     writer.eol();
   }
@@ -221,12 +239,25 @@ final class ClassReader implements BeanReader {
         allField.writeConstructor(writer);
       }
     }
+    for (MethodProperty methodProperty : methodProperties) {
+      if (uniqueTypes.add(methodProperty.adapterShortType())) {
+        methodProperty.writeConstructor(writer);
+      }
+    }
     writer.append("    this.names = jsonb.properties(");
     if (hasSubTypes) {
       writer.append("\"").append(typeProperty).append("\", ");
     }
-    final StringBuilder builder = new StringBuilder();
+    writer.append(propertyNames());
+    writer.append(");").eol();
+  }
 
+  private String propertyNames() {
+    return readOnlyInterface ? propertyNamesReadOnly() : propertyNamesFields();
+  }
+
+  private String propertyNamesFields() {
+    final StringBuilder builder = new StringBuilder();
     //set to prevent writing same key twice
     final var seen = new HashSet<String>();
     for (int i = 0, size = allFields.size(); i < size; i++) {
@@ -243,8 +274,18 @@ final class ClassReader implements BeanReader {
       }
       builder.append("\"").append(fieldReader.propertyName()).append("\"");
     }
-    writer.append(builder.toString().replace(" , ", ""));
-    writer.append(");").eol();
+    return builder.toString().replace(" , ", "");
+  }
+
+  private String propertyNamesReadOnly() {
+    final StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < methodProperties.size(); i++) {
+      if (i > 0) {
+        builder.append(", ");
+      }
+      builder.append("\"").append(methodProperties.get(i).propertyName()).append("\"");
+    }
+    return builder.toString().replace(" , ", "");
   }
 
   @Override
@@ -271,12 +312,13 @@ final class ClassReader implements BeanReader {
     writer.append("  @Override").eol();
     writer.append("  public void build(ViewBuilder builder, String name, MethodHandle handle) {").eol();
     writer.append("    builder.beginObject(name, handle);").eol();
-    if (!hasSubTypes) {
-      for (final FieldReader allField : allFields) {
-        if (allField.includeToJson(null)) {
-          allField.writeViewBuilder(writer, shortName);
-        }
+    for (final FieldReader allField : allFields) {
+      if (allField.includeToJson(null)) {
+        allField.writeViewBuilder(writer, shortName);
       }
+    }
+    for (final MethodProperty methodProperty : methodProperties) {
+      methodProperty.writeViewBuilder(writer, shortName);
     }
     writer.append("    builder.endObject();").eol();
     writer.append("  }").eol();
@@ -300,7 +342,6 @@ final class ClassReader implements BeanReader {
 
   private void writeToJsonForSubtypes(Append writer, String varName) {
     if (hasSubTypes) {
-      final List<TypeSubTypeMeta> subTypes = typeReader.subTypes();
       for (int i = 0; i < subTypes.size(); i++) {
         final TypeSubTypeMeta subTypeMeta = subTypes.get(i);
         final String subType = subTypeMeta.type();
@@ -330,6 +371,9 @@ final class ClassReader implements BeanReader {
         allField.writeToJson(writer, varName, prefix);
       }
     }
+    for (final MethodProperty methodProperty : methodProperties) {
+      methodProperty.writeToJson(writer, varName, prefix);
+    }
   }
 
   @Override
@@ -338,6 +382,12 @@ final class ClassReader implements BeanReader {
     writer.eol();
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) {", shortName, varName).eol();
+    if (readOnlyInterface) {
+      writer.append("    throw new UnsupportedOperationException();").eol();
+      writer.append("  }").eol();
+      return;
+    }
+
     final boolean directLoad = (constructor == null && !hasSubTypes && !optional);
     if (directLoad) {
       // default public constructor
@@ -401,7 +451,7 @@ final class ClassReader implements BeanReader {
 
   private void writeFromJsonWithSubTypes(Append writer) {
     final var typeVar = usesTypeProperty ? "_val$" + typePropertyKey() : "type";
-    final var useSwitch = typeReader.subTypes().size() >= 3;
+    final var useSwitch = subTypes.size() >= 3;
 
     if (!useSwitch || !nullSwitch) {
       writer.append("    if (%s == null) {", typeVar).eol();
@@ -422,7 +472,7 @@ final class ClassReader implements BeanReader {
     final Map<String, Integer> frequencyMap2 = new HashMap<>();
     final var req = new SubTypeRequest(typeVar, this, useSwitch, useEnum, frequencyMap2, isCommonFieldMap);
 
-    for (final TypeSubTypeMeta subTypeMeta : typeReader.subTypes()) {
+    for (final TypeSubTypeMeta subTypeMeta : subTypes) {
       final var varName = Util.initLower(Util.shortName(subTypeMeta.type()));
       subTypeMeta.writeFromJsonBuild(writer, varName, req);
     }
