@@ -54,7 +54,7 @@ final class StreamAdapter<T> implements JsonAdapter<Stream<T>>, DJsonClosable<St
 
     @Override
     public boolean hasNext() {
-      final boolean result = reader.hasNextElement();
+      final boolean result = reader.hasNextStreamElement();
       if (!result) {
         endStream();
       }

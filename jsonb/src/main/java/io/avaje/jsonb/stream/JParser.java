@@ -641,7 +641,7 @@ final class JParser implements JsonParser {
   }
 
   @Override
-  public boolean hasNextElement() {
+  public boolean hasNextStreamElement() {
     if (currentIndex >= length) {
       return false;
     }
@@ -651,11 +651,31 @@ final class JParser implements JsonParser {
         nextToken();
         return true;
       }
-      return nextToken != ']';
+      return (nextToken != ']');
     } catch (JsonEofException e) {
       // expected when streaming new line delimited content with trailing whitespace
       return false;
     }
+  }
+
+  @Override
+  public boolean hasNextElement() {
+    if (currentIndex >= length) {
+      return false;
+    }
+    final boolean firstElement = last == '[';
+    byte nextToken = nextToken();
+    if (nextToken == ']') {
+      return false;
+    }
+    if (nextToken == ',') {
+      nextToken();
+      return true;
+    }
+    if (firstElement) {
+      return true;
+    }
+    throw newParseError("Expecting ']' or ',' for end of array element");
   }
 
   /**
@@ -983,7 +1003,7 @@ final class JParser implements JsonParser {
       return;
     }
     if (currentIndex >= length) throw newParseErrorAt("Unexpected end in JSON", 0, eof);
-    throw newParseError("Expecting start of stream but got [" + last + "]");
+    throw newParseError("Expecting start of stream");
   }
 
   @Override
@@ -1059,12 +1079,16 @@ final class JParser implements JsonParser {
   JsonDataException newParseError(final String description) {
     error.setLength(0);
     error.append(description);
-    error.append(". Found ");
-    error.append((char) last);
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
+    error.append(", instead found '");
+    error.append((char) last).append("'");
+    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(formatErrorMessage(), false);
     error.append(" ");
     positionDescription(0, error);
-    return new JsonDataException(error.toString());
+    return new JsonDataException(errorMessage());
+  }
+
+  private String errorMessage() {
+    return error.toString().replace("\n", "\\n");
   }
 
   JsonDataException newParseErrorAt(final String description, final int offset) {
@@ -1075,7 +1099,7 @@ final class JParser implements JsonParser {
     error.append(description);
     error.append(" ");
     positionDescription(offset, error);
-    return new JsonDataException(error.toString());
+    return new JsonDataException(errorMessage());
   }
 
   JsonDataException newParseErrorAt(final String description, final int offset, final Exception cause) {
@@ -1091,20 +1115,20 @@ final class JParser implements JsonParser {
       error.append(" ");
     }
     error.append(description);
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return new JsonDataException(error.toString(), cause);
+    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return new JsonDataException(formatErrorMessage(), cause);
     error.append(" ");
     positionDescription(offset, error);
-    return new JsonDataException(error.toString());
+    return new JsonDataException(errorMessage());
   }
 
   JsonDataException newParseErrorFormat(final String description, final int offset, final String extraFormat, Object... args) {
     if (errorInfo == ErrorInfo.MINIMAL) return new JsonDataException(description);
     error.setLength(0);
     errorFormatter.format(extraFormat, args);
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
+    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(formatErrorMessage(), false);
     error.append(" ");
     positionDescription(offset, error);
-    return new JsonDataException(error.toString());
+    return new JsonDataException(errorMessage());
   }
 
   JsonDataException newParseErrorWith(String description, Object argument) {
@@ -1119,10 +1143,10 @@ final class JParser implements JsonParser {
       error.append(": '").append(extraArgument).append("'");
     }
     error.append(extraSuffix);
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(error.toString(), false);
+    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(formatErrorMessage(), false);
     error.append(" ");
     positionDescription(offset, error);
-    return new JsonDataException(error.toString());
+    return new JsonDataException(errorMessage());
   }
 }
 
