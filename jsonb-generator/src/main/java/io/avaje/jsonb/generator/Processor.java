@@ -228,17 +228,7 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void writeAdapter(TypeElement typeElement, BeanReader beanReader) {
-    if ((typeElement.getModifiers().contains(Modifier.ABSTRACT)
-            || typeElement.getKind() == ElementKind.INTERFACE)
-        && !SubTypePrism.isPresent(typeElement)
-        && !SubTypesPrism.isPresent(typeElement)
-        && importedSubtypes(typeElement).isEmpty()) {
-      logNote("Type %s is abstract and has no configured subtypes. No Adapter will be generated for it.", typeElement);
-      return;
-    }
-
     beanReader.read();
-
     if (beanReader.nonAccessibleField()) {
       if (beanReader.hasJsonAnnotation()) {
         logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);

@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import javax.lang.model.type.TypeMirror;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +25,10 @@ final class FieldProperty {
   private int position;
   private MethodReader getter;
   private MethodReader setter;
+
+  FieldProperty(MethodReader methodReader) {
+    this(methodReader.returnType(), false, false, new ArrayList<>(), false, methodReader.getName());
+  }
 
   FieldProperty(TypeMirror asType, boolean raw, boolean unmapped, List<String> genericTypeParams,
                        boolean publicField, String fieldName) {
