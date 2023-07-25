@@ -115,6 +115,10 @@ final class ProcessingContext {
     return CTX.get().types.asElement(returnType);
   }
 
+  static TypeElement asTypeElement(TypeMirror returnType) {
+    return (TypeElement) asElement(returnType);
+  }
+
   static ProcessingEnvironment env() {
     return CTX.get().env;
   }

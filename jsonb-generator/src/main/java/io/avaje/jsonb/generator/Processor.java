@@ -2,6 +2,8 @@ package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.*;
 import static io.avaje.jsonb.generator.Constants.*;
+import static io.avaje.jsonb.generator.ProcessingContext.asTypeElement;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -19,6 +21,7 @@ import java.util.function.Predicate;
   CustomAdapterPrism.PRISM_TYPE,
   JSON,
   JSON_IMPORT,
+  JSON_IMPORT_LIST,
   JSON_MIXIN,
   ValuePrism.PRISM_TYPE
 })
@@ -62,6 +65,7 @@ public final class Processor extends AbstractProcessor {
     writeAdapters(round.getElementsAnnotatedWith(element(JSON)));
     writeEnumAdapters(round.getElementsAnnotatedWith(element(ValuePrism.PRISM_TYPE)));
     writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(element(JSON_MIXIN)));
+    writeAdaptersForImportedList(round.getElementsAnnotatedWith(element(JSON_IMPORT_LIST)));
     writeAdaptersForImported(round.getElementsAnnotatedWith(element(JSON_IMPORT)));
     registerCustomAdapters(round.getElementsAnnotatedWith(element(CustomAdapterPrism.PRISM_TYPE)));
     initialiseComponent();
@@ -155,11 +159,17 @@ public final class Processor extends AbstractProcessor {
     for (final Element mixin : mixInElements) {
       final TypeMirror mirror = MixInPrism.getInstanceOn(mixin).value();
       final String importType = mirror.toString();
-      final TypeElement element = (TypeElement) asElement(mirror);
+      final TypeElement element = asTypeElement(mirror);
 
       mixInImports.add(importType);
       writeAdapterForMixInType(element, element(mixin.asType().toString()));
     }
+  }
+
+  private void writeAdaptersForImportedList(Set<? extends Element> imported) {
+    imported.stream()
+      .flatMap(e -> ImportListPrism.getInstanceOn(e).value().stream())
+      .forEach(this::addImported);
   }
 
   /**
@@ -168,18 +178,26 @@ public final class Processor extends AbstractProcessor {
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
     importedElements.stream()
       .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream())
-      .flatMap(prism -> {
-        addImportedPrism(prism);
-        return prism.value().stream();
-      })
-      .forEach(
-        importType -> {
-          // if imported by mixin annotation skip
-          if (mixInImports.contains(importType.toString())) {
-            return;
-          }
-          writeAdapterForType((TypeElement) asElement(importType));
-        });
+      .forEach(this::addImported);
+  }
+
+  private void addImported(ImportPrism importPrism) {
+    addImportedPrism(importPrism);
+    for (TypeMirror importType : importPrism.value()) {
+      // if imported by mixin annotation skip
+      if (mixInImports.contains(importType.toString())) {
+        return;
+      }
+      writeAdapterForImportedType(asTypeElement(importType), implementationType(importPrism));
+    }
+  }
+
+  private static TypeElement implementationType(ImportPrism importPrism) {
+    TypeMirror implementationType = importPrism.implementation();
+    if (!"java.lang.Void".equals(implementationType.toString())) {
+      return asTypeElement(implementationType);
+    }
+    return null;
   }
 
   private void initialiseComponent() {
@@ -220,6 +238,14 @@ public final class Processor extends AbstractProcessor {
   private void writeAdapterForType(TypeElement typeElement) {
     final ClassReader beanReader = new ClassReader(typeElement);
     writeAdapter(typeElement, beanReader);
+  }
+
+  private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType) {
+    final ClassReader beanReader = new ClassReader(importedType);
+    if (implementationType != null) {
+      beanReader.setImplementationType(implementationType);
+    }
+    writeAdapter(importedType, beanReader);
   }
 
   private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {

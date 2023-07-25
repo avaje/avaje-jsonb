@@ -81,9 +81,14 @@ public @interface Json {
     /** Specify the Subtype information. Can only be used if there is only one abstract type being imported */
     SubType[] subtypes() default {};
 
+    /**
+     * When importing an Interface or abstract type use this implementation for `fromJson()`.
+     */
+    Class<?> implementation() default Void.class;
+
     @Retention(CLASS)
     @Target({ElementType.TYPE, ElementType.PACKAGE})
-    public @interface List {
+    @interface List {
 
       Import[] value();
     }
