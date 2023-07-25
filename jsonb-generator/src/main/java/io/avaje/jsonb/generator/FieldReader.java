@@ -2,11 +2,7 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 final class FieldReader {
 
@@ -41,13 +37,15 @@ final class FieldReader {
         .map(Util::escapeQuotes)
         .orElse(namingConvention.from(fieldName));
 
-    this.aliases =
-      JsonAliasPrism.getOptionalOn(element)
-        .map(JsonAliasPrism::value)
-        .stream()
-        .flatMap(List::stream)
-        .map(Util::escapeQuotes)
-        .collect(Collectors.toList());
+    this.aliases = initAliases(element);
+  }
+
+  private static List<String> initAliases(Element element) {
+    return AliasPrism.getOptionalOn(element)
+      .map(a -> Util.escapeQuotes(a.value()))
+      .orElse(JsonAliasPrism.getOptionalOn(element)
+        .map(a -> Util.escapeQuotes(a.value()))
+        .orElse(Collections.emptyList()));
   }
 
   void position(int pos) {

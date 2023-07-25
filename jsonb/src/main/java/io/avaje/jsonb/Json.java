@@ -119,11 +119,23 @@ public @interface Json {
    * during deserialization.
    *
    * <pre>{@code
-   * @Json.JsonAlias("$code")
+   * @Json.Alias("$code")
    * String referenceCode;
    *
    * }</pre>
    */
+  @Retention(CLASS)
+  @Target({ElementType.FIELD})
+  @interface Alias {
+
+    /** One or more secondary names to accept as aliases to the official name. */
+    String[] value();
+  }
+
+  /**
+   * Deprecate - migrate to {@link Json.Alias}.
+   */
+  @Deprecated
   @Retention(CLASS)
   @Target({ElementType.FIELD})
   @interface JsonAlias {

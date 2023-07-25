@@ -8,7 +8,7 @@ import io.avaje.jsonb.Json;
 @Json
 public class TestClass {
 
-  @Json.JsonAlias({"something", "something2"})
+  @Json.Alias({"something", "something2"})
   private String alias;
 
   private String s;
