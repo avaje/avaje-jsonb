@@ -5,19 +5,21 @@ import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class AIFaceTest {
+class EIFaceTest {
 
   Jsonb jsonb = Jsonb.builder().build();
 
-  record Foo(String one, long two) implements AIFace {
+  record Foo(String one, long two) implements EIFace {
   }
 
   @Test
   void toJson() {
-    JsonType<AIFace> type = jsonb.type(AIFace.class);
+    JsonType<EIFace> type = jsonb.type(EIFace.class);
 
     String asJson = type.toJson(new Foo("a", 42));
     assertThat(asJson).isEqualTo("{\"one\":\"a\",\"two\":42}");
@@ -25,22 +27,22 @@ class AIFaceTest {
 
   @Test
   void toJsonView() {
-    JsonType<AIFace> type = jsonb.type(AIFace.class);
+    JsonType<EIFace> type = jsonb.type(EIFace.class);
 
-    JsonView<AIFace> view0 = type.view("(one)");
+    JsonView<EIFace> view0 = type.view("(one)");
     String asJson = view0.toJson(new Foo("a", 42));
     assertThat(asJson).isEqualTo("{\"one\":\"a\"}");
 
-    JsonView<AIFace> view1 = type.view("(one,two)");
+    JsonView<EIFace> view1 = type.view("(one,two)");
     assertThat(view1.toJson(new Foo("a", 42))).isEqualTo("{\"one\":\"a\",\"two\":42}");
 
-    JsonView<AIFace> view2 = type.view("(two)");
+    JsonView<EIFace> view2 = type.view("(two)");
     assertThat(view2.toJson(new Foo("a", 42))).isEqualTo("{\"two\":42}");
   }
 
   @Test
   void fromJson_expect_UnsupportedOperationException() {
-    JsonType<AIFace> type = jsonb.type(AIFace.class);
+    JsonType<EIFace> type = jsonb.type(EIFace.class);
     assertThatThrownBy(() -> {
       type.fromJson("{\"one\":\"a\",\"two\":42}");
     }).isInstanceOf(UnsupportedOperationException.class);

@@ -6,6 +6,7 @@ import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CIFaceTest {
 
@@ -35,6 +36,14 @@ class CIFaceTest {
 
     JsonView<CIFace> view2 = type.view("(two-not-here)");
     assertThat(view2.toJson(new Foo("a", 42, "b"))).isEqualTo("{\"two-not-here\":42}");
+  }
+
+  @Test
+  void fromJson_expect_UnsupportedOperationException() {
+    JsonType<CIFace> type = jsonb.type(CIFace.class);
+    assertThatThrownBy(() -> {
+      type.fromJson("{\"one\":\"a\",\"two\":42}");
+    }).isInstanceOf(UnsupportedOperationException.class);
   }
 
 }

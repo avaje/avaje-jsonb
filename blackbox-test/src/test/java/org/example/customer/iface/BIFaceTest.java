@@ -6,6 +6,7 @@ import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BIFaceTest {
 
@@ -49,6 +50,14 @@ class BIFaceTest {
 
     JsonView<BIFace> view2 = type.view("(two)");
     assertThat(view2.toJson(new Foo("a", true, "b", "c"))).isEqualTo("{\"two\":true}");
+  }
+
+  @Test
+  void fromJson_expect_UnsupportedOperationException() {
+    JsonType<BIFace> type = jsonb.type(BIFace.class);
+    assertThatThrownBy(() -> {
+      type.fromJson("{\"one\":\"a\",\"two\":42}");
+    }).isInstanceOf(UnsupportedOperationException.class);
   }
 
 }

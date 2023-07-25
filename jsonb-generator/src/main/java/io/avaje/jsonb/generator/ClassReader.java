@@ -40,6 +40,8 @@ final class ClassReader implements BeanReader {
   private final Map<String, Boolean> isCommonFieldMap = new HashMap<>();
   private final boolean optional;
   private final List<TypeSubTypeMeta> subTypes;
+  /** An Interface/abstract type with a single implementation */
+  private ClassReader implementation;
 
   ClassReader(TypeElement beanType) {
     this(beanType, null);
@@ -87,6 +89,13 @@ final class ClassReader implements BeanReader {
     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
       return false;
     }
+  }
+
+  /**
+   * For an interface type set the single implementation to use for fromJson().
+   */
+  void setImplementationType(TypeElement implementationType) {
+    this.implementation = new ClassReader(implementationType);
   }
 
   @Override
@@ -164,7 +173,16 @@ final class ClassReader implements BeanReader {
     for (final MethodProperty methodProperty : methodProperties) {
       methodProperty.addImports(importTypes);
     }
+    if (implementation != null) {
+      implementation.addImported(importTypes);
+    }
     return importTypes;
+  }
+
+  private void addImported(Set<String> importTypes) {
+    if (Util.validImportType(type)) {
+      importTypes.add(type);
+    }
   }
 
   @Override
@@ -383,11 +401,18 @@ final class ClassReader implements BeanReader {
     writer.append("  @Override").eol();
     writer.append("  public %s fromJson(JsonReader reader) {", shortName, varName).eol();
     if (readOnlyInterface) {
-      writer.append("    throw new UnsupportedOperationException();").eol();
-      writer.append("  }").eol();
+      if (implementation == null) {
+        writer.append("    throw new UnsupportedOperationException();").eol();
+        writer.append("  }").eol();
+      } else {
+        implementation.writeFromJsonImplementation(writer, varName);
+      }
       return;
     }
+    writeFromJsonImplementation(writer, varName);
+  }
 
+  private void writeFromJsonImplementation(Append writer, String varName) {
     final boolean directLoad = (constructor == null && !hasSubTypes && !optional);
     if (directLoad) {
       // default public constructor
