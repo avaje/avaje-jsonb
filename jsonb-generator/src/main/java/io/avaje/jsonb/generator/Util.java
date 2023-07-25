@@ -2,6 +2,8 @@ package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.element;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,6 +103,14 @@ final class Util {
     } else {
       return Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
+  }
+
+  static List<String> escapeQuotes(List<String> all) {
+    List<String> escaped = new ArrayList<>(all.size());
+    for (String raw : all) {
+      escaped.add(Util.escapeQuotes(raw));
+    }
+    return escaped;
   }
 
   static String escapeQuotes(String input) {
