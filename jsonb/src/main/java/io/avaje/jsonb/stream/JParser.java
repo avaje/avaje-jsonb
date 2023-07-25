@@ -274,7 +274,7 @@ final class JParser implements JsonParser {
    */
   @Override
   public byte currentToken() {
-    return last;
+    return currentIndex == 0 ? nextToken() : last;
   }
 
   @Override
