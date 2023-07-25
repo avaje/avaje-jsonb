@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 final class ComponentReader {
-	
+
   private final ComponentMetaData componentMetaData;
 
   ComponentReader(ComponentMetaData metaData) {
@@ -44,16 +44,14 @@ final class ComponentReader {
       final FactoryPrism metaDataFactory = FactoryPrism.getInstance(annotationMirror);
 
       if (metaData != null) {
-
         metaData.value().stream()
             .map(TypeMirror::toString)
             .forEach(componentMetaData::add);
 
       } else if (metaDataFactory != null) {
-
         metaDataFactory.value().stream()
             .map(TypeMirror::toString)
-            .forEach(componentMetaData::add);
+            .forEach(componentMetaData::addFactory);
       }
     }
   }
