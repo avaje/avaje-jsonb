@@ -344,18 +344,22 @@ final class ClassReader implements BeanReader {
 
   @Override
   public void writeToJson(Append writer) {
-    final String varName = Util.initLower(shortName);
-    writer.eol();
-    writer.append("  @Override").eol();
-    writer.append("  public void toJson(JsonWriter writer, %s %s) {", shortName, varName).eol();
-    writer.append("    writer.beginObject(names);").eol();
-    if (hasSubTypes) {
-      writeToJsonForSubtypes(writer, varName);
-    } else {
-      writeToJsonForType(writer, varName, "    ", null);
+    try {
+      final String varName = Util.initLower(shortName);
+      writer.eol();
+      writer.append("  @Override").eol();
+      writer.append("  public void toJson(JsonWriter writer, %s %s) {", shortName, varName).eol();
+      writer.append("    writer.beginObject(names);").eol();
+      if (hasSubTypes) {
+        writeToJsonForSubtypes(writer, varName);
+      } else {
+        writeToJsonForType(writer, varName, "    ", null);
+      }
+      writer.append("    writer.endObject();").eol();
+      writer.append("  }").eol();
+    } catch (RuntimeException e) {
+      throw new IllegalStateException("Error writing toJson() on " + type, e);
     }
-    writer.append("    writer.endObject();").eol();
-    writer.append("  }").eol();
   }
 
   private void writeToJsonForSubtypes(Append writer, String varName) {

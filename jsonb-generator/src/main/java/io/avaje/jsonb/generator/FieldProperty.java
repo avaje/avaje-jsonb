@@ -232,7 +232,7 @@ final class FieldProperty {
     } else if (publicField) {
       writer.append("%s.%s%s", varName, fieldName, suffix);
     } else {
-      throw new IllegalStateException("Field" + fieldName + " is inaccessible. Add a getter or make the field public.");
+      throw new IllegalStateException("Field " + fieldName + " is inaccessible. Add a getter or make the field public.");
     }
   }
 
