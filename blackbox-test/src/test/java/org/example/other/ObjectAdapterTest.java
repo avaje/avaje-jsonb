@@ -20,6 +20,57 @@ class ObjectAdapterTest {
 
   JsonType<Object> objectType = jsonb.type(Object.class);
 
+  @Test
+  void nullJson() {
+    Object val = objectType.fromJson("null");
+    assertThat(val).isNull();
+
+    String asJson = objectType.toJson(null);
+    assertThat(asJson).isEqualTo("");
+  }
+
+  @Test
+  void booleanTrue() {
+    String asJson = objectType.toJson(true);
+    assertThat(asJson).isEqualTo("true");
+
+    Object val = objectType.fromJson("true");
+    assertThat(val).isEqualTo(true);
+  }
+
+  @Test
+  void booleanFalse() {
+    String asJson = objectType.toJson(false);
+    assertThat(asJson).isEqualTo("false");
+
+    Object val = objectType.fromJson("false");
+    assertThat(val).isEqualTo(false);
+  }
+
+  @SuppressWarnings("raw")
+  @Test
+  void booleanArray() {
+    String asJson = objectType.toJson(List.of(false, true, true, false, true));
+    assertThat(asJson).isEqualTo("[false,true,true,false,true]");
+
+    Object val = objectType.fromJson("[false,true,true,false,true]");
+    assertThat(val).isInstanceOf(List.class);
+    List list = (List) val;
+    assertThat(list).isEqualTo(List.of(false, true, true, false, true));
+  }
+
+  @SuppressWarnings("raw")
+  @Test
+  void mixedArray() {
+    String asJson = objectType.toJson(List.of(42, false, true, "hi", true));
+    assertThat(asJson).isEqualTo("[42,false,true,\"hi\",true]");
+
+    Object val = objectType.fromJson("[42,false,true,\"hi\",true]");
+    assertThat(val).isInstanceOf(List.class);
+    List list = (List) val;
+    assertThat(list).isEqualTo(List.of(42.0, false, true, "hi", true));
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   void fromJson_readingMap() {
@@ -27,7 +78,7 @@ class ObjectAdapterTest {
     Object value = objectAdapter.fromJson(jsonb.reader("{\"id\":42,\"name\":\"rob\"}"));
 
     assertThat(value).isInstanceOf(Map.class);
-    Map<String,Object> asMap = (Map<String, Object>) value;
+    Map<String, Object> asMap = (Map<String, Object>) value;
     assertThat(asMap.get("id")).isEqualTo(42D);
     assertThat(asMap.get("name")).isEqualTo("rob");
 
@@ -43,7 +94,7 @@ class ObjectAdapterTest {
 
     assertThat(value).isInstanceOf(List.class);
 
-    List<Map<String,Object>> asListOfMap = (List<Map<String,Object>>) value;
+    List<Map<String, Object>> asListOfMap = (List<Map<String, Object>>) value;
     assertThat(asListOfMap).hasSize(2);
     assertThat(asListOfMap.get(0).get("id")).isEqualTo(42D);
     assertThat(asListOfMap.get(0).get("name")).isEqualTo("rob");
@@ -70,13 +121,13 @@ class ObjectAdapterTest {
     Object result = type.fromJson("{\"errors\":[{\"path\":42,\"property\":\"foo\",\"message\":\"must not be blank\"}]}");
     assertThat(result).isInstanceOf(Map.class);
 
-    var map = (Map<String,Object>)result;
+    var map = (Map<String, Object>) result;
     assertThat(map).hasSize(1);
     Object errors = map.get("errors");
     assertThat(errors).isInstanceOf(List.class);
-    var list = (List<?>)errors;
+    var list = (List<?>) errors;
     assertThat(list).hasSize(1);
-    var entry = (Map<String,Object>)list.get(0);
+    var entry = (Map<String, Object>) list.get(0);
 
     assertThat(entry).hasSize(3);
     assertThat(entry.get("path")).isEqualTo(42.0D);
