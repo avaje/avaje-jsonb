@@ -51,7 +51,9 @@ final class BasicTypeAdapters {
         if (type == UUID.class) return new UuidAdapter().nullSafe();
         if (type == URL.class) return new UrlAdapter().nullSafe();
         if (type == URI.class) return new UriAdapter().nullSafe();
+        if (type == StackTraceElement.class) return new StackTraceElementAdapter().nullSafe();
         if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
+        if (type == Throwable.class) return new ThrowableAdapter(jsonb).nullSafe();
 
         final Class<?> rawType = Util.rawType(type);
         if (rawType.isEnum()) {
@@ -107,6 +109,80 @@ final class BasicTypeAdapters {
     @Override
     public void toJson(JsonWriter writer, URI value) {
       writer.value(value.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(URI)";
+    }
+  }
+
+  private static final class StackTraceElementAdapter implements JsonAdapter<StackTraceElement> {
+    @Override
+    public StackTraceElement fromJson(JsonReader reader) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, StackTraceElement value) {
+      writer.value(value.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(StackTraceElement)";
+    }
+  }
+
+  private static final class ThrowableAdapter implements JsonAdapter<Throwable> {
+
+    private static final int MAX_STACK = 5;
+    private final JsonAdapter<StackTraceElement> stackTraceElementAdapter;
+
+    private ThrowableAdapter(Jsonb jsonb) {
+      this.stackTraceElementAdapter = jsonb.adapter(StackTraceElement.class);
+    }
+
+    @Override
+    public Throwable fromJson(JsonReader reader) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, Throwable value) {
+      writer.beginObject();
+      writer.name("type");
+      writer.value(value.getClass().toString());
+      writer.name("message");
+      writer.value(value.getMessage());
+
+      StackTraceElement[] stackTrace = value.getStackTrace();
+      if (stackTrace != null && stackTrace.length > 0) {
+        int end = Math.min(MAX_STACK, stackTrace.length);
+        List<StackTraceElement> stackTraceElements = Arrays.asList(stackTrace).subList(0, end);
+        writer.name("stackTrace");
+        writer.beginArray();
+        for (StackTraceElement element : stackTraceElements) {
+          stackTraceElementAdapter.toJson(writer, element);
+        }
+        writer.endArray();
+      }
+
+      final Throwable cause = value.getCause();
+      if (cause != null) {
+        writer.name("cause");
+        toJson(writer, cause);
+      }
+      final Throwable[] suppressed = value.getSuppressed();
+      if (suppressed != null && suppressed.length > 0) {
+        writer.name("suppressed");
+        writer.beginArray();
+        for (Throwable sup : suppressed) {
+          toJson(writer, sup);
+        }
+        writer.endArray();
+      }
+      writer.endObject();
     }
 
     @Override
