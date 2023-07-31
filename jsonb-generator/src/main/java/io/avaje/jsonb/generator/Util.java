@@ -1,5 +1,7 @@
 package io.avaje.jsonb.generator;
 
+import javax.lang.model.element.TypeElement;
+
 import static io.avaje.jsonb.generator.ProcessingContext.element;
 
 import java.util.ArrayList;
@@ -137,6 +139,10 @@ final class Util {
 
   /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
+    TypeElement element = element(adapterFullName);
+    if (element == null) {
+      throw new NullPointerException("Element not found for [" + adapterFullName + "]");
+    }
     return element(adapterFullName).getInterfaces().stream()
       .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
       .findFirst()
