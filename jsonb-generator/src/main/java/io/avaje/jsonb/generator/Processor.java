@@ -177,13 +177,12 @@ public final class Processor extends AbstractProcessor {
    */
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
     importedElements.stream()
-      .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream())
-      .forEach(this::addImported);
+        .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream().peek(p -> addImportedPrism(p, e)))
+        .forEach(this::addImported);
   }
 
   private void addImported(ImportPrism importPrism) {
-    addImportedPrism(importPrism);
-    for (TypeMirror importType : importPrism.value()) {
+    for (final TypeMirror importType : importPrism.value()) {
       // if imported by mixin annotation skip
       if (mixInImports.contains(importType.toString())) {
         return;
@@ -193,7 +192,7 @@ public final class Processor extends AbstractProcessor {
   }
 
   private static TypeElement implementationType(ImportPrism importPrism) {
-    TypeMirror implementationType = importPrism.implementation();
+    final TypeMirror implementationType = importPrism.implementation();
     if (!"java.lang.Void".equals(implementationType.toString())) {
       return asTypeElement(implementationType);
     }

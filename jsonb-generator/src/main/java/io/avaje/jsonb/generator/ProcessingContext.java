@@ -54,7 +54,8 @@ final class ProcessingContext {
 
   private static boolean initPreviewEnabled(ProcessingEnvironment processingEnv) {
     try {
-      return (boolean) ProcessingEnvironment.class.getDeclaredMethod("isPreviewEnabled").invoke(processingEnv);
+      return (boolean)
+          ProcessingEnvironment.class.getDeclaredMethod("isPreviewEnabled").invoke(processingEnv);
     } catch (final Throwable e) {
       return false;
     }
@@ -123,20 +124,22 @@ final class ProcessingContext {
     return CTX.get().env;
   }
 
-  static void addImportedPrism(ImportPrism prism) {
+  static void addImportedPrism(ImportPrism prism, Element element) {
     if (!prism.subtypes().isEmpty() && prism.value().size() > 1) {
-      throw new IllegalStateException("subtypes cannot be used when an import annotation imports more than one class");
+      logError(
+          element, "subtypes cannot be used when an import annotation imports more than one class");
+      return;
     }
     final var json = CTX.get().importedJsonMap;
     final var subtypes = CTX.get().importedSubtypeMap;
     prism
-      .value()
-      .forEach(
-        m -> {
-          final var type = m.toString();
-          json.put(type, prism.jsonSettings());
-          subtypes.put(type, prism.subtypes());
-        });
+        .value()
+        .forEach(
+            m -> {
+              final var type = m.toString();
+              json.put(type, prism.jsonSettings());
+              subtypes.put(type, prism.subtypes());
+            });
   }
 
   static Optional<JsonPrism> importedJson(TypeElement type) {
