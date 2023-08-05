@@ -54,8 +54,7 @@ final class ProcessingContext {
 
   private static boolean initPreviewEnabled(ProcessingEnvironment processingEnv) {
     try {
-      return (boolean)
-          ProcessingEnvironment.class.getDeclaredMethod("isPreviewEnabled").invoke(processingEnv);
+      return (boolean) ProcessingEnvironment.class.getDeclaredMethod("isPreviewEnabled").invoke(processingEnv);
     } catch (final Throwable e) {
       return false;
     }
@@ -126,8 +125,7 @@ final class ProcessingContext {
 
   static void addImportedPrism(ImportPrism prism, Element element) {
     if (!prism.subtypes().isEmpty() && prism.value().size() > 1) {
-      logError(
-          element, "subtypes cannot be used when an import annotation imports more than one class");
+      logError(element, "subtypes cannot be used when an import annotation imports more than one class");
       return;
     }
     final var json = CTX.get().importedJsonMap;
