@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.element.TypeElement;
 
 import static io.avaje.jsonb.generator.ProcessingContext.element;
+import static io.avaje.jsonb.generator.ProcessingContext.logError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,18 +140,29 @@ final class Util {
 
   /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
-    TypeElement element = element(adapterFullName);
+    final var element = element(adapterFullName);
     if (element == null) {
       throw new NullPointerException("Element not found for [" + adapterFullName + "]");
     }
-    return element(adapterFullName).getInterfaces().stream()
-      .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
-      .findFirst()
-      .map(Object::toString)
-      .map(GenericType::parse)
-      .map(GenericType::firstParamType)
-      .map(Util::extractTypeWithNest)
-      .orElseThrow(() -> new IllegalStateException("Adapter: " + adapterFullName + " does not directly implement JsonAdapter"));
+    return baseTypeOfAdapter(element);
+  }
+
+  static String baseTypeOfAdapter(TypeElement element) {
+
+    return element.getInterfaces().stream()
+        .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
+        .findFirst()
+        .map(Object::toString)
+        .map(GenericType::parse)
+        .map(GenericType::firstParamType)
+        .map(Util::extractTypeWithNest)
+        .orElseGet(
+            () -> {
+              logError(
+                  element,
+                  "Custom Adapters must implement JsonAdapter");
+              return "Invalid";
+            });
   }
 
   static String extractTypeWithNest(String fullType) {
