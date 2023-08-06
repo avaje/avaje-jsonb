@@ -79,12 +79,31 @@ public final class Processor extends AbstractProcessor {
       final var type = typeElement.getQualifiedName().toString();
       if (CustomAdapterPrism.getInstanceOn(typeElement).isGeneric()) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
-          .filter(isStaticFactory())
-          .findFirst()
-          .orElseThrow(() -> new IllegalStateException("Generic Adapters require a public static JsonAdapter.Factory FACTORY field"));
+            .filter(isStaticFactory())
+            .findFirst()
+            .ifPresentOrElse(
+                x -> {},
+                () ->
+                    logError(
+                        typeElement,
+                        "Generic adapters require a public static JsonAdapter.Factory FACTORY field"));
 
         metaData.addFactory(type);
       } else {
+        ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream()
+            .filter(m -> m.getModifiers().contains(Modifier.PUBLIC))
+            .filter(m -> m.getParameters().size() == 1)
+            .map(m -> m.getParameters().get(0).asType().toString())
+            .map(Util::trimAnnotations)
+            .filter("io.avaje.jsonb.Jsonb"::equals)
+            .findAny()
+            .ifPresentOrElse(
+                x -> {},
+                () ->
+                    logError(
+                        typeElement,
+                        "Non-Generic adapters must have a public contrustor with a single Jsonb parameter"));
+
         metaData.add(type);
       }
     }
