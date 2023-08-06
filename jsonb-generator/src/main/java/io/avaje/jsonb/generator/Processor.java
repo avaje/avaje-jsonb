@@ -102,7 +102,7 @@ public final class Processor extends AbstractProcessor {
                 () ->
                     logError(
                         typeElement,
-                        "Non-Generic adapters must have a public contrustor with a single Jsonb parameter"));
+                        "Non-Generic adapters must have a public constructor with a single Jsonb parameter"));
 
         metaData.add(type);
       }
