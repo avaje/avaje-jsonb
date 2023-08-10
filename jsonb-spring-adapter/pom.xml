@@ -6,7 +6,7 @@
   <parent>
     <artifactId>avaje-jsonb-parent</artifactId>
     <groupId>io.avaje</groupId>
-    <version>1.7-RC3</version>
+    <version>1.7</version>
   </parent>
 
   <artifactId>avaje-jsonb-spring-starter</artifactId>
