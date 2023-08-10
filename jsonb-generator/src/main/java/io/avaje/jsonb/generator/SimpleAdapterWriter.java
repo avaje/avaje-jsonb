@@ -19,7 +19,7 @@ final class SimpleAdapterWriter {
 
   SimpleAdapterWriter(BeanReader beanReader) {
     this.beanReader = beanReader;
-    final AdapterName adapterName = new AdapterName(beanReader.getBeanType());
+    final AdapterName adapterName = new AdapterName(beanReader.beanType());
     this.adapterShortName = adapterName.shortName();
     this.adapterPackage = adapterName.adapterPackage();
     this.adapterFullName = adapterName.fullName();
@@ -113,7 +113,7 @@ final class SimpleAdapterWriter {
     }
     writer.append("@Generated").eol();
     writer.append("public final class %sJsonAdapter implements JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
-    if (!beanReader.hasSubtypes()) {
+    if (beanReader.supportsViewBuilder()) {
       writer.append(", ViewBuilderAware ");
     }
     writer.append("{").eol().eol();

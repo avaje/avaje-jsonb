@@ -131,6 +131,98 @@ JsonView<Customer> myView =
 String asJson =  myView.toJson(customer);
 ```
 
+### Generated Code
+Given the class:
+```java
+@Json
+public class Address {
+  private String street;
+  private City city;
+  private Suburb suburb;
+  //getters/setters ommited for brevity
+}
+```
+The following code will be generated and used for serialization/deserialization.
+
+```java
+@Generated
+public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuilderAware {
+
+  private final JsonAdapter<String> stringJsonAdapter;
+  private final JsonAdapter<City> cityJsonAdapter;
+  private final JsonAdapter<Suburb> suburbJsonAdapter;
+  private final PropertyNames names;
+
+  public AddressJsonAdapter(Jsonb jsonb) {
+    this.stringJsonAdapter = jsonb.adapter(String.class);
+    this.cityJsonAdapter = jsonb.adapter(City.class);
+    this.suburbJsonAdapter = jsonb.adapter(Suburb.class);
+    this.names = jsonb.properties("street", "city", "suburb");
+  }
+
+  @Override
+  public boolean isViewBuilderAware() {
+    return true;
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
+  }
+
+  @Override
+  public void build(ViewBuilder builder, String name, MethodHandle handle) {
+    builder.beginObject(name, handle);
+    builder.add("street", stringJsonAdapter, builder.method(Address.class, "getStreet", java.lang.String.class));
+    builder.add("city", cityJsonAdapter, builder.method(Address.class, "getCity", City.class));
+    builder.add("suburb", suburbJsonAdapter, builder.method(Address.class, "getSuburb", Suburb.class));
+    builder.endObject();
+  }
+
+  @Override
+  public void toJson(JsonWriter writer, Address address) {
+    writer.beginObject(names);
+    writer.names(names);
+    writer.name(0);
+    stringJsonAdapter.toJson(writer, address.getStreet());
+    writer.name(1);
+    cityJsonAdapter.toJson(writer, address.getCity());
+    writer.name(2);
+    suburbJsonAdapter.toJson(writer, address.getSuburb());
+    writer.endObject();
+  }
+
+  @Override
+  public Address fromJson(JsonReader reader) {
+    Address _$address = new Address();
+
+    // read json
+    reader.beginObject(names);
+    while (reader.hasNextField()) {
+      final String fieldName = reader.nextField();
+      switch (fieldName) {
+        case "street": {
+          _$address.setStreet(stringJsonAdapter.fromJson(reader)); break;
+        }
+        case "city": {
+          _$address.setCity(cityJsonAdapter.fromJson(reader)); break;
+        }
+        case "suburb": {
+          _$address.setSuburb(suburbJsonAdapter.fromJson(reader)); break;
+        }
+        default: {
+          reader.unmappedField(fieldName);
+          reader.skipValue();
+        }
+      }
+    }
+    reader.endObject();
+
+    return _$address;
+  }
+}
+```
+
 ## Based on Moshi
 
 `avaje-jsonb` is based on [Moshi](https://github.com/square/moshi) with some changes as summarised below:

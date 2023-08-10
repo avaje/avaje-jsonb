@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import static io.avaje.jsonb.generator.ProcessingContext.*;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeMirror;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,8 @@ import java.util.stream.Collectors;
 final class TypeReader {
 
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
+  private static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
+  private static final Set<String> THROWABLE_INCLUDES = Set.of("getMessage", "getCause", "getStackTrace", "getSuppressed");
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
@@ -39,7 +42,11 @@ final class TypeReader {
 
   private final Map<String, Integer> frequencyMap  = new HashMap<>();
 
+  private final List<MethodProperty> methodProperties = new ArrayList<>();
+
   private boolean optional;
+  /** Set when the type is known to extend Throwable */
+  private boolean extendsThrowable;
 
   TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.baseType = baseType;
@@ -103,7 +110,7 @@ final class TypeReader {
         }
 
         if (commonField == null && currentSubType != null) {
-          localField.isSubTypeField(true);
+          localField.setSubTypeField();
         }
       }
     }
@@ -154,7 +161,7 @@ final class TypeReader {
 
   private void readMethod(Element element, TypeElement type) {
     ExecutableElement methodElement = (ExecutableElement) element;
-    if (methodElement.getModifiers().contains(Modifier.PUBLIC)) {
+    if (checkMethod2(methodElement)) {
       List<? extends VariableElement> parameters = methodElement.getParameters();
       final String methodKey = methodElement.getSimpleName().toString();
       MethodReader methodReader = new MethodReader(methodElement, type).read();
@@ -164,19 +171,32 @@ final class TypeReader {
         }
         allSetterMethods.put(methodKey.toLowerCase(), methodReader);
       } else if (parameters.size() == 0) {
-        if (!maybeGetterMethods.containsKey(methodKey)) {
-          maybeGetterMethods.put(methodKey, methodReader);
+        TypeMirror returnType = methodElement.getReturnType();
+        if (!"void".equals(returnType.toString())) {
+          if (!maybeGetterMethods.containsKey(methodKey)) {
+            maybeGetterMethods.put(methodKey, methodReader);
+          }
+          allGetterMethods.put(methodKey.toLowerCase(), methodReader);
         }
-        allGetterMethods.put(methodKey.toLowerCase(), methodReader);
       }
     }
+  }
+
+  private boolean checkMethod2(ExecutableElement methodElement) {
+    if (!methodElement.getModifiers().contains(Modifier.PUBLIC)) {
+      return false;
+    }
+    if (extendsThrowable) {
+     return THROWABLE_INCLUDES.contains(methodElement.getSimpleName().toString());
+    }
+    return true;
   }
 
   private void matchFieldsToSetterOrConstructor() {
     for (FieldReader field : allFields) {
       if (field.includeFromJson()) {
         if (constructorParamMap.get(field.fieldName()) != null) {
-          field.constructorParam();
+          field.setConstructorParam();
         } else {
           matchFieldToSetter(field);
         }
@@ -390,6 +410,9 @@ final class TypeReader {
     }
     matchFieldsToSetterOrConstructor();
     matchFieldsToGetter();
+    if (allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
+      initReadOnlyMethods();
+    }
   }
 
   /**
@@ -411,6 +434,9 @@ final class TypeReader {
   private void addSuperType(TypeElement element) {
     String type = element.getQualifiedName().toString();
     if (!JAVA_LANG_OBJECT.equals(type) && !GenericType.isGeneric(type)) {
+      if (JAVA_LANG_THROWABLE.equals(type)) {
+        extendsThrowable = true;
+      }
       read(element);
       addSuperType(superOf(element));
     }
@@ -427,4 +453,31 @@ final class TypeReader {
   public boolean hasOptional() {
     return optional;
   }
+
+  public List<MethodProperty> methodProperties() {
+    return methodProperties;
+  }
+
+  private void initReadOnlyMethods() {
+    int pos = 0;
+    for (MethodReader methodReader : maybeGetterMethods.values()) {
+      var property = new FieldProperty(methodReader);
+      property.setGetterMethod(methodReader);
+      property.setPosition(pos++);
+      String name = initPropertyName(methodReader.getName(), property);
+      String propertyName = namingConvention.from(name);
+      methodProperties.add(new MethodProperty(propertyName, property));
+    }
+  }
+
+  private String initPropertyName(String name, FieldProperty property) {
+    if (property.typeBooleanWithIsPrefix()) {
+      return Util.initLower(name.substring(2));
+    } else if (name.length() > 3 && name.startsWith("get") && Character.isUpperCase(name.charAt(3))) {
+      return Util.initLower(name.substring(3));
+    } else {
+      return name;
+    }
+  }
+
 }

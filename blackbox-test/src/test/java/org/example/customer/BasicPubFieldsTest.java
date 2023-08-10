@@ -30,10 +30,10 @@ class BasicPubFieldsTest {
 
     String viewJsonPretty = view.toJsonPretty(b);
     assertThat(viewJsonPretty).isEqualTo("""
-  	{
-  	    "two": 43,
-  	    "four": "fourValue"
-  	}""");
+    {
+      "two": 43,
+      "four": "fourValue"
+    }""");
   }
 
   @Test

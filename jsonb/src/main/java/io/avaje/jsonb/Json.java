@@ -81,9 +81,14 @@ public @interface Json {
     /** Specify the Subtype information. Can only be used if there is only one abstract type being imported */
     SubType[] subtypes() default {};
 
+    /**
+     * When importing an Interface or abstract type use this implementation for `fromJson()`.
+     */
+    Class<?> implementation() default Void.class;
+
     @Retention(CLASS)
     @Target({ElementType.TYPE, ElementType.PACKAGE})
-    public @interface List {
+    @interface List {
 
       Import[] value();
     }
@@ -114,11 +119,23 @@ public @interface Json {
    * during deserialization.
    *
    * <pre>{@code
-   * @Json.JsonAlias("$code")
+   * @Json.Alias("$code")
    * String referenceCode;
    *
    * }</pre>
    */
+  @Retention(CLASS)
+  @Target({ElementType.FIELD})
+  @interface Alias {
+
+    /** One or more secondary names to accept as aliases to the official name. */
+    String[] value();
+  }
+
+  /**
+   * Deprecate - migrate to {@link Json.Alias}.
+   */
+  @Deprecated
   @Retention(CLASS)
   @Target({ElementType.FIELD})
   @interface JsonAlias {

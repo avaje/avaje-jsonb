@@ -21,7 +21,7 @@ interface BeanReader {
 
   void writeFromJson(Append writer);
 
- boolean hasSubtypes();
+ boolean supportsViewBuilder();
 
   String shortName();
 
@@ -34,7 +34,7 @@ interface BeanReader {
     return 0;
   }
 
-  TypeElement getBeanType();
+  TypeElement beanType();
 
   void cascadeTypes(Set<String> extraTypes);
 

@@ -2,6 +2,8 @@ package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.*;
 import static io.avaje.jsonb.generator.Constants.*;
+import static io.avaje.jsonb.generator.ProcessingContext.asTypeElement;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -19,6 +21,7 @@ import java.util.function.Predicate;
   CustomAdapterPrism.PRISM_TYPE,
   JSON,
   JSON_IMPORT,
+  JSON_IMPORT_LIST,
   JSON_MIXIN,
   ValuePrism.PRISM_TYPE
 })
@@ -62,6 +65,7 @@ public final class Processor extends AbstractProcessor {
     writeAdapters(round.getElementsAnnotatedWith(element(JSON)));
     writeEnumAdapters(round.getElementsAnnotatedWith(element(ValuePrism.PRISM_TYPE)));
     writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(element(JSON_MIXIN)));
+    writeAdaptersForImportedList(round.getElementsAnnotatedWith(element(JSON_IMPORT_LIST)));
     writeAdaptersForImported(round.getElementsAnnotatedWith(element(JSON_IMPORT)));
     registerCustomAdapters(round.getElementsAnnotatedWith(element(CustomAdapterPrism.PRISM_TYPE)));
     initialiseComponent();
@@ -75,12 +79,31 @@ public final class Processor extends AbstractProcessor {
       final var type = typeElement.getQualifiedName().toString();
       if (CustomAdapterPrism.getInstanceOn(typeElement).isGeneric()) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
-          .filter(isStaticFactory())
-          .findFirst()
-          .orElseThrow(() -> new IllegalStateException("Generic Adapters require a public static JsonAdapter.Factory FACTORY field"));
+            .filter(isStaticFactory())
+            .findFirst()
+            .ifPresentOrElse(
+                x -> {},
+                () ->
+                    logError(
+                        typeElement,
+                        "Generic adapters require a public static JsonAdapter.Factory FACTORY field"));
 
         metaData.addFactory(type);
       } else {
+        ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream()
+            .filter(m -> m.getModifiers().contains(Modifier.PUBLIC))
+            .filter(m -> m.getParameters().size() == 1)
+            .map(m -> m.getParameters().get(0).asType().toString())
+            .map(Util::trimAnnotations)
+            .filter("io.avaje.jsonb.Jsonb"::equals)
+            .findAny()
+            .ifPresentOrElse(
+                x -> {},
+                () ->
+                    logError(
+                        typeElement,
+                        "Non-Generic adapters must have a public constructor with a single Jsonb parameter"));
+
         metaData.add(type);
       }
     }
@@ -155,11 +178,17 @@ public final class Processor extends AbstractProcessor {
     for (final Element mixin : mixInElements) {
       final TypeMirror mirror = MixInPrism.getInstanceOn(mixin).value();
       final String importType = mirror.toString();
-      final TypeElement element = (TypeElement) asElement(mirror);
+      final TypeElement element = asTypeElement(mirror);
 
       mixInImports.add(importType);
       writeAdapterForMixInType(element, element(mixin.asType().toString()));
     }
+  }
+
+  private void writeAdaptersForImportedList(Set<? extends Element> imported) {
+    imported.stream()
+      .flatMap(e -> ImportListPrism.getInstanceOn(e).value().stream())
+      .forEach(this::addImported);
   }
 
   /**
@@ -167,19 +196,26 @@ public final class Processor extends AbstractProcessor {
    */
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
     importedElements.stream()
-      .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream())
-      .flatMap(prism -> {
-        addImportedPrism(prism);
-        return prism.value().stream();
-      })
-      .forEach(
-        importType -> {
-          // if imported by mixin annotation skip
-          if (mixInImports.contains(importType.toString())) {
-            return;
-          }
-          writeAdapterForType((TypeElement) asElement(importType));
-        });
+        .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream().peek(p -> addImportedPrism(p, e)))
+        .forEach(this::addImported);
+  }
+
+  private void addImported(ImportPrism importPrism) {
+    for (final TypeMirror importType : importPrism.value()) {
+      // if imported by mixin annotation skip
+      if (mixInImports.contains(importType.toString())) {
+        return;
+      }
+      writeAdapterForImportedType(asTypeElement(importType), implementationType(importPrism));
+    }
+  }
+
+  private static TypeElement implementationType(ImportPrism importPrism) {
+    final TypeMirror implementationType = importPrism.implementation();
+    if (!"java.lang.Void".equals(implementationType.toString())) {
+      return asTypeElement(implementationType);
+    }
+    return null;
   }
 
   private void initialiseComponent() {
@@ -222,23 +258,21 @@ public final class Processor extends AbstractProcessor {
     writeAdapter(typeElement, beanReader);
   }
 
+  private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType) {
+    final ClassReader beanReader = new ClassReader(importedType);
+    if (implementationType != null) {
+      beanReader.setImplementationType(implementationType);
+    }
+    writeAdapter(importedType, beanReader);
+  }
+
   private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {
     final ClassReader beanReader = new ClassReader(typeElement, mixin);
     writeAdapter(typeElement, beanReader);
   }
 
   private void writeAdapter(TypeElement typeElement, BeanReader beanReader) {
-    if ((typeElement.getModifiers().contains(Modifier.ABSTRACT)
-            || typeElement.getKind() == ElementKind.INTERFACE)
-        && !SubTypePrism.isPresent(typeElement)
-        && !SubTypesPrism.isPresent(typeElement)
-        && importedSubtypes(typeElement).isEmpty()) {
-      logNote("Type %s is abstract and has no configured subtypes. No Adapter will be generated for it.", typeElement);
-      return;
-    }
-
     beanReader.read();
-
     if (beanReader.nonAccessibleField()) {
       if (beanReader.hasJsonAnnotation()) {
         logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);

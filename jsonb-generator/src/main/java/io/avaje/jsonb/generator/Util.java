@@ -1,7 +1,12 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.element;
+import javax.lang.model.element.TypeElement;
 
+import static io.avaje.jsonb.generator.ProcessingContext.element;
+import static io.avaje.jsonb.generator.ProcessingContext.logError;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -103,6 +108,14 @@ final class Util {
     }
   }
 
+  static List<String> escapeQuotes(List<String> all) {
+    List<String> escaped = new ArrayList<>(all.size());
+    for (String raw : all) {
+      escaped.add(Util.escapeQuotes(raw));
+    }
+    return escaped;
+  }
+
   static String escapeQuotes(String input) {
     return input.replaceAll("^\"|\"$", "\\\\\"");
   }
@@ -127,14 +140,29 @@ final class Util {
 
   /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
-    return element(adapterFullName).getInterfaces().stream()
-      .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
-      .findFirst()
-      .map(Object::toString)
-      .map(GenericType::parse)
-      .map(GenericType::firstParamType)
-      .map(Util::extractTypeWithNest)
-      .orElseThrow(() -> new IllegalStateException("Adapter: " + adapterFullName + " does not directly implement JsonAdapter"));
+    final var element = element(adapterFullName);
+    if (element == null) {
+      throw new NullPointerException("Element not found for [" + adapterFullName + "]");
+    }
+    return baseTypeOfAdapter(element);
+  }
+
+  static String baseTypeOfAdapter(TypeElement element) {
+
+    return element.getInterfaces().stream()
+        .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
+        .findFirst()
+        .map(Object::toString)
+        .map(GenericType::parse)
+        .map(GenericType::firstParamType)
+        .map(Util::extractTypeWithNest)
+        .orElseGet(
+            () -> {
+              logError(
+                  element,
+                  "Custom Adapters must implement JsonAdapter");
+              return "Invalid";
+            });
   }
 
   static String extractTypeWithNest(String fullType) {
