@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -41,6 +42,7 @@ final class ProcessingContext {
     private final Types types;
     private final Map<String, JsonPrism> importedJsonMap = new HashMap<>();
     private final Map<String, List<SubTypePrism>> importedSubtypeMap = new HashMap<>();
+    private final boolean injectPresent;
     private ModuleElement module;
     private boolean validated;
 
@@ -50,6 +52,8 @@ final class ProcessingContext {
       this.filer = env.getFiler();
       this.elements = env.getElementUtils();
       this.types = env.getTypeUtils();
+      this.injectPresent = elements.getTypeElement("io.avaje.inject.Component") != null;
+
     }
   }
 
@@ -92,6 +96,10 @@ final class ProcessingContext {
 
   static void logWarn(String msg, Object... args) {
     CTX.get().messager.printMessage(Diagnostic.Kind.WARNING, String.format(msg, args));
+  }
+
+  static void logWarn(Element e, String msg, Object... args) {
+    CTX.get().messager.printMessage(Diagnostic.Kind.WARNING, String.format(msg, args), e);
   }
 
   static void logNote(String msg, Object... args) {
@@ -174,6 +182,7 @@ final class ProcessingContext {
     var module = CTX.get().module;
     if (module != null && !CTX.get().validated && !module.isUnnamed()) {
 
+          var injectPresent = CTX.get().injectPresent;
       CTX.get().validated = true;
       try {
         var resource =
@@ -185,12 +194,32 @@ final class ProcessingContext {
         try (var inputStream = new URI(resource).toURL().openStream();
             var reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
-          var noProvides = reader.lines().noneMatch(s -> s.contains(fqn));
+          AtomicBoolean noInjectPlugin = new AtomicBoolean(injectPresent);
+          var noProvides =
+              reader
+                  .lines()
+                  .map(
+                      s -> {
+                        if (injectPresent
+                            && (s.contains("io.avaje.jsonb.plugin")
+                                || s.contains("io.avaje.nima"))) {
+                          noInjectPlugin.set(false);
+                        }
+                        return s;
+                      })
+                  .noneMatch(s -> s.contains(fqn));
 
           if (noProvides) {
             logError(
                 module,
-                "Missing \"provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;\"",
+                "Missing `provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;`",
+                fqn);
+          }
+
+          if (noInjectPlugin.get()) {
+            logWarn(
+                module,
+                "`requires io.avaje.json.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance",
                 fqn);
           }
         }
