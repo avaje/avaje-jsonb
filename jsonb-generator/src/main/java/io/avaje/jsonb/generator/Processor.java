@@ -61,6 +61,8 @@ public final class Processor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
+
+    ProcessingContext.findModule(annotations, round);
     readModule();
     writeAdapters(round.getElementsAnnotatedWith(element(JSON)));
     writeEnumAdapters(round.getElementsAnnotatedWith(element(ValuePrism.PRISM_TYPE)));
