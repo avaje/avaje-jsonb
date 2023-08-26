@@ -190,7 +190,7 @@ final class ProcessingContext {
           if (noProvides) {
             logError(
                 module,
-                "Missing \"provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s\"",
+                "Missing \"provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;\"",
                 fqn);
           }
         }
