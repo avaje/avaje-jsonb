@@ -28,8 +28,9 @@ final class SimpleComponentWriter {
     if (fileObject == null) {
       fileObject = createWriter(name);
     }
-
-    ProcessingContext.validateModule(name);
+    if (!metaData.isEmpty()) {
+      ProcessingContext.validateModule(name);
+    }
   }
 
   private Writer createFileWriter() throws IOException {
