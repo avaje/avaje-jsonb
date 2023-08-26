@@ -67,7 +67,7 @@ public interface JsonReader extends Closeable {
   /**
    * Set the current property names.
    * <p>
-   * Can be used by the reader to optimise the reading of known names.
+   * Can be used by the reader to optimize the reading of known names.
    */
   void beginObject(PropertyNames names);
 

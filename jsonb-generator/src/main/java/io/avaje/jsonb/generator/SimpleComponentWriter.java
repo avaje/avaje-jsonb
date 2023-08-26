@@ -24,8 +24,12 @@ final class SimpleComponentWriter {
   }
 
   void initialise() throws IOException {
+    var name = metaData.fullName();
     if (fileObject == null) {
-      fileObject = createWriter(metaData.fullName());
+      fileObject = createWriter(name);
+    }
+    if (!metaData.isEmpty()) {
+      ProcessingContext.validateModule(name);
     }
   }
 
