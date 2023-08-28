@@ -1,8 +1,8 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.*;
+import static io.avaje.jsonb.generator.APContext.*;
+import static io.avaje.jsonb.generator.ProcessingContext.addImportedPrism;
 import static io.avaje.jsonb.generator.Constants.*;
-import static io.avaje.jsonb.generator.ProcessingContext.asTypeElement;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -13,10 +13,13 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
+import io.avaje.prism.GenerateAPContext;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
+@GenerateAPContext
 @SupportedAnnotationTypes({
   CustomAdapterPrism.PRISM_TYPE,
   JSON,
@@ -62,14 +65,14 @@ public final class Processor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
 
-    ProcessingContext.findModule(annotations, round);
+	  APContext.setProjectModuleElement(annotations, round);
     readModule();
-    writeAdapters(round.getElementsAnnotatedWith(element(JSON)));
-    writeEnumAdapters(round.getElementsAnnotatedWith(element(ValuePrism.PRISM_TYPE)));
-    writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(element(JSON_MIXIN)));
-    writeAdaptersForImportedList(round.getElementsAnnotatedWith(element(JSON_IMPORT_LIST)));
-    writeAdaptersForImported(round.getElementsAnnotatedWith(element(JSON_IMPORT)));
-    registerCustomAdapters(round.getElementsAnnotatedWith(element(CustomAdapterPrism.PRISM_TYPE)));
+    writeAdapters(round.getElementsAnnotatedWith(typeElement(JSON)));
+    writeEnumAdapters(round.getElementsAnnotatedWith(typeElement(ValuePrism.PRISM_TYPE)));
+    writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(typeElement(JSON_MIXIN)));
+    writeAdaptersForImportedList(round.getElementsAnnotatedWith(typeElement(JSON_IMPORT_LIST)));
+    writeAdaptersForImported(round.getElementsAnnotatedWith(typeElement(JSON_IMPORT)));
+    registerCustomAdapters(round.getElementsAnnotatedWith(typeElement(CustomAdapterPrism.PRISM_TYPE)));
     initialiseComponent();
     cascadeTypes();
     writeComponent(round.processingOver());
@@ -149,7 +152,7 @@ public final class Processor extends AbstractProcessor {
     }
     for (final String type : extraTypes) {
       if (!ignoreType(type)) {
-        final TypeElement element = element(type);
+        final TypeElement element = typeElement(type);
         if (cascadeElement(element)) {
           writeAdapterForType(element);
         }
@@ -183,7 +186,7 @@ public final class Processor extends AbstractProcessor {
       final TypeElement element = asTypeElement(mirror);
 
       mixInImports.add(importType);
-      writeAdapterForMixInType(element, element(mixin.asType().toString()));
+      writeAdapterForMixInType(element, typeElement(mixin.asType().toString()));
     }
   }
 
