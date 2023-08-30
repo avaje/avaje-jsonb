@@ -3,7 +3,7 @@ package io.avaje.jsonb.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import static io.avaje.jsonb.generator.ProcessingContext.*;
+import static io.avaje.jsonb.generator.APContext.*;
 
 /**
  * A type with generic parameters and potentially nested.
