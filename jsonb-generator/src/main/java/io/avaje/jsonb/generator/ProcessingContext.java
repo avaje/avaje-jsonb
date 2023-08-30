@@ -6,7 +6,6 @@ import static io.avaje.jsonb.generator.APContext.getProjectModuleElement;
 import static io.avaje.jsonb.generator.APContext.jdkVersion;
 import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.logWarn;
-import static io.avaje.jsonb.generator.APContext.typeElement;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -50,12 +49,6 @@ final class ProcessingContext {
 
   static FileObject createMetaInfWriterFor(String interfaceType) throws IOException {
     return filer().createResource(StandardLocation.CLASS_OUTPUT, "", interfaceType);
-  }
-
-  static boolean isAssignable(String type, String superType) {
-    return type.equals(superType)
-        || typeElement(type).getInterfaces().stream()
-            .anyMatch(t -> t.toString().contains(superType));
   }
 
   static void addImportedPrism(ImportPrism prism, Element element) {
