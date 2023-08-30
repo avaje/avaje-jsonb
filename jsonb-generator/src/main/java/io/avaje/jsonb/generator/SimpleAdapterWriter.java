@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.createWriter;
+import static io.avaje.jsonb.generator.APContext.createSourceFile;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -31,7 +31,7 @@ final class SimpleAdapterWriter {
   }
 
   private Writer createFileWriter() throws IOException {
-    final JavaFileObject jfo = createWriter(adapterFullName);
+    final JavaFileObject jfo = createSourceFile(adapterFullName);
     return jfo.openWriter();
   }
 

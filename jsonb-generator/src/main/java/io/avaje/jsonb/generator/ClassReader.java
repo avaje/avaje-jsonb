@@ -1,7 +1,7 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
-import static io.avaje.jsonb.generator.ProcessingContext.previewEnabled;
+import static io.avaje.jsonb.generator.APContext.jdkVersion;
+import static io.avaje.jsonb.generator.APContext.previewEnabled;
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 import static java.util.stream.Collectors.toList;
 
@@ -76,7 +76,7 @@ final class ClassReader implements BeanReader {
       userTypeField
         .map(FieldReader::type)
         .map(GenericType::topType)
-        .map(ProcessingContext::element)
+        .map(APContext::typeElement)
         .filter(e -> e.getKind() == ElementKind.ENUM)
         .isPresent();
   }

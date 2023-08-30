@@ -2,8 +2,8 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.TypeElement;
 
-import static io.avaje.jsonb.generator.ProcessingContext.element;
-import static io.avaje.jsonb.generator.ProcessingContext.logError;
+import static io.avaje.jsonb.generator.APContext.typeElement;
+import static io.avaje.jsonb.generator.APContext.logError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +140,7 @@ final class Util {
 
   /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
-    final var element = element(adapterFullName);
+    final var element = typeElement(adapterFullName);
     if (element == null) {
       throw new NullPointerException("Element not found for [" + adapterFullName + "]");
     }

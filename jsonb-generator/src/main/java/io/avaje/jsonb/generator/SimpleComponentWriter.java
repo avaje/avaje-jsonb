@@ -1,7 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.ProcessingContext.createMetaInfWriterFor;
-import static io.avaje.jsonb.generator.ProcessingContext.createWriter;
+import static io.avaje.jsonb.generator.APContext.createSourceFile;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -26,7 +26,7 @@ final class SimpleComponentWriter {
   void initialise() throws IOException {
     var name = metaData.fullName();
     if (fileObject == null) {
-      fileObject = createWriter(name);
+      fileObject = createSourceFile(name);
     }
     if (!metaData.isEmpty()) {
       ProcessingContext.validateModule(name);

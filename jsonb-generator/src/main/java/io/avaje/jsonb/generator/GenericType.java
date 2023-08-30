@@ -3,7 +3,7 @@ package io.avaje.jsonb.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import static io.avaje.jsonb.generator.ProcessingContext.*;
+import static io.avaje.jsonb.generator.APContext.*;
 
 /**
  * A type with generic parameters and potentially nested.
@@ -173,16 +173,16 @@ final class GenericType {
   private String asTypeContainer() {
     GenericType param = params.get(0);
     String containerType = topType();
-    if (isAssignable2Interface(containerType, "java.util.List")) {
+    if (isAssignable(containerType, "java.util.List")) {
       return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
     }
-    if (isAssignable2Interface(containerType, "java.util.Set")) {
+    if (isAssignable(containerType, "java.util.Set")) {
       return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
     }
-    if (isAssignable2Interface(containerType, "java.util.stream.Stream")) {
+    if (isAssignable(containerType, "java.util.stream.Stream")) {
       return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
     }
-    if (isAssignable2Interface(containerType, "java.util.Optional")) {
+    if (isAssignable(containerType, "java.util.Optional")) {
       return "Types.optionalOf(" + Util.shortName(param.topType()) + ".class)";
     }
     return null;

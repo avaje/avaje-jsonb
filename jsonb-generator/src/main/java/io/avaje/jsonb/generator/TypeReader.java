@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.APContext.*;
 import static io.avaje.jsonb.generator.ProcessingContext.*;
 
 import javax.lang.model.element.*;
@@ -274,7 +275,7 @@ final class TypeReader {
       if (hasJsonAnnotation) {
         logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
       } else {
-        logDebug("Non accessible field " + baseType + " " + field.fieldName());
+        logNote("Non accessible field " + baseType + " " + field.fieldName());
       }
     }
   }
@@ -388,7 +389,7 @@ final class TypeReader {
     if (hasSubTypes()) {
       for (TypeSubTypeMeta subType : subTypes.subTypes()) {
         currentSubType = subType;
-        TypeElement element = element(subType.type());
+        TypeElement element = typeElement(subType.type());
         currentSubType.setElement(element);
         addSuperType(element);
       }
@@ -443,7 +444,7 @@ final class TypeReader {
   }
 
   private TypeElement superOf(TypeElement element) {
-    return (TypeElement) asElement(element.getSuperclass());
+    return asTypeElement(element.getSuperclass());
   }
 
   boolean hasSubTypes() {
@@ -463,7 +464,8 @@ final class TypeReader {
     for (MethodReader methodReader : maybeGetterMethods.values()) {
       var property = new FieldProperty(methodReader);
       property.setGetterMethod(methodReader);
-      property.setPosition(pos++);
+      property.setPosition(pos);
+  pos++;
       String name = initPropertyName(methodReader.getName(), property);
       String propertyName = namingConvention.from(name);
       methodProperties.add(new MethodProperty(propertyName, property));
