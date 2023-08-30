@@ -69,7 +69,7 @@ public @interface Json {
    */
   @Retention(CLASS)
   @Repeatable(List.class)
-  @Target({ElementType.TYPE, ElementType.PACKAGE})
+  @Target({ElementType.TYPE, ElementType.PACKAGE, ElementType.MODULE})
   @interface Import {
 
     /** Specify types to generate Json Adapters for. */
@@ -87,7 +87,7 @@ public @interface Json {
     Class<?> implementation() default Void.class;
 
     @Retention(CLASS)
-    @Target({ElementType.TYPE, ElementType.PACKAGE})
+    @Target({ElementType.TYPE, ElementType.PACKAGE, ElementType.MODULE})
     @interface List {
 
       Import[] value();
