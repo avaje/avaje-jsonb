@@ -1,9 +1,14 @@
 package io.avaje.jsonb;
 
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.MODULE;
+import static java.lang.annotation.ElementType.PACKAGE;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -30,7 +35,7 @@ import io.avaje.jsonb.Json.Import.List;
  * }</pre>
  */
 @Retention(CLASS)
-@Target(ElementType.TYPE)
+@Target(TYPE)
 public @interface Json {
 
   /**
@@ -69,7 +74,7 @@ public @interface Json {
    */
   @Retention(CLASS)
   @Repeatable(List.class)
-  @Target({ElementType.TYPE, ElementType.PACKAGE, ElementType.MODULE})
+  @Target({TYPE, PACKAGE, MODULE})
   @interface Import {
 
     /** Specify types to generate Json Adapters for. */
@@ -87,7 +92,7 @@ public @interface Json {
     Class<?> implementation() default Void.class;
 
     @Retention(CLASS)
-    @Target({ElementType.TYPE, ElementType.PACKAGE, ElementType.MODULE})
+    @Target({TYPE, PACKAGE, MODULE})
     @interface List {
 
       Import[] value();
@@ -105,7 +110,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({ElementType.FIELD})
+  @Target(FIELD)
   @interface Property {
 
     /**
@@ -125,7 +130,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({ElementType.FIELD})
+  @Target(FIELD)
   @interface Alias {
 
     /** One or more secondary names to accept as aliases to the official name. */
@@ -137,7 +142,7 @@ public @interface Json {
    */
   @Deprecated
   @Retention(CLASS)
-  @Target({ElementType.FIELD})
+  @Target(FIELD)
   @interface JsonAlias {
 
     /** One or more secondary names to accept as aliases to the official name. */
@@ -155,7 +160,7 @@ public @interface Json {
    * serialization but not deserialization.
    */
   @Retention(CLASS)
-  @Target({ElementType.FIELD})
+  @Target(FIELD)
   @interface Ignore {
 
     /**
@@ -183,7 +188,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({ElementType.FIELD})
+  @Target(FIELD)
   @interface Unmapped {
 
   }
@@ -217,7 +222,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(RUNTIME)
-  @Target({ElementType.METHOD})
+  @Target(METHOD)
   @interface Value {
   }
 
@@ -241,7 +246,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({ElementType.TYPE})
+  @Target(TYPE)
   @Repeatable(SubTypes.class)
   @interface SubType {
 
@@ -263,7 +268,7 @@ public @interface Json {
    * type can be represented as.
    */
   @Retention(CLASS)
-  @Target({ElementType.TYPE})
+  @Target(TYPE)
   @interface SubTypes {
 
     SubType[] value();
@@ -273,7 +278,7 @@ public @interface Json {
    * Marks a String field as containing raw JSON content.
    */
   @Retention(CLASS)
-  @Target({ElementType.FIELD})
+  @Target(FIELD)
   @interface Raw {
 
   }
@@ -298,7 +303,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({ElementType.TYPE})
+  @Target(TYPE)
   @interface MixIn {
     /** The concrete type to mix. */
     Class<?> value();
