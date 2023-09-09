@@ -8,6 +8,8 @@ import java.io.OutputStream;
 
 final class NimaJsonOutput implements JsonOutput {
 
+  private static final String CHUNKED = "chunked";
+
   private final ServerResponse res;
   private OutputStream os;
   private boolean fixedLength;
@@ -20,7 +22,7 @@ final class NimaJsonOutput implements JsonOutput {
     if (os == null) {
       if (!fixedLength) {
         // going to use chunked content
-        res.header(Http.HeaderNames.TRANSFER_ENCODING, "chunked");
+        res.header(Http.HeaderNames.TRANSFER_ENCODING, CHUNKED);
       }
       os = res.outputStream();
     }
