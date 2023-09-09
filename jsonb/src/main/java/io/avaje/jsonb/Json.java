@@ -110,7 +110,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({FIELD})
+  @Target(FIELD)
   @interface Property {
 
     /**
@@ -130,7 +130,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({FIELD})
+  @Target(FIELD)
   @interface Alias {
 
     /** One or more secondary names to accept as aliases to the official name. */
@@ -142,7 +142,7 @@ public @interface Json {
    */
   @Deprecated
   @Retention(CLASS)
-  @Target({FIELD})
+  @Target(FIELD)
   @interface JsonAlias {
 
     /** One or more secondary names to accept as aliases to the official name. */
@@ -160,7 +160,7 @@ public @interface Json {
    * serialization but not deserialization.
    */
   @Retention(CLASS)
-  @Target({FIELD})
+  @Target(FIELD)
   @interface Ignore {
 
     /**
@@ -188,7 +188,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({FIELD})
+  @Target(FIELD)
   @interface Unmapped {
 
   }
@@ -222,7 +222,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(RUNTIME)
-  @Target({METHOD})
+  @Target(METHOD)
   @interface Value {
   }
 
@@ -246,7 +246,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({TYPE})
+  @Target(TYPE)
   @Repeatable(SubTypes.class)
   @interface SubType {
 
@@ -268,7 +268,7 @@ public @interface Json {
    * type can be represented as.
    */
   @Retention(CLASS)
-  @Target({TYPE})
+  @Target(TYPE)
   @interface SubTypes {
 
     SubType[] value();
@@ -278,7 +278,7 @@ public @interface Json {
    * Marks a String field as containing raw JSON content.
    */
   @Retention(CLASS)
-  @Target({FIELD})
+  @Target(FIELD)
   @interface Raw {
 
   }
@@ -303,7 +303,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({TYPE})
+  @Target(TYPE)
   @interface MixIn {
     /** The concrete type to mix. */
     Class<?> value();
