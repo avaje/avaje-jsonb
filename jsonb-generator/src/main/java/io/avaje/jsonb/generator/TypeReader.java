@@ -342,7 +342,7 @@ final class TypeReader {
   }
 
   private MethodReader determineConstructor() {
-    if (defaultPublicConstructor) {
+    if (defaultPublicConstructor && !allSetterMethods.isEmpty()) {
       return null;
     }
     if (publicConstructors.size() == 1) {
