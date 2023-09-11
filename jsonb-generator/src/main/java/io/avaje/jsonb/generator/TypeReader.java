@@ -1,12 +1,12 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.APContext.*;
-import static io.avaje.jsonb.generator.ProcessingContext.*;
-
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.avaje.jsonb.generator.APContext.*;
+import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 
 /**
  * Read points for field injection and method injection
@@ -41,12 +41,14 @@ final class TypeReader {
 
   private final String typePropertyKey;
 
-  private final Map<String, Integer> frequencyMap  = new HashMap<>();
+  private final Map<String, Integer> frequencyMap = new HashMap<>();
 
   private final List<MethodProperty> methodProperties = new ArrayList<>();
 
   private boolean optional;
-  /** Set when the type is known to extend Throwable */
+  /**
+   * Set when the type is known to extend Throwable
+   */
   private boolean extendsThrowable;
 
   TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
@@ -98,14 +100,14 @@ final class TypeReader {
     if (currentSubType == null && type != baseType) {
       allFields.addAll(0, localFields);
       for (final FieldReader localField : localFields) {
-        allFieldMap.put(localField.fieldName()+localField.adapterShortType(), localField);
+        allFieldMap.put(localField.fieldName() + localField.adapterShortType(), localField);
       }
     } else {
       for (final FieldReader localField : localFields) {
-        final FieldReader commonField = allFieldMap.get(localField.fieldName()+localField.adapterShortType());
+        final FieldReader commonField = allFieldMap.get(localField.fieldName() + localField.adapterShortType());
         if (commonField == null) {
           allFields.add(localField);
-          allFieldMap.put(localField.fieldName()+localField.adapterShortType(), localField);
+          allFieldMap.put(localField.fieldName() + localField.adapterShortType(), localField);
         } else {
           commonField.addSubType(currentSubType);
         }
@@ -188,7 +190,7 @@ final class TypeReader {
       return false;
     }
     if (extendsThrowable) {
-     return THROWABLE_INCLUDES.contains(methodElement.getSimpleName().toString());
+      return THROWABLE_INCLUDES.contains(methodElement.getSimpleName().toString());
     }
     return true;
   }
@@ -465,7 +467,7 @@ final class TypeReader {
       var property = new FieldProperty(methodReader);
       property.setGetterMethod(methodReader);
       property.setPosition(pos);
-  pos++;
+      pos++;
       String name = initPropertyName(methodReader.getName(), property);
       String propertyName = namingConvention.from(name);
       methodProperties.add(new MethodProperty(propertyName, property));

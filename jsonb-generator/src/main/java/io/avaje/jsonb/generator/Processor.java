@@ -259,8 +259,7 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void writeAdapterForType(TypeElement typeElement) {
-    final ClassReader beanReader = new ClassReader(typeElement);
-    writeAdapter(typeElement, beanReader);
+    writeAdapter(typeElement, new ClassReader(typeElement));
   }
 
   private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType) {
