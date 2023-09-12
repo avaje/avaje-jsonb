@@ -75,7 +75,9 @@ final class EnumReader implements BeanReader {
   @Override
   public void writeImports(Append writer) {
     for (final String importType : importTypes()) {
-      writer.append("import %s;", Util.sanitizeImports(importType)).eol();
+      if (Util.validImportType(importType)) {
+        writer.append("import %s;", Util.sanitizeImports(importType)).eol();
+      }
     }
     writer.eol();
   }

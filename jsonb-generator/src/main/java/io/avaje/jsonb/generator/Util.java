@@ -33,7 +33,7 @@ final class Util {
   }
 
   private static String trimArrayBrackets(String type) {
-    return type.replaceAll("[^\\n\\r\\t $;\\w.]", "");
+    return type.replaceAll("[^\\n\\r\\t $*_;\\w.]", "");
   }
 
   static String packageOf(String cls) {
