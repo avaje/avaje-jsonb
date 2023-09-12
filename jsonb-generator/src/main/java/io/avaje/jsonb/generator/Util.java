@@ -23,6 +23,19 @@ final class Util {
     return type.indexOf('.') > 0;
   }
 
+  public static String sanitizeImports(String type) {
+    final int pos = type.indexOf("@");
+    if (pos == -1) {
+      return trimArrayBrackets(type);
+    }
+    final var start = pos == 0 ? type.substring(0, pos) : "";
+    return start + trimArrayBrackets(type.substring(type.lastIndexOf(' ') + 1));
+  }
+
+  private static String trimArrayBrackets(String type) {
+    return type.replaceAll("[^\\n\\r\\t $;\\w.]", "");
+  }
+
   static String packageOf(String cls) {
     int pos = cls.lastIndexOf('.');
     return (pos == -1) ? "" : cls.substring(0, pos);
