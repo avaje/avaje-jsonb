@@ -43,4 +43,11 @@ class UtilTest {
     assertThat(Util.escapeQuotes(List.of("\"a\"", "b"))).containsOnly("\\\"a\\\"", "b");
     assertThat(Util.escapeQuotes(List.of("a", "\"b\""))).containsOnly("a", "\\\"b\\\"");
   }
+
+  @Test
+  void sanitizeImports() {
+    assertEquals("org.foo.Bar", Util.sanitizeImports("org.foo.Bar"));
+    assertEquals("org.foo.Bar", Util.sanitizeImports("org.foo.Bar[]"));
+    assertEquals("org.foo.Bar", Util.sanitizeImports("@some.Nullable org.foo.Bar[]"));
+  }
 }
