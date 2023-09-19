@@ -108,7 +108,7 @@ final class ProcessingContext {
         if (noInjectPlugin.get()) {
           logWarn(
               module,
-              "`requires io.avaje.json.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance",
+              "`requires io.avaje.jsonb.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance",
               fqn);
         }
 
