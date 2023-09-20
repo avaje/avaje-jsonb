@@ -64,7 +64,6 @@ public final class Processor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
-
     APContext.setProjectModuleElement(annotations, round);
     readModule();
     writeAdapters(round.getElementsAnnotatedWith(typeElement(JSON)));
@@ -161,8 +160,7 @@ public final class Processor extends AbstractProcessor {
   }
 
   private boolean cascadeElement(TypeElement element) {
-    return element.getKind() != ElementKind.ENUM
-      && !metaData.contains(adapterName(element));
+    return element.getKind() != ElementKind.ENUM && !metaData.contains(adapterName(element));
   }
 
   private String adapterName(TypeElement element) {
@@ -201,8 +199,8 @@ public final class Processor extends AbstractProcessor {
    */
   private void writeAdaptersForImported(Set<? extends Element> importedElements) {
     importedElements.stream()
-        .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream().peek(p -> addImportedPrism(p, e)))
-        .forEach(this::addImported);
+      .flatMap(e -> ImportPrism.getAllInstancesOn(e).stream().peek(p -> addImportedPrism(p, e)))
+      .forEach(this::addImported);
   }
 
   private void addImported(ImportPrism importPrism) {

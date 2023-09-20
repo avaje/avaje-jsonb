@@ -64,8 +64,7 @@ final class ClassReader implements BeanReader {
     this.optional = typeReader.hasOptional();
     this.isRecord = isRecord(beanType);
     this.subTypes = typeReader.subTypes();
-    this.readOnlyInterface =
-        typeReader.extendsThrowable() || allFields.isEmpty() && subTypes.isEmpty();
+    this.readOnlyInterface = typeReader.extendsThrowable() || allFields.isEmpty() && subTypes.isEmpty();
     this.methodProperties = typeReader.methodProperties();
 
     subTypes.stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
