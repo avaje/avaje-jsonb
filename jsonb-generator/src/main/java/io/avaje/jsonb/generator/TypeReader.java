@@ -17,6 +17,7 @@ final class TypeReader {
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
   private static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
   private static final Set<String> THROWABLE_INCLUDES = Set.of("getMessage", "getCause", "getStackTrace", "getSuppressed");
+  private static final Set<String> THROWABLE_FIELDS = Set.of("detailMessage", "suppressedExceptions", "stackTrace");
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
@@ -134,6 +135,12 @@ final class TypeReader {
   }
 
   private boolean includeField(Element element) {
+    if (extendsThrowable) {
+      return !element.getModifiers().contains(Modifier.TRANSIENT)
+        && !element.getModifiers().contains(Modifier.STATIC)
+        && !THROWABLE_FIELDS.contains(element.getSimpleName().toString());
+    }
+
     return !element.getModifiers().contains(Modifier.TRANSIENT)
       && !element.getModifiers().contains(Modifier.STATIC);
   }
@@ -169,16 +176,12 @@ final class TypeReader {
       final String methodKey = methodElement.getSimpleName().toString();
       MethodReader methodReader = new MethodReader(methodElement, type).read();
       if (parameters.size() == 1) {
-        if (!maybeSetterMethods.containsKey(methodKey)) {
-          maybeSetterMethods.put(methodKey, methodReader);
-        }
+        maybeSetterMethods.putIfAbsent(methodKey, methodReader);
         allSetterMethods.put(methodKey.toLowerCase(), methodReader);
-      } else if (parameters.size() == 0) {
+      } else if (parameters.isEmpty()) {
         TypeMirror returnType = methodElement.getReturnType();
         if (!"void".equals(returnType.toString())) {
-          if (!maybeGetterMethods.containsKey(methodKey)) {
-            maybeGetterMethods.put(methodKey, methodReader);
-          }
+          maybeGetterMethods.putIfAbsent(methodKey, methodReader);
           allGetterMethods.put(methodKey.toLowerCase(), methodReader);
         }
       }
@@ -413,7 +416,7 @@ final class TypeReader {
     }
     matchFieldsToSetterOrConstructor();
     matchFieldsToGetter();
-    if (allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
+    if (extendsThrowable || allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
       initReadOnlyMethods();
     }
   }
@@ -484,4 +487,7 @@ final class TypeReader {
     }
   }
 
+  boolean extendsThrowable() {
+    return extendsThrowable;
+  }
 }
