@@ -19,7 +19,12 @@ final class FieldReader {
   private boolean isSubTypeField;
   private final String num;
 
-  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams, Integer frequency) {
+  FieldReader(
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency) {
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
@@ -30,12 +35,14 @@ final class FieldReader {
 
     final var fieldName = element.getSimpleName().toString();
     final var publicField = element.getModifiers().contains(Modifier.PUBLIC);
-    this.property = new FieldProperty(element.asType(), raw, unmapped, genericTypeParams, publicField, fieldName);
+    this.property =
+        new FieldProperty(
+            element.asType(), raw, unmapped, genericTypeParams, publicField, fieldName);
     this.propertyName =
-      PropertyPrism.getOptionalOn(element)
-        .map(PropertyPrism::value)
-        .map(Util::escapeQuotes)
-        .orElse(namingConvention.from(fieldName));
+        PropertyPrism.getOptionalOn(element)
+            .map(PropertyPrism::value)
+            .map(Util::escapeQuotes)
+            .orElse(namingConvention.from(fieldName));
 
     this.aliases = initAliases(element);
   }

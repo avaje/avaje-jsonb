@@ -16,7 +16,10 @@ final class TypeReader {
 
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
   private static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
-  private static final Set<String> THROWABLE_INCLUDES = Set.of("getMessage", "getCause", "getStackTrace", "getSuppressed");
+  private static final Set<String> THROWABLE_INCLUDES =
+      Set.of("getMessage", "getCause", "getStackTrace", "getSuppressed");
+  private static final Set<String> THROWABLE_FIELDS =
+      Set.of("detailMessage", "suppressedExceptions", "stackTrace");
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
@@ -128,14 +131,22 @@ final class TypeReader {
       optional = true;
     }
     if (includeField(element)) {
-      final var frequency = frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
-      localFields.add(new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency));
+      final var frequency =
+          frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
+      localFields.add(
+          new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency));
     }
   }
 
   private boolean includeField(Element element) {
+    if (extendsThrowable) {
+      return !element.getModifiers().contains(Modifier.TRANSIENT)
+          && !element.getModifiers().contains(Modifier.STATIC)
+          && !THROWABLE_FIELDS.contains(element.getSimpleName().toString());
+    }
+
     return !element.getModifiers().contains(Modifier.TRANSIENT)
-      && !element.getModifiers().contains(Modifier.STATIC);
+        && !element.getModifiers().contains(Modifier.STATIC);
   }
 
   private void readConstructor(Element element, TypeElement type) {
@@ -176,9 +187,8 @@ final class TypeReader {
       } else if (parameters.size() == 0) {
         TypeMirror returnType = methodElement.getReturnType();
         if (!"void".equals(returnType.toString())) {
-          if (!maybeGetterMethods.containsKey(methodKey)) {
-            maybeGetterMethods.put(methodKey, methodReader);
-          }
+          maybeGetterMethods.computeIfAbsent(methodKey, k -> methodReader);
+
           allGetterMethods.put(methodKey.toLowerCase(), methodReader);
         }
       }
@@ -413,7 +423,7 @@ final class TypeReader {
     }
     matchFieldsToSetterOrConstructor();
     matchFieldsToGetter();
-    if (allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
+    if (extendsThrowable || allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
       initReadOnlyMethods();
     }
   }
@@ -484,4 +494,7 @@ final class TypeReader {
     }
   }
 
+  public boolean extendsThrowable() {
+    return extendsThrowable;
+  }
 }
