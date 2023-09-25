@@ -10,13 +10,13 @@
   <version>1.0-RC2-SNAPSHOT</version>
 
   <properties>
-    <jmh.version>1.33</jmh.version>
-    <avaje-jsonb.version>1.4</avaje-jsonb.version>
+    <jmh.version>1.37</jmh.version>
+    <avaje-jsonb.version>1.8-RC3</avaje-jsonb.version>
     <yasson.version>2.0.2</yasson.version>
     <java.release>17</java.release>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
   </properties>
 
   <dependencies>

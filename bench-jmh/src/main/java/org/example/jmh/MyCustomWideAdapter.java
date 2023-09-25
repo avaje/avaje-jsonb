@@ -1,13 +1,12 @@
 package org.example.jmh;
 
 import io.avaje.jsonb.*;
-import java.io.IOException;
 import java.util.Random;
 
 import io.avaje.jsonb.spi.PropertyNames;
 import org.example.jmh.model.WideNamesRecord;
 
-public class MyCustomWideAdapter extends JsonAdapter<WideNamesRecord> {
+public class MyCustomWideAdapter implements JsonAdapter<WideNamesRecord> {
 
   // naming convention Match
   // firstNameProperty1 [java.lang.String] name:firstNameProperty1 constructor
