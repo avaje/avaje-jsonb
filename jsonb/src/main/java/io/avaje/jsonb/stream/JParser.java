@@ -699,11 +699,11 @@ final class JParser implements JsonParser {
     return currentPosition + currentIndex - offset;
   }
 
-  long calcHash() {
+  int calcHash() {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
     tokenStart = currentIndex;
     int ci = currentIndex;
-    long hash = 0x811c9dc5;
+    int hash = 0x811c9dc5;
     if (stream != null) {
       while (ci < readLimit) {
         byte b = buffer[ci];
@@ -743,7 +743,7 @@ final class JParser implements JsonParser {
 
   private int lastNameLen;
 
-  private int calcHashAndCopyName(long hash, int ci) {
+  private int calcHashAndCopyName(int hash, int ci) {
     int soFar = ci - tokenStart;
     long startPosition = currentPosition - soFar;
     while (chars.length < soFar) {
@@ -909,7 +909,7 @@ final class JParser implements JsonParser {
   @Override
   public String nextField() {
     if (currentNames != null) {
-      final long hash = calcHash();
+      final int hash = calcHash();
       String key = currentNames.lookup(hash);
       if (key == null) {
         key = lastFieldName();
