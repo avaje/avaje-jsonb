@@ -9,6 +9,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EscapeTest {
 
   @Test
+  void nameHash_withSlash() {
+    assertThat(Escape.nameHash("foo")).isEqualTo(-1443660073);
+    assertThat(Escape.nameHash("\\foo")).isEqualTo(-1443660073);
+  }
+
+  @Test
   void nameHash_withQuotes() {
     assertThat(Escape.nameHash("\"with quotes\"")).isEqualTo(523918728);
     assertThat(Escape.nameHash("\"withquotes\"")).isEqualTo(420906694);

@@ -92,6 +92,16 @@ public interface JsonReader extends Closeable {
   String nextField();
 
   /**
+   * Return the hash of the next field name.
+   */
+  int nextFieldHash();
+
+  /**
+   * Return the last field name (after unknown nextFieldHash).
+   */
+  String lastFieldName();
+
+  /**
    * Return true if the value to be read is a null.
    */
   boolean isNullValue();
