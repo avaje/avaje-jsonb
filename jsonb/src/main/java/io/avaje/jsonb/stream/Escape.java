@@ -207,10 +207,11 @@ final class Escape {
 
   static long nameHash(String name) {
     long hash = 0x811c9dc5;
-    byte[] bytes = name.getBytes(StandardCharsets.UTF_8);
-    for (byte b : bytes) {
-      hash ^= b;
-      hash *= 0x1000193;
+    for (byte b : name.getBytes(StandardCharsets.UTF_8)) {
+      if (b != '\\') {
+        hash ^= b;
+        hash *= 0x1000193;
+      }
     }
     return hash;
   }

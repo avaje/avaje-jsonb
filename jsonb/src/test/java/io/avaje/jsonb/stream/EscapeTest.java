@@ -9,6 +9,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EscapeTest {
 
   @Test
+  void nameHash_withQuotes() {
+    assertThat(Escape.nameHash("\"with quotes\"")).isEqualTo(523918728);
+    assertThat(Escape.nameHash("\"withquotes\"")).isEqualTo(420906694);
+    assertThat(Escape.nameHash("withquotes")).isEqualTo(-1426871072);
+  }
+
+  @Test
+  void nameHash_unquoted() {
+    assertThat(Escape.nameHash("foo")).isEqualTo(-1443660073);
+    assertThat(Escape.nameHash("fop")).isEqualTo(-1359771978);
+    assertThat(Escape.nameHash("bar")).isEqualTo(1991736602);
+  }
+
+  @Test
   void hello() {
     assertThat(asString(Escape.quoteEscape("Hello"))).isEqualTo("\"Hello\"");
   }
