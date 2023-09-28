@@ -528,6 +528,7 @@ final class ClassReader implements BeanReader {
   }
 
   private void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
+    boolean useHashSwitch = !caseInsensitiveKeys && !hasSubTypes && ProcessingContext.fastSwitch();
     writer.eol();
     writer.append("    // read json").eol();
     writer.append("    reader.beginObject(names);").eol();
@@ -535,10 +536,13 @@ final class ClassReader implements BeanReader {
     if (caseInsensitiveKeys) {
       writer.append("      final String origFieldName = reader.nextField();").eol();
       writer.append("      final String fieldName = origFieldName.toLowerCase();").eol();
+      writer.append("      switch (fieldName) {").eol();
+    } else if (useHashSwitch) {
+      writer.append("      switch (reader.nextFieldHash()) {").eol();
     } else {
       writer.append("      final String fieldName = reader.nextField();").eol();
+      writer.append("      switch (fieldName) {").eol();
     }
-    writer.append("      switch (fieldName) {").eol();
     if (hasSubTypes && !usesTypeProperty) {
       writer.append("        case \"%s\":", typePropertyKey()).eol();
       writer.append("          type = stringJsonAdapter.fromJson(reader);").eol();
@@ -562,10 +566,9 @@ final class ClassReader implements BeanReader {
               allFields.stream()
                   .filter(x -> x.fieldName().equals(name))
                   .flatMap(f -> f.aliases().stream())
-                  .collect(toList()));
+                  .collect(toList()), useHashSwitch);
         } else {
-          // if subclass shares a field name with another subclass
-          // write a special case statement
+          // if subclass shares a field name with another subclass write a special case statement
           writeSubTypeCase(
               name,
               writer,
@@ -573,17 +576,27 @@ final class ClassReader implements BeanReader {
               defaultConstructor,
               varName);
         }
-
-      } else
-        allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
+      } else {
+        allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys, List.of(), useHashSwitch);
+      }
     }
     writer.append("        default:").eol();
     final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
     if (unmappedField != null) {
-      writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
-      writer.append("          unmapped.put(%s, value);", unmappedFieldName).eol();
+      if (useHashSwitch) {
+        writer.append("          var lastName = reader.lastFieldName();").eol();
+        writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
+        writer.append("          unmapped.put(lastName, value);", unmappedFieldName).eol();
+      } else {
+        writer.append("          Object value = objectJsonAdapter.fromJson(reader);").eol();
+        writer.append("          unmapped.put(%s, value);", unmappedFieldName).eol();
+      }
     } else {
-      writer.append("          reader.unmappedField(%s);", unmappedFieldName).eol();
+      if (useHashSwitch) {
+        writer.append("          reader.unmappedField(reader.lastFieldName());", unmappedFieldName).eol();
+      } else {
+        writer.append("          reader.unmappedField(%s);", unmappedFieldName).eol();
+      }
       writer.append("          reader.skipValue();").eol();
     }
     writer.append("      }").eol();

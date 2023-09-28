@@ -180,17 +180,27 @@ final class FieldReader {
     property.writeFromJsonVariablesRecord(writer, num);
   }
 
-  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys, List<String> moreAlias) {
+  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys, List<String> moreAlias, boolean useHashSwitch) {
     if (unmapped) {
       return;
     }
     aliases.addAll(moreAlias);
     for (final String alias : aliases) {
       final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
-      writer.append("        case \"%s\":", propertyKey).eol();
+      if (useHashSwitch) {
+        int hash = Escape.nameHash(propertyKey);
+        writer.append("        case %s: // %s", String.valueOf(hash), propertyKey).eol();
+      } else {
+        writer.append("        case \"%s\":", propertyKey).eol();
+      }
     }
     final String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
-    writer.append("        case \"%s\": ", propertyKey).eol();
+    if (useHashSwitch) {
+      int hash = Escape.nameHash(propertyKey);
+      writer.append("        case %s: // %s", String.valueOf(hash), propertyKey).eol();
+    } else {
+      writer.append("        case \"%s\": ", propertyKey).eol();
+    }
     if (!deserialize) {
       writer.append("          reader.skipValue();");
     } else {

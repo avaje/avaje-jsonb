@@ -79,6 +79,16 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
+  public String lastFieldName() {
+    return reader.lastFieldName();
+  }
+
+  @Override
+  public int nextFieldHash() {
+    return reader.nextFieldHash();
+  }
+
+  @Override
   public boolean readBoolean() {
     return reader.readBoolean();
   }

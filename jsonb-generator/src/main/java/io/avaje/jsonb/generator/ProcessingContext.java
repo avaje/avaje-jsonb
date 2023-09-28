@@ -23,6 +23,7 @@ import javax.tools.StandardLocation;
 final class ProcessingContext {
 
   private static final ThreadLocal<Ctx> CTX = new ThreadLocal<>();
+  private static boolean fastSwitch;
 
   private static final class Ctx {
     private final Map<String, JsonPrism> importedJsonMap = new HashMap<>();
@@ -41,6 +42,12 @@ final class ProcessingContext {
   static void init(ProcessingEnvironment processingEnv) {
     APContext.init(processingEnv);
     CTX.set(new Ctx(processingEnv));
+    final var options = processingEnv.getOptions();
+    fastSwitch = true; // Boolean.parseBoolean(options.get("fastSwitch"));
+  }
+
+  static boolean fastSwitch() {
+    return fastSwitch;
   }
 
   static boolean useEnhancedSwitch() {

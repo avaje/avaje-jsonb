@@ -2,6 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.stream.Escape;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,6 +19,7 @@ final class ObjectJsonReader implements JsonReader {
   private Object currentValue;
   private Iterator<?> collectionIterator;
   private Iterator<Map.Entry<String, Object>> mapIterator;
+  private String lastFieldName;
 
   ObjectJsonReader(Object source) {
     this.source = source;
@@ -85,6 +87,17 @@ final class ObjectJsonReader implements JsonReader {
     final Map.Entry<String, Object> mapEntry = mapIterator.next();
     currentValue = mapEntry.getValue();
     return mapEntry.getKey();
+  }
+
+  @Override
+  public String lastFieldName() {
+    return lastFieldName;
+  }
+
+  @Override
+  public int nextFieldHash() {
+    lastFieldName = nextField();
+    return Escape.nameHash(lastFieldName);
   }
 
   @Override

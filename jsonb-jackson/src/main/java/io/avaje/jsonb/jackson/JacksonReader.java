@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.TreeNode;
 import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.stream.Escape;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ final class JacksonReader implements JsonReader {
   private final JsonParser parser;
   private final boolean failOnUnknown;
   private boolean streamArray;
+  private String lastFieldName;
 
   JacksonReader(JsonParser parser, boolean failOnUnknown) {
     this.parser = parser;
@@ -118,6 +120,17 @@ final class JacksonReader implements JsonReader {
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
+  }
+
+  @Override
+  public String lastFieldName() {
+    return lastFieldName;
+  }
+
+  @Override
+  public int nextFieldHash() {
+    lastFieldName = nextField();
+    return Escape.nameHash(lastFieldName);
   }
 
   @Override

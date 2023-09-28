@@ -699,11 +699,11 @@ final class JParser implements JsonParser {
     return currentPosition + currentIndex - offset;
   }
 
-  long calcHash() {
+  int calcHash() {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
     tokenStart = currentIndex;
     int ci = currentIndex;
-    long hash = 0x811c9dc5;
+    int hash = 0x811c9dc5;
     if (stream != null) {
       while (ci < readLimit) {
         byte b = buffer[ci];
@@ -774,7 +774,8 @@ final class JParser implements JsonParser {
     throw newParseErrorAt("JSON string was not closed with a double quote", (int) startPosition);
   }
 
-  private String lastFieldName() {
+  @Override
+  public String lastFieldName() {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
     }
@@ -904,6 +905,16 @@ final class JParser implements JsonParser {
     last = buffer[currentIndex++];
     if (last != '"') throw newParseError("Expecting '\"' for base64 end");
     return Base64.decodeFast(buffer, start, currentIndex - 1);
+  }
+
+  @Override
+  public int nextFieldHash() {
+    final int hash = calcHash();
+    if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
+      throw newParseError("Expecting ':' after attribute name");
+    }
+    nextToken(); // position to read the value/next
+    return hash;
   }
 
   @Override
