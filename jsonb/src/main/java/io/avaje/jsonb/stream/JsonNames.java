@@ -13,31 +13,10 @@ final class JsonNames implements PropertyNames {
   static final JsonNames EMPTY = new JsonNames(new byte[0][0], Collections.emptyMap());
   private final byte[][] nameArray;
   private final Map<Integer, String> nameHash;
-  private final int size;
-  private final int[] hashes;
-  private final String[] keys;
 
   JsonNames(byte[][] nameArray, Map<Integer, String> nameHash) {
     this.nameArray = nameArray;
     this.nameHash = nameHash;
-    int inputSize = nameHash.size();
-    if (inputSize > 50) {
-      this.size = 0;
-      this.hashes = new int[0];
-      this.keys = new String[0];
-    } else {
-      // support linear match of hash values
-      this.size = inputSize;
-      this.hashes = new int[size];
-      this.keys = new String[size];
-
-      int pos = 0;
-      for (Map.Entry<Integer, String> entry : nameHash.entrySet()) {
-        hashes[pos] = entry.getKey();
-        keys[pos] = entry.getValue();
-        pos++;
-      }
-    }
   }
 
   /**
@@ -66,11 +45,6 @@ final class JsonNames implements PropertyNames {
   }
 
   String lookup(int hash) {
-    for (int i = 0; i < size; i++) {
-      if (hashes[i] == hash) {
-        return keys[i];
-      }
-    }
-    return size != 0 ? null : nameHash.get(hash);
+     return nameHash.get(hash);
   }
 }
