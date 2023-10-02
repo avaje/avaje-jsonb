@@ -2,8 +2,8 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.TypeElement;
 
-import static io.avaje.jsonb.generator.ProcessingContext.element;
-import static io.avaje.jsonb.generator.ProcessingContext.logError;
+import static io.avaje.jsonb.generator.APContext.typeElement;
+import static io.avaje.jsonb.generator.APContext.logError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,19 @@ final class Util {
     return type.indexOf('.') > 0;
   }
 
+  public static String sanitizeImports(String type) {
+    final int pos = type.indexOf("@");
+    if (pos == -1) {
+      return trimArrayBrackets(type);
+    }
+    final var start = pos == 0 ? type.substring(0, pos) : "";
+    return start + trimArrayBrackets(type.substring(type.lastIndexOf(' ') + 1));
+  }
+
+  private static String trimArrayBrackets(String type) {
+    return type.replaceAll("[^\\n\\r\\t $*_;\\w.]", "");
+  }
+
   static String packageOf(String cls) {
     int pos = cls.lastIndexOf('.');
     return (pos == -1) ? "" : cls.substring(0, pos);
@@ -38,7 +51,7 @@ final class Util {
   }
 
   static String shortType(String fullType) {
-    int p = fullType.lastIndexOf('.');
+    final int p = fullType.lastIndexOf('.');
     if (p == -1) {
       return fullType;
     } else if (fullType.startsWith("java")) {
@@ -47,10 +60,17 @@ final class Util {
       var result = "";
       var foundClass = false;
       for (final String part : fullType.split("\\.")) {
-        if (foundClass || Character.isUpperCase(part.charAt(0))) {
+        char firstChar = part.charAt(0);
+        if (foundClass
+            || Character.isUpperCase(firstChar)
+            || (!Character.isAlphabetic(firstChar) && Character.isJavaIdentifierStart(firstChar))) {
           foundClass = true;
           result += (result.isEmpty() ? "" : ".") + part;
         }
+      }
+      // when in doubt, do the basic thing
+      if (result.isBlank()) {
+        return fullType.substring(p + 1);
       }
       return result;
     }
@@ -140,7 +160,7 @@ final class Util {
 
   /** Return the base type given the JsonAdapter type. */
   static String baseTypeOfAdapter(String adapterFullName) {
-    final var element = element(adapterFullName);
+    final var element = typeElement(adapterFullName);
     if (element == null) {
       throw new NullPointerException("Element not found for [" + adapterFullName + "]");
     }

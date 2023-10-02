@@ -1,7 +1,7 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.jdkVersion;
-import static io.avaje.jsonb.generator.ProcessingContext.previewEnabled;
+import static io.avaje.jsonb.generator.APContext.jdkVersion;
+import static io.avaje.jsonb.generator.APContext.previewEnabled;
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 import static java.util.stream.Collectors.toList;
 
@@ -64,7 +64,7 @@ final class ClassReader implements BeanReader {
     this.optional = typeReader.hasOptional();
     this.isRecord = isRecord(beanType);
     this.subTypes = typeReader.subTypes();
-    this.readOnlyInterface = allFields.isEmpty() && subTypes.isEmpty();
+    this.readOnlyInterface = typeReader.extendsThrowable() || allFields.isEmpty() && subTypes.isEmpty();
     this.methodProperties = typeReader.methodProperties();
 
     subTypes.stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
@@ -76,7 +76,7 @@ final class ClassReader implements BeanReader {
       userTypeField
         .map(FieldReader::type)
         .map(GenericType::topType)
-        .map(ProcessingContext::element)
+        .map(APContext::typeElement)
         .filter(e -> e.getKind() == ElementKind.ENUM)
         .isPresent();
   }
@@ -189,7 +189,7 @@ final class ClassReader implements BeanReader {
   public void writeImports(Append writer) {
     for (final String importType : importTypes()) {
       if (Util.validImportType(importType)) {
-        writer.append("import %s;", importType).eol();
+        writer.append("import %s;", Util.sanitizeImports(importType)).eol();
       }
     }
     writer.eol();
