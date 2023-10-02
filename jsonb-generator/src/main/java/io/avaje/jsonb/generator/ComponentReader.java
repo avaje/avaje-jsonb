@@ -1,6 +1,6 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.*;
+import static io.avaje.jsonb.generator.APContext.*;
 import javax.annotation.processing.FilerException;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeElement;
@@ -26,7 +26,7 @@ final class ComponentReader {
   void read() {
     String componentFullName = loadMetaInfServices();
     if (componentFullName != null) {
-      TypeElement moduleType = element(componentFullName);
+      TypeElement moduleType = typeElement(componentFullName);
       if (moduleType != null) {
         componentMetaData.setFullName(componentFullName);
         readMetaData(moduleType);
@@ -63,7 +63,7 @@ final class ComponentReader {
 
   private List<String> loadMetaInf() {
     try {
-      FileObject fileObject = env()
+      FileObject fileObject = processingEnv()
         .getFiler()
         .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT);
 
@@ -85,7 +85,7 @@ final class ComponentReader {
       // logDebug("no services file yet");
 
     } catch (FilerException e) {
-      logDebug("FilerException reading services file");
+      logNote("FilerException reading services file");
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -6,12 +6,8 @@ import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.spi.PropertyNames;
 import org.example.jmh.model.NarrowNamesRecord;
-import org.example.jmh.model.WideNamesRecord;
 
-import java.io.IOException;
-import java.util.Random;
-
-public class MyCustomNarrowAdapter extends JsonAdapter<NarrowNamesRecord> {
+public class MyCustomNarrowAdapter implements JsonAdapter<NarrowNamesRecord> {
 
   // naming convention Match
   // firstNameProperty1 [java.lang.String] name:firstNameProperty1 constructor

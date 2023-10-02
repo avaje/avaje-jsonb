@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>1.8-SNAPSHOT</version>
+    <version>1.9-SNAPSHOT</version>
   </parent>
 
   <artifactId>avaje-jsonb</artifactId>
@@ -19,9 +19,9 @@
     </dependency>
 
     <dependency>
-      <groupId>io.helidon.nima.webserver</groupId>
-      <artifactId>helidon-nima-webserver</artifactId>
-      <version>4.0.0-ALPHA4</version>
+      <groupId>io.helidon.webserver</groupId>
+      <artifactId>helidon-webserver</artifactId>
+      <version>4.0.0-RC1</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>

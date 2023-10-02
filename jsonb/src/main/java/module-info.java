@@ -10,6 +10,6 @@ module io.avaje.jsonb {
   uses io.avaje.jsonb.JsonbComponent;
   uses io.avaje.jsonb.Jsonb.GeneratedComponent;
 
-  requires static io.helidon.nima.webserver;
+  requires static io.helidon.webserver;
 
 }

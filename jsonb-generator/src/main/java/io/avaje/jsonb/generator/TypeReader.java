@@ -1,11 +1,12 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.*;
-
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.avaje.jsonb.generator.APContext.*;
+import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 
 /**
  * Read points for field injection and method injection
@@ -16,6 +17,7 @@ final class TypeReader {
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
   private static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
   private static final Set<String> THROWABLE_INCLUDES = Set.of("getMessage", "getCause", "getStackTrace", "getSuppressed");
+  private static final Set<String> THROWABLE_FIELDS = Set.of("detailMessage", "suppressedExceptions", "stackTrace");
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
@@ -40,12 +42,14 @@ final class TypeReader {
 
   private final String typePropertyKey;
 
-  private final Map<String, Integer> frequencyMap  = new HashMap<>();
+  private final Map<String, Integer> frequencyMap = new HashMap<>();
 
   private final List<MethodProperty> methodProperties = new ArrayList<>();
 
   private boolean optional;
-  /** Set when the type is known to extend Throwable */
+  /**
+   * Set when the type is known to extend Throwable
+   */
   private boolean extendsThrowable;
 
   TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
@@ -97,14 +101,14 @@ final class TypeReader {
     if (currentSubType == null && type != baseType) {
       allFields.addAll(0, localFields);
       for (final FieldReader localField : localFields) {
-        allFieldMap.put(localField.fieldName()+localField.adapterShortType(), localField);
+        allFieldMap.put(localField.fieldName() + localField.adapterShortType(), localField);
       }
     } else {
       for (final FieldReader localField : localFields) {
-        final FieldReader commonField = allFieldMap.get(localField.fieldName()+localField.adapterShortType());
+        final FieldReader commonField = allFieldMap.get(localField.fieldName() + localField.adapterShortType());
         if (commonField == null) {
           allFields.add(localField);
-          allFieldMap.put(localField.fieldName()+localField.adapterShortType(), localField);
+          allFieldMap.put(localField.fieldName() + localField.adapterShortType(), localField);
         } else {
           commonField.addSubType(currentSubType);
         }
@@ -131,6 +135,12 @@ final class TypeReader {
   }
 
   private boolean includeField(Element element) {
+    if (extendsThrowable) {
+      return !element.getModifiers().contains(Modifier.TRANSIENT)
+        && !element.getModifiers().contains(Modifier.STATIC)
+        && !THROWABLE_FIELDS.contains(element.getSimpleName().toString());
+    }
+
     return !element.getModifiers().contains(Modifier.TRANSIENT)
       && !element.getModifiers().contains(Modifier.STATIC);
   }
@@ -166,16 +176,12 @@ final class TypeReader {
       final String methodKey = methodElement.getSimpleName().toString();
       MethodReader methodReader = new MethodReader(methodElement, type).read();
       if (parameters.size() == 1) {
-        if (!maybeSetterMethods.containsKey(methodKey)) {
-          maybeSetterMethods.put(methodKey, methodReader);
-        }
+        maybeSetterMethods.putIfAbsent(methodKey, methodReader);
         allSetterMethods.put(methodKey.toLowerCase(), methodReader);
-      } else if (parameters.size() == 0) {
+      } else if (parameters.isEmpty()) {
         TypeMirror returnType = methodElement.getReturnType();
         if (!"void".equals(returnType.toString())) {
-          if (!maybeGetterMethods.containsKey(methodKey)) {
-            maybeGetterMethods.put(methodKey, methodReader);
-          }
+          maybeGetterMethods.putIfAbsent(methodKey, methodReader);
           allGetterMethods.put(methodKey.toLowerCase(), methodReader);
         }
       }
@@ -187,7 +193,7 @@ final class TypeReader {
       return false;
     }
     if (extendsThrowable) {
-     return THROWABLE_INCLUDES.contains(methodElement.getSimpleName().toString());
+      return THROWABLE_INCLUDES.contains(methodElement.getSimpleName().toString());
     }
     return true;
   }
@@ -274,7 +280,7 @@ final class TypeReader {
       if (hasJsonAnnotation) {
         logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
       } else {
-        logDebug("Non accessible field " + baseType + " " + field.fieldName());
+        logNote("Non accessible field " + baseType + " " + field.fieldName());
       }
     }
   }
@@ -339,7 +345,7 @@ final class TypeReader {
   }
 
   private MethodReader determineConstructor() {
-    if (defaultPublicConstructor) {
+    if (defaultPublicConstructor && !allSetterMethods.isEmpty()) {
       return null;
     }
     if (publicConstructors.size() == 1) {
@@ -388,7 +394,7 @@ final class TypeReader {
     if (hasSubTypes()) {
       for (TypeSubTypeMeta subType : subTypes.subTypes()) {
         currentSubType = subType;
-        TypeElement element = element(subType.type());
+        TypeElement element = typeElement(subType.type());
         currentSubType.setElement(element);
         addSuperType(element);
       }
@@ -410,7 +416,7 @@ final class TypeReader {
     }
     matchFieldsToSetterOrConstructor();
     matchFieldsToGetter();
-    if (allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
+    if (extendsThrowable || allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
       initReadOnlyMethods();
     }
   }
@@ -443,7 +449,7 @@ final class TypeReader {
   }
 
   private TypeElement superOf(TypeElement element) {
-    return (TypeElement) asElement(element.getSuperclass());
+    return asTypeElement(element.getSuperclass());
   }
 
   boolean hasSubTypes() {
@@ -463,7 +469,8 @@ final class TypeReader {
     for (MethodReader methodReader : maybeGetterMethods.values()) {
       var property = new FieldProperty(methodReader);
       property.setGetterMethod(methodReader);
-      property.setPosition(pos++);
+      property.setPosition(pos);
+      pos++;
       String name = initPropertyName(methodReader.getName(), property);
       String propertyName = namingConvention.from(name);
       methodProperties.add(new MethodProperty(propertyName, property));
@@ -480,4 +487,7 @@ final class TypeReader {
     }
   }
 
+  boolean extendsThrowable() {
+    return extendsThrowable;
+  }
 }

@@ -10,7 +10,7 @@ import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 import org.example.jmh.model.SomePropertyData;
 
-public class MyViewAdapter extends JsonAdapter<SomePropertyData> implements ViewBuilderAware {
+public class MyViewAdapter implements JsonAdapter<SomePropertyData>, ViewBuilderAware {
 
   // naming convention Match
   // firstNameProperty1 [java.lang.String] name:firstNameProperty1 setter:setProp1

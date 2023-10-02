@@ -1,6 +1,6 @@
 package io.avaje.jsonb.stream;
 
-import io.helidon.nima.webserver.http.ServerResponse;
+import io.helidon.webserver.http.ServerResponse;
 
 import java.io.Closeable;
 import java.io.IOException;

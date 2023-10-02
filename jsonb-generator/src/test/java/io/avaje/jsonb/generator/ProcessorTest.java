@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 import javax.tools.JavaCompiler;
@@ -48,17 +49,22 @@ class ProcessorTest {
     final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     final StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, null);
 
-    manager.setLocation(StandardLocation.SOURCE_PATH, Arrays.asList(new File(source)));
+    manager.setLocation(StandardLocation.SOURCE_PATH, List.of(new File(source)));
 
-    final Set<Kind> fileKinds = Collections.singleton(Kind.SOURCE);
+    final Set<Kind> fileKinds = Set.of(Kind.SOURCE);
 
     final Iterable<JavaFileObject> files =
         manager.list(StandardLocation.SOURCE_PATH, "", fileKinds, true);
 
     final CompilationTask task =
         compiler.getTask(
-            new PrintWriter(System.out), null, null, Arrays.asList("--release=11"), null, files);
-    task.setProcessors(Arrays.asList(new Processor()));
+            new PrintWriter(System.out),
+            null,
+            null,
+            List.of("--release=" + Integer.getInteger("java.specification.version")),
+            null,
+            files);
+    task.setProcessors(List.of(new Processor()));
 
     assertThat(task.call()).isTrue();
   }
@@ -72,8 +78,13 @@ class ProcessorTest {
 
     final CompilationTask task =
         compiler.getTask(
-            new PrintWriter(System.out), null, null, Arrays.asList("--release=11"), null, files);
-    task.setProcessors(Arrays.asList(new Processor()));
+            new PrintWriter(System.out),
+            null,
+            null,
+            List.of("--release=" + Integer.getInteger("java.specification.version")),
+            null,
+            files);
+    task.setProcessors(List.of(new Processor()));
 
     assertThat(task.call()).isFalse();
     Files.walk(Paths.get("java").toAbsolutePath())
@@ -88,18 +99,18 @@ class ProcessorTest {
 
     files.setLocation(
         StandardLocation.SOURCE_PATH,
-        Arrays.asList(
+        List.of(
             new File(
                 Paths.get("src/test/java/io/avaje/jsonb/generator/models/invalid")
                     .toAbsolutePath()
                     .toString())));
 
-    final Set<Kind> fileKinds = Collections.singleton(Kind.SOURCE);
+    final Set<Kind> fileKinds = Set.of(Kind.SOURCE);
     final Iterable<JavaFileObject> jfos =
         files.list(StandardLocation.SOURCE_PATH, "", fileKinds, true);
 
     for (final JavaFileObject jfo : jfos) {
-      if (jfo.getName().contains(name)) return Collections.singleton(jfo);
+      if (jfo.getName().contains(name)) return Set.of(jfo);
     }
 
     return null;

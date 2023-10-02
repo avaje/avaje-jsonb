@@ -1,12 +1,14 @@
 package io.avaje.jsonb.stream;
 
-import io.helidon.common.http.Http;
-import io.helidon.nima.webserver.http.ServerResponse;
-
 import java.io.IOException;
 import java.io.OutputStream;
 
+import io.helidon.http.HeaderNames;
+import io.helidon.webserver.http.ServerResponse;
+
 final class NimaJsonOutput implements JsonOutput {
+
+  private static final String CHUNKED = "chunked";
 
   private final ServerResponse res;
   private OutputStream os;
@@ -20,7 +22,7 @@ final class NimaJsonOutput implements JsonOutput {
     if (os == null) {
       if (!fixedLength) {
         // going to use chunked content
-        res.header(Http.HeaderValues.TRANSFER_ENCODING_CHUNKED);
+        res.header(HeaderNames.TRANSFER_ENCODING, CHUNKED);
       }
       os = res.outputStream();
     }
