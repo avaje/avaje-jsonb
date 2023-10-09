@@ -9,6 +9,7 @@
 
   <artifactId>avaje-jsonb</artifactId>
   <name>jsonb</name>
+  <description>avaje-jsonb json streaming and binding library using source code generation</description>
 
   <dependencies>
 

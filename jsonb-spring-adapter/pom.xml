@@ -11,6 +11,7 @@
 
   <artifactId>avaje-jsonb-spring-starter</artifactId>
   <name>jsonb-spring-adapter</name>
+  <description>springframework adapter for avaje-jsonb</description>
 
   <dependencyManagement>
     <dependencies>
