@@ -9,6 +9,7 @@
 
   <artifactId>avaje-jsonb-jackson</artifactId>
   <name>jsonb-jackson</name>
+  <description>jackson adapter for avaje-jsonb</description>
 
   <dependencies>
 

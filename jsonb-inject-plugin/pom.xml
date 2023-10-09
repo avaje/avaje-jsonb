@@ -11,6 +11,7 @@
 
   <artifactId>avaje-jsonb-inject-plugin</artifactId>
   <name>jsonb-inject-plugin</name>
+  <description>avaje-inject plugin for avaje-jsonb</description>
 
   <dependencies>
 
