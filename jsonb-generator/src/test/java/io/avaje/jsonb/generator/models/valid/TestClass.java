@@ -25,6 +25,11 @@ public class TestClass {
 
   private Optional<String> op;
 
+  @Json.Property("what_a_save!")
+  public String what_a_save() {
+    return "Chat Disabled";
+  }
+
   public String getAlias() {
     return alias;
   }

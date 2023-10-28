@@ -110,7 +110,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target(FIELD)
+  @Target({FIELD, METHOD})
   @interface Property {
 
     /**
@@ -138,7 +138,7 @@ public @interface Json {
   }
 
   /**
-   * Deprecate - migrate to {@link Json.Alias}.
+   * Deprecated - migrate to {@link Json.Alias}.
    */
   @Deprecated
   @Retention(CLASS)
@@ -188,7 +188,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target(FIELD)
+  @Target({FIELD, METHOD})
   @interface Unmapped {
 
   }
@@ -278,7 +278,7 @@ public @interface Json {
    * Marks a String field as containing raw JSON content.
    */
   @Retention(CLASS)
-  @Target(FIELD)
+  @Target({FIELD, METHOD})
   @interface Raw {
 
   }

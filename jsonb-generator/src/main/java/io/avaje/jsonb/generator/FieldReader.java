@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import java.util.*;
 
@@ -24,18 +25,23 @@ final class FieldReader {
     addSubType(subType);
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     this.unmapped = ignoreReader.unmapped();
+    var isMethod = element instanceof ExecutableElement;
     this.raw = ignoreReader.raw();
     this.serialize = ignoreReader.serialize();
-    this.deserialize = ignoreReader.deserialize();
+    this.deserialize = !isMethod && ignoreReader.deserialize();
 
     final var fieldName = element.getSimpleName().toString();
-    final var publicField = element.getModifiers().contains(Modifier.PUBLIC);
-    this.property = new FieldProperty(element.asType(), raw, unmapped, genericTypeParams, publicField, fieldName);
+    final var publicField = !isMethod && element.getModifiers().contains(Modifier.PUBLIC);
+
+    var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
+
+    this.property =
+        new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
     this.propertyName =
-      PropertyPrism.getOptionalOn(element)
-        .map(PropertyPrism::value)
-        .map(Util::escapeQuotes)
-        .orElse(namingConvention.from(fieldName));
+        PropertyPrism.getOptionalOn(element)
+            .map(PropertyPrism::value)
+            .map(Util::escapeQuotes)
+            .orElse(namingConvention.from(fieldName));
 
     this.aliases = initAliases(element);
   }
