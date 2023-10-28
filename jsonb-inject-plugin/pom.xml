@@ -11,6 +11,7 @@
 
   <artifactId>avaje-jsonb-inject-plugin</artifactId>
   <name>jsonb-inject-plugin</name>
+  <description>avaje-inject plugin for avaje-jsonb</description>
 
   <dependencies>
 
@@ -25,7 +26,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-inject</artifactId>
-      <version>9.5</version>
+      <version>9.9</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -33,7 +34,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>junit</artifactId>
-      <version>1.1</version>
+      <version>1.3</version>
       <scope>test</scope>
     </dependency>
 
