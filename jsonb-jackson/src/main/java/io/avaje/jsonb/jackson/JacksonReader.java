@@ -23,6 +23,11 @@ final class JacksonReader implements JsonReader {
   }
 
   @Override
+  public <T> T unwrap(Class<T> type) {
+    return type.cast(parser);
+  }
+
+  @Override
   public void close() {
     try {
       parser.close();
