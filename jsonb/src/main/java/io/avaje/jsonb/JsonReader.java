@@ -27,6 +27,20 @@ import java.math.BigInteger;
 public interface JsonReader extends Closeable {
 
   /**
+   * Unwrap and return the underlying JsonParser.
+   * <p>
+   * When using avaje-jsonb-jackson this will return the underlying Jackson JsonParser.
+   *
+   * <pre>{@code
+   *
+   * // when using avaje-jsonb-jackson
+   * var jacksonParser = jsonReader.unwrap(JsonParser.class);
+   *
+   * }</pre>
+   */
+  <T> T unwrap(Class<T> type);
+
+  /**
    * Read the beginning of an ARRAY or x-json-stream (new line delimited json content).
    */
   default void beginStream() {

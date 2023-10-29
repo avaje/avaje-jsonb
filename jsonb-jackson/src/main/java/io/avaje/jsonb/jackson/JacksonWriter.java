@@ -65,10 +65,9 @@ final class JacksonWriter implements JsonWriter {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> T unwrap(Class<T> underlying) {
-    return (T) generator;
+  public <T> T unwrap(Class<T> type) {
+    return type.cast(generator);
   }
 
   @Override

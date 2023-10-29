@@ -17,6 +17,11 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
+  public <T> T unwrap(Class<T> type) {
+    return type.cast(reader);
+  }
+
+  @Override
   public void beginStream() {
     reader.startStream();
   }

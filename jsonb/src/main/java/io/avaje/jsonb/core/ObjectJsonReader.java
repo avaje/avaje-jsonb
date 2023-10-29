@@ -25,6 +25,11 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
+  public <T> T unwrap(Class<T> type) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void unmappedField(String fieldName) {
 
   }
