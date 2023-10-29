@@ -138,7 +138,7 @@ public @interface Json {
   }
 
   /**
-   * @deprecated - migrate to {@link Json.Alias}.
+   * Deprecated - migrate to {@link Json.Alias}.
    */
   @Deprecated
   @Retention(CLASS)

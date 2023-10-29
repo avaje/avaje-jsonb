@@ -58,10 +58,9 @@ final class TypeReader {
     if (mixInType == null) {
       this.mixInFields = new HashMap<>();
     } else {
-      this.mixInFields =
-        mixInType.getEnclosedElements().stream()
-          .filter(e -> e.getKind() == ElementKind.FIELD)
-          .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+      this.mixInFields = mixInType.getEnclosedElements().stream()
+        .filter(e -> e.getKind() == ElementKind.FIELD)
+        .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     }
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType) || importedJson(baseType).isPresent();
@@ -129,9 +128,16 @@ final class TypeReader {
       optional = true;
     }
     if (includeField(element)) {
-      final var frequency = frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
+      final var frequency = frequency(element.getSimpleName().toString());
       localFields.add(new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency));
     }
+  }
+
+  /**
+   * Compute and return the frequency of the key / json property name.
+   */
+  private Integer frequency(String key) {
+    return frequencyMap.compute(key, (k, v) -> v == null ? 0 : v + 1);
   }
 
   private boolean includeField(Element element) {
@@ -186,24 +192,19 @@ final class TypeReader {
         }
       }
     }
-    // for reading methods
-    PropertyPrism.getOptionalOn(methodElement)
-        .ifPresent(
-            p -> {
-              if (!methodElement.getParameters().isEmpty()) {
-                logError("Json.Property can only be placed on Getter Methods", methodElement);
-                return;
-              }
+    // for getter/accessor methods only, not setters
+    PropertyPrism.getOptionalOn(methodElement).ifPresent(propertyPrism -> {
+      if (!methodElement.getParameters().isEmpty()) {
+        logError("Json.Property can only be placed on Getter Methods, but on %s", methodElement);
+        return;
+      }
 
-              final var frequency =
-                  frequencyMap.compute(p.value(), (k, v) -> v == null ? 0 : v + 1);
-
-              final var reader =
-                  new FieldReader(
-                      element, namingConvention, currentSubType, genericTypeParams, frequency);
-              localFields.add(reader);
-              reader.getterMethod(new MethodReader(methodElement, type));
-            });
+      // getter property as simulated read-only field with getter method
+      final var frequency = frequency(propertyPrism.value());
+      final var reader = new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency);
+      reader.getterMethod(new MethodReader(methodElement, type));
+      localFields.add(reader);
+    });
   }
 
   private boolean checkMethod2(ExecutableElement methodElement) {

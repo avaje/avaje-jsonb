@@ -11,4 +11,11 @@ public record WithName(
   String simplePlus,
   int myOneRed) {
 
+  /**
+   * A read-only JSON property without an underlying field.
+   */
+  @Json.Property("derived")
+  public int calculated() {
+    return myOneRed * 2;
+  }
 }

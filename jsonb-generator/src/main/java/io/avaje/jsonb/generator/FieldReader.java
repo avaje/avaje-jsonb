@@ -32,16 +32,13 @@ final class FieldReader {
 
     final var fieldName = element.getSimpleName().toString();
     final var publicField = !isMethod && element.getModifiers().contains(Modifier.PUBLIC);
+    final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
 
-    var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
-
-    this.property =
-        new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
-    this.propertyName =
-        PropertyPrism.getOptionalOn(element)
-            .map(PropertyPrism::value)
-            .map(Util::escapeQuotes)
-            .orElse(namingConvention.from(fieldName));
+    this.property = new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
+    this.propertyName = PropertyPrism.getOptionalOn(element)
+      .map(PropertyPrism::value)
+      .map(Util::escapeQuotes)
+      .orElse(namingConvention.from(fieldName));
 
     this.aliases = initAliases(element);
   }

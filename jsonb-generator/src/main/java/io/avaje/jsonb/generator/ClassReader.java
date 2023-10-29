@@ -424,10 +424,12 @@ final class ClassReader implements BeanReader {
     } else {
       writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
       for (final FieldReader allField : allFields) {
-        if (isRecord) {
-          allField.writeFromJsonVariablesRecord(writer);
-        } else if (allField.includeFromJson()) {
-          allField.writeFromJsonVariables(writer);
+        if (allField.includeFromJson()) {
+          if (isRecord) {
+            allField.writeFromJsonVariablesRecord(writer);
+          } else {
+            allField.writeFromJsonVariables(writer);
+          }
         }
       }
     }
