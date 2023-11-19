@@ -1,7 +1,10 @@
 package io.avaje.jsonb.jackson;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.StreamReadFeature;
+
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
@@ -13,7 +16,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UnwrapJacksonParserTest {
 
-  Jsonb jsonb = Jsonb.builder().build();
+  Jsonb jsonb =
+      Jsonb.builder()
+          .adapter(
+              new JacksonAdapter(
+                  new JsonFactory().enable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)))
+          .build();
 
   @Test
   void unwrap() {
