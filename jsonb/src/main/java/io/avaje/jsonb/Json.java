@@ -312,16 +312,21 @@ public @interface Json {
   }
 
   /**
-   * Marker annotation that can be used to define constructors and factory methods as one to use for instantiating new instances of the associated class.
+   * Marker annotation that can be used to define constructors or factory methods as one to use for instantiating new instances of the associated class. Can be used in Mixin classes to override an existing deserialization method
+   *
+   * The parameter names will be used as keys for deserialization instead of the field names.
    *
    * <h3>Examples:</h3>
    *
    * <pre>{@code
    *
    *   @Json
-   *   public class Monaco {
+   *   public class Kingfisher {
    *
-   *   private String str
+   *     @Json.Creator
+   *     public Kingfisher(String name) {
+   *        ...
+   *     }
    *   ...
    *
    * }</pre>
@@ -329,7 +334,11 @@ public @interface Json {
    * <pre>{@code
    *
    *   @Json
-   *   public record Product( ... )
+   *   public record Product( ... ) {
+   *
+   *   public static Product factory(@Json.Alias("alias") String name){
+   *      ...
+   *   }
    *
    * }</pre>
    */

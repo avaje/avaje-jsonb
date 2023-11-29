@@ -1,12 +1,8 @@
 package io.avaje.jsonb.generator.models.valid;
 
-import io.avaje.jsonb.Json;
-
-
-public class KingFisher {
+public class Kingfisher {
   private String name;
   private int fishCaught;
-
 
   public String getName() {
     return name;

@@ -3,11 +3,11 @@ package io.avaje.jsonb.generator.models.valid;
 import io.avaje.jsonb.Json;
 import io.avaje.jsonb.Json.MixIn;
 
-@MixIn(KingFisher.class)
-public interface KingFisherMixin {
+@MixIn(Kingfisher.class)
+public interface KingfisherMixin {
 
   @Json.Creator
-  static KingFisher construct(String name) {
+  static Kingfisher construct(String name) {
     return null;
   }
 }
