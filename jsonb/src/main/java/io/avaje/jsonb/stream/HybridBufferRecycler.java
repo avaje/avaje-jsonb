@@ -10,11 +10,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
 
 /**
- * This is a custom implementation of the Jackson's RecyclerPool intended to work equally
- * well with both platform and virtual threads. This pool works regardless of the version of the JVM
- * in use and internally uses 2 distinct pools one for platform threads (which is exactly the same
- * {@link ThreadLocal} based one provided by Jackson out of the box) and the other designed for
- * being virtual threads friendly. It switches between the 2 only depending on the nature of thread
+ * This is a custom implementation of the Jackson's RecyclerPool intended to work equally well with
+ * both platform and virtual threads. This pool works regardless of the version of the JVM in use
+ * and internally uses 2 distinct pools one for platform threads (which is exactly the same {@link
+ * ThreadLocal} based one provided by Jackson out of the box) and the other designed for being
+ * virtual threads friendly. It switches between the 2 only depending on the nature of thread
  * (virtual or not) requiring the acquisition of a pooled resource, obtained via {@link
  * MethodHandle} to guarantee compatibility also with old JVM versions. The pool also guarantees
  * that the pooled resource is always released to the same internal pool from where it has been
@@ -39,14 +39,9 @@ final class HybridBufferRecycler implements BufferRecycler {
   private static final Predicate<Thread> isVirtual = VirtualPredicate.findIsVirtualPredicate();
 
   private final BufferRecycler nativePool = ThreadLocalPool.shared();
+  private final BufferRecycler virtualRecycler = StripedLockFreePool.shared();
 
-  private static class VirtualPoolHolder {
-
-    private static final StripedLockFreePool virtualPool = new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
-  }
-
-  private HybridBufferRecycler() {
-  }
+  private HybridBufferRecycler() {}
 
   static HybridBufferRecycler shared() {
     return INSTANCE;
@@ -55,40 +50,41 @@ final class HybridBufferRecycler implements BufferRecycler {
   @Override
   public JsonGenerator generator(JsonOutput target) {
     return isVirtual.test(Thread.currentThread())
-      ? VirtualPoolHolder.virtualPool.generator(target)
-      : nativePool.generator(target);
+        ? virtualRecycler.generator(target)
+        : nativePool.generator(target);
   }
 
   @Override
   public JsonParser parser(byte[] bytes) {
     return isVirtual.test(Thread.currentThread())
-      ? VirtualPoolHolder.virtualPool.parser(bytes)
-      : nativePool.parser(bytes);
+        ? virtualRecycler.parser(bytes)
+        : nativePool.parser(bytes);
   }
 
   @Override
   public JsonParser parser(InputStream in) {
     return isVirtual.test(Thread.currentThread())
-      ? VirtualPoolHolder.virtualPool.parser(in)
-      : nativePool.parser(in);
+        ? virtualRecycler.parser(in)
+        : nativePool.parser(in);
   }
 
   @Override
   public void recycle(JsonGenerator recycler) {
     if (recycler instanceof VThreadJGenerator) {
-      VirtualPoolHolder.virtualPool.recycle(recycler);
+      virtualRecycler.recycle(recycler);
     }
   }
 
   @Override
   public void recycle(JsonParser recycler) {
     if (recycler instanceof VThreadJParser) {
-      VirtualPoolHolder.virtualPool.recycle(recycler);
+      virtualRecycler.recycle(recycler);
     }
   }
 
   static final class StripedLockFreePool implements BufferRecycler {
-    private static final StripedLockFreePool INSTANCE = new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
+    private static final StripedLockFreePool INSTANCE =
+        new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
 
     private static final int CACHE_LINE_SHIFT = 4;
 
@@ -244,7 +240,8 @@ final class HybridBufferRecycler implements BufferRecycler {
 
     private static MethodHandle findVirtualMH() {
       try {
-        return MethodHandles.publicLookup().findVirtual(Thread.class, "isVirtual", MethodType.methodType(boolean.class));
+        return MethodHandles.publicLookup()
+            .findVirtual(Thread.class, "isVirtual", MethodType.methodType(boolean.class));
       } catch (Exception e) {
         return null;
       }
