@@ -5,6 +5,7 @@ import io.avaje.jsonb.spi.AdapterFactory;
 import io.avaje.jsonb.spi.Bootstrap;
 import io.avaje.jsonb.spi.JsonStreamAdapter;
 import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.stream.BufferRecycleStrategy;
 import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.InputStream;
@@ -379,11 +380,14 @@ public interface Jsonb {
      */
     Builder mathTypesAsString(boolean mathTypesAsString);
 
+    /** Determines how byte buffers are recycled */
+    Builder bufferRecycling(BufferRecycleStrategy strategy);
+
     /**
      * Explicitly set the adapter to use.
      * <p>
      * When not set the JsonStreamAdapter is service loaded using {@link AdapterFactory}
-     * with a fallback default of using the builtin implementation.
+     * with a fallback default of using the built-in implementation.
      *
      * @param streamAdapter The underlying adapter to use when generating and parsing
      */
@@ -436,6 +440,6 @@ public interface Jsonb {
     /**
      * Register JsonAdapters with the Builder.
      */
-    void register(Builder builder);
+  void register(Builder builder);
   }
 }
