@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
 
 /**
- * This is a custom implementation of the Jackson's {@link RecyclerPool} intended to work equally
+ * This is a custom implementation of the Jackson's RecyclerPool intended to work equally
  * well with both platform and virtual threads. This pool works regardless of the version of the JVM
  * in use and internally uses 2 distinct pools one for platform threads (which is exactly the same
  * {@link ThreadLocal} based one provided by Jackson out of the box) and the other designed for
@@ -31,6 +31,7 @@ import java.util.function.Predicate;
  * are hold in an {@link AtomicReferenceArray} where each head has a distance of 16 positions from
  * the adjacent ones to prevent the false sharing problem.
  */
+@SuppressWarnings("resource")
 final class HybridBufferRecycler implements BufferRecycler {
 
   private static final HybridBufferRecycler INSTANCE = new HybridBufferRecycler();
@@ -47,7 +48,7 @@ final class HybridBufferRecycler implements BufferRecycler {
   private HybridBufferRecycler() {
   }
 
-  static HybridBufferRecycler getInstance() {
+  static HybridBufferRecycler shared() {
     return INSTANCE;
   }
 
@@ -91,19 +92,19 @@ final class HybridBufferRecycler implements BufferRecycler {
 
     private final XorShiftThreadProbe threadProbe;
 
-    private final AtomicReferenceArray<JNode> jTopStacks;
-    private final AtomicReferenceArray<PNode> pTopStacks;
+    private final AtomicReferenceArray<JNode> generatorStacks;
+    private final AtomicReferenceArray<PNode> parserStacks;
 
     private StripedLockFreePool(int stripesCount) {
       final int size = roundToPowerOfTwo(stripesCount);
-      this.jTopStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
-      this.pTopStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
+      this.generatorStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
+      this.parserStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
 
       int mask = (size - 1) << CACHE_LINE_SHIFT;
       this.threadProbe = new XorShiftThreadProbe(mask);
     }
 
-    static StripedLockFreePool getInstance() {
+    static StripedLockFreePool shared() {
       return INSTANCE;
     }
 
@@ -120,17 +121,17 @@ final class HybridBufferRecycler implements BufferRecycler {
     @Override
     public JsonGenerator generator(JsonOutput target) {
       final int index = threadProbe.index();
-      var currentHead = jTopStacks.get(index);
+      var currentHead = generatorStacks.get(index);
       while (true) {
         if (currentHead == null) {
           return new VThreadJGenerator(index).prepare(target);
         }
 
-        if (jTopStacks.compareAndSet(index, currentHead, currentHead.next)) {
+        if (generatorStacks.compareAndSet(index, currentHead, currentHead.next)) {
           currentHead.next = null;
           return currentHead.value.prepare(target);
         } else {
-          currentHead = jTopStacks.get(index);
+          currentHead = generatorStacks.get(index);
         }
       }
     }
@@ -138,17 +139,17 @@ final class HybridBufferRecycler implements BufferRecycler {
     private JsonParser parser() {
       int index = threadProbe.index();
 
-      var currentHead = pTopStacks.get(index);
+      var currentHead = parserStacks.get(index);
       while (true) {
         if (currentHead == null) {
           return new VThreadJParser(index);
         }
 
-        if (pTopStacks.compareAndSet(index, currentHead, currentHead.next)) {
+        if (parserStacks.compareAndSet(index, currentHead, currentHead.next)) {
           currentHead.next = null;
           return currentHead.value;
         } else {
-          currentHead = pTopStacks.get(index);
+          currentHead = parserStacks.get(index);
         }
       }
     }
@@ -158,14 +159,14 @@ final class HybridBufferRecycler implements BufferRecycler {
       var vThreadBufferRecycler = (VThreadJGenerator) recycler;
       var newHead = new JNode(vThreadBufferRecycler);
 
-      var next = jTopStacks.get(vThreadBufferRecycler.slot);
+      var next = generatorStacks.get(vThreadBufferRecycler.slot);
       while (true) {
         newHead.level = next == null ? 1 : next.level + 1;
-        if (jTopStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {
+        if (generatorStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {
           newHead.next = next;
           return;
         } else {
-          next = jTopStacks.get(vThreadBufferRecycler.slot);
+          next = generatorStacks.get(vThreadBufferRecycler.slot);
         }
       }
     }
@@ -175,14 +176,14 @@ final class HybridBufferRecycler implements BufferRecycler {
       var vThreadBufferRecycler = (VThreadJParser) recycler;
       var newHead = new PNode(vThreadBufferRecycler);
 
-      var next = pTopStacks.get(vThreadBufferRecycler.slot);
+      var next = parserStacks.get(vThreadBufferRecycler.slot);
       while (true) {
         newHead.level = next == null ? 1 : next.level + 1;
-        if (pTopStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {
+        if (parserStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {
           newHead.next = next;
           return;
         } else {
-          next = pTopStacks.get(vThreadBufferRecycler.slot);
+          next = parserStacks.get(vThreadBufferRecycler.slot);
         }
       }
     }

@@ -47,7 +47,7 @@ interface BufferRecycler {
    * @return Globally shared instance of {@link HybridBufferRecycler};
    */
   static BufferRecycler hybrid() {
-    return HybridBufferRecycler.getInstance();
+    return HybridBufferRecycler.shared();
   }
 
   /**
@@ -68,7 +68,7 @@ interface BufferRecycler {
    * @return Globally shared instance of {@link StripedLockFreePool}.
    */
   static BufferRecycler lockFreePool() {
-    return StripedLockFreePool.getInstance();
+    return StripedLockFreePool.shared();
   }
 
 }
