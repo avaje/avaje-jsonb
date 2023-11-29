@@ -78,7 +78,8 @@ final class JGenerator implements JsonGenerator {
     this.buffer = buffer;
   }
 
-  JsonGenerator prepare(JsonOutput targetStream) {
+  @Override
+  public JsonGenerator prepare(JsonOutput targetStream) {
     target = targetStream;
     lastOp = 0;
     position = 0;

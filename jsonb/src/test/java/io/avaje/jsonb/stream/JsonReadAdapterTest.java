@@ -1,6 +1,8 @@
 package io.avaje.jsonb.stream;
 
 import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.stream.Recyclers.ThreadLocalPool;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -23,7 +25,8 @@ class JsonReadAdapterTest {
     byte[] bytes = jsonStringInput.getBytes(StandardCharsets.UTF_8);
     jr.process(bytes, bytes.length);
 
-    JsonReadAdapter reader = new JsonReadAdapter(jr, true);
+    JsonReadAdapter reader =
+        new JsonReadAdapter(jr, ThreadLocalPool.shared(), true);
     readExampleWithAsserts(reader);
     reader.close();
   }
