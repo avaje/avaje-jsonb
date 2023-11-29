@@ -38,8 +38,8 @@ final class HybridBufferRecycler implements BufferRecycler {
 
   private static final Predicate<Thread> isVirtual = VirtualPredicate.findIsVirtualPredicate();
 
-  private final BufferRecycler nativePool = ThreadLocalPool.shared();
-  private final BufferRecycler virtualRecycler = StripedLockFreePool.shared();
+  private static final BufferRecycler NATIVE_RECYCLER = ThreadLocalPool.shared();
+  private static final BufferRecycler VIRTUAL_RECYCLER = StripedLockFreePool.shared();
 
   private HybridBufferRecycler() {}
 
@@ -50,35 +50,35 @@ final class HybridBufferRecycler implements BufferRecycler {
   @Override
   public JsonGenerator generator(JsonOutput target) {
     return isVirtual.test(Thread.currentThread())
-        ? virtualRecycler.generator(target)
-        : nativePool.generator(target);
+        ? VIRTUAL_RECYCLER.generator(target)
+        : NATIVE_RECYCLER.generator(target);
   }
 
   @Override
   public JsonParser parser(byte[] bytes) {
     return isVirtual.test(Thread.currentThread())
-        ? virtualRecycler.parser(bytes)
-        : nativePool.parser(bytes);
+        ? VIRTUAL_RECYCLER.parser(bytes)
+        : NATIVE_RECYCLER.parser(bytes);
   }
 
   @Override
   public JsonParser parser(InputStream in) {
     return isVirtual.test(Thread.currentThread())
-        ? virtualRecycler.parser(in)
-        : nativePool.parser(in);
+        ? VIRTUAL_RECYCLER.parser(in)
+        : NATIVE_RECYCLER.parser(in);
   }
 
   @Override
   public void recycle(JsonGenerator recycler) {
     if (recycler instanceof VThreadJGenerator) {
-      virtualRecycler.recycle(recycler);
+      VIRTUAL_RECYCLER.recycle(recycler);
     }
   }
 
   @Override
   public void recycle(JsonParser recycler) {
     if (recycler instanceof VThreadJParser) {
-      virtualRecycler.recycle(recycler);
+      VIRTUAL_RECYCLER.recycle(recycler);
     }
   }
 
