@@ -108,21 +108,17 @@ final class HybridBufferRecycler implements BufferRecycler {
     }
 
     @Override
-    public JsonGenerator generator(JsonOutput target) {
-      return getGen(target);
-    }
-
-    @Override
     public JsonParser parser(byte[] bytes) {
-      return getParser().process(bytes, bytes.length);
+      return parser().process(bytes, bytes.length);
     }
 
     @Override
     public JsonParser parser(InputStream in) {
-      return getParser().process(in);
+      return parser().process(in);
     }
 
-    private JsonGenerator getGen(JsonOutput target) {
+    @Override
+    public JsonGenerator generator(JsonOutput target) {
       final int index = threadProbe.index();
       var currentHead = jTopStacks.get(index);
       while (true) {
@@ -139,7 +135,7 @@ final class HybridBufferRecycler implements BufferRecycler {
       }
     }
 
-    private JsonParser getParser() {
+    private JsonParser parser() {
       int index = threadProbe.index();
 
       var currentHead = pTopStacks.get(index);
@@ -191,7 +187,7 @@ final class HybridBufferRecycler implements BufferRecycler {
       }
     }
 
-    private static class JNode {
+    private static final class JNode {
       final VThreadJGenerator value;
       JNode next;
       int level = 0;
@@ -201,7 +197,7 @@ final class HybridBufferRecycler implements BufferRecycler {
       }
     }
 
-    private static class PNode {
+    private static final class PNode {
       final VThreadJParser value;
       PNode next;
       int level = 0;
@@ -212,7 +208,7 @@ final class HybridBufferRecycler implements BufferRecycler {
     }
   }
 
-  private static class VThreadJGenerator extends JGenerator {
+  private static final class VThreadJGenerator extends JGenerator {
     private final int slot;
 
     private VThreadJGenerator(int slot) {
@@ -221,7 +217,7 @@ final class HybridBufferRecycler implements BufferRecycler {
     }
   }
 
-  private static class VThreadJParser extends JParser {
+  private static final class VThreadJParser extends JParser {
     private final int slot;
 
     private VThreadJParser(int slot) {
