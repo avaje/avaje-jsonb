@@ -457,7 +457,7 @@ final class ClassReader implements BeanReader {
 
   private void writeJsonBuildResult(Append writer, String varName) {
     writer.append("    // build and return %s", shortName).eol();
-    writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+    writer.append("    %s _$%s = " + constructor.creationString(shortName), shortName, varName);
     if (constructor != null) {
       final List<MethodReader.MethodParam> params = constructor.getParams();
       for (int i = 0, size = params.size(); i < size; i++) {
