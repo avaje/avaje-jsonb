@@ -8,8 +8,7 @@ import java.io.CharArrayWriter;
 import org.junit.jupiter.api.Test;
 
 import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.stream.Recyclers.BoundedPool;
-import io.avaje.jsonb.stream.Recyclers.LockFreePool;
+import io.avaje.jsonb.stream.HybridBufferRecycler.StripedLockFreePool;
 import io.avaje.jsonb.stream.Recyclers.ThreadLocalPool;
 
 class JsonWriterTest {
@@ -50,11 +49,11 @@ class JsonWriterTest {
   @Test
   void recycle_toString() {
 
-    JsonGenerator generator = LockFreePool.shared().generator();
+    JsonGenerator generator = StripedLockFreePool.getInstance().generator();
     writeHello(generator, "hello");
     assertThat(generator.toString()).isEqualTo("{\"one\":\"hello\"}");
 
-    JsonGenerator generator1 = LockFreePool.shared().generator();
+    JsonGenerator generator1 = StripedLockFreePool.getInstance().generator();
     writeHello(generator1, "hi");
     assertThat(generator1.toString()).isEqualTo("{\"one\":\"hi\"}");
   }
@@ -76,7 +75,7 @@ class JsonWriterTest {
     JGenerator dJsonWriter = new JGenerator();
     dJsonWriter.prepare(JsonOutput.of(os));
 
-    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, BoundedPool.shared(), true, true);
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.getInstance(), true, true);
 
     fw.beginArray();
     fw.beginObject();
@@ -111,7 +110,7 @@ class JsonWriterTest {
     JGenerator dJsonWriter = new JGenerator();
     dJsonWriter.prepare(JsonOutput.of(os));
 
-    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, BoundedPool.shared(), true, true);
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.getInstance(), true, true);
 
     JsonNames names = JsonNames.of("one", "size", "active","flags");
 
