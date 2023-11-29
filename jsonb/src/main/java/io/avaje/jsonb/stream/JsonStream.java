@@ -14,7 +14,7 @@ public final class JsonStream implements JsonStreamAdapter {
   /** Used to build JsonStream with custom settings. */
   public static final class Builder {
 
-    private BufferRecycleStrategy strategy;
+    private BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
     private boolean serializeNulls;
     private boolean serializeEmpty;
     private boolean failOnUnknown;
