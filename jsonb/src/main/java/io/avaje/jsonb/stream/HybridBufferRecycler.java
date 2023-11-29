@@ -1,14 +1,13 @@
 package io.avaje.jsonb.stream;
 
+import io.avaje.jsonb.stream.Recyclers.ThreadLocalPool;
+
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
-
-import io.avaje.jsonb.stream.Recyclers.ThreadLocalPool;
 
 /**
  * This is a custom implementation of the Jackson's {@link RecyclerPool} intended to work equally
@@ -32,7 +31,7 @@ import io.avaje.jsonb.stream.Recyclers.ThreadLocalPool;
  * are hold in an {@link AtomicReferenceArray} where each head has a distance of 16 positions from
  * the adjacent ones to prevent the false sharing problem.
  */
-class HybridBufferRecycler implements BufferRecycler {
+final class HybridBufferRecycler implements BufferRecycler {
 
   private static final HybridBufferRecycler INSTANCE = new HybridBufferRecycler();
 
@@ -42,35 +41,35 @@ class HybridBufferRecycler implements BufferRecycler {
 
   private static class VirtualPoolHolder {
 
-    private static final StripedLockFreePool virtualPool =
-        new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
+    private static final StripedLockFreePool virtualPool = new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
   }
 
-  private HybridBufferRecycler() {}
+  private HybridBufferRecycler() {
+  }
 
-  public static HybridBufferRecycler getInstance() {
+  static HybridBufferRecycler getInstance() {
     return INSTANCE;
   }
 
   @Override
   public JsonGenerator generator(JsonOutput target) {
     return isVirtual.test(Thread.currentThread())
-        ? VirtualPoolHolder.virtualPool.generator(target)
-        : nativePool.generator(target);
+      ? VirtualPoolHolder.virtualPool.generator(target)
+      : nativePool.generator(target);
   }
 
   @Override
   public JsonParser parser(byte[] bytes) {
     return isVirtual.test(Thread.currentThread())
-        ? VirtualPoolHolder.virtualPool.parser(bytes)
-        : nativePool.parser(bytes);
+      ? VirtualPoolHolder.virtualPool.parser(bytes)
+      : nativePool.parser(bytes);
   }
 
   @Override
   public JsonParser parser(InputStream in) {
     return isVirtual.test(Thread.currentThread())
-        ? VirtualPoolHolder.virtualPool.parser(in)
-        : nativePool.parser(in);
+      ? VirtualPoolHolder.virtualPool.parser(in)
+      : nativePool.parser(in);
   }
 
   @Override
@@ -83,9 +82,8 @@ class HybridBufferRecycler implements BufferRecycler {
     if (recycler instanceof VThreadJParser) VirtualPoolHolder.virtualPool.recycle(recycler);
   }
 
-  static class StripedLockFreePool implements BufferRecycler {
-    private static final StripedLockFreePool INSTANCE =
-        new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
+  static final class StripedLockFreePool implements BufferRecycler {
+    private static final StripedLockFreePool INSTANCE = new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
 
     private static final int CACHE_LINE_SHIFT = 4;
 
@@ -97,8 +95,7 @@ class HybridBufferRecycler implements BufferRecycler {
     private final AtomicReferenceArray<PNode> pTopStacks;
 
     private StripedLockFreePool(int stripesCount) {
-
-      int size = roundToPowerOfTwo(stripesCount);
+      final int size = roundToPowerOfTwo(stripesCount);
       this.jTopStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
       this.pTopStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
 
@@ -106,17 +103,12 @@ class HybridBufferRecycler implements BufferRecycler {
       this.threadProbe = new XorShiftThreadProbe(mask);
     }
 
-    public static StripedLockFreePool getInstance() {
-      return INSTANCE;
-    }
-
-    public static StripedLockFreePool nonShared() {
+    static StripedLockFreePool getInstance() {
       return INSTANCE;
     }
 
     @Override
     public JsonGenerator generator(JsonOutput target) {
-
       return getGen(target);
     }
 
@@ -127,22 +119,20 @@ class HybridBufferRecycler implements BufferRecycler {
 
     @Override
     public JsonParser parser(InputStream in) {
-
       return getParser().process(in);
     }
 
     private JsonGenerator getGen(JsonOutput target) {
-      int index = threadProbe.index();
-
+      final int index = threadProbe.index();
       var currentHead = jTopStacks.get(index);
       while (true) {
         if (currentHead == null) {
-          return new VThreadJGenerator(index);
+          return new VThreadJGenerator(index).prepare(target);
         }
 
         if (jTopStacks.compareAndSet(index, currentHead, currentHead.next)) {
           currentHead.next = null;
-          return currentHead.value;
+          return currentHead.value.prepare(target);
         } else {
           currentHead = jTopStacks.get(index);
         }
@@ -236,14 +226,14 @@ class HybridBufferRecycler implements BufferRecycler {
 
     private VThreadJParser(int slot) {
       super(
-          new char[Recyclers.PARSER_CHAR_BUFFER_SIZE],
-          new byte[Recyclers.PARSER_BUFFER_SIZE],
-          0,
-          JParser.ErrorInfo.MINIMAL,
-          JParser.DoublePrecision.DEFAULT,
-          JParser.UnknownNumberParsing.BIGDECIMAL,
-          100,
-          50_000);
+        new char[Recyclers.PARSER_CHAR_BUFFER_SIZE],
+        new byte[Recyclers.PARSER_BUFFER_SIZE],
+        0,
+        JParser.ErrorInfo.MINIMAL,
+        JParser.DoublePrecision.DEFAULT,
+        JParser.UnknownNumberParsing.BIGDECIMAL,
+        100,
+        50_000);
       this.slot = slot;
     }
   }
@@ -253,8 +243,7 @@ class HybridBufferRecycler implements BufferRecycler {
 
     private static MethodHandle findVirtualMH() {
       try {
-        return MethodHandles.publicLookup()
-            .findVirtual(Thread.class, "isVirtual", MethodType.methodType(boolean.class));
+        return MethodHandles.publicLookup().findVirtual(Thread.class, "isVirtual", MethodType.methodType(boolean.class));
       } catch (Exception e) {
         return null;
       }
@@ -305,8 +294,7 @@ class HybridBufferRecycler implements BufferRecycler {
 
   private static int roundToPowerOfTwo(final int value) {
     if (value > MAX_POW2) {
-      throw new IllegalArgumentException(
-          "There is no larger power of 2 int for value:" + value + " since it exceeds 2^31.");
+      throw new IllegalArgumentException("There is no larger power of 2 int for value:" + value + " since it exceeds 2^31.");
     }
     if (value < 0) {
       throw new IllegalArgumentException("Given value:" + value + ". Expecting value >= 0.");
