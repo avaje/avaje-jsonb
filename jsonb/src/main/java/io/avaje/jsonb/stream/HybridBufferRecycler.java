@@ -75,12 +75,16 @@ final class HybridBufferRecycler implements BufferRecycler {
 
   @Override
   public void recycle(JsonGenerator recycler) {
-    if (recycler instanceof VThreadJGenerator) VirtualPoolHolder.virtualPool.recycle(recycler);
+    if (recycler instanceof VThreadJGenerator) {
+      VirtualPoolHolder.virtualPool.recycle(recycler);
+    }
   }
 
   @Override
   public void recycle(JsonParser recycler) {
-    if (recycler instanceof VThreadJParser) VirtualPoolHolder.virtualPool.recycle(recycler);
+    if (recycler instanceof VThreadJParser) {
+      VirtualPoolHolder.virtualPool.recycle(recycler);
+    }
   }
 
   static final class StripedLockFreePool implements BufferRecycler {
@@ -247,17 +251,16 @@ final class HybridBufferRecycler implements BufferRecycler {
     }
 
     private static Predicate<Thread> findIsVirtualPredicate() {
-      if (virtualMh != null) {
-        return thread -> {
-          try {
-            return (boolean) virtualMh.invokeExact(thread);
-          } catch (Throwable e) {
-            throw new RuntimeException(e);
-          }
-        };
+      if (virtualMh == null) {
+        return thread -> false;
       }
-
-      return thread -> false;
+      return thread -> {
+        try {
+          return (boolean) virtualMh.invokeExact(thread);
+        } catch (Throwable e) {
+          throw new RuntimeException(e);
+        }
+      };
     }
   }
 
@@ -291,10 +294,10 @@ final class HybridBufferRecycler implements BufferRecycler {
 
   private static int roundToPowerOfTwo(final int value) {
     if (value > MAX_POW2) {
-      throw new IllegalArgumentException("There is no larger power of 2 int for value:" + value + " since it exceeds 2^31.");
+      throw new IllegalArgumentException("Exceeded max power of 2 (2^31), got " + value);
     }
     if (value < 0) {
-      throw new IllegalArgumentException("Given value:" + value + ". Expecting value >= 0.");
+      throw new IllegalArgumentException("Expecting value >= 0, got " + value);
     }
     return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
   }
