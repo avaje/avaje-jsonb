@@ -1,26 +1,11 @@
 package io.avaje.jsonb.stream;
 
 import java.io.InputStream;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Different pool implementations use different strategies on retaining recyclers for reuse. For
- * example we have:
- *
- * <ul>
- *   <li>{@link NonRecyclingPool} which does not retain any recyclers and will always simply
- *       construct and return new instances when called
- *   <li>{@link ThreadLocalPool} which uses {@link ThreadLocal} to retain at most 1 recycler per
- *       {@link Thread}.
- *   <li>{@link BoundedPool} is "bounded pool" and retains at most N recyclers (default value being
- *       {@link BoundedPool#DEFAULT_CAPACITY}) at any given time.
- *   <li>{@link LockFreePool} is "unbounded" and retain any number of recyclers released: in
- *       practice it is at most the highest number of concurrently used instances.
- * </ul>
  */
-class Recyclers {
+final class Recyclers {
 
   private Recyclers() {}
 
@@ -55,15 +40,14 @@ class Recyclers {
    * java.lang.ref.SoftReference}s are not well supported (like Android), or on platforms where
    * {@link java.lang.Thread}s are not long-living or reused (like Project Loom).
    */
-  static class ThreadLocalPool implements BufferRecycler {
+  static final class ThreadLocalPool implements BufferRecycler {
 
     private final ThreadLocal<JParser> PARSER = ThreadLocal.withInitial(Recyclers::createParser);
-    private final ThreadLocal<JGenerator> GENERATOR =
-        ThreadLocal.withInitial(Recyclers::createGenerator);
+    private final ThreadLocal<JGenerator> GENERATOR = ThreadLocal.withInitial(Recyclers::createGenerator);
 
     private static final BufferRecycler GLOBAL = new ThreadLocalPool();
 
-    public static BufferRecycler shared() {
+    static BufferRecycler shared() {
       return GLOBAL;
     }
 
@@ -99,13 +83,13 @@ class Recyclers {
    * {@link BufferRecycler} implementation that does not use any pool but simply creates new
    * instances when necessary.
    */
-  static class NonRecyclingPool implements BufferRecycler {
+  static final class NonRecyclingPool implements BufferRecycler {
 
     private static final BufferRecycler GLOBAL = new NonRecyclingPool();
 
     private NonRecyclingPool() {}
 
-    public static BufferRecycler shared() {
+    static BufferRecycler shared() {
       return GLOBAL;
     }
 

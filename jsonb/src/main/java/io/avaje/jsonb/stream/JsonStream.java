@@ -61,7 +61,6 @@ public final class JsonStream implements JsonStreamAdapter {
 
   /** Create additionally providing the jsonFactory. */
   public JsonStream(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
-
     this(serializeNulls, serializeEmpty, failOnUnknown, BufferRecycleStrategy.HYBRID_POOL);
   }
 
@@ -109,7 +108,6 @@ public final class JsonStream implements JsonStreamAdapter {
 
   @Override
   public JsonReader reader(Reader reader) {
-
     return reader(new ReaderInputStream(reader, StandardCharsets.UTF_8));
   }
 

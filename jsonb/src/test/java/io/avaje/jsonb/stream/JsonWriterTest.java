@@ -49,11 +49,11 @@ class JsonWriterTest {
   @Test
   void recycle_toString() {
 
-    JsonGenerator generator = StripedLockFreePool.getInstance().generator();
+    JsonGenerator generator = StripedLockFreePool.shared().generator();
     writeHello(generator, "hello");
     assertThat(generator.toString()).isEqualTo("{\"one\":\"hello\"}");
 
-    JsonGenerator generator1 = StripedLockFreePool.getInstance().generator();
+    JsonGenerator generator1 = StripedLockFreePool.shared().generator();
     writeHello(generator1, "hi");
     assertThat(generator1.toString()).isEqualTo("{\"one\":\"hi\"}");
   }
@@ -75,7 +75,7 @@ class JsonWriterTest {
     JGenerator dJsonWriter = new JGenerator();
     dJsonWriter.prepare(JsonOutput.of(os));
 
-    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.getInstance(), true, true);
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
 
     fw.beginArray();
     fw.beginObject();
@@ -110,7 +110,7 @@ class JsonWriterTest {
     JGenerator dJsonWriter = new JGenerator();
     dJsonWriter.prepare(JsonOutput.of(os));
 
-    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.getInstance(), true, true);
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
 
     JsonNames names = JsonNames.of("one", "size", "active","flags");
 

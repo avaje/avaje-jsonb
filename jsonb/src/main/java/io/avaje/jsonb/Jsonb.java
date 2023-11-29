@@ -380,7 +380,9 @@ public interface Jsonb {
      */
     Builder mathTypesAsString(boolean mathTypesAsString);
 
-    /** Determines how byte buffers are recycled */
+    /**
+     * Determines how byte buffers are recycled
+     */
     Builder bufferRecycling(BufferRecycleStrategy strategy);
 
     /**
@@ -440,6 +442,6 @@ public interface Jsonb {
     /**
      * Register JsonAdapters with the Builder.
      */
-  void register(Builder builder);
+    void register(Builder builder);
   }
 }
