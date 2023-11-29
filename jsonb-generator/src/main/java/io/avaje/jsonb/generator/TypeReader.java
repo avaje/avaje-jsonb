@@ -13,8 +13,7 @@ import static io.avaje.jsonb.generator.APContext.*;
 import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 
 /**
- * Read points for field injection and method injection
- * on baseType plus inherited injection points.
+ * Read points for field injection and method injection on baseType plus inherited injection points.
  */
 final class TypeReader {
 
@@ -96,8 +95,10 @@ final class TypeReader {
         jsonCreator
             .map(
                 ex -> {
+                  var mods = ex.getModifiers();
                   if (ex.getKind() != ElementKind.CONSTRUCTOR
-                      && ex.getModifiers().contains(Modifier.STATIC))
+                      && !mods.contains(Modifier.STATIC)
+                      && !mods.contains(Modifier.PUBLIC))
                     logError(
                         ex,
                         "@Json.Creator can only be placed on contructors and static factory methods");
@@ -149,7 +150,6 @@ final class TypeReader {
 
         matchingField.ifPresentOrElse(
             f -> f.readParam(element), () -> readField(element, localFields));
-        
       }
     }
 

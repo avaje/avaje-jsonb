@@ -52,17 +52,20 @@ final class MethodReader {
   public boolean isProtected() {
     return element.getModifiers().contains(Modifier.PROTECTED);
   }
-  public String creationString(String shortName) {
+
+  public String creationString() {
+    var shortName =
+        Util.shortName(((TypeElement) element.getEnclosingElement()).getQualifiedName().toString());
 
     if (element.getKind() == ElementKind.CONSTRUCTOR) {
       return String.format("new %s(", shortName);
     }
 
-    var className = ((TypeElement) element.getEnclosingElement()).getQualifiedName().toString();
+    return String.format("%s.%s(", shortName, element.getSimpleName());
+  }
 
-    className = className.endsWith(shortName) ? shortName : className;
-
-    return String.format("%s.%s(", className, element.getSimpleName());
+  public ExecutableElement element() {
+    return element;
   }
 
   static class MethodParam {
@@ -93,5 +96,4 @@ final class MethodReader {
       return element;
     }
   }
-
 }

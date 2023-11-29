@@ -4,8 +4,8 @@ import io.avaje.jsonb.Json;
 
 @Json
 public class Student {
-  public String name;
-  public int rollNo;
+  private final String name;
+  private int rollNo;
 
   @Json.Creator
   public Student(@Json.Alias("theName") String name, long rolling) {
