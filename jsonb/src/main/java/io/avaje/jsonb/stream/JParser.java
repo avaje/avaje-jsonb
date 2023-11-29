@@ -19,7 +19,7 @@ import java.util.Formatter;
 /**
  * The json parsing implementation.
  */
-final class JParser implements JsonParser {
+class JParser implements JsonParser {
 
   enum ErrorInfo {
     WITH_STACK_TRACE,
@@ -96,7 +96,7 @@ final class JParser implements JsonParser {
   final int maxNumberDigits;
   private final int maxStringBuffer;
 
-  JParser(
+ public JParser(
     final char[] tmp,
     final byte[] buffer,
     final int length,
@@ -136,11 +136,7 @@ final class JParser implements JsonParser {
     stream = null;
   }
 
-  /**
-   * Bind input stream for processing.
-   * Stream will be processed in byte[] chunks.
-   * If stream is null, reference to stream will be released.
-   */
+  @Override
   public JParser process(final InputStream newStream) {
     nameStack.clear();
     currentPosition = 0;
@@ -155,14 +151,7 @@ final class JParser implements JsonParser {
     return this;
   }
 
-  /**
-   * Bind byte[] buffer for processing.
-   * If this method is used in combination with process(InputStream) this buffer will be used for processing chunks of stream.
-   * If null is sent for byte[] buffer, new length for valid input will be set for existing buffer.
-   *
-   * @param newBuffer new buffer to use for processing
-   * @param newLength length of buffer which can be used
-   */
+  @Override
   public JParser process(final byte[] newBuffer, final int newLength) {
     if (newBuffer != null) {
       buffer = newBuffer;
@@ -761,7 +750,7 @@ final class JParser implements JsonParser {
       } else if (b == '"') {
         nameEnd = -1;
         lastNameLen = i;
-        return (int) hash;
+        return hash;
       }
       if (i == chars.length) {
         chars = Arrays.copyOf(chars, chars.length * 2);

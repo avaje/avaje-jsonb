@@ -13,16 +13,18 @@ import java.util.Map;
 
 final class JsonWriteAdapter implements JsonWriter {
 
-  final JsonGenerator generator;
+  private final JsonGenerator generator;
+  private final BufferRecycler recycler;
   private boolean serializeEmpty;
   private boolean serializeNulls;
   private String deferredName;
   private int namePos = -1;
 
-  JsonWriteAdapter(JsonGenerator generator, boolean serializeNulls, boolean serializeEmpty) {
+  JsonWriteAdapter(JsonGenerator generator, BufferRecycler recycler, boolean serializeNulls, boolean serializeEmpty) {
     this.generator = generator;
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
+    this.recycler=recycler;
   }
 
   @Override
@@ -38,6 +40,7 @@ final class JsonWriteAdapter implements JsonWriter {
   @Override
   public void close() {
     generator.close();
+    recycler.recycle(generator);
   }
 
   @Override
