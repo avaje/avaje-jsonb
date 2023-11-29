@@ -2,8 +2,7 @@ package io.avaje.jsonb.stream;
 
 import java.io.InputStream;
 
-import io.avaje.jsonb.stream.Recyclers.BoundedPool;
-import io.avaje.jsonb.stream.Recyclers.LockFreePool;
+import io.avaje.jsonb.stream.HybridBufferRecycler.StripedLockFreePool;
 import io.avaje.jsonb.stream.Recyclers.NonRecyclingPool;
 import io.avaje.jsonb.stream.Recyclers.ThreadLocalPool;
 
@@ -44,6 +43,13 @@ interface BufferRecycler {
   void recycle(JsonParser recycler);
 
   /**
+   * @return Globally shared instance of {@link HybridBufferRecycler};
+   */
+  static BufferRecycler hybrid() {
+    return HybridBufferRecycler.getInstance();
+  }
+
+  /**
    * @return Globally shared instance of {@link ThreadLocalPool}.
    */
   static BufferRecycler threadLocalPool() {
@@ -58,30 +64,16 @@ interface BufferRecycler {
   }
 
   /**
-   * @return Globally shared instance of {@link NonRecyclingPool}.
+   * @return Globally shared instance of {@link StripedLockFreePool}.
    */
   static BufferRecycler lockFreePool() {
-    return LockFreePool.shared();
+    return StripedLockFreePool.getInstance();
   }
 
   /**
-   * @return new instance of {@link NonRecyclingPool}
+   * @return new instance of {@link StripedLockFreePool}
    */
   static BufferRecycler unsharedLockFreePool() {
-    return LockFreePool.nonShared();
-  }
-
-  /**
-   * @return Globally shared instance of {@link BoundedPool};
-   */
-  static BufferRecycler boundedPool() {
-    return BoundedPool.shared();
-  }
-
-  /**
-   * @return new instance of {@link BoundedPool}
-   */
-  static BufferRecycler unsharedBoundedPool() {
-    return BoundedPool.nonShared();
+    return StripedLockFreePool.nonShared();
   }
 }

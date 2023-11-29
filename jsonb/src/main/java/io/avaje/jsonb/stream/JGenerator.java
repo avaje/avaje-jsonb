@@ -30,7 +30,7 @@ import java.util.Deque;
  * For maximum performance JsonWriter instances should be reused (to avoid allocation of new byte[] buffer instances).
  * They should not be shared across threads (concurrently) so for Thread reuse it's best to use patterns such as ThreadLocal.
  */
-final class JGenerator implements JsonGenerator {
+class JGenerator implements JsonGenerator {
 
   private static final Charset UTF_8 = StandardCharsets.UTF_8;
 

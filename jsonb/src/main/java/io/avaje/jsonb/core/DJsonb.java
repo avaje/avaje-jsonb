@@ -227,7 +227,7 @@ final class DJsonb implements Jsonb {
     private boolean serializeNulls;
     private boolean serializeEmpty = true;
     private JsonStreamAdapter adapter;
-    private final BufferRecycleStrategy strategy = BufferRecycleStrategy.THREAD_LOCAL;
+    private final BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {

@@ -62,7 +62,7 @@ public final class JsonStream implements JsonStreamAdapter {
   /** Create additionally providing the jsonFactory. */
   public JsonStream(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown) {
 
-    this(serializeNulls, serializeEmpty, failOnUnknown, BufferRecycleStrategy.THREAD_LOCAL);
+    this(serializeNulls, serializeEmpty, failOnUnknown, BufferRecycleStrategy.HYBRID_POOL);
   }
 
   /** Create additionally providing the jsonFactory. */

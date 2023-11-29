@@ -19,7 +19,7 @@ import java.util.Formatter;
 /**
  * The json parsing implementation.
  */
-final class JParser implements JsonParser {
+class JParser implements JsonParser {
 
   enum ErrorInfo {
     WITH_STACK_TRACE,
@@ -96,7 +96,7 @@ final class JParser implements JsonParser {
   final int maxNumberDigits;
   private final int maxStringBuffer;
 
-  JParser(
+ public JParser(
     final char[] tmp,
     final byte[] buffer,
     final int length,
