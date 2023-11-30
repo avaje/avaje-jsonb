@@ -256,7 +256,7 @@ final class DJsonb implements Jsonb {
 
     @Override
     public Builder bufferRecycling(BufferRecycleStrategy strategy) {
-      this.strategy=strategy;
+      this.strategy = strategy;
       return this;
     }
 
@@ -322,9 +322,9 @@ final class DJsonb implements Jsonb {
       requireNonNull(builder);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? builder.build(jsonb).nullSafe() : null;
     }
-  }
 
-  private static boolean simpleMatch(Type type, Type targetType) {
-    return Util.typesMatch(type, targetType);
+    private static boolean simpleMatch(Type type, Type targetType) {
+      return Util.typesMatch(type, targetType);
+    }
   }
 }
