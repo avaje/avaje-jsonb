@@ -139,6 +139,16 @@ final class ClassReader implements BeanReader {
 
   @Override
   public void read() {
+
+    Optional.ofNullable(constructor)
+        .ifPresent(
+            c -> {
+              var enclosing = (TypeElement) c.element().getEnclosingElement();
+
+              importTypes.add(enclosing.getQualifiedName().toString());
+            });
+
+    importTypes.add(Util.shortName(type));
     for (final FieldReader field : allFields) {
       field.addImports(importTypes);
       if (field.isRaw()) {
@@ -457,8 +467,9 @@ final class ClassReader implements BeanReader {
 
   private void writeJsonBuildResult(Append writer, String varName) {
     writer.append("    // build and return %s", shortName).eol();
-    writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
     if (constructor != null) {
+      writer.append("    %s _$%s = " + constructor.creationString(), shortName, varName);
+
       final List<MethodReader.MethodParam> params = constructor.getParams();
       for (int i = 0, size = params.size(); i < size; i++) {
         if (i > 0) {
@@ -470,6 +481,8 @@ final class ClassReader implements BeanReader {
         // assuming name matches field here?
         writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
       }
+    } else {
+      writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
     }
     writer.append(");").eol();
     for (final FieldReader allField : allFields) {

@@ -3,6 +3,8 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
+
 import java.util.*;
 
 final class FieldReader {
@@ -12,43 +14,74 @@ final class FieldReader {
   private final FieldProperty property;
   private final String propertyName;
   private final boolean serialize;
-  private final boolean deserialize;
+  private boolean deserialize;
   private final boolean unmapped;
   private final boolean raw;
 
-  private final List<String> aliases;
+  private final List<String> aliases = new ArrayList<>();
   private boolean isSubTypeField;
   private final String num;
+  private boolean isCreatorParam;
 
-  FieldReader(Element element, NamingConvention namingConvention, TypeSubTypeMeta subType, List<String> genericTypeParams, Integer frequency) {
+  FieldReader(
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency) {
+
+    this(element, namingConvention, subType, genericTypeParams, frequency, false);
+  }
+
+  FieldReader(
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency,
+      boolean jsonCreatorPresent) {
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
-    this.unmapped = ignoreReader.unmapped();
     var isMethod = element instanceof ExecutableElement;
-    this.raw = ignoreReader.raw();
-    this.serialize = ignoreReader.serialize();
-    this.deserialize = !isMethod && ignoreReader.deserialize();
+    var isParam = element.getEnclosingElement() instanceof ExecutableElement;
+    this.unmapped = UnmappedPrism.isPresent(element);
+    this.raw = RawPrism.isPresent(element);
+    this.serialize = !isParam && ignoreReader.serialize();
+    this.deserialize = isParam || !jsonCreatorPresent && !isMethod && ignoreReader.deserialize();
 
     final var fieldName = element.getSimpleName().toString();
-    final var publicField = !isMethod && element.getModifiers().contains(Modifier.PUBLIC);
+    final var publicField =
+        !isMethod && !isParam && element.getModifiers().contains(Modifier.PUBLIC);
     final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
 
-    this.property = new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
-    this.propertyName = PropertyPrism.getOptionalOn(element)
-      .map(PropertyPrism::value)
-      .map(Util::escapeQuotes)
-      .orElse(namingConvention.from(fieldName));
+    this.property =
+        new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
+    this.propertyName =
+        PropertyPrism.getOptionalOn(element)
+            .map(PropertyPrism::value)
+            .map(Util::escapeQuotes)
+            .orElse(namingConvention.from(fieldName));
 
-    this.aliases = initAliases(element);
+    initAliases(element);
   }
 
-  private static List<String> initAliases(Element element) {
-    return AliasPrism.getOptionalOn(element)
-      .map(a -> Util.escapeQuotes(a.value()))
-      .orElse(JsonAliasPrism.getOptionalOn(element)
-        .map(a -> Util.escapeQuotes(a.value()))
-        .orElse(Collections.emptyList()));
+  public void readParam(VariableElement element) {
+    this.deserialize = true;
+    this.isCreatorParam = true;
+    initAliases(element);
+  }
+
+  private void initAliases(Element element) {
+    var alias =
+        AliasPrism.getOptionalOn(element)
+            .map(a -> Util.escapeQuotes(a.value()))
+            .orElse(
+                JsonAliasPrism.getOptionalOn(element)
+                    .map(a -> Util.escapeQuotes(a.value()))
+                    .orElse(Collections.emptyList()));
+
+    aliases.addAll(alias);
   }
 
   void position(int pos) {
@@ -203,6 +236,7 @@ final class FieldReader {
   }
 
   void writeFromJsonSetter(Append writer, String varName, String prefix) {
+    if (isCreatorParam) return;
     property.writeFromJsonSetter(writer, varName, prefix, num);
   }
 
@@ -243,6 +277,10 @@ final class FieldReader {
     property.setSetterMethod(setter);
   }
 
+  public void setDeserialize(boolean deserialize) {
+    this.deserialize = deserialize;
+  }
+
   public boolean isDeserialize() {
     return deserialize;
   }
@@ -254,4 +292,5 @@ final class FieldReader {
   public List<String> aliases() {
     return aliases;
   }
+
 }

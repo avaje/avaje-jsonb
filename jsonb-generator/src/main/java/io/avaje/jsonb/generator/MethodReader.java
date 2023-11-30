@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -14,7 +15,7 @@ final class MethodReader {
   private final String methodName;
   private final List<MethodParam> params = new ArrayList<>();
 
-  MethodReader(ExecutableElement element, TypeElement beanType) {
+  MethodReader(ExecutableElement element) {
     this.element = element;
     this.methodName = element.getSimpleName().toString();
   }
@@ -44,7 +45,6 @@ final class MethodReader {
     return params;
   }
 
-
   public boolean isPublic() {
     return element.getModifiers().contains(Modifier.PUBLIC);
   }
@@ -53,14 +53,31 @@ final class MethodReader {
     return element.getModifiers().contains(Modifier.PROTECTED);
   }
 
+  public String creationString() {
+    var shortName =
+        Util.shortName(((TypeElement) element.getEnclosingElement()).getQualifiedName().toString());
+
+    if (element.getKind() == ElementKind.CONSTRUCTOR) {
+      return String.format("new %s(", shortName);
+    }
+
+    return String.format("%s.%s(", shortName, element.getSimpleName());
+  }
+
+  public ExecutableElement element() {
+    return element;
+  }
+
   static class MethodParam {
 
     private final String simpleName;
     private final String type;
+    private final VariableElement element;
 
     MethodParam(VariableElement param) {
       this.simpleName = param.getSimpleName().toString();
       this.type = param.asType().toString();
+      element = param;
     }
 
     String name() {
@@ -69,6 +86,14 @@ final class MethodReader {
 
     public String type() {
       return type;
+    }
+
+    public VariableElement element() {
+      return element;
+    }
+
+    public VariableElement getElement() {
+      return element;
     }
   }
 }
