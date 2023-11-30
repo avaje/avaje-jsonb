@@ -46,9 +46,7 @@ final class FieldReader {
   private static List<String> initAliases(Element element) {
     return AliasPrism.getOptionalOn(element)
       .map(a -> Util.escapeQuotes(a.value()))
-      .orElse(JsonAliasPrism.getOptionalOn(element)
-        .map(a -> Util.escapeQuotes(a.value()))
-        .orElse(Collections.emptyList()));
+      .orElse(Collections.emptyList());
   }
 
   void position(int pos) {
