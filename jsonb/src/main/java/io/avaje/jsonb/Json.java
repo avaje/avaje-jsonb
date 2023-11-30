@@ -291,7 +291,8 @@ public @interface Json {
    * These types are typically in an external project / dependency or otherwise
    * types that we can't or don't want to explicitly annotate with {@code @Json}.
    * <p>
-   * In the example below, the VehicleMixin class augments the the generated Vehicle JsonB adapter to use "ford-type" as the json property.
+   * In the example below, the VehicleMixin class augments the the generated Vehicle JsonB
+   * adapter to use "ford-type" as the json property.
    *
    * <pre>{@code
    *
@@ -312,10 +313,12 @@ public @interface Json {
   }
 
   /**
-   * Marker annotation that can be used to define constructors or factory methods as one to use for instantiating new instances of the associated class. Can be used in Mixin classes to override an existing deserialization method
-   *
+   * Marker annotation that can be used to define constructors or factory methods as one to use
+   * for instantiating  new instances of the associated class. Can be used in Mixin classes to
+   * override an existing deserialization method.
+   * <p>
    * The parameter names will be used as keys for deserialization instead of the field names.
-   *
+   * <p>
    * <h3>Examples:</h3>
    *
    * <pre>{@code
@@ -336,7 +339,8 @@ public @interface Json {
    *   @Json
    *   public record Product( ... ) {
    *
-   *   public static Product factory(@Json.Alias("alias") String name){
+   *   @Json.Creator
+   *   public static Product factory(String name){
    *      ...
    *   }
    *
@@ -344,7 +348,7 @@ public @interface Json {
    */
   @Retention(CLASS)
   @Target({CONSTRUCTOR, METHOD})
-  public @interface Creator {}
+  @interface Creator {}
 
   /**
    * The naming convention that we can use for a given type.

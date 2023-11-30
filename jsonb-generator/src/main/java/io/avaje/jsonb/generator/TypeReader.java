@@ -3,10 +3,8 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-
-import io.avaje.jsonb.generator.MethodReader.MethodParam;
-
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.avaje.jsonb.generator.APContext.*;
@@ -51,62 +49,56 @@ final class TypeReader {
 
   private boolean optional;
 
-  /** Set when the type is known to extend Throwable */
+  /**
+   * Set when the type is known to extend Throwable
+   */
   private boolean extendsThrowable;
 
   private final boolean hasJsonCreator;
 
-  TypeReader(
-      TypeElement baseType,
-      TypeElement mixInType,
-      NamingConvention namingConvention,
-      String typePropertyKey) {
+  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
     Optional<ExecutableElement> jsonCreator = Optional.empty();
     if (mixInType == null) {
-
       this.mixInFields = new HashMap<>();
     } else {
-
       jsonCreator =
-          ElementFilter.methodsIn(mixInType.getEnclosedElements()).stream()
-              .filter(CreatorPrism::isPresent)
-              .findFirst();
+        ElementFilter.methodsIn(mixInType.getEnclosedElements()).stream()
+          .filter(CreatorPrism::isPresent)
+          .findFirst();
       this.mixInFields =
-          mixInType.getEnclosedElements().stream()
-              .filter(e -> e.getKind() == ElementKind.FIELD)
-              .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
+        mixInType.getEnclosedElements().stream()
+          .filter(e -> e.getKind() == ElementKind.FIELD)
+          .collect(Collectors.toMap(e -> e.getSimpleName().toString(), e -> e));
     }
     this.namingConvention = namingConvention;
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType) || importedJson(baseType).isPresent();
     this.subTypes = new TypeSubTypeReader(baseType);
     this.typePropertyKey = typePropertyKey;
 
-    jsonCreator =
-        jsonCreator.or(
-            () ->
-                baseType.getEnclosedElements().stream()
-                    .filter(CreatorPrism::isPresent)
-                    .map(ExecutableElement.class::cast)
-                    .findFirst());
-
-    constructor =
-        jsonCreator
-            .map(
-                ex -> {
-                  var mods = ex.getModifiers();
-                  if (ex.getKind() != ElementKind.CONSTRUCTOR
-                      && !mods.contains(Modifier.STATIC)
-                      && !mods.contains(Modifier.PUBLIC))
-                    logError(
-                        ex,
-                        "@Json.Creator can only be placed on contructors and static factory methods");
-                  return new MethodReader(ex).read();
-                })
-            .orElse(null);
+    jsonCreator = jsonCreator.or(baseJsonCreator(baseType));
+    constructor = jsonCreator
+      .map(TypeReader::readJsonCreator)
+      .orElse(null);
 
     this.hasJsonCreator = jsonCreator.isPresent();
+  }
+
+  private static MethodReader readJsonCreator(ExecutableElement ex) {
+    var mods = ex.getModifiers();
+    if (ex.getKind() != ElementKind.CONSTRUCTOR && !mods.contains(Modifier.STATIC) && !mods.contains(Modifier.PUBLIC)) {
+      logError(ex, "@Json.Creator can only be placed on contructors and static factory methods");
+    }
+    return new MethodReader(ex).read();
+  }
+
+  private static Supplier<Optional<? extends ExecutableElement>> baseJsonCreator(TypeElement baseType) {
+    return () ->
+      baseType.getEnclosedElements().stream()
+        .filter(CreatorPrism::isPresent)
+        .map(ExecutableElement.class::cast)
+        .findFirst();
   }
 
   private List<String> initTypeParams(TypeElement beanType) {
@@ -142,14 +134,12 @@ final class TypeReader {
 
     if (hasJsonCreator) {
       for (var param : constructor.getParams()) {
-
         var name = param.name();
         var element = param.element();
-        var matchingField =
-            localFields.stream().filter(f -> f.propertyName().equals(name)).findFirst();
-
-        matchingField.ifPresentOrElse(
-            f -> f.readParam(element), () -> readField(element, localFields));
+        var matchingField = localFields.stream()
+          .filter(f -> f.propertyName().equals(name))
+          .findFirst();
+        matchingField.ifPresentOrElse(f -> f.readParam(element), () -> readField(element, localFields));
       }
     }
 
@@ -186,13 +176,13 @@ final class TypeReader {
     if (includeField(element)) {
       final var frequency = frequency(element.getSimpleName().toString());
       localFields.add(
-          new FieldReader(
-              element,
-              namingConvention,
-              currentSubType,
-              genericTypeParams,
-              frequency,
-              hasJsonCreator));
+        new FieldReader(
+          element,
+          namingConvention,
+          currentSubType,
+          genericTypeParams,
+          frequency,
+          hasJsonCreator));
     }
   }
 

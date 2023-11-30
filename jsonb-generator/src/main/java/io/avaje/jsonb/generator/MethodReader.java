@@ -54,13 +54,10 @@ final class MethodReader {
   }
 
   public String creationString() {
-    var shortName =
-        Util.shortName(((TypeElement) element.getEnclosingElement()).getQualifiedName().toString());
-
+    var shortName = Util.shortName(((TypeElement) element.getEnclosingElement()).getQualifiedName().toString());
     if (element.getKind() == ElementKind.CONSTRUCTOR) {
       return String.format("new %s(", shortName);
     }
-
     return String.format("%s.%s(", shortName, element.getSimpleName());
   }
 
@@ -92,8 +89,5 @@ final class MethodReader {
       return element;
     }
 
-    public VariableElement getElement() {
-      return element;
-    }
   }
 }

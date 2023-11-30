@@ -4,7 +4,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
-
 import java.util.*;
 
 final class FieldReader {
@@ -24,22 +23,23 @@ final class FieldReader {
   private boolean isCreatorParam;
 
   FieldReader(
-      Element element,
-      NamingConvention namingConvention,
-      TypeSubTypeMeta subType,
-      List<String> genericTypeParams,
-      Integer frequency) {
+    Element element,
+    NamingConvention namingConvention,
+    TypeSubTypeMeta subType,
+    List<String> genericTypeParams,
+    Integer frequency) {
 
     this(element, namingConvention, subType, genericTypeParams, frequency, false);
   }
 
   FieldReader(
-      Element element,
-      NamingConvention namingConvention,
-      TypeSubTypeMeta subType,
-      List<String> genericTypeParams,
-      Integer frequency,
-      boolean jsonCreatorPresent) {
+    Element element,
+    NamingConvention namingConvention,
+    TypeSubTypeMeta subType,
+    List<String> genericTypeParams,
+    Integer frequency,
+    boolean jsonCreatorPresent) {
+
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
@@ -51,17 +51,15 @@ final class FieldReader {
     this.deserialize = isParam || !jsonCreatorPresent && !isMethod && ignoreReader.deserialize();
 
     final var fieldName = element.getSimpleName().toString();
-    final var publicField =
-        !isMethod && !isParam && element.getModifiers().contains(Modifier.PUBLIC);
+    final var publicField = !isMethod && !isParam && element.getModifiers().contains(Modifier.PUBLIC);
     final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
 
-    this.property =
-        new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
+    this.property = new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
     this.propertyName =
-        PropertyPrism.getOptionalOn(element)
-            .map(PropertyPrism::value)
-            .map(Util::escapeQuotes)
-            .orElse(namingConvention.from(fieldName));
+      PropertyPrism.getOptionalOn(element)
+        .map(PropertyPrism::value)
+        .map(Util::escapeQuotes)
+        .orElse(namingConvention.from(fieldName));
 
     initAliases(element);
   }
@@ -74,12 +72,12 @@ final class FieldReader {
 
   private void initAliases(Element element) {
     var alias =
-        AliasPrism.getOptionalOn(element)
+      AliasPrism.getOptionalOn(element)
+        .map(a -> Util.escapeQuotes(a.value()))
+        .orElse(
+          JsonAliasPrism.getOptionalOn(element)
             .map(a -> Util.escapeQuotes(a.value()))
-            .orElse(
-                JsonAliasPrism.getOptionalOn(element)
-                    .map(a -> Util.escapeQuotes(a.value()))
-                    .orElse(Collections.emptyList()));
+            .orElse(Collections.emptyList()));
 
     aliases.addAll(alias);
   }

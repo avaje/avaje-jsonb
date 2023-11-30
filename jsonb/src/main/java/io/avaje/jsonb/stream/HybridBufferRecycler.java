@@ -41,7 +41,8 @@ final class HybridBufferRecycler implements BufferRecycler {
   private static final BufferRecycler NATIVE_RECYCLER = ThreadLocalPool.shared();
   private static final BufferRecycler VIRTUAL_RECYCLER = StripedLockFreePool.shared();
 
-  private HybridBufferRecycler() {}
+  private HybridBufferRecycler() {
+  }
 
   static HybridBufferRecycler shared() {
     return INSTANCE;
@@ -50,22 +51,22 @@ final class HybridBufferRecycler implements BufferRecycler {
   @Override
   public JsonGenerator generator(JsonOutput target) {
     return isVirtual.test(Thread.currentThread())
-        ? VIRTUAL_RECYCLER.generator(target)
-        : NATIVE_RECYCLER.generator(target);
+      ? VIRTUAL_RECYCLER.generator(target)
+      : NATIVE_RECYCLER.generator(target);
   }
 
   @Override
   public JsonParser parser(byte[] bytes) {
     return isVirtual.test(Thread.currentThread())
-        ? VIRTUAL_RECYCLER.parser(bytes)
-        : NATIVE_RECYCLER.parser(bytes);
+      ? VIRTUAL_RECYCLER.parser(bytes)
+      : NATIVE_RECYCLER.parser(bytes);
   }
 
   @Override
   public JsonParser parser(InputStream in) {
     return isVirtual.test(Thread.currentThread())
-        ? VIRTUAL_RECYCLER.parser(in)
-        : NATIVE_RECYCLER.parser(in);
+      ? VIRTUAL_RECYCLER.parser(in)
+      : NATIVE_RECYCLER.parser(in);
   }
 
   @Override
@@ -83,8 +84,7 @@ final class HybridBufferRecycler implements BufferRecycler {
   }
 
   static final class StripedLockFreePool implements BufferRecycler {
-    private static final StripedLockFreePool INSTANCE =
-        new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
+    private static final StripedLockFreePool INSTANCE = new StripedLockFreePool(Runtime.getRuntime().availableProcessors());
 
     private static final int CACHE_LINE_SHIFT = 4;
 
@@ -241,17 +241,14 @@ final class HybridBufferRecycler implements BufferRecycler {
     private static MethodHandle findVirtualMH() {
       try {
         return MethodHandles.publicLookup()
-            .findVirtual(Thread.class, "isVirtual", MethodType.methodType(boolean.class));
+          .findVirtual(Thread.class, "isVirtual", MethodType.methodType(boolean.class));
       } catch (Exception e) {
         return null;
       }
     }
 
     private static Predicate<Thread> findIsVirtualPredicate() {
-      if (virtualMh == null) {
-        return VirtualPredicate::notVirtual;
-      }
-      return VirtualPredicate::isVirtual;
+      return virtualMh == null ? VirtualPredicate::notVirtual : VirtualPredicate::isVirtual;
     }
 
     private static boolean isVirtual(Thread thread) {
