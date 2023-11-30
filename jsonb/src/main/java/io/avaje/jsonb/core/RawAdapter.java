@@ -5,6 +5,7 @@ import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 
 final class RawAdapter {
+  private RawAdapter() {}
 
   static final JsonAdapter<String> STR = new Str().nullSafe();
 

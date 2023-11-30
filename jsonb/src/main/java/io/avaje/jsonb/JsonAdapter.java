@@ -52,7 +52,7 @@ public interface JsonAdapter<T> {
   }
 
   /**
-   * Return the ViewBuilder.Aware for this adapter.
+   * Return the CoreViewBuilder.Aware for this adapter.
    */
   default ViewBuilderAware viewBuild() {
     throw new IllegalStateException("This adapter is not ViewBuilderAware");

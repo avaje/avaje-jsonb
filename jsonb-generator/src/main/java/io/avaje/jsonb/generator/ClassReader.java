@@ -328,7 +328,7 @@ final class ClassReader implements BeanReader {
 
   private void writeViewBuild(Append writer) {
     writer.append("  @Override").eol();
-    writer.append("  public void build(ViewBuilder builder, String name, MethodHandle handle) {").eol();
+    writer.append("  public void build(CoreViewBuilder builder, String name, MethodHandle handle) {").eol();
     writer.append("    builder.beginObject(name, handle);").eol();
     for (final FieldReader allField : allFields) {
       if (allField.includeToJson(null)) {

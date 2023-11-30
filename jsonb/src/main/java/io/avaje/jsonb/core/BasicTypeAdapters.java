@@ -27,6 +27,7 @@ import java.util.*;
 import static java.util.Objects.requireNonNull;
 
 final class BasicTypeAdapters {
+  private BasicTypeAdapters() {}
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   static final JsonAdapter.Factory FACTORY =
