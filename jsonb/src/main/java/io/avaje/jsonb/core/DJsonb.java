@@ -36,6 +36,7 @@ final class DJsonb implements Jsonb {
       boolean failOnUnknown,
       boolean mathAsString,
       BufferRecycleStrategy strategy) {
+
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
     if (adapter != null) {
       this.io = adapter;
@@ -184,10 +185,10 @@ final class DJsonb implements Jsonb {
     final ViewKey key = new ViewKey(dsl, type);
     return (JsonView<T>) viewCache.computeIfAbsent(key, o -> {
       try {
-        ViewBuilder viewBuilder = new ViewBuilder(ViewDsl.parse(dsl));
+        CoreViewBuilder viewBuilder = new CoreViewBuilder(ViewDsl.parse(dsl));
         adapter.viewBuild().build(viewBuilder);
         return viewBuilder.build(this);
-      } catch (Throwable e) {
+      } catch (Exception e) {
         throw new IllegalStateException(e);
       }
     });
@@ -316,7 +317,7 @@ final class DJsonb implements Jsonb {
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
     }
 
-    static <T> JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
+    static JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
       requireNonNull(type);
       requireNonNull(builder);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? builder.build(jsonb).nullSafe() : null;

@@ -111,7 +111,7 @@ public final class Util {
   }
 
   static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
-    return resolve(context, contextRawType, toResolve, new LinkedHashSet<TypeVariable<?>>());
+    return resolve(context, contextRawType, toResolve, new LinkedHashSet<>());
   }
 
   private static Type resolve(
@@ -284,16 +284,10 @@ public final class Util {
     private final Type rawType;
     public final Type[] typeArguments;
 
-    public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
+    ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
       // Require an owner type if the raw type needs it.
       if (ownerType != null && rawType instanceof Class<?>) {
-        Class<?> enclosingClass = ((Class<?>) rawType).getEnclosingClass();
-        if (enclosingClass == null || Util.rawType(ownerType) != enclosingClass) {
-          throw new IllegalArgumentException("unexpected owner type for " + rawType + ": " + ownerType);
-
-        } else if (enclosingClass != null) {
-          throw new IllegalArgumentException("unexpected owner type for " + rawType + ": null");
-        }
+        throw new IllegalArgumentException("unexpected owner type for " + rawType + ": " + ownerType);
       }
 
       this.ownerType = ownerType == null ? null : canonicalize(ownerType);
@@ -386,9 +380,7 @@ public final class Util {
     private final Type lowerBound;
 
     WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
-      if (lowerBounds.length > 1) throw new IllegalArgumentException();
-      if (upperBounds.length != 1) throw new IllegalArgumentException();
-
+      if (lowerBounds.length > 1 || upperBounds.length != 1) throw new IllegalArgumentException();
       if (lowerBounds.length == 1) {
         if (lowerBounds[0] == null) throw new NullPointerException();
         checkNotPrimitive(lowerBounds[0]);

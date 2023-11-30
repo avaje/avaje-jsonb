@@ -4,6 +4,7 @@ import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.BufferedJsonWriter;
 import io.avaje.jsonb.spi.BytesJsonWriter;
 import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.IOException;
@@ -13,26 +14,23 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
-final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
+final class CoreViewBuilder implements ViewBuilder {
 
   private final MethodHandles.Lookup lookup = MethodHandles.lookup();
-  private final Stack<Items> stack = new Stack<>();
+  private final Deque<Items> stack = new ArrayDeque<>();
   private final ViewDsl viewDsl;
   private final Names names;
   private Items current;
   private Element resultElement;
 
-  ViewBuilder(ViewDsl viewDsl) {
+  CoreViewBuilder(ViewDsl viewDsl) {
     this.viewDsl = viewDsl;
     this.names = new Names();
   }
 
-  private ViewBuilder(ViewDsl viewDsl, Names names) {
+  private CoreViewBuilder(ViewDsl viewDsl, Names names) {
     this.viewDsl = viewDsl;
     this.names = names;
   }
@@ -98,7 +96,7 @@ final class ViewBuilder implements io.avaje.jsonb.spi.ViewBuilder {
   @Override
   public void addArray(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) {
     try {
-      ViewBuilder nested = new ViewBuilder(viewDsl, names);
+      CoreViewBuilder nested = new CoreViewBuilder(viewDsl, names);
       adapter.viewBuild().build(nested);
       JsonView<Object> nestedView = nested.build();
       if (name == null) {
