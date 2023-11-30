@@ -110,14 +110,6 @@ public interface Jsonb {
   }
 
   /**
-   * Migrate to builder().
-   */
-  @Deprecated
-  static Builder newBuilder() {
-    return builder();
-  }
-
-  /**
    * Return json content for the given object.
    * <p>
    * This is a convenience method for {@code jsonb.type(Object.class).toJson(any) }

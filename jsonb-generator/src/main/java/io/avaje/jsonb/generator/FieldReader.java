@@ -74,10 +74,7 @@ final class FieldReader {
     var alias =
       AliasPrism.getOptionalOn(element)
         .map(a -> Util.escapeQuotes(a.value()))
-        .orElse(
-          JsonAliasPrism.getOptionalOn(element)
-            .map(a -> Util.escapeQuotes(a.value()))
-            .orElse(Collections.emptyList()));
+        .orElse(Collections.emptyList());
 
     aliases.addAll(alias);
   }

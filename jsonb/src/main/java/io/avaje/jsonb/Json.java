@@ -140,18 +140,6 @@ public @interface Json {
   }
 
   /**
-   * Deprecated - migrate to {@link Json.Alias}.
-   */
-  @Deprecated
-  @Retention(CLASS)
-  @Target(FIELD)
-  @interface JsonAlias {
-
-    /** One or more secondary names to accept as aliases to the official name. */
-    String[] value();
-  }
-
-  /**
    * Exclude the property from serialization, deserialization or both.
    * <p>
    * We can explicitly use {@code deserialize=true} to include the property in
