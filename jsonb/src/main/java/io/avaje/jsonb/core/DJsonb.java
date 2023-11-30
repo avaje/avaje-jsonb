@@ -228,7 +228,7 @@ final class DJsonb implements Jsonb {
     private boolean serializeNulls;
     private boolean serializeEmpty = true;
     private JsonStreamAdapter adapter;
-    private final BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
+    private BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -256,7 +256,7 @@ final class DJsonb implements Jsonb {
 
     @Override
     public Builder bufferRecycling(BufferRecycleStrategy strategy) {
-      bufferRecycling(strategy);
+      this.strategy = strategy;
       return this;
     }
 
@@ -322,9 +322,9 @@ final class DJsonb implements Jsonb {
       requireNonNull(builder);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? builder.build(jsonb).nullSafe() : null;
     }
-  }
 
-  private static boolean simpleMatch(Type type, Type targetType) {
-    return Util.typesMatch(type, targetType);
+    private static boolean simpleMatch(Type type, Type targetType) {
+      return Util.typesMatch(type, targetType);
+    }
   }
 }
