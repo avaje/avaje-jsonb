@@ -45,15 +45,15 @@ final class MethodReader {
     return params;
   }
 
-  public boolean isPublic() {
+  boolean isPublic() {
     return element.getModifiers().contains(Modifier.PUBLIC);
   }
 
-  public boolean isProtected() {
+  boolean isProtected() {
     return element.getModifiers().contains(Modifier.PROTECTED);
   }
 
-  public String creationString() {
+  String creationString() {
     var shortName = Util.shortName(((TypeElement) element.getEnclosingElement()).getQualifiedName().toString());
     if (element.getKind() == ElementKind.CONSTRUCTOR) {
       return String.format("new %s(", shortName);
@@ -61,7 +61,7 @@ final class MethodReader {
     return String.format("%s.%s(", shortName, element.getSimpleName());
   }
 
-  public ExecutableElement element() {
+  ExecutableElement element() {
     return element;
   }
 

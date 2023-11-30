@@ -127,7 +127,7 @@ final class TypeReader {
           readField(element, localFields);
           break;
         case METHOD:
-          readMethod(element, type, localFields);
+          readMethod(element, localFields);
           break;
       }
     }
@@ -229,7 +229,7 @@ final class TypeReader {
     }
   }
 
-  private void readMethod(Element element, TypeElement type, List<FieldReader> localFields) {
+  private void readMethod(Element element, List<FieldReader> localFields) {
     ExecutableElement methodElement = (ExecutableElement) element;
     if (checkMethod2(methodElement)) {
       List<? extends VariableElement> parameters = methodElement.getParameters();

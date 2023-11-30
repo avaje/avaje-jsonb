@@ -64,7 +64,7 @@ final class FieldReader {
     initAliases(element);
   }
 
-  public void readParam(VariableElement element) {
+  void readParam(VariableElement element) {
     this.deserialize = true;
     this.isCreatorParam = true;
     initAliases(element);
@@ -251,43 +251,35 @@ final class FieldReader {
     return property.fieldName();
   }
 
-  public GenericType type() {
+  GenericType type() {
     return property.genericType();
   }
 
-  public boolean isConstructorParam() {
+  boolean isConstructorParam() {
     return property.isConstructorParam();
   }
 
-  public String fieldNameWithNum() {
+  String fieldNameWithNum() {
     return property.fieldName() + num;
   }
 
-  public String adapterFieldName() {
+  String adapterFieldName() {
     return property.adapterFieldName();
   }
 
-  public MethodReader setter() {
+  MethodReader setter() {
     return property.setter();
   }
 
-  public void setSetter(MethodReader setter) {
-    property.setSetterMethod(setter);
-  }
-
-  public void setDeserialize(boolean deserialize) {
-    this.deserialize = deserialize;
-  }
-
-  public boolean isDeserialize() {
+  boolean isDeserialize() {
     return deserialize;
   }
 
-  public Map<String, TypeSubTypeMeta> subTypes() {
+  Map<String, TypeSubTypeMeta> subTypes() {
     return subTypes;
   }
 
-  public List<String> aliases() {
+  List<String> aliases() {
     return aliases;
   }
 
