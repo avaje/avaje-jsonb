@@ -249,15 +249,21 @@ final class HybridBufferRecycler implements BufferRecycler {
 
     private static Predicate<Thread> findIsVirtualPredicate() {
       if (virtualMh == null) {
-        return thread -> false;
+        return VirtualPredicate::notVirtual;
       }
-      return thread -> {
-        try {
-          return (boolean) virtualMh.invokeExact(thread);
-        } catch (Throwable e) {
-          throw new RuntimeException(e);
-        }
-      };
+      return VirtualPredicate::isVirtual;
+    }
+
+    private static boolean isVirtual(Thread thread) {
+      try {
+        return (boolean) virtualMh.invokeExact(thread);
+      } catch (Throwable e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    private static boolean notVirtual(Thread thread) {
+      return false;
     }
   }
 
