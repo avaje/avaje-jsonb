@@ -1,11 +1,12 @@
 package io.avaje.jsonb.stream;
 
 final class NumberWriter {
+  private NumberWriter() {}
 
   private static final byte MINUS = '-';
   private static final byte[] MIN_INT = "-2147483648".getBytes();
   private static final byte[] MIN_LONG = "-9223372036854775808".getBytes();
-  private final static int[] DIGITS = new int[1000];
+  private static final int[] DIGITS = new int[1000];
 
   static {
     for (int i = 0; i < DIGITS.length; i++) {

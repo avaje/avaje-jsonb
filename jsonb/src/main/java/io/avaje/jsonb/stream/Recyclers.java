@@ -36,8 +36,7 @@ final class Recyclers {
    * instances. {@link BufferRecycler} instances are stored using {@link
    * java.lang.ref.SoftReference}s so that they may be Garbage Collected as needed by JVM.
    *
-   * <p>Note that this implementation may not work well on platforms where {@link
-   * java.lang.ref.SoftReference}s are not well supported (like Android), or on platforms where
+   * <p>Note that this implementation may not work well on platforms where
    * {@link java.lang.Thread}s are not long-living or reused (like Project Loom).
    */
   static final class ThreadLocalPool implements BufferRecycler {

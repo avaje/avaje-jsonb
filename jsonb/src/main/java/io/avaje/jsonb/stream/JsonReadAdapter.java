@@ -63,7 +63,8 @@ final class JsonReadAdapter implements JsonReader {
     return reader.hasNextElement();
   }
 
-public boolean hasNextStreamElement() {
+  @Override
+  public boolean hasNextStreamElement() {
     return reader.hasNextStreamElement();
   }
 

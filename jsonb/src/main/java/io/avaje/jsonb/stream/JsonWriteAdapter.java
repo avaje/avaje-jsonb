@@ -1,10 +1,8 @@
 package io.avaje.jsonb.stream;
 
-import io.avaje.jsonb.JsonIoException;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.spi.PropertyNames;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -80,12 +78,8 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void beginArray() {
-    try {
-      writeDeferredName();
-      generator.startArray();
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    writeDeferredName();
+    generator.startArray();
   }
 
   @Override
@@ -95,22 +89,14 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void beginObject() {
-    try {
-      writeDeferredName();
-      generator.startObject();
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    writeDeferredName();
+    generator.startObject();
   }
 
   @Override
   public void beginObject(PropertyNames names) {
-    try {
-      writeDeferredName();
-      generator.startObject((JsonNames) names);
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    writeDeferredName();
+    generator.startObject((JsonNames) names);
   }
 
   @Override
@@ -133,7 +119,7 @@ final class JsonWriteAdapter implements JsonWriter {
     this.namePos = position;
   }
 
-  void writeDeferredName() throws IOException {
+  void writeDeferredName() {
     if (namePos > -1) {
       generator.writeName(namePos);
       namePos = -1;
@@ -146,13 +132,9 @@ final class JsonWriteAdapter implements JsonWriter {
   @Override
   public void emptyArray() {
     if (serializeEmpty) {
-      try {
-        writeDeferredName();
-        generator.startArray();
-        generator.endArray();
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.startArray();
+      generator.endArray();
     } else if (namePos >= 0) {
       namePos = -1;
     } else if (deferredName != null) {
@@ -162,17 +144,13 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void nullValue() {
-    try {
-      if (serializeNulls) {
-        writeDeferredName();
-        generator.writeNull();
-      } else if (namePos >= 0) {
-        namePos = -1;
-      } else if (deferredName != null) {
-        deferredName = null;
-      }
-    } catch (IOException e) {
-      throw new JsonIoException(e);
+    if (serializeNulls) {
+      writeDeferredName();
+      generator.writeNull();
+    } else if (namePos >= 0) {
+      namePos = -1;
+    } else if (deferredName != null) {
+      deferredName = null;
     }
   }
 
@@ -181,54 +159,33 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
   @Override
   public void value(boolean value) {
-    try {
-      writeDeferredName();
-      generator.write(value);
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    writeDeferredName();
+    generator.write(value);
   }
-
 
   @Override
   public void value(int value) {
-    try {
-      writeDeferredName();
-      generator.write(value);
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    writeDeferredName();
+    generator.write(value);
   }
 
   @Override
   public void value(long value) {
-    try {
-      writeDeferredName();
-      generator.write(value);
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    writeDeferredName();
+    generator.write(value);
   }
 
   @Override
   public void value(double value) {
-    try {
-      writeDeferredName();
-      generator.write(value);
-    } catch (IOException e) {
-      throw new JsonIoException(e);
-    }
+    writeDeferredName();
+    generator.write(value);
   }
 
   @Override
@@ -236,12 +193,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
@@ -250,12 +203,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
@@ -264,12 +213,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
@@ -278,12 +223,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
@@ -292,12 +233,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
@@ -306,12 +243,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
@@ -320,12 +253,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.write(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.write(value);
     }
   }
 
@@ -334,12 +263,8 @@ final class JsonWriteAdapter implements JsonWriter {
     if (value == null) {
       nullValue();
     } else {
-      try {
-        writeDeferredName();
-        generator.writeRaw(value);
-      } catch (IOException e) {
-        throw new JsonIoException(e);
-      }
+      writeDeferredName();
+      generator.writeRaw(value);
     }
   }
 

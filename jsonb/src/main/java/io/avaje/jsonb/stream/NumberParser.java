@@ -5,25 +5,27 @@ import java.math.BigInteger;
 
 final class NumberParser {
 
-//  public final static Short SHORT_ZERO = 0;
-//  public final static Integer INT_ZERO = 0;
-//  public final static Long LONG_ZERO = 0L;
-//  public final static Float FLOAT_ZERO = 0f;
-//  public final static Double DOUBLE_ZERO = 0.0;
+  private static final String UNKNOWN_DIGIT = "Unknown digit";
+  private static final String LONG_OVERFLOW_DETECTED = "Long overflow detected";
+  private static final String NUMBER_ENDS_WITH_A_DOT = "Number ends with a dot";
+  private static final String ERROR_PARSING_NUMBER = "Error parsing number";
+  private static final String TOO_MANY_DIGITS_DETECTED_IN_NUMBER =
+      "Too many digits detected in number";
+  private static final String DIGIT_NOT_FOUND = "Digit not found";
+  private static final String INTEGER_OVERFLOW_DETECTED = "Integer overflow detected";
 
-  //  private final static int[] DIGITS = new int[1000];
-  private final static int[] DIFF = {111, 222, 444, 888, 1776};
-  private final static int[] ERROR = {50, 100, 200, 400, 800};
-  private final static int[] SCALE_10 = {10000, 1000, 100, 10, 1};
-  private final static double[] POW_10 = {
-    1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9,
-    1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19,
-    1e20, 1e21, 1e22, 1e23, 1e24, 1e25, 1e26, 1e27, 1e28, 1e29,
-    1e30, 1e31, 1e32, 1e33, 1e34, 1e35, 1e36, 1e37, 1e38, 1e39,
-    1e40, 1e41, 1e42, 1e43, 1e44, 1e45, 1e46, 1e47, 1e48, 1e49,
-    1e50, 1e51, 1e52, 1e53, 1e54, 1e55, 1e56, 1e57, 1e58, 1e59,
-    1e60, 1e61, 1e62, 1e63, 1e64, 1e65
+  private static final String LEADING_ZERO_IS_NOT_ALLOWED = "Leading zero is not allowed";
+  private static final int[] DIFF = {111, 222, 444, 888, 1776};
+  private static final int[] ERROR = {50, 100, 200, 400, 800};
+  private static final int[] SCALE_10 = {10000, 1000, 100, 10, 1};
+  private static final double[] POW_10 = {
+    1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17,
+    1e18, 1e19, 1e20, 1e21, 1e22, 1e23, 1e24, 1e25, 1e26, 1e27, 1e28, 1e29, 1e30, 1e31, 1e32, 1e33,
+    1e34, 1e35, 1e36, 1e37, 1e38, 1e39, 1e40, 1e41, 1e42, 1e43, 1e44, 1e45, 1e46, 1e47, 1e48, 1e49,
+    1e50, 1e51, 1e52, 1e53, 1e54, 1e55, 1e56, 1e57, 1e58, 1e59, 1e60, 1e61, 1e62, 1e63, 1e64, 1e65
   };
+
+  private NumberParser() {}
 
   static short deserializeShort(final JParser reader) {
     if (reader.currentToken() == '"') {
@@ -39,9 +41,10 @@ final class NumberParser {
     final int end = reader.getCurrentIndex();
     final byte[] buf = reader.buffer;
     final byte ch = buf[start];
-    final int value = ch == '-'
-      ? parseNegativeInt(buf, reader, start, end)
-      : parsePositiveInt(buf, reader, start, end, 0);
+    final int value =
+        ch == '-'
+            ? parseNegativeInt(buf, reader, start, end)
+            : parsePositiveInt(buf, reader, start, end, 0);
     if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
       throw reader.newParseErrorAt("Short overflow detected", reader.getCurrentIndex());
     }
@@ -55,7 +58,8 @@ final class NumberParser {
       try {
         return parseNumberGeneric(buf, reader.getCurrentIndex() - position - 1, reader, true).intValueExact();
       } catch (ArithmeticException ignore) {
-        throw reader.newParseErrorAt("Integer overflow detected", reader.getCurrentIndex() - position);
+        throw reader.newParseErrorAt(
+            INTEGER_OVERFLOW_DETECTED, reader.getCurrentIndex() - position);
       }
     }
     final int start = reader.scanNumber();
@@ -63,13 +67,16 @@ final class NumberParser {
     final byte[] buf = reader.buffer;
     final byte ch = buf[start];
     if (ch == '-') {
-      if (end > start + 2 && buf[start + 1] == '0' && buf[start + 2] >= '0' && buf[start + 2] <= '9') {
-        numberException(reader, start, end, "Leading zero is not allowed");
+      if (end > start + 2
+          && buf[start + 1] == '0'
+          && buf[start + 2] >= '0'
+          && buf[start + 2] <= '9') {
+        numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
       }
       return parseNegativeInt(buf, reader, start, end);
     } else {
       if (ch == '0' && end > start + 1 && buf[start + 1] >= '0' && buf[start + 1] <= '9') {
-        numberException(reader, start, end, "Leading zero is not allowed");
+        numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
       }
       return parsePositiveInt(buf, reader, start, end, 0);
     }
@@ -78,20 +85,23 @@ final class NumberParser {
   private static int parsePositiveInt(final byte[] buf, final JParser reader, final int start, final int end, final int offset) {
     int value = 0;
     int i = start + offset;
-    if (i == end) numberException(reader, start, end, "Digit not found");
+    if (i == end) numberException(reader, start, end, DIGIT_NOT_FOUND);
     for (; i < end; i++) {
       final int ind = buf[i] - 48;
       if (ind < 0 || ind > 9) {
         if (i > start + offset && reader.allWhitespace(i, end)) return value;
-        else if (i == end - 1 && buf[i] == '.') numberException(reader, start, end, "Number ends with a dot");
-        final BigDecimal v = parseNumberGeneric(reader.prepareBuffer(start, end - start), end - start, reader, false);
-        if (v.scale() > 0) numberException(reader, start, end, "Expecting int but found decimal value", v);
+        else if (i == end - 1 && buf[i] == '.')
+          numberException(reader, start, end, NUMBER_ENDS_WITH_A_DOT);
+        final BigDecimal v =
+            parseNumberGeneric(
+                reader.prepareBuffer(start, end - start), end - start, reader, false);
+        if (v.scale() > 0)
+          numberException(reader, start, end, "Expecting int but found decimal value", v);
         return v.intValue();
-
       }
       value = (value << 3) + (value << 1) + ind;
       if (value < 0) {
-        numberException(reader, start, end, "Integer overflow detected");
+        numberException(reader, start, end, INTEGER_OVERFLOW_DETECTED);
       }
     }
     return value;
@@ -100,19 +110,23 @@ final class NumberParser {
   private static int parseNegativeInt(final byte[] buf, final JParser reader, final int start, final int end) {
     int value = 0;
     int i = start + 1;
-    if (i == end) numberException(reader, start, end, "Digit not found");
+    if (i == end) numberException(reader, start, end, DIGIT_NOT_FOUND);
     for (; i < end; i++) {
       final int ind = buf[i] - 48;
       if (ind < 0 || ind > 9) {
         if (i > start + 1 && reader.allWhitespace(i, end)) return value;
-        else if (i == end - 1 && buf[i] == '.') numberException(reader, start, end, "Number ends with a dot");
-        final BigDecimal v = parseNumberGeneric(reader.prepareBuffer(start, end - start), end - start, reader, false);
-        if (v.scale() > 0) numberException(reader, start, end, "Expecting int but found decimal value", v);
+        else if (i == end - 1 && buf[i] == '.')
+          numberException(reader, start, end, NUMBER_ENDS_WITH_A_DOT);
+        final BigDecimal v =
+            parseNumberGeneric(
+                reader.prepareBuffer(start, end - start), end - start, reader, false);
+        if (v.scale() > 0)
+          numberException(reader, start, end, "Expecting int but found decimal value", v);
         return v.intValue();
       }
       value = (value << 3) + (value << 1) - ind;
       if (value > 0) {
-        numberException(reader, start, end, "Integer overflow detected");
+        numberException(reader, start, end, INTEGER_OVERFLOW_DETECTED);
       }
     }
     return value;
@@ -124,44 +138,53 @@ final class NumberParser {
       end--;
     }
     if (end > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.newParseErrorWith(
+          TOO_MANY_DIGITS_DETECTED_IN_NUMBER, len, TOO_MANY_DIGITS_DETECTED_IN_NUMBER, end, "");
     }
     final int offset = buf[0] == '-' ? 1 : 0;
-    if (buf[offset] == '0' && end > offset + 1 && buf[offset + 1] >= '0' && buf[offset + 1] <= '9') {
-      throw reader.newParseErrorAt("Leading zero is not allowed. Error parsing number", len + (withQuotes ? 2 : 0));
+    if (buf[offset] == '0'
+        && end > offset + 1
+        && buf[offset + 1] >= '0'
+        && buf[offset + 1] <= '9') {
+      throw reader.newParseErrorAt(
+          "Leading zero is not allowed. Error parsing number", len + (withQuotes ? 2 : 0));
     }
     try {
       return new BigDecimal(buf, 0, end);
     } catch (NumberFormatException nfe) {
-      throw reader.newParseErrorAt("Error parsing number", len + (withQuotes ? 2 : 0), nfe);
+      throw reader.newParseErrorAt(ERROR_PARSING_NUMBER, len + (withQuotes ? 2 : 0), nfe);
     }
   }
 
   static void numberException(final JParser reader, final int start, final int end, String message) {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.newParseErrorWith(
+          TOO_MANY_DIGITS_DETECTED_IN_NUMBER, len, TOO_MANY_DIGITS_DETECTED_IN_NUMBER, end, "");
     }
-    throw reader.newParseErrorWith("Error parsing number", len, message, null, ". Error parsing number");
+    throw reader.newParseErrorWith(
+        ERROR_PARSING_NUMBER, len, message, null, ". Error parsing number");
   }
 
   static void numberException(final JParser reader, final int start, final int end, String message, Object messageArgument) {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.newParseErrorWith(
+          TOO_MANY_DIGITS_DETECTED_IN_NUMBER, len, TOO_MANY_DIGITS_DETECTED_IN_NUMBER, end, "");
     }
-    throw reader.newParseErrorWith("Error parsing number", len, message, messageArgument, ". Error parsing number");
+    throw reader.newParseErrorWith(
+        ERROR_PARSING_NUMBER, len, message, messageArgument, ". Error parsing number");
   }
-
 
   static long deserializeLong(final JParser reader) {
     if (reader.currentToken() == '"') {
       final int position = reader.getCurrentIndex();
       final char[] buf = reader.readSimpleQuote();
       try {
-        return parseNumberGeneric(buf, reader.getCurrentIndex() - position - 1, reader, true).longValueExact();
+        return parseNumberGeneric(buf, reader.getCurrentIndex() - position - 1, reader, true)
+            .longValueExact();
       } catch (ArithmeticException ignore) {
-        throw reader.newParseErrorAt("Long overflow detected", reader.getCurrentIndex() - position);
+        throw reader.newParseErrorAt(LONG_OVERFLOW_DETECTED, reader.getCurrentIndex() - position);
       }
     }
     final int start = reader.scanNumber();
@@ -172,34 +195,34 @@ final class NumberParser {
     long value = 0;
     if (ch == '-') {
       i = start + 1;
-      if (i == end) numberException(reader, start, end, "Digit not found");
+      if (i == end) numberException(reader, start, end, DIGIT_NOT_FOUND);
       final boolean leadingZero = buf[i] == 48;
       for (; i < end; i++) {
         final int ind = buf[i] - 48;
         if (ind < 0 || ind > 9) {
           if (leadingZero && i > start + 2) {
-            numberException(reader, start, end, "Leading zero is not allowed");
+            numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
           }
           if (i > start + 1 && reader.allWhitespace(i, end)) return value;
           return parseLongGeneric(reader, start, end);
         }
         value = (value << 3) + (value << 1) - ind;
         if (value > 0) {
-          numberException(reader, start, end, "Long overflow detected");
+          numberException(reader, start, end, LONG_OVERFLOW_DETECTED);
         }
       }
       if (leadingZero && i > start + 2) {
-        numberException(reader, start, end, "Leading zero is not allowed");
+        numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
       }
       return value;
     }
-    if (i == end) numberException(reader, start, end, "Digit not found");
+    if (i == end) numberException(reader, start, end, DIGIT_NOT_FOUND);
     final boolean leadingZero = buf[i] == 48;
     for (; i < end; i++) {
       final int ind = buf[i] - 48;
       if (ind < 0 || ind > 9) {
         if (leadingZero && i > start + 1) {
-          numberException(reader, start, end, "Leading zero is not allowed");
+          numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
         }
         if (ch == '+' && i > start + 1 && reader.allWhitespace(i, end)) return value;
         else if (ch != '+' && i > start && reader.allWhitespace(i, end)) return value;
@@ -207,11 +230,11 @@ final class NumberParser {
       }
       value = (value << 3) + (value << 1) + ind;
       if (value < 0) {
-        numberException(reader, start, end, "Long overflow detected");
+        numberException(reader, start, end, LONG_OVERFLOW_DETECTED);
       }
     }
     if (leadingZero && i > start + 1) {
-      numberException(reader, start, end, "Leading zero is not allowed");
+      numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
     }
     return value;
   }
@@ -219,9 +242,10 @@ final class NumberParser {
   private static long parseLongGeneric(final JParser reader, final int start, final int end) {
     final int len = end - start;
     final char[] buf = reader.prepareBuffer(start, len);
-    if (len > 0 && buf[len - 1] == '.') numberException(reader, start, end, "Number ends with a dot");
+    if (len > 0 && buf[len - 1] == '.') numberException(reader, start, end, NUMBER_ENDS_WITH_A_DOT);
     final BigDecimal v = parseNumberGeneric(buf, len, reader, false);
-    if (v.scale() > 0) numberException(reader, start, end, "Expecting long, but found decimal value ", v);
+    if (v.scale() > 0)
+      numberException(reader, start, end, "Expecting long, but found decimal value ", v);
     return v.longValue();
   }
 
@@ -245,7 +269,11 @@ final class NumberParser {
       int oldLen = len;
       len += end;
       if (len > reader.maxNumberDigits) {
-        throw reader.newParseErrorFormat("Too many digits detected in number", len, "Number of digits larger than %d. Unable to read number", reader.maxNumberDigits);
+        throw reader.newParseErrorFormat(
+            TOO_MANY_DIGITS_DETECTED_IN_NUMBER,
+            len,
+            "Number of digits larger than %d. Unable to read number",
+            reader.maxNumberDigits);
       }
       char[] tmp = result;
       result = new char[len];
@@ -277,7 +305,11 @@ final class NumberParser {
         final NumberInfo tmp = readLongNumber(reader, start + offset);
         return parseDoubleGeneric(tmp.buffer, tmp.length, reader, false);
       }
-      return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
+      return parseDoubleGeneric(
+          reader.prepareBuffer(start + offset, end - start - offset),
+          end - start - offset,
+          reader,
+          false);
     }
     long value = 0;
     byte ch = ' ';
@@ -289,20 +321,20 @@ final class NumberParser {
       final int ind = buf[i] - 48;
       if (ind < 0 || ind > 9) {
         if (leadingZero && i > start + offset + 1) {
-          numberException(reader, start, end, "Leading zero is not allowed");
+          numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
         }
         if (i > start + offset && reader.allWhitespace(i, end)) return value;
-        numberException(reader, start, end, "Unknown digit", (char) ch);
+        numberException(reader, start, end, UNKNOWN_DIGIT, (char) ch);
       }
       value = (value << 3) + (value << 1) + ind;
     }
-    if (i == start + offset) numberException(reader, start, end, "Digit not found");
+    if (i == start + offset) numberException(reader, start, end, DIGIT_NOT_FOUND);
     else if (leadingZero && ch != '.' && i > start + offset + 1)
-      numberException(reader, start, end, "Leading zero is not allowed");
-    else if (i == end) return value;
-    else if (ch == '.') {
+      numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
+    else if (i == end) {
+    } else if (ch == '.') {
       i++;
-      if (i == end) numberException(reader, start, end, "Number ends with a dot");
+      if (i == end) numberException(reader, start, end, NUMBER_ENDS_WITH_A_DOT);
       final int maxLen;
       final double preciseDividor;
       final int expDiff;
@@ -312,7 +344,11 @@ final class NumberParser {
         maxLen = i + 15;
         ch = buf[i];
         if (ch == '0' && end > maxLen) {
-          return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
+          return parseDoubleGeneric(
+              reader.prepareBuffer(start + offset, end - start - offset),
+              end - start - offset,
+              reader,
+              false);
         } else if (ch < '8') {
           preciseDividor = 1e14;
           expDiff = -1;
@@ -342,7 +378,7 @@ final class NumberParser {
         final int ind = ch - 48;
         if (ind < 0 || ind > 9) {
           if (reader.allWhitespace(i, end)) return value / POW_10[i - decPos - 1];
-          numberException(reader, start, end, "Unknown digit", (char) buf[i]);
+          numberException(reader, start, end, UNKNOWN_DIGIT, (char) buf[i]);
         }
         value = (value << 3) + (value << 1) + ind;
       }
@@ -351,7 +387,11 @@ final class NumberParser {
         return doubleExponent(reader, value, i - decPos, 0, buf, start, end, offset, i);
       }
       if (reader.doublePrecision == JParser.DoublePrecision.HIGH) {
-        return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
+        return parseDoubleGeneric(
+            reader.prepareBuffer(start + offset, end - start - offset),
+            end - start - offset,
+            reader,
+            false);
       }
       int decimals = 0;
       final int decLimit = Math.min(start + offset + 18, end);
@@ -364,7 +404,7 @@ final class NumberParser {
           if (reader.allWhitespace(i, end)) {
             return approximateDouble(decimals, value / preciseDividor, i - remPos - decOffset);
           }
-          numberException(reader, start, end, "Unknown digit", (char) buf[i]);
+          numberException(reader, start, end, UNKNOWN_DIGIT, (char) buf[i]);
         }
         decimals = (decimals << 3) + (decimals << 1) + ind;
       }
@@ -416,16 +456,20 @@ final class NumberParser {
         if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
         else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
       }
-    } else {
-      if (exp == 0) return whole + fraction;
-      else if (exp > 0 && exp < POW_10.length) return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
-      else if (exp < 0 && -exp < POW_10.length) return fraction / POW_10[-exp - 1] + whole / POW_10[-exp - 1];
-      else if (reader.doublePrecision != JParser.DoublePrecision.HIGH) {
-        if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
-        else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
-      }
+    } else if (exp == 0) return whole + fraction;
+    else if (exp > 0 && exp < POW_10.length)
+      return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
+    else if (exp < 0 && -exp < POW_10.length)
+      return fraction / POW_10[-exp - 1] + whole / POW_10[-exp - 1];
+    else if (reader.doublePrecision != JParser.DoublePrecision.HIGH) {
+      if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
+      else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
     }
-    return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
+    return parseDoubleGeneric(
+        reader.prepareBuffer(start + offset, end - start - offset),
+        end - start - offset,
+        reader,
+        false);
   }
 
   private static double parseDoubleGeneric(final char[] buf, final int len, final JParser reader, final boolean withQuotes) {
@@ -434,16 +478,21 @@ final class NumberParser {
       end--;
     }
     if (end > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.newParseErrorWith(
+          TOO_MANY_DIGITS_DETECTED_IN_NUMBER, len, TOO_MANY_DIGITS_DETECTED_IN_NUMBER, end, "");
     }
     final int offset = buf[0] == '-' ? 1 : 0;
-    if (buf[offset] == '0' && end > offset + 1 && buf[offset + 1] >= '0' && buf[offset + 1] <= '9') {
-      throw reader.newParseErrorAt("Leading zero is not allowed. Error parsing number", len + (withQuotes ? 2 : 0));
+    if (buf[offset] == '0'
+        && end > offset + 1
+        && buf[offset + 1] >= '0'
+        && buf[offset + 1] <= '9') {
+      throw reader.newParseErrorAt(
+          "Leading zero is not allowed. Error parsing number", len + (withQuotes ? 2 : 0));
     }
     try {
       return Double.parseDouble(new String(buf, 0, end));
     } catch (NumberFormatException nfe) {
-      throw reader.newParseErrorAt("Error parsing number", len + (withQuotes ? 2 : 0), nfe);
+      throw reader.newParseErrorAt(ERROR_PARSING_NUMBER, len + (withQuotes ? 2 : 0), nfe);
     }
   }
 
@@ -481,20 +530,20 @@ final class NumberParser {
       final int ind = ch - 48;
       if (ind < 0 || ind > 9) {
         if (leadingZero && i > start + 1) {
-          numberException(reader, start, end, "Leading zero is not allowed");
+          numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
         }
         if (i > start && reader.allWhitespace(i, end)) return BigDecimal.valueOf(value);
-        numberException(reader, start, end, "Unknown digit", (char) ch);
+        numberException(reader, start, end, UNKNOWN_DIGIT, (char) ch);
       }
       value = (value << 3) + (value << 1) + ind;
     }
-    if (i == start) numberException(reader, start, end, "Digit not found");
+    if (i == start) numberException(reader, start, end, DIGIT_NOT_FOUND);
     else if (leadingZero && ch != '.' && i > start + 1)
-      numberException(reader, start, end, "Leading zero is not allowed");
-    else if (i == end) return BigDecimal.valueOf(value);
-    else if (ch == '.') {
+      numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
+    else if (i == end) {
+    } else if (ch == '.') {
       i++;
-      if (i == end) numberException(reader, start, end, "Number ends with a dot");
+      if (i == end) numberException(reader, start, end, NUMBER_ENDS_WITH_A_DOT);
       int dp = i;
       for (; i < end; i++) {
         ch = buf[i];
@@ -502,12 +551,12 @@ final class NumberParser {
         final int ind = ch - 48;
         if (ind < 0 || ind > 9) {
           if (reader.allWhitespace(i, end)) return BigDecimal.valueOf(value, i - dp);
-          numberException(reader, start, end, "Unknown digit", (char) ch);
+          numberException(reader, start, end, UNKNOWN_DIGIT, (char) ch);
         }
         value = (value << 3) + (value << 1) + ind;
       }
-      if (i == end) return BigDecimal.valueOf(value, end - dp);
-      else if (ch == 'e' || ch == 'E') {
+      if (i == end) {
+      } else if (ch == 'e' || ch == 'E') {
         final int ep = i;
         i++;
         ch = buf[i];
@@ -549,20 +598,20 @@ final class NumberParser {
       final int ind = ch - 48;
       if (ind < 0 || ind > 9) {
         if (leadingZero && i > start + 2) {
-          numberException(reader, start, end, "Leading zero is not allowed");
+          numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
         }
         if (i > start + 1 && reader.allWhitespace(i, end)) return BigDecimal.valueOf(value);
-        numberException(reader, start, end, "Unknown digit", (char) ch);
+        numberException(reader, start, end, UNKNOWN_DIGIT, (char) ch);
       }
       value = (value << 3) + (value << 1) - ind;
     }
-    if (i == start + 1) numberException(reader, start, end, "Digit not found");
+    if (i == start + 1) numberException(reader, start, end, DIGIT_NOT_FOUND);
     else if (leadingZero && ch != '.' && i > start + 2)
-      numberException(reader, start, end, "Leading zero is not allowed");
-    else if (i == end) return BigDecimal.valueOf(value);
-    else if (ch == '.') {
+      numberException(reader, start, end, LEADING_ZERO_IS_NOT_ALLOWED);
+    else if (i == end) {
+    } else if (ch == '.') {
       i++;
-      if (i == end) numberException(reader, start, end, "Number ends with a dot");
+      if (i == end) numberException(reader, start, end, NUMBER_ENDS_WITH_A_DOT);
       int dp = i;
       for (; i < end; i++) {
         ch = buf[i];
@@ -570,12 +619,12 @@ final class NumberParser {
         final int ind = ch - 48;
         if (ind < 0 || ind > 9) {
           if (reader.allWhitespace(i, end)) return BigDecimal.valueOf(value, i - dp);
-          numberException(reader, start, end, "Unknown digit", (char) ch);
+          numberException(reader, start, end, UNKNOWN_DIGIT, (char) ch);
         }
         value = (value << 3) + (value << 1) - ind;
       }
-      if (i == end) return BigDecimal.valueOf(value, end - dp);
-      else if (ch == 'e' || ch == 'E') {
+      if (i == end) {
+      } else if (ch == 'e' || ch == 'E') {
         final int ep = i;
         i++;
         ch = buf[i];
@@ -606,19 +655,19 @@ final class NumberParser {
     return BigDecimal.valueOf(value);
   }
 
-
   private static BigInteger parseBigIntGeneric(char[] buf, int len, JParser reader) {
     int end;
     for (end = len; end > 0 && Character.isWhitespace(buf[end - 1]); --end) {
       // do nothing
     }
     if (end > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.newParseErrorWith(
+          TOO_MANY_DIGITS_DETECTED_IN_NUMBER, len, TOO_MANY_DIGITS_DETECTED_IN_NUMBER, end, "");
     } else {
       try {
         return new BigInteger(new String(buf, 0, end));
       } catch (NumberFormatException var5) {
-        throw reader.newParseErrorAt("Error parsing number", len, var5);
+        throw reader.newParseErrorAt(ERROR_PARSING_NUMBER, len, var5);
       }
     }
   }
@@ -653,7 +702,7 @@ final class NumberParser {
       if (ch == 45) {
         i = start + 1;
         if (i == end) {
-          numberException(reader, start, end, "Digit not found");
+          numberException(reader, start, end, DIGIT_NOT_FOUND);
         }
 
         while (i < end) {
@@ -663,17 +712,15 @@ final class NumberParser {
               return BigInteger.valueOf(value);
             }
 
-            numberException(reader, start, end, "Unknown digit", (char) ch);
+            numberException(reader, start, end, UNKNOWN_DIGIT, (char) ch);
           }
 
-          value = (value << 3) + (value << 1) - (long) ind;
+          value = (value << 3) + (value << 1) - ind;
           ++i;
         }
-
-        return BigInteger.valueOf(value);
       } else {
         if (start == end) {
-          numberException(reader, start, end, "Digit not found");
+          numberException(reader, start, end, DIGIT_NOT_FOUND);
         }
 
         while (i < end) {
@@ -687,194 +734,14 @@ final class NumberParser {
               return BigInteger.valueOf(value);
             }
 
-            numberException(reader, start, end, "Unknown digit", (char) ch);
+            numberException(reader, start, end, UNKNOWN_DIGIT, (char) ch);
           }
 
-          value = (value << 3) + (value << 1) + (long) ind;
+          value = (value << 3) + (value << 1) + ind;
           ++i;
         }
-
-        return BigInteger.valueOf(value);
       }
+      return BigInteger.valueOf(value);
     }
   }
-
-//  private static final BigDecimal BD_MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
-//  private static final BigDecimal BD_MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
-//
-//  private static Number bigDecimalOrDouble(BigDecimal num, JsonParser.UnknownNumberParsing unknownNumbers) {
-//    return unknownNumbers == JsonParser.UnknownNumberParsing.LONG_AND_BIGDECIMAL
-//      ? num
-//      : num.doubleValue();
-//  }
-//
-//  private static Number tryLongFromBigDecimal(final char[] buf, final int len, JsonParser reader) throws IOException {
-//    final BigDecimal num = parseNumberGeneric(buf, len, reader, false);
-//    if (num.scale() == 0 && num.precision() <= 19) {
-//      if (num.signum() == 1) {
-//        if (num.compareTo(BD_MAX_LONG) <= 0) {
-//          return num.longValue();
-//        }
-//      } else if (num.compareTo(BD_MIN_LONG) >= 0) {
-//        return num.longValue();
-//      }
-//    }
-//    return bigDecimalOrDouble(num, reader.unknownNumbers);
-//  }
-//
-//  public static Number deserializeNumber(final JReader reader) throws IOException {
-//    if (reader.unknownNumbers == JReader.UnknownNumberParsing.BIGDECIMAL) return deserializeDecimal(reader);
-//    else if (reader.unknownNumbers == JReader.UnknownNumberParsing.DOUBLE) return deserializeDouble(reader);
-//    final int start = reader.scanNumber();
-//    int end = reader.getCurrentIndex();
-//    if (end == reader.length()) {
-//      NumberInfo info = readLongNumber(reader, start);
-//      return tryLongFromBigDecimal(info.buffer, info.length, reader);
-//    }
-//    int len = end - start;
-//    if (len > 18) {
-//      return tryLongFromBigDecimal(reader.prepareBuffer(start, len), len, reader);
-//    }
-//    final byte[] buf = reader.buffer;
-//    final byte ch = buf[start];
-//    if (ch == '-') {
-//      return parseNegativeNumber(buf, reader, start, end);
-//    }
-//    return parsePositiveNumber(buf, reader, start, end);
-//  }
-//
-//  private static Number parsePositiveNumber(final byte[] buf, final JReader reader, final int start, final int end) throws IOException {
-//    long value = 0;
-//    byte ch = ' ';
-//    int i = start;
-//    final boolean leadingZero = buf[start] == 48;
-//    for (; i < end; i++) {
-//      ch = buf[i];
-//      if (ch == '.' || ch == 'e' || ch == 'E') break;
-//      final int ind = ch - 48;
-//      if (ind < 0 || ind > 9) {
-//        if (leadingZero && i > start + 1) {
-//          numberException(reader, start, end, "Leading zero is not allowed");
-//        }
-//        if (i > start && reader.allWhitespace(i, end)) return value;
-//        return tryLongFromBigDecimal(reader.prepareBuffer(start, end - start), end - start, reader);
-//      }
-//      value = (value << 3) + (value << 1) + ind;
-//    }
-//    if (i == start) numberException(reader, start, end, "Digit not found");
-//    else if (leadingZero && ch != '.' && i > start + 1) numberException(reader, start, end, "Leading zero is not allowed");
-//    else if (i == end) return value;
-//    else if (ch == '.') {
-//      i++;
-//      if (i == end) numberException(reader, start, end, "Number ends with a dot");
-//      int dp = i;
-//      for (; i < end; i++) {
-//        ch = buf[i];
-//        if (ch == 'e' || ch == 'E') break;
-//        final int ind = ch - 48;
-//        if (ind < 0 || ind > 9) {
-//          if (reader.allWhitespace(i, end)) return BigDecimal.valueOf(value, i - dp);
-//          return tryLongFromBigDecimal(reader.prepareBuffer(start, end - start), end - start, reader);
-//        }
-//        value = (value << 3) + (value << 1) + ind;
-//      }
-//      if (i == end) return bigDecimalOrDouble(BigDecimal.valueOf(value, end - dp), reader.unknownNumbers);
-//      else if (ch == 'e' || ch == 'E') {
-//        final int ep = i;
-//        i++;
-//        ch = buf[i];
-//        final int exp;
-//        if (ch == '-') {
-//          exp = parseNegativeInt(buf, reader, i, end);
-//        } else if (ch == '+') {
-//          exp = parsePositiveInt(buf, reader, i, end, 1);
-//        } else {
-//          exp = parsePositiveInt(buf, reader, i, end, 0);
-//        }
-//        return bigDecimalOrDouble(BigDecimal.valueOf(value, ep - dp - exp), reader.unknownNumbers);
-//      }
-//      return BigDecimal.valueOf(value, end - dp);
-//    } else if (ch == 'e' || ch == 'E') {
-//      i++;
-//      ch = buf[i];
-//      final int exp;
-//      if (ch == '-') {
-//        exp = parseNegativeInt(buf, reader, i, end);
-//      } else if (ch == '+') {
-//        exp = parsePositiveInt(buf, reader, i, end, 1);
-//      } else {
-//        exp = parsePositiveInt(buf, reader, i, end, 0);
-//      }
-//      return bigDecimalOrDouble(BigDecimal.valueOf(value, -exp), reader.unknownNumbers);
-//    }
-//    return bigDecimalOrDouble(BigDecimal.valueOf(value), reader.unknownNumbers);
-//  }
-//
-//  private static Number parseNegativeNumber(final byte[] buf, final JReader reader, final int start, final int end) throws IOException {
-//    long value = 0;
-//    byte ch = ' ';
-//    int i = start + 1;
-//    final boolean leadingZero = buf[start + 1] == 48;
-//    for (; i < end; i++) {
-//      ch = buf[i];
-//      if (ch == '.' || ch == 'e' || ch == 'E') break;
-//      final int ind = ch - 48;
-//      if (ind < 0 || ind > 9) {
-//        if (leadingZero && i > start + 2) {
-//          numberException(reader, start, end, "Leading zero is not allowed");
-//        }
-//        if (i > start + 1 && reader.allWhitespace(i, end)) return value;
-//        return tryLongFromBigDecimal(reader.prepareBuffer(start, end - start), end - start, reader);
-//      }
-//      value = (value << 3) + (value << 1) - ind;
-//    }
-//    if (i == start + 1) numberException(reader, start, end, "Digit not found");
-//    else if (leadingZero && ch != '.' && i > start + 2) numberException(reader, start, end, "Leading zero is not allowed");
-//    else if (i == end) return value;
-//    else if (ch == '.') {
-//      i++;
-//      if (i == end) numberException(reader, start, end, "Number ends with a dot");
-//      int dp = i;
-//      for (; i < end; i++) {
-//        ch = buf[i];
-//        if (ch == 'e' || ch == 'E') break;
-//        final int ind = ch - 48;
-//        if (ind < 0 || ind > 9) {
-//          if (reader.allWhitespace(i, end)) return BigDecimal.valueOf(value, i - dp);
-//          return tryLongFromBigDecimal(reader.prepareBuffer(start, end - start), end - start, reader);
-//        }
-//        value = (value << 3) + (value << 1) - ind;
-//      }
-//      if (i == end) return bigDecimalOrDouble(BigDecimal.valueOf(value, end - dp), reader.unknownNumbers);
-//      else if (ch == 'e' || ch == 'E') {
-//        final int ep = i;
-//        i++;
-//        ch = buf[i];
-//        final int exp;
-//        if (ch == '-') {
-//          exp = parseNegativeInt(buf, reader, i, end);
-//        } else if (ch == '+') {
-//          exp = parsePositiveInt(buf, reader, i, end, 1);
-//        } else {
-//          exp = parsePositiveInt(buf, reader, i, end, 0);
-//        }
-//        return bigDecimalOrDouble(BigDecimal.valueOf(value, ep - dp - exp), reader.unknownNumbers);
-//      }
-//      return bigDecimalOrDouble(BigDecimal.valueOf(value, end - dp), reader.unknownNumbers);
-//    } else if (ch == 'e' || ch == 'E') {
-//      i++;
-//      ch = buf[i];
-//      final int exp;
-//      if (ch == '-') {
-//        exp = parseNegativeInt(buf, reader, i, end);
-//      } else if (ch == '+') {
-//        exp = parsePositiveInt(buf, reader, i, end, 1);
-//      } else {
-//        exp = parsePositiveInt(buf, reader, i, end, 0);
-//      }
-//      return bigDecimalOrDouble(BigDecimal.valueOf(value, -exp), reader.unknownNumbers);
-//    }
-//    return bigDecimalOrDouble(BigDecimal.valueOf(value), reader.unknownNumbers);
-//  }
-
 }
