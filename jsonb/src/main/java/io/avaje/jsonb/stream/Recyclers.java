@@ -33,8 +33,7 @@ final class Recyclers {
 
   /**
    * Default {@link BufferRecycler} implementation that uses {@link ThreadLocal} for recycling
-   * instances. {@link BufferRecycler} instances are stored using {@link
-   * java.lang.ref.SoftReference}s so that they may be Garbage Collected as needed by JVM.
+   * instances. 
    *
    * <p>Note that this implementation may not work well on platforms where
    * {@link java.lang.Thread}s are not long-living or reused (like Project Loom).
