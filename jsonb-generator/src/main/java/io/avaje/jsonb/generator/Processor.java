@@ -14,12 +14,14 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
 import io.avaje.prism.GenerateAPContext;
+import io.avaje.prism.GenerateModuleInfoReader;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
 @GenerateAPContext
+@GenerateModuleInfoReader
 @SupportedAnnotationTypes({
   CustomAdapterPrism.PRISM_TYPE,
   JSON,
