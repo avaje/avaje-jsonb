@@ -875,16 +875,14 @@ final class Grisu3 {
           }
           end += 2 - decPoint;
         }
-      } else if (point > end) {
-        // large integer, add trailing zeroes
-        for (int i = end; i < point; i++) {
-          chars[i] = '0';
-        }
-        end += point - end;
-        chars[end] = '.';
-        chars[end + 1] = '0';
-        end += 2;
       } else {
+        if (point > end) {
+          // large integer, add trailing zeroes
+          for (int i = end; i < point; i++) {
+            chars[i] = '0';
+          }
+          end += point - end;
+        }
         chars[end] = '.';
         chars[end + 1] = '0';
         end += 2;
@@ -918,6 +916,6 @@ final class Grisu3 {
       } while (exp != 0);
     }
 
-    final static byte[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    static final byte[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
   }
 }

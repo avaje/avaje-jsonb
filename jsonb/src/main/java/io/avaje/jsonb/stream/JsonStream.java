@@ -2,7 +2,6 @@ package io.avaje.jsonb.stream;
 
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb.Builder;
 import io.avaje.jsonb.spi.*;
 
 import java.io.*;
