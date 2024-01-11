@@ -9,13 +9,10 @@ final class NumberParser {
   private static final int[] ERROR = {50, 100, 200, 400, 800};
   private static final int[] SCALE_10 = {10000, 1000, 100, 10, 1};
   private static final double[] POW_10 = {
-    1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9,
-    1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19,
-    1e20, 1e21, 1e22, 1e23, 1e24, 1e25, 1e26, 1e27, 1e28, 1e29,
-    1e30, 1e31, 1e32, 1e33, 1e34, 1e35, 1e36, 1e37, 1e38, 1e39,
-    1e40, 1e41, 1e42, 1e43, 1e44, 1e45, 1e46, 1e47, 1e48, 1e49,
-    1e50, 1e51, 1e52, 1e53, 1e54, 1e55, 1e56, 1e57, 1e58, 1e59,
-    1e60, 1e61, 1e62, 1e63, 1e64, 1e65
+    1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17,
+    1e18, 1e19, 1e20, 1e21, 1e22, 1e23, 1e24, 1e25, 1e26, 1e27, 1e28, 1e29, 1e30, 1e31, 1e32, 1e33,
+    1e34, 1e35, 1e36, 1e37, 1e38, 1e39, 1e40, 1e41, 1e42, 1e43, 1e44, 1e45, 1e46, 1e47, 1e48, 1e49,
+    1e50, 1e51, 1e52, 1e53, 1e54, 1e55, 1e56, 1e57, 1e58, 1e59, 1e60, 1e61, 1e62, 1e63, 1e64, 1e65
   };
 
   static short deserializeShort(final JParser reader) {
@@ -80,7 +77,6 @@ final class NumberParser {
         final BigDecimal v = parseNumberGeneric(reader.prepareBuffer(start, end - start), end - start, reader, false);
         if (v.scale() > 0) numberException(reader, start, end, "Expecting int but found decimal value", v);
         return v.intValue();
-
       }
       value = (value << 3) + (value << 1) + ind;
       if (value < 0) {
@@ -409,16 +405,20 @@ final class NumberParser {
         if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
         else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
       }
-    } else {
-      if (exp == 0) return whole + fraction;
-      else if (exp > 0 && exp < POW_10.length) return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
-      else if (exp < 0 && -exp < POW_10.length) return fraction / POW_10[-exp - 1] + whole / POW_10[-exp - 1];
-      else if (reader.doublePrecision != JParser.DoublePrecision.HIGH) {
-        if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
-        else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
-      }
+    } else if (exp == 0) return whole + fraction;
+    else if (exp > 0 && exp < POW_10.length)
+      return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
+    else if (exp < 0 && -exp < POW_10.length)
+      return fraction / POW_10[-exp - 1] + whole / POW_10[-exp - 1];
+    else if (reader.doublePrecision != JParser.DoublePrecision.HIGH) {
+      if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
+      else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
     }
-    return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
+    return parseDoubleGeneric(
+        reader.prepareBuffer(start + offset, end - start - offset),
+        end - start - offset,
+        reader,
+        false);
   }
 
   private static double parseDoubleGeneric(final char[] buf, final int len, final JParser reader, final boolean withQuotes) {
@@ -599,7 +599,6 @@ final class NumberParser {
     return BigDecimal.valueOf(value);
   }
 
-
   private static BigInteger parseBigIntGeneric(char[] buf, int len, JParser reader) {
     int end;
     for (end = len; end > 0 && Character.isWhitespace(buf[end - 1]); --end) {
@@ -659,11 +658,9 @@ final class NumberParser {
             numberException(reader, start, end, "Unknown digit", (char) ch);
           }
 
-          value = (value << 3) + (value << 1) - (long) ind;
+          value = (value << 3) + (value << 1) - ind;
           ++i;
         }
-
-        return BigInteger.valueOf(value);
       } else {
         if (start == end) {
           numberException(reader, start, end, "Digit not found");
@@ -683,13 +680,11 @@ final class NumberParser {
             numberException(reader, start, end, "Unknown digit", (char) ch);
           }
 
-          value = (value << 3) + (value << 1) + (long) ind;
+          value = (value << 3) + (value << 1) + ind;
           ++i;
         }
-
-        return BigInteger.valueOf(value);
       }
+      return BigInteger.valueOf(value);
     }
   }
-
 }
