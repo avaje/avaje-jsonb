@@ -5,7 +5,7 @@ final class NumberWriter {
   private static final byte MINUS = '-';
   private static final byte[] MIN_INT = "-2147483648".getBytes();
   private static final byte[] MIN_LONG = "-9223372036854775808".getBytes();
-  private final static int[] DIGITS = new int[1000];
+  private static final int[] DIGITS = new int[1000];
 
   static {
     for (int i = 0; i < DIGITS.length; i++) {
@@ -15,6 +15,8 @@ final class NumberWriter {
         + i % 10 + '0';
     }
   }
+
+  private NumberWriter() {}
 
   static void writeInt(final int value, final JGenerator sw) {
     final byte[] buf = sw.ensureCapacity(11);
