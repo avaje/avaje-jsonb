@@ -22,7 +22,7 @@ final class JsonWriteAdapter implements JsonWriter {
     this.generator = generator;
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
-    this.recycler=recycler;
+    this.recycler = recycler;
   }
 
   @Override

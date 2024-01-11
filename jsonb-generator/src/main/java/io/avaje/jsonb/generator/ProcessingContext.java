@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -86,18 +85,14 @@ final class ProcessingContext {
 
       try (var reader = getModuleInfoReader()) {
 
-        AtomicBoolean noInjectPlugin = new AtomicBoolean(injectPresent);
+        var moduleInfo = new ModuleInfoReader(module, reader);
+
+        boolean noInjectPlugin =
+            injectPresent && !moduleInfo.containsOnModulePath("io.avaje.jsonb.plugin");
+
         var noProvides =
-            reader
-                .lines()
-                .map(
-                    s -> {
-                      if (injectPresent
-                          && (s.contains("io.avaje.jsonb.plugin") || s.contains("io.avaje.nima"))) {
-                        noInjectPlugin.set(false);
-                      }
-                      return s;
-                    })
+            moduleInfo.provides().stream()
+                .flatMap(s -> s.implementations().stream())
                 .noneMatch(s -> s.contains(fqn));
 
         if (noProvides) {
@@ -105,7 +100,7 @@ final class ProcessingContext {
               module, "Missing `provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;`", fqn);
         }
 
-        if (noInjectPlugin.get()) {
+        if (noInjectPlugin) {
           logWarn(
               module,
               "`requires io.avaje.jsonb.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance",

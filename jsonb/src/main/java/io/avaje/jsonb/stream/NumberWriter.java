@@ -17,6 +17,8 @@ final class NumberWriter {
     }
   }
 
+  private NumberWriter() {}
+
   static void writeInt(final int value, final JGenerator sw) {
     final byte[] buf = sw.ensureCapacity(11);
     final int position = sw.position();
