@@ -4,28 +4,16 @@ import javax.lang.model.element.Element;
 
 final class PropertyIgnoreReader {
 
-  private final boolean unmapped;
-  private final boolean raw;
   private boolean ignoreSerialize;
   private boolean ignoreDeserialize;
 
   PropertyIgnoreReader(Element element) {
-    unmapped = UnmappedPrism.isPresent(element) ;
-    raw = RawPrism.isPresent(element);
 
     final IgnorePrism ignored = IgnorePrism.getInstanceOn(element);
     if (ignored != null) {
       ignoreDeserialize = !ignored.deserialize();
       ignoreSerialize = !ignored.serialize();
     }
-  }
-
-  boolean unmapped() {
-    return unmapped;
-  }
-
-  boolean raw() {
-    return raw;
   }
 
   boolean serialize() {

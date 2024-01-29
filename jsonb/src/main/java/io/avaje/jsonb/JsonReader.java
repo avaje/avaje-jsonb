@@ -27,6 +27,20 @@ import java.math.BigInteger;
 public interface JsonReader extends Closeable {
 
   /**
+   * Unwrap and return the underlying JsonParser.
+   * <p>
+   * When using avaje-jsonb-jackson this will return the underlying Jackson JsonParser.
+   *
+   * <pre>{@code
+   *
+   * // when using avaje-jsonb-jackson
+   * var jacksonParser = jsonReader.unwrap(JsonParser.class);
+   *
+   * }</pre>
+   */
+  <T> T unwrap(Class<T> type);
+
+  /**
    * Read the beginning of an ARRAY or x-json-stream (new line delimited json content).
    */
   default void beginStream() {
@@ -200,29 +214,11 @@ public interface JsonReader extends Closeable {
      */
     BEGIN_ARRAY,
 
-//    /**
-//     * The closing of a JSON array. Written using {@link JsonWriter#endArray} and read using {@link
-//     * JsonReader#endArray}.
-//     */
-//    END_ARRAY,
-
     /**
      * The opening of a JSON object. Written using {@link JsonWriter#beginObject} and read using
      * {@link JsonReader#beginObject}.
      */
     BEGIN_OBJECT,
-
-//    /**
-//     * The closing of a JSON object. Written using {@link JsonWriter#endObject} and read using
-//     * {@link JsonReader#endObject}.
-//     */
-//    END_OBJECT,
-//
-//    /**
-//     * A JSON property name. Within objects, tokens alternate between names and their values.
-//     * Written using {@link JsonWriter#name} and read using {@link JsonReader#nextField()}
-//     */
-//    NAME,
 
     /**
      * A JSON string.
@@ -244,10 +240,5 @@ public interface JsonReader extends Closeable {
      */
     NULL,
 
-//    /**
-//     * The end of the JSON stream. This sentinel value is returned by {@link JsonReader#peek()} to
-//     * signal that the JSON-encoded value has no more tokens.
-//     */
-//    END_DOCUMENT
   }
 }

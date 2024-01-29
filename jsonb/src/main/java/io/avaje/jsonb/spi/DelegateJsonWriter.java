@@ -17,8 +17,8 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
-  public <T> T unwrap(Class<T> underlying) {
-    return delegate.unwrap(underlying);
+  public <T> T unwrap(Class<T> type) {
+    return delegate.unwrap(type);
   }
 
   @Override

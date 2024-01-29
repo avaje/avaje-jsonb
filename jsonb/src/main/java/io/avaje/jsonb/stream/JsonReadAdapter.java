@@ -10,10 +10,17 @@ final class JsonReadAdapter implements JsonReader {
 
   private final JsonParser reader;
   private final boolean failOnUnknown;
+  private final BufferRecycler recycler;
 
-  JsonReadAdapter(JsonParser reader, boolean failOnUnknown) {
+  JsonReadAdapter(JsonParser reader, BufferRecycler recycler, boolean failOnUnknown) {
     this.reader = reader;
     this.failOnUnknown = failOnUnknown;
+    this.recycler = recycler;
+  }
+
+  @Override
+  public <T> T unwrap(Class<T> type) {
+    return type.cast(reader);
   }
 
   @Override
@@ -56,6 +63,7 @@ final class JsonReadAdapter implements JsonReader {
     return reader.hasNextElement();
   }
 
+  @Override
   public boolean hasNextStreamElement() {
     return reader.hasNextStreamElement();
   }
@@ -152,6 +160,7 @@ final class JsonReadAdapter implements JsonReader {
   @Override
   public void close() {
     reader.close();
+    recycler.recycle(reader);
   }
 
   @Override

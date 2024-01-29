@@ -49,7 +49,7 @@ public interface JsonWriter extends Closeable, Flushable {
    *
    * }</pre>
    */
-  <T> T unwrap(Class<T> underlying);
+  <T> T unwrap(Class<T> type);
 
   /**
    * Set to serialise null values or not.

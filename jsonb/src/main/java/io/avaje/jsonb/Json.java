@@ -1,10 +1,12 @@
 package io.avaje.jsonb;
 
 
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.MODULE;
 import static java.lang.annotation.ElementType.PACKAGE;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -110,7 +112,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target(FIELD)
+  @Target({FIELD, METHOD})
   @interface Property {
 
     /**
@@ -130,20 +132,8 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target(FIELD)
+  @Target({FIELD, PARAMETER})
   @interface Alias {
-
-    /** One or more secondary names to accept as aliases to the official name. */
-    String[] value();
-  }
-
-  /**
-   * Deprecate - migrate to {@link Json.Alias}.
-   */
-  @Deprecated
-  @Retention(CLASS)
-  @Target(FIELD)
-  @interface JsonAlias {
 
     /** One or more secondary names to accept as aliases to the official name. */
     String[] value();
@@ -188,7 +178,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target(FIELD)
+  @Target({FIELD, METHOD})
   @interface Unmapped {
 
   }
@@ -278,7 +268,7 @@ public @interface Json {
    * Marks a String field as containing raw JSON content.
    */
   @Retention(CLASS)
-  @Target(FIELD)
+  @Target({FIELD, METHOD})
   @interface Raw {
 
   }
@@ -289,7 +279,8 @@ public @interface Json {
    * These types are typically in an external project / dependency or otherwise
    * types that we can't or don't want to explicitly annotate with {@code @Json}.
    * <p>
-   * In the example below, the VehicleMixin class augments the the generated Vehicle JsonB adapter to use "ford-type" as the json property.
+   * In the example below, the VehicleMixin class augments the the generated Vehicle JsonB
+   * adapter to use "ford-type" as the json property.
    *
    * <pre>{@code
    *
@@ -308,6 +299,44 @@ public @interface Json {
     /** The concrete type to mix. */
     Class<?> value();
   }
+
+  /**
+   * Marker annotation that can be used to define constructors or factory methods as one to use
+   * for instantiating  new instances of the associated class. Can be used in Mixin classes to
+   * override an existing deserialization method.
+   * <p>
+   * The parameter names will be used as keys for deserialization instead of the field names.
+   * <p>
+   * <h3>Examples:</h3>
+   *
+   * <pre>{@code
+   *
+   *   @Json
+   *   public class Kingfisher {
+   *
+   *     @Json.Creator
+   *     public Kingfisher(String name) {
+   *        ...
+   *     }
+   *   ...
+   *
+   * }</pre>
+   *
+   * <pre>{@code
+   *
+   *   @Json
+   *   public record Product( ... ) {
+   *
+   *   @Json.Creator
+   *   public static Product factory(String name){
+   *      ...
+   *   }
+   *
+   * }</pre>
+   */
+  @Retention(CLASS)
+  @Target({CONSTRUCTOR, METHOD})
+  @interface Creator {}
 
   /**
    * The naming convention that we can use for a given type.

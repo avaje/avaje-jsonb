@@ -2,15 +2,16 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.avaje.jsonb.generator.APContext.*;
 import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 
 /**
- * Read points for field injection and method injection
- * on baseType plus inherited injection points.
+ * Read points for field injection and method injection on baseType plus inherited injection points.
  */
 final class TypeReader {
 
@@ -47,17 +48,25 @@ final class TypeReader {
   private final List<MethodProperty> methodProperties = new ArrayList<>();
 
   private boolean optional;
+
   /**
    * Set when the type is known to extend Throwable
    */
   private boolean extendsThrowable;
 
+  private final boolean hasJsonCreator;
+
   TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
+    Optional<ExecutableElement> jsonCreator = Optional.empty();
     if (mixInType == null) {
       this.mixInFields = new HashMap<>();
     } else {
+      jsonCreator =
+        ElementFilter.methodsIn(mixInType.getEnclosedElements()).stream()
+          .filter(CreatorPrism::isPresent)
+          .findFirst();
       this.mixInFields =
         mixInType.getEnclosedElements().stream()
           .filter(e -> e.getKind() == ElementKind.FIELD)
@@ -67,6 +76,29 @@ final class TypeReader {
     this.hasJsonAnnotation = JsonPrism.isPresent(baseType) || importedJson(baseType).isPresent();
     this.subTypes = new TypeSubTypeReader(baseType);
     this.typePropertyKey = typePropertyKey;
+
+    jsonCreator = jsonCreator.or(baseJsonCreator(baseType));
+    constructor = jsonCreator
+      .map(TypeReader::readJsonCreator)
+      .orElse(null);
+
+    this.hasJsonCreator = jsonCreator.isPresent();
+  }
+
+  private static MethodReader readJsonCreator(ExecutableElement ex) {
+    var mods = ex.getModifiers();
+    if (ex.getKind() != ElementKind.CONSTRUCTOR && !mods.contains(Modifier.STATIC) && !mods.contains(Modifier.PUBLIC)) {
+      logError(ex, "@Json.Creator can only be placed on contructors and static factory methods");
+    }
+    return new MethodReader(ex).read();
+  }
+
+  private static Supplier<Optional<? extends ExecutableElement>> baseJsonCreator(TypeElement baseType) {
+    return () ->
+      baseType.getEnclosedElements().stream()
+        .filter(CreatorPrism::isPresent)
+        .map(ExecutableElement.class::cast)
+        .findFirst();
   }
 
   private List<String> initTypeParams(TypeElement beanType) {
@@ -85,6 +117,7 @@ final class TypeReader {
 
   void read(TypeElement type) {
     final List<FieldReader> localFields = new ArrayList<>();
+
     for (Element element : type.getEnclosedElements()) {
       switch (element.getKind()) {
         case CONSTRUCTOR:
@@ -94,10 +127,22 @@ final class TypeReader {
           readField(element, localFields);
           break;
         case METHOD:
-          readMethod(element, type);
+          readMethod(element, localFields);
           break;
       }
     }
+
+    if (hasJsonCreator) {
+      for (var param : constructor.getParams()) {
+        var name = param.name();
+        var element = param.element();
+        var matchingField = localFields.stream()
+          .filter(f -> f.propertyName().equals(name))
+          .findFirst();
+        matchingField.ifPresentOrElse(f -> f.readParam(element), () -> readField(element, localFields));
+      }
+    }
+
     if (currentSubType == null && type != baseType) {
       allFields.addAll(0, localFields);
       for (final FieldReader localField : localFields) {
@@ -129,9 +174,23 @@ final class TypeReader {
       optional = true;
     }
     if (includeField(element)) {
-      final var frequency = frequencyMap.compute(element.getSimpleName().toString(), (k, v) -> v == null ? 0 : v + 1);
-      localFields.add(new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency));
+      final var frequency = frequency(element.getSimpleName().toString());
+      localFields.add(
+        new FieldReader(
+          element,
+          namingConvention,
+          currentSubType,
+          genericTypeParams,
+          frequency,
+          hasJsonCreator));
     }
+  }
+
+  /**
+   * Compute and return the frequency of the key / json property name.
+   */
+  private Integer frequency(String key) {
+    return frequencyMap.compute(key, (k, v) -> v == null ? 0 : v + 1);
   }
 
   private boolean includeField(Element element) {
@@ -146,6 +205,7 @@ final class TypeReader {
   }
 
   private void readConstructor(Element element, TypeElement type) {
+    if (constructor != null) return;
     if (currentSubType != null) {
       if (currentSubType.element() != type) {
         // logError("subType " + currentSubType.element() + " ignore constructor " + element);
@@ -156,7 +216,7 @@ final class TypeReader {
       return;
     }
     ExecutableElement ex = (ExecutableElement) element;
-    MethodReader methodReader = new MethodReader(ex, baseType).read();
+    MethodReader methodReader = new MethodReader(ex).read();
     if (methodReader.isPublic() || hasSubTypes() && methodReader.isProtected()) {
       if (currentSubType != null) {
         currentSubType.addConstructor(methodReader);
@@ -169,12 +229,12 @@ final class TypeReader {
     }
   }
 
-  private void readMethod(Element element, TypeElement type) {
+  private void readMethod(Element element, List<FieldReader> localFields) {
     ExecutableElement methodElement = (ExecutableElement) element;
     if (checkMethod2(methodElement)) {
       List<? extends VariableElement> parameters = methodElement.getParameters();
       final String methodKey = methodElement.getSimpleName().toString();
-      MethodReader methodReader = new MethodReader(methodElement, type).read();
+      MethodReader methodReader = new MethodReader(methodElement).read();
       if (parameters.size() == 1) {
         maybeSetterMethods.putIfAbsent(methodKey, methodReader);
         allSetterMethods.put(methodKey.toLowerCase(), methodReader);
@@ -186,6 +246,19 @@ final class TypeReader {
         }
       }
     }
+    // for getter/accessor methods only, not setters
+    PropertyPrism.getOptionalOn(methodElement).ifPresent(propertyPrism -> {
+      if (!methodElement.getParameters().isEmpty()) {
+        logError("Json.Property can only be placed on Getter Methods, but on %s", methodElement);
+        return;
+      }
+
+      // getter property as simulated read-only field with getter method
+      final var frequency = frequency(propertyPrism.value());
+      final var reader = new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency);
+      reader.getterMethod(new MethodReader(methodElement));
+      localFields.add(reader);
+    });
   }
 
   private boolean checkMethod2(ExecutableElement methodElement) {
@@ -345,6 +418,9 @@ final class TypeReader {
   }
 
   private MethodReader determineConstructor() {
+    if (constructor != null) {
+      return constructor;
+    }
     if (defaultPublicConstructor && !allSetterMethods.isEmpty()) {
       return null;
     }

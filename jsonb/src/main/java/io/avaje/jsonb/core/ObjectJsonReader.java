@@ -25,8 +25,13 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
-  public void unmappedField(String fieldName) {
+  public <T> T unwrap(Class<T> type) {
+    throw new UnsupportedOperationException();
+  }
 
+  @Override
+  public void unmappedField(String fieldName) {
+    // do nothing
   }
 
   @Override
@@ -129,10 +134,7 @@ final class ObjectJsonReader implements JsonReader {
 
   @Override
   public String readRaw() {
-    if (currentValue instanceof String) {
-      return (String) currentValue;
-    }
-    return currentValue.toString();
+    return readString();
   }
 
   @Override

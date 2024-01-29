@@ -1,12 +1,13 @@
 package io.avaje.jsonb.core;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 final class ViewDsl {
 
-  private final Stack<Entry> stack = new Stack<>();
+  private final Deque<Entry> stack = new ArrayDeque<>();
   private Entry current;
 
   static ViewDsl parse(String dsl) {

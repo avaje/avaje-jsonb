@@ -17,7 +17,7 @@ class WithNameTest {
     WithName bean = new WithName("sim", "simPlus", 42);
 
     String asJson = jsonType.toJson(bean);
-    assertThat(asJson).isEqualTo("{\"Some Thing Odd\":\"sim\",\"simple-plus\":\"simPlus\",\"my-one-red\":42}");
+    assertThat(asJson).isEqualTo("{\"Some Thing Odd\":\"sim\",\"simple-plus\":\"simPlus\",\"my-one-red\":42,\"derived\":84}");
 
     WithName fromJson = jsonType.fromJson(asJson);
     assertEquals(fromJson, bean);

@@ -134,4 +134,10 @@ interface JsonGenerator extends Closeable, Flushable {
    * Mark that json generation was not completed due to an error.
    */
   void markIncomplete();
+
+  /**
+   * Bind input stream for processing. Stream will be processed in byte[] chunks. If stream is null,
+   * reference to stream will be released.
+   */
+  JsonGenerator prepare(JsonOutput targetStream);
 }

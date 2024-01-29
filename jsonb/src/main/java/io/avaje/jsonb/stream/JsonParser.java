@@ -1,6 +1,7 @@
 package io.avaje.jsonb.stream;
 
 import java.io.Closeable;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -147,4 +148,19 @@ interface JsonParser extends Closeable {
    */
   void close();
 
+  /**
+   * Bind input stream for processing. Stream will be processed in byte[] chunks. If stream is null,
+   * reference to stream will be released.
+   */
+  JParser process(InputStream newStream);
+
+  /**
+   * Bind byte[] buffer for processing. If this method is used in combination with
+   * process(InputStream) this buffer will be used for processing chunks of stream. If null is sent
+   * for byte[] buffer, new length for valid input will be set for existing buffer.
+   *
+   * @param newBuffer new buffer to use for processing
+   * @param newLength length of buffer which can be used
+   */
+  JParser process(byte[] newBuffer, int newLength);
 }

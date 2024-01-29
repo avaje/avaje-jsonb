@@ -139,6 +139,13 @@ final class ClassReader implements BeanReader {
 
   @Override
   public void read() {
+    Optional.ofNullable(constructor)
+      .ifPresent(c -> {
+        var enclosing = (TypeElement) c.element().getEnclosingElement();
+        importTypes.add(enclosing.getQualifiedName().toString());
+      });
+
+    importTypes.add(Util.shortName(type));
     for (final FieldReader field : allFields) {
       field.addImports(importTypes);
       if (field.isRaw()) {
@@ -424,10 +431,12 @@ final class ClassReader implements BeanReader {
     } else {
       writer.append("    // variables to read json values into, constructor params don't need _set$ flags").eol();
       for (final FieldReader allField : allFields) {
-        if (isRecord) {
-          allField.writeFromJsonVariablesRecord(writer);
-        } else if (allField.includeFromJson()) {
-          allField.writeFromJsonVariables(writer);
+        if (allField.includeFromJson()) {
+          if (isRecord) {
+            allField.writeFromJsonVariablesRecord(writer);
+          } else {
+            allField.writeFromJsonVariables(writer);
+          }
         }
       }
     }
@@ -455,21 +464,23 @@ final class ClassReader implements BeanReader {
 
   private void writeJsonBuildResult(Append writer, String varName) {
     writer.append("    // build and return %s", shortName).eol();
-    writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
-    if (constructor != null) {
-      final List<MethodReader.MethodParam> params = constructor.getParams();
-      for (int i = 0, size = params.size(); i < size; i++) {
-        if (i > 0) {
-          writer.append(", ");
+      if (constructor == null) {
+        writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+      } else {
+        writer.append("    %s _$%s = " + constructor.creationString(), shortName, varName);
+        final List<MethodReader.MethodParam> params = constructor.getParams();
+        for (int i = 0, size = params.size(); i < size; i++) {
+          if (i > 0) {
+            writer.append(", ");
+          }
+          final var name = params.get(i).name();
+          // append increasing numbers to constructor params sharing names with other subtypes
+          final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
+          // assuming name matches field here?
+          writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
         }
-        final var name = params.get(i).name();
-        // append increasing numbers to constructor params sharing names with other subtypes
-        final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
-        // assuming name matches field here?
-        writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
       }
-    }
-    writer.append(");").eol();
+      writer.append(");").eol();
     for (final FieldReader allField : allFields) {
       if (allField.includeFromJson()) {
         frequencyMap.compute(allField.fieldName(), (k, v) -> v == null ? 0 : v + 1);

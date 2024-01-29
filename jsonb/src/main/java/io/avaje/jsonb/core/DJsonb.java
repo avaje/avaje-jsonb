@@ -2,6 +2,7 @@ package io.avaje.jsonb.core;
 
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.*;
+import io.avaje.jsonb.stream.BufferRecycleStrategy;
 import io.avaje.jsonb.stream.JsonOutput;
 import io.avaje.jsonb.stream.JsonStream;
 
@@ -27,7 +28,15 @@ final class DJsonb implements Jsonb {
   private final ConcurrentHashMap<ViewKey, JsonView<?>> viewCache = new ConcurrentHashMap<>();
   private final JsonType<Object> anyType;
 
-  DJsonb(JsonStreamAdapter adapter, List<JsonAdapter.Factory> factories, boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, boolean mathAsString) {
+  DJsonb(
+      JsonStreamAdapter adapter,
+      List<JsonAdapter.Factory> factories,
+      boolean serializeNulls,
+      boolean serializeEmpty,
+      boolean failOnUnknown,
+      boolean mathAsString,
+      BufferRecycleStrategy strategy) {
+
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
     if (adapter != null) {
       this.io = adapter;
@@ -36,7 +45,7 @@ final class DJsonb implements Jsonb {
       if (iterator.hasNext()) {
         this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
       } else {
-        this.io = new JsonStream(serializeNulls, serializeEmpty, failOnUnknown);
+        this.io = new JsonStream(serializeNulls, serializeEmpty, failOnUnknown, strategy);
       }
     }
     this.anyType = type(Object.class);
@@ -176,10 +185,10 @@ final class DJsonb implements Jsonb {
     final ViewKey key = new ViewKey(dsl, type);
     return (JsonView<T>) viewCache.computeIfAbsent(key, o -> {
       try {
-        ViewBuilder viewBuilder = new ViewBuilder(ViewDsl.parse(dsl));
+        CoreViewBuilder viewBuilder = new CoreViewBuilder(ViewDsl.parse(dsl));
         adapter.viewBuild().build(viewBuilder);
         return viewBuilder.build(this);
-      } catch (Throwable e) {
+      } catch (Exception e) {
         throw new IllegalStateException(e);
       }
     });
@@ -219,6 +228,7 @@ final class DJsonb implements Jsonb {
     private boolean serializeNulls;
     private boolean serializeEmpty = true;
     private JsonStreamAdapter adapter;
+    private BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -241,6 +251,12 @@ final class DJsonb implements Jsonb {
     @Override
     public Builder mathTypesAsString(boolean mathTypesAsString) {
       this.mathTypesAsString = mathTypesAsString;
+      return this;
+    }
+
+    @Override
+    public Builder bufferRecycling(BufferRecycleStrategy strategy) {
+      this.strategy = strategy;
       return this;
     }
 
@@ -285,7 +301,14 @@ final class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString);
+      return new DJsonb(
+          adapter,
+          factories,
+          serializeNulls,
+          serializeEmpty,
+          failOnUnknown,
+          mathTypesAsString,
+          strategy);
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
@@ -294,14 +317,14 @@ final class DJsonb implements Jsonb {
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
     }
 
-    static <T> JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
+    static JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
       requireNonNull(type);
       requireNonNull(builder);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? builder.build(jsonb).nullSafe() : null;
     }
-  }
 
-  private static boolean simpleMatch(Type type, Type targetType) {
-    return Util.typesMatch(type, targetType);
+    private static boolean simpleMatch(Type type, Type targetType) {
+      return Util.typesMatch(type, targetType);
+    }
   }
 }
