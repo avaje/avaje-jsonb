@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.avaje</groupId>
     <artifactId>java11-oss</artifactId>
-    <version>4.3</version>
+    <version>4.0</version>
   </parent>
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-parent</artifactId>
-  <version>1.12-SNAPSHOT</version>
+  <version>1.10</version>
 
   <packaging>pom</packaging>
   <name>jsonb parent</name>
