@@ -8,11 +8,11 @@ import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.logWarn;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -76,6 +76,23 @@ final class ProcessingContext {
     return CTX.get().importedSubtypeMap.getOrDefault(type.asType().toString(), List.of());
   }
 
+  private static boolean buildPluginAvailable() {
+    try {
+      final String resource =
+          filer()
+              .getResource(StandardLocation.CLASS_OUTPUT, "", "target/avaje-plugin-exists.txt")
+              .toUri()
+              .toString()
+              .replace("/target/classes", "");
+      try (var inputStream = new URI(resource).toURL().openStream()) {
+
+        return inputStream.available() > 0;
+      }
+    } catch (final Exception e) {
+      return false;
+    }
+  }
+
   static void validateModule(String fqn) {
     var module = getProjectModuleElement();
     if (module != null && !CTX.get().validated && !module.isUnnamed()) {
@@ -94,13 +111,17 @@ final class ProcessingContext {
             moduleInfo.provides().stream()
                 .flatMap(s -> s.implementations().stream())
                 .noneMatch(s -> s.contains(fqn));
-
-        if (noProvides) {
+        var buildPluginAvailable = buildPluginAvailable();
+        if (noProvides && !buildPluginAvailable) {
           logError(
               module, "Missing `provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;`", fqn);
         }
 
-        if (noInjectPlugin) {
+        final var noDirectJsonb =
+            moduleInfo.requires().stream()
+                .noneMatch(
+                    r -> r.getDependency().getQualifiedName().contentEquals("io.avaje.jsonb"));
+        if (noInjectPlugin && (!buildPluginAvailable || noDirectJsonb)) {
           logWarn(
               module,
               "`requires io.avaje.jsonb.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance",
