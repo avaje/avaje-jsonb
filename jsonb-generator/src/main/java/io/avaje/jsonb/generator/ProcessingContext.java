@@ -8,7 +8,9 @@ import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.logWarn;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,18 +79,24 @@ final class ProcessingContext {
   }
 
   private static boolean buildPluginAvailable() {
-    try {
-      final String resource =
-          filer()
-              .getResource(StandardLocation.CLASS_OUTPUT, "", "target/avaje-plugin-exists.txt")
-              .toUri()
-              .toString()
-              .replace("/target/classes", "");
-      try (var inputStream = new URI(resource).toURL().openStream()) {
 
-        return inputStream.available() > 0;
-      }
-    } catch (final Exception e) {
+    return resource("target/avaje-plugin-exists.txt", "/target/classes")
+        || resource("build/avaje-plugin-exists.txt", "/build/classes/java/main");
+  }
+
+  private static boolean resource(String relativeName, String replace) {
+    try (var inputStream =
+        new URI(
+                filer()
+                    .getResource(StandardLocation.CLASS_OUTPUT, "", relativeName)
+                    .toUri()
+                    .toString()
+                    .replace(replace, ""))
+            .toURL()
+            .openStream()) {
+
+      return inputStream.available() > 0;
+    } catch (IOException | URISyntaxException e) {
       return false;
     }
   }
