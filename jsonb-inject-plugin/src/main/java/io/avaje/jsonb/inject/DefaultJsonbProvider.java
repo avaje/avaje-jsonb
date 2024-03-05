@@ -9,9 +9,11 @@ import io.avaje.jsonb.stream.BufferRecycleStrategy;
  */
 public final class DefaultJsonbProvider implements io.avaje.inject.spi.Plugin {
 
+  private static final String TRUE = "true";
+
   @Override
   public Class<?>[] provides() {
-    return new Class<?>[]{Jsonb.class};
+    return new Class<?>[] {Jsonb.class};
   }
 
   @Override
@@ -20,10 +22,10 @@ public final class DefaultJsonbProvider implements io.avaje.inject.spi.Plugin {
       var props = builder.propertyPlugin();
 
       return Jsonb.builder()
-        .failOnUnknown(props.equalTo("jsonb.deserialize.failOnUnknown", "true"))
-        .mathTypesAsString(props.equalTo("jsonb.serialize.mathTypesAsString", "true"))
+        .failOnUnknown(props.equalTo("jsonb.deserialize.failOnUnknown", TRUE))
+        .mathTypesAsString(props.equalTo("jsonb.serialize.mathTypesAsString", TRUE))
         .serializeEmpty(props.notEqualTo("jsonb.serialize.empty", "false"))
-        .serializeNulls(props.equalTo("jsonb.serialize.nulls", "true"))
+        .serializeNulls(props.equalTo("jsonb.serialize.nulls", TRUE))
         .bufferRecycling(
           props
             .get("jsonb.bufferRecycling")
