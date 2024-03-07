@@ -33,33 +33,36 @@ final class FieldReader {
   }
 
   FieldReader(
-    Element element,
-    NamingConvention namingConvention,
-    TypeSubTypeMeta subType,
-    List<String> genericTypeParams,
-    Integer frequency,
-    boolean jsonCreatorPresent) {
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency,
+      boolean jsonCreatorPresent) {
 
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
-    final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     var isMethod = element instanceof ExecutableElement;
     var isParam = element.getEnclosingElement() instanceof ExecutableElement;
     this.unmapped = UnmappedPrism.isPresent(element);
     this.raw = RawPrism.isPresent(element);
-    this.serialize = !isParam && ignoreReader.serialize();
-    this.deserialize = isParam || !jsonCreatorPresent && !isMethod && ignoreReader.deserialize();
 
     final var fieldName = element.getSimpleName().toString();
-    final var publicField = !isMethod && !isParam && element.getModifiers().contains(Modifier.PUBLIC);
+    final var publicField =
+        !isMethod && !isParam && element.getModifiers().contains(Modifier.PUBLIC);
     final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
 
-    this.property = new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
+    this.property =
+        new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
     this.propertyName =
-      PropertyPrism.getOptionalOn(element)
-        .map(PropertyPrism::value)
-        .map(Util::escapeQuotes)
-        .orElse(namingConvention.from(fieldName));
+        PropertyPrism.getOptionalOn(element)
+            .map(PropertyPrism::value)
+            .map(Util::escapeQuotes)
+            .orElse(namingConvention.from(fieldName));
+
+    final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element, propertyName);
+    this.serialize = !isParam && ignoreReader.serialize();
+    this.deserialize = isParam || !jsonCreatorPresent && !isMethod && ignoreReader.deserialize();
 
     initAliases(element);
   }
