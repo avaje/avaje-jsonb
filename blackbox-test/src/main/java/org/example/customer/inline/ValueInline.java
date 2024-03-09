@@ -5,10 +5,7 @@ import org.example.customer.Address;
 import io.avaje.jsonb.Json;
 
 @Json
-public record ValueInline(int a, Nested nested, Nested2 nested2
-	//	,Nested3 nested3
-	//,	Nested4 complex
-		) {
+public record ValueInline(int a, Nested nested, Nested2 nested2, Nested3 nested3, Nested4 complex) {
   public record Nested(@Json.Value int nestA, String nestB) {
     public Nested(int nestA) {
       this(nestA, "idk");
@@ -23,7 +20,7 @@ public record ValueInline(int a, Nested nested, Nested2 nested2
     }
   }
 
-//  public record Nested3(@Json.Value Nested2 nesting) {}
+  public record Nested3(@Json.Value Nested2 nesting) {}
 
   public record Nested4(@Json.Value Address address) {}
 }

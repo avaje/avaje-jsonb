@@ -176,7 +176,7 @@ public final class Processor extends AbstractProcessor {
     for (final String type : extraTypes) {
       if (!ignoreType(type)) {
         final TypeElement element = typeElement(type);
-        if (cascadeElement(element)) {
+        if (element != null && cascadeElement(element)) {
           writeAdapterForType(element);
         }
       }
