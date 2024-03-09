@@ -19,6 +19,7 @@ import io.avaje.prism.GenerateModuleInfoReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @GenerateAPContext
 @GenerateModuleInfoReader
@@ -36,7 +37,7 @@ public final class Processor extends AbstractProcessor {
   private final List<BeanReader> allReaders = new ArrayList<>();
   private final Set<String> sourceTypes = new HashSet<>();
   private final Set<String> mixInImports = new HashSet<>();
-  private final Set<String> enumElements = new HashSet<>();
+  private final Set<String> valueElements = new HashSet<>();
 
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
@@ -68,8 +69,8 @@ public final class Processor extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     APContext.setProjectModuleElement(annotations, round);
     readModule();
+    writeValueAdapters(round.getElementsAnnotatedWith(typeElement(ValuePrism.PRISM_TYPE)));
     writeAdapters(round.getElementsAnnotatedWith(typeElement(JSON)));
-    writeEnumAdapters(round.getElementsAnnotatedWith(typeElement(ValuePrism.PRISM_TYPE)));
     writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(typeElement(JSON_MIXIN)));
     writeAdaptersForImportedList(round.getElementsAnnotatedWith(typeElement(JSON_IMPORT_LIST)));
     writeAdaptersForImported(round.getElementsAnnotatedWith(typeElement(JSON_IMPORT)));
@@ -119,22 +120,43 @@ public final class Processor extends AbstractProcessor {
     return v -> v.getModifiers().contains(Modifier.STATIC) && "FACTORY".equals(v.getSimpleName().toString());
   }
 
-  private void writeEnumAdapters(Set<? extends Element> elements) {
+  private void writeValueAdapters(Set<? extends Element> elements) {
     for (final ExecutableElement element : ElementFilter.methodsIn(elements)) {
       final var typeElement = (TypeElement) element.getEnclosingElement();
-      if (typeElement.getKind() != ElementKind.ENUM) {
-        logError("@Json.Value is only for enum methods at: " + typeElement);
-      } else {
-        writeEnumAdapterForType(typeElement, element);
-      }
+      validateValue(element, typeElement);
+
+      writeAdapter(typeElement, new ValueReader(typeElement, element));
     }
   }
 
-  private void writeEnumAdapterForType(TypeElement typeElement, ExecutableElement element) {
-    if (!enumElements.add(typeElement.asType().toString())) {
-      logError("@Json.Value can only be used once on a given enum methods at: " + typeElement);
+  private void validateValue(final ExecutableElement element, final TypeElement typeElement) {
+    if (!valueElements.add(typeElement.asType().toString())) {
+      logError(typeElement, "@Json.Value can only be used once on a given type");
+    } else if (!element.getParameters().isEmpty()) {
+      logError(element, "@Json.Value can only be used on methods with no parameters");
     }
-    writeAdapter(typeElement, new EnumReader(typeElement, element));
+    if (typeElement.getKind() == ElementKind.ENUM) {
+      return;
+    }
+    var returnType = Util.trimAnnotations(element.getReturnType().toString());
+
+    var methods =
+        ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
+            .filter(CreatorPrism::isPresent);
+    final var constructors =
+        ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream();
+    if (Stream.concat(methods, constructors)
+        .filter(s -> s.getParameters().size() == 1)
+        .map(s -> s.getParameters().get(0).asType().toString())
+        .map(Util::trimAnnotations)
+        .noneMatch(returnType::equals)) {
+
+      logError(
+          typeElement,
+          "Missing constructor or @Json.Creator factory method with signature %s(%s value)",
+          Util.shortName(typeElement.getQualifiedName().toString()),
+          Util.shortName(returnType));
+    }
   }
 
   private void cascadeTypes() {
