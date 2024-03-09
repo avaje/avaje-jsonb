@@ -93,7 +93,7 @@ final class TypeReader {
     return new MethodReader(ex).read();
   }
 
-  public static Supplier<Optional<? extends ExecutableElement>> baseJsonCreator(TypeElement baseType) {
+  private static Supplier<Optional<? extends ExecutableElement>> baseJsonCreator(TypeElement baseType) {
     return () ->
       baseType.getEnclosedElements().stream()
         .filter(CreatorPrism::isPresent)
