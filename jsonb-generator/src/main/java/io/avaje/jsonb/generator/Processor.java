@@ -281,6 +281,9 @@ public final class Processor extends AbstractProcessor {
   }
 
   private void writeAdapterForType(TypeElement typeElement) {
+    if (valueElements.contains(typeElement.toString())) {
+      return;
+    }
     writeAdapter(typeElement, new ClassReader(typeElement));
   }
 
