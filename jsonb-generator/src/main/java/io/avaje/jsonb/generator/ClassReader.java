@@ -558,7 +558,7 @@ final class ClassReader implements BeanReader {
     // don't write same switch case twice
     final var seen = new HashSet<>();
     for (final FieldReader allField : allFields) {
-      final var name = allField.fieldName();
+      final var name = allField.propertyName();
       if (!seen.add(name)) {
         continue;
       }
