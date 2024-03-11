@@ -1,0 +1,4 @@
+<factorypath>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/avaje/avaje-prisms/1.21/avaje-prisms-1.21.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/avaje/avaje-prism-core/1.21/avaje-prism-core-1.21.jar" enabled="true" runInBatchMode="false"/>
+</factorypath>

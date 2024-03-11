@@ -5,12 +5,12 @@ import java.util.Map;
 import io.avaje.jsonb.Json;
 
 @Json
-public class CreatorTest {
+public class CreatorUnmapped {
 
   public String someObject;
 
   @Json.Creator
-  public static CreatorTest fromJson(@Json.Unmapped Map<String, Object> json) {
+  public static CreatorUnmapped fromJson(@Json.Unmapped Map<String, Object> json) {
     return null;
   }
 }
