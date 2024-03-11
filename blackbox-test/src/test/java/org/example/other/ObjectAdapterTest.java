@@ -4,6 +4,8 @@ import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.Types;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
@@ -68,7 +70,7 @@ class ObjectAdapterTest {
     Object val = objectType.fromJson("[42,false,true,\"hi\",true]");
     assertThat(val).isInstanceOf(List.class);
     List list = (List) val;
-    assertThat(list).isEqualTo(List.of(42.0, false, true, "hi", true));
+    assertThat(list).isEqualTo(List.of(42L, false, true, "hi", true));
   }
 
   @SuppressWarnings("unchecked")
@@ -79,7 +81,7 @@ class ObjectAdapterTest {
 
     assertThat(value).isInstanceOf(Map.class);
     Map<String, Object> asMap = (Map<String, Object>) value;
-    assertThat(asMap.get("id")).isEqualTo(42D);
+    assertThat(asMap.get("id")).isEqualTo(42L);
     assertThat(asMap.get("name")).isEqualTo("rob");
 
     Object fromJsonViaType = objectType.fromJson("{\"id\":42,\"name\":\"rob\"}");
@@ -96,7 +98,7 @@ class ObjectAdapterTest {
 
     List<Map<String, Object>> asListOfMap = (List<Map<String, Object>>) value;
     assertThat(asListOfMap).hasSize(2);
-    assertThat(asListOfMap.get(0).get("id")).isEqualTo(42D);
+    assertThat(asListOfMap.get(0).get("id")).isEqualTo(42L);
     assertThat(asListOfMap.get(0).get("name")).isEqualTo("rob");
 
     StringWriter sw = new StringWriter();
@@ -105,12 +107,12 @@ class ObjectAdapterTest {
     jsonWriter.close();
     String asJson = sw.toString();
 
-    assertThat(asJson).isEqualTo("[{\"id\":42.0,\"name\":\"rob\"},{\"id\":43.0,\"name\":\"bob\"}]");
+    assertThat(asJson).isEqualTo("[{\"id\":42,\"name\":\"rob\"},{\"id\":43,\"name\":\"bob\"}]");
 
 
     // a bit easier using JsonType compared to JsonAdapter
     String asJson2 = objectType.toJson(value);
-    assertThat(asJson2).isEqualTo("[{\"id\":42.0,\"name\":\"rob\"},{\"id\":43.0,\"name\":\"bob\"}]");
+    assertThat(asJson2).isEqualTo("[{\"id\":42,\"name\":\"rob\"},{\"id\":43,\"name\":\"bob\"}]");
   }
 
   @SuppressWarnings("unchecked")
@@ -130,8 +132,19 @@ class ObjectAdapterTest {
     var entry = (Map<String, Object>) list.get(0);
 
     assertThat(entry).hasSize(3);
-    assertThat(entry.get("path")).isEqualTo(42.0D);
+    assertThat(entry.get("path")).isEqualTo(42L);
     assertThat(entry.get("property")).isEqualTo("foo");
     assertThat(entry.get("message")).isEqualTo("must not be blank");
+  }
+
+  @Test
+  void testIntegerParsing() {
+
+    JsonType<List<Map<String, Object>>> listMapType =
+        jsonb.type(Types.listOf(Types.mapOf(Object.class)));
+    String input = "[ {\"food\": \"sushi\", \"amount\": 5}]";
+
+    List<Map<String, Object>> l = listMapType.fromJson(input);
+    assertThat("5").isEqualTo(l.get(0).get("amount").toString());
   }
 }
