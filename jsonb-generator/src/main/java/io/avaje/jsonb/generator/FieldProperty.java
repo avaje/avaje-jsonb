@@ -228,12 +228,6 @@ final class FieldProperty {
 
   private void writeGetValue(Append writer, String varName, String suffix) {
     if (getter != null) {
-      if (!optional
-          && Util.trimAnnotations(getter.returnType().toString())
-              .startsWith("java.util.Optional<")) {
-        writer.append("%s.%s().orElse(null)%s", varName, getter.getName(), suffix);
-        return;
-      }
       writer.append("%s.%s()%s", varName, getter.getName(), suffix);
     } else if (publicField) {
       writer.append("%s.%s%s", varName, fieldName, suffix);
