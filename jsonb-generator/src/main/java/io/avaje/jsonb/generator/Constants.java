@@ -14,5 +14,5 @@ final class Constants {
   static final String METHODHANDLE = "java.lang.invoke.MethodHandle";
   static final String REFLECT_TYPE = "java.lang.reflect.Type";
   static final String PARAMETERIZED_TYPE = "java.lang.reflect.ParameterizedType";
-
+  static final String GENERATED_COMMENT = "(\"io.avaje.jsonb.generator:1.11-RC3\")";
 }

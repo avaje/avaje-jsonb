@@ -111,7 +111,7 @@ final class SimpleAdapterWriter {
     if (genericParamsCount > 0) {
       writer.append("@SuppressWarnings({\"unchecked\", \"rawtypes\"})").eol();
     }
-    writer.append("@Generated").eol();
+    writer.append("@Generated").append(Constants.GENERATED_COMMENT).eol();
     writer.append("public final class %sJsonAdapter implements JsonAdapter<%s> ", adapterShortName, beanReader.shortName());
     if (beanReader.supportsViewBuilder()) {
       writer.append(", ViewBuilderAware ");
