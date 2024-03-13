@@ -1,4 +1,4 @@
-package org.example.customer.inline;
+package org.example.customer.value;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

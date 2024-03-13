@@ -1,4 +1,4 @@
-package org.example.customer.inline;
+package org.example.customer.value;
 
 import org.example.customer.Address;
 
@@ -22,5 +22,16 @@ public record ValueInline(int a, Nested nested, Nested2 nested2, Nested3 nested3
 
   public record Nested3(@Json.Value Nested2 nesting) {}
 
-  public record Nested4(@Json.Value Address address) {}
+  public static class Nested4 {
+    private final Address address;
+
+    public Nested4(Address address) {
+      this.address = address;
+    }
+
+    @Json.Value
+    public Address address() {
+      return address;
+    }
+  }
 }
