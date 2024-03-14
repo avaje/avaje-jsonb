@@ -287,7 +287,7 @@ final class ClassReader implements BeanReader {
     final var seen = new HashSet<String>();
     for (int i = 0, size = allFields.size(); i < size; i++) {
       final FieldReader fieldReader = allFields.get(i);
-      if (!seen.add(fieldReader.fieldName())) {
+      if (!seen.add(fieldReader.propertyName())) {
         continue;
       }
       if (i > 0) {
