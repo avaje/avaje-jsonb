@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import java.lang.invoke.MethodHandles;
 import java.util.function.Predicate;
 
 import javax.lang.model.element.Element;
@@ -46,14 +47,14 @@ final class PropertyIgnoreReader {
   // needed to filter out record components from @Json.Property Overriding
   static {
     try {
-
       var recordComponentFor =
-          Elements.class.getMethod("recordComponentFor", ExecutableElement.class);
+          MethodHandles.lookup()
+              .unreflect(Elements.class.getMethod("recordComponentFor", ExecutableElement.class));
       isNotRecordAccessor =
           e -> {
             try {
               return recordComponentFor.invoke(APContext.elements(), e) == null;
-            } catch (Exception e1) {
+            } catch (Throwable e1) {
               return true;
             }
           };
