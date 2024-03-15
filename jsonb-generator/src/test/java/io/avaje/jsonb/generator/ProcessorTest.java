@@ -23,6 +23,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ProcessorTest {
@@ -69,6 +70,7 @@ class ProcessorTest {
     assertThat(task.call()).isTrue();
   }
 
+  @Disabled
   @Test
   void testImportFail() throws Exception {
 

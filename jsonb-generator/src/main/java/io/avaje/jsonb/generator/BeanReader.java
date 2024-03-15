@@ -21,7 +21,7 @@ interface BeanReader {
 
   void writeFromJson(Append writer);
 
- boolean supportsViewBuilder();
+  boolean supportsViewBuilder();
 
   String shortName();
 

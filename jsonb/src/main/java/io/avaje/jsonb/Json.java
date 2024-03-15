@@ -93,6 +93,9 @@ public @interface Json {
      */
     Class<?> implementation() default Void.class;
 
+    /**
+     * The list of types to Import for Jsonb.
+     */
     @Retention(CLASS)
     @Target({TYPE, PACKAGE, MODULE})
     @interface List {
@@ -178,43 +181,41 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({FIELD, METHOD})
+  @Target({FIELD, METHOD, PARAMETER})
   @interface Unmapped {
 
   }
 
   /**
    * Mark a method on an Enum that provides the json value.
-   * <p>
-   * If the method returns an int type then it is mapped to json int, otherwise it is
-   * treated as providing json string values.
+   *
+   * <p>If the method returns an int type then it is mapped to json int, otherwise it is treated as
+   * providing json string values.
    *
    * <pre>{@code
+   * public enum MyEnum {
    *
-   *   public enum MyEnum {
+   *   ONE("one value"),
+   *   TWO("two value");
    *
-   *     ONE("one value"),
-   *     TWO("two value");
-   *
-   *     final String val;
-   *     MyEnum(String val) {
-   *       this.val = val;
-   *     }
-   *
-   *     // method provides the values used to serialise to and from json
-   *
-   *     @Json.Value
-   *     public String value() {
-   *       return val;
-   *     }
+   *   final String val;
+   *   MyEnum(String val) {
+   *     this.val = val;
    *   }
+   *
+   *   // method provides the values used to serialize to and from json
+   *
+   *   @Json.Value
+   *   public String value() {
+   *     return val;
+   *   }
+   * }
    *
    * }</pre>
    */
   @Retention(RUNTIME)
   @Target(METHOD)
-  @interface Value {
-  }
+  @interface Value {}
 
   /**
    * Specify the subtypes that a given type can be represented as.

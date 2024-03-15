@@ -13,30 +13,29 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
-class OptionalAdapters {
+final class OptionalAdapters {
 
   private OptionalAdapters() {}
 
-  public static final JsonAdapter.Factory FACTORY =
-      (type, jsonb) -> {
-        if (Types.isGenericTypeOf(type, Optional.class)) {
-          final Type[] args = Types.typeArguments(type);
-          return new OptionalAdapter<>(jsonb, args[0]).nullSafe();
-        } else if (type == OptionalInt.class) {
-          return new OptionalIntAdapter().nullSafe();
-        } else if (type == OptionalDouble.class) {
-          return new OptionalDoubleAdapter().nullSafe();
-        } else if (type == OptionalLong.class) {
-          return new OptionalLongAdapter().nullSafe();
-        }
-        return null;
-      };
+  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+    if (Types.isGenericTypeOf(type, Optional.class)) {
+      final Type[] args = Types.typeArguments(type);
+      return new OptionalAdapter<>(jsonb, args[0]).nullSafe();
+    } else if (type == OptionalInt.class) {
+      return new OptionalIntAdapter().nullSafe();
+    } else if (type == OptionalDouble.class) {
+      return new OptionalDoubleAdapter().nullSafe();
+    } else if (type == OptionalLong.class) {
+      return new OptionalLongAdapter().nullSafe();
+    }
+    return null;
+  };
 
-  static class OptionalAdapter<T> implements JsonAdapter<Optional<T>> {
+  static final class OptionalAdapter<T> implements JsonAdapter<Optional<T>> {
 
     private final JsonAdapter<T> delegate;
 
-    public OptionalAdapter(Jsonb jsonb, Type param0) {
+    OptionalAdapter(Jsonb jsonb, Type param0) {
       this.delegate = jsonb.adapter(param0);
     }
 
