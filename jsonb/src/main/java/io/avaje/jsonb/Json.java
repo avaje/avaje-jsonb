@@ -93,6 +93,9 @@ public @interface Json {
      */
     Class<?> implementation() default Void.class;
 
+    /**
+     * The list of types to Import for Jsonb.
+     */
     @Retention(CLASS)
     @Target({TYPE, PACKAGE, MODULE})
     @interface List {

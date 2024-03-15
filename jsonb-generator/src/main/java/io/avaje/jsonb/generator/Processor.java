@@ -124,7 +124,6 @@ public final class Processor extends AbstractProcessor {
     for (final ExecutableElement element : ElementFilter.methodsIn(elements)) {
       final var typeElement = (TypeElement) element.getEnclosingElement();
       validateValue(element, typeElement);
-
       writeAdapter(typeElement, new ValueReader(typeElement, element));
     }
   }
@@ -141,21 +140,23 @@ public final class Processor extends AbstractProcessor {
     var returnType = Util.trimAnnotations(element.getReturnType().toString());
 
     var methods =
-        ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
-            .filter(CreatorPrism::isPresent);
+      ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
+        .filter(CreatorPrism::isPresent);
+
     final var constructors =
-        ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream();
+      ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream();
+
     if (Stream.concat(methods, constructors)
-        .filter(s -> s.getParameters().size() == 1)
-        .map(s -> s.getParameters().get(0).asType().toString())
-        .map(Util::trimAnnotations)
-        .noneMatch(returnType::equals)) {
+      .filter(s -> s.getParameters().size() == 1)
+      .map(s -> s.getParameters().get(0).asType().toString())
+      .map(Util::trimAnnotations)
+      .noneMatch(returnType::equals)) {
 
       logError(
-          typeElement,
-          "Missing constructor or @Json.Creator factory method with signature %s(%s value)",
-          Util.shortName(typeElement.getQualifiedName().toString()),
-          Util.shortName(returnType));
+        typeElement,
+        "Missing constructor or @Json.Creator factory method with signature %s(%s value)",
+        Util.shortName(typeElement.getQualifiedName().toString()),
+        Util.shortName(returnType));
     }
   }
 

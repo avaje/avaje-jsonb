@@ -35,23 +35,16 @@ final class ValueReader implements BeanReader {
     final String shortType = genericType.shortType();
     adapterShortType = "JsonAdapter<" + PrimitiveUtil.wrap(Util.shortType(shortType)) + ">";
 
-    this.constructor =
-        beanType.getEnclosedElements().stream()
-            .filter(CreatorPrism::isPresent)
-            .findFirst()
-            .map(ExecutableElement.class::cast)
-            .or(
-                () ->
-                    ElementFilter.constructorsIn(element.getEnclosedElements()).stream()
-                        .filter(s -> s.getParameters().size() == 1)
-                        .filter(
-                            s ->
-                                Util.trimAnnotations(returnType.toString())
-                                    .equals(
-                                        Util.trimAnnotations(
-                                            s.getParameters().get(0).asType().toString())))
-                        .findFirst())
-            .orElse(null);
+    this.constructor = beanType.getEnclosedElements().stream()
+      .filter(CreatorPrism::isPresent)
+      .findFirst()
+      .map(ExecutableElement.class::cast)
+      .or(() -> ElementFilter.constructorsIn(element.getEnclosedElements()).stream()
+        .filter(s -> s.getParameters().size() == 1)
+        .filter(s -> Util.trimAnnotations(returnType.toString())
+          .equals(Util.trimAnnotations(s.getParameters().get(0).asType().toString())))
+        .findFirst())
+      .orElse(null);
   }
 
   @Override
@@ -108,18 +101,16 @@ final class ValueReader implements BeanReader {
   @Override
   public void writeFields(Append writer) {
     if (isEnum) {
-      writer.append("  private static final Map<%s, %s> toValue = new EnumMap<>(%s.class);",shortName, returnTypeStr, shortName).eol();
-      writer.append("  private static final Map<%s, %s> toEnum = new HashMap<>();",returnTypeStr, shortName).eol();
+      writer.append("  private static final Map<%s, %s> toValue = new EnumMap<>(%s.class);", shortName, returnTypeStr, shortName).eol();
+      writer.append("  private static final Map<%s, %s> toEnum = new HashMap<>();", returnTypeStr, shortName).eol();
     }
-	writer.append("  private final %s adapter;", adapterShortType).eol();
+    writer.append("  private final %s adapter;", adapterShortType).eol();
     writer.eol();
   }
 
   @Override
   public void writeConstructor(Append writer) {
-
     writer.append("    this.adapter = jsonb.adapter(%s);", genericType.asTypeDeclaration().replace("? extends ", "")).eol();
-
     if (isEnum) {
       writer.append("    if(!toValue.isEmpty()) return;").eol();
       writer.append("    for(final var enumConst : %s.values()) {", shortName).eol();
@@ -152,7 +143,6 @@ final class ValueReader implements BeanReader {
     writer.append("  public %s fromJson(JsonReader reader) {", shortName).eol();
 
     if (!isEnum) {
-
       var constructMethod =
           constructor.getKind() == ElementKind.CONSTRUCTOR
               ? "new " + shortName
