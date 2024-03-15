@@ -80,7 +80,6 @@ final class NumberParser {
         final BigDecimal v = parseNumberGeneric(reader.prepareBuffer(start, end - start), end - start, reader, false);
         if (v.scale() > 0) numberException(reader, start, end, "Expecting int but found decimal value", v);
         return v.intValue();
-
       }
       value = (value << 3) + (value << 1) + ind;
       if (value < 0) {
@@ -409,16 +408,20 @@ final class NumberParser {
         if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
         else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
       }
-    } else {
-      if (exp == 0) return whole + fraction;
-      else if (exp > 0 && exp < POW_10.length) return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
-      else if (exp < 0 && -exp < POW_10.length) return fraction / POW_10[-exp - 1] + whole / POW_10[-exp - 1];
-      else if (reader.doublePrecision != JParser.DoublePrecision.HIGH) {
-        if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
-        else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
-      }
+    } else if (exp == 0) return whole + fraction;
+    else if (exp > 0 && exp < POW_10.length)
+      return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
+    else if (exp < 0 && -exp < POW_10.length)
+      return fraction / POW_10[-exp - 1] + whole / POW_10[-exp - 1];
+    else if (reader.doublePrecision != JParser.DoublePrecision.HIGH) {
+      if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
+      else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
     }
-    return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
+    return parseDoubleGeneric(
+        reader.prepareBuffer(start + offset, end - start - offset),
+        end - start - offset,
+        reader,
+        false);
   }
 
   private static double parseDoubleGeneric(final char[] buf, final int len, final JParser reader, final boolean withQuotes) {
@@ -599,7 +602,6 @@ final class NumberParser {
     return BigDecimal.valueOf(value);
   }
 
-
   private static BigInteger parseBigIntGeneric(char[] buf, int len, JParser reader) {
     int end;
     for (end = len; end > 0 && Character.isWhitespace(buf[end - 1]); --end) {
@@ -659,11 +661,9 @@ final class NumberParser {
             numberException(reader, start, end, "Unknown digit", (char) ch);
           }
 
-          value = (value << 3) + (value << 1) - (long) ind;
+          value = (value << 3) + (value << 1) - ind;
           ++i;
         }
-
-        return BigInteger.valueOf(value);
       } else {
         if (start == end) {
           numberException(reader, start, end, "Digit not found");
@@ -683,13 +683,11 @@ final class NumberParser {
             numberException(reader, start, end, "Unknown digit", (char) ch);
           }
 
-          value = (value << 3) + (value << 1) + (long) ind;
+          value = (value << 3) + (value << 1) + ind;
           ++i;
         }
-
-        return BigInteger.valueOf(value);
       }
+      return BigInteger.valueOf(value);
     }
   }
-
 }
