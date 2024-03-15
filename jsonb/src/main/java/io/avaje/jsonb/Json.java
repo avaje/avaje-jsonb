@@ -178,7 +178,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(CLASS)
-  @Target({FIELD, METHOD})
+  @Target({FIELD, METHOD, PARAMETER})
   @interface Unmapped {
 
   }
