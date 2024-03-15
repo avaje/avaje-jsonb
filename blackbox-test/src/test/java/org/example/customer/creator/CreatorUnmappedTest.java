@@ -8,13 +8,14 @@ import io.avaje.jsonb.Jsonb;
 
 class CreatorUnmappedTest {
 
-  Jsonb jsonb = Jsonb.builder().build();
+  final Jsonb jsonb = Jsonb.builder().build();
 
   @Test
   void asJson() {
+    CreatorUnmapped fromJson = jsonb.type(CreatorUnmapped.class)
+      .fromJson("{\"someA\":\"hi\",\"someB\":\"there\",\"fishCaught\":90}");
 
-    CreatorUnmapped fromJson =
-        jsonb.type(CreatorUnmapped.class).fromJson("{\"unmapped\":\"hi\",\"fishCaught\":90}");
-    assertThat(fromJson.someObject()).isEqualTo("hi");
+    assertThat(fromJson.a()).isEqualTo("hi");
+    assertThat(fromJson.b()).isEqualTo("there");
   }
 }
