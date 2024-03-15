@@ -42,13 +42,10 @@ final class FieldReader {
 
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
-    final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element);
     var isMethod = element instanceof ExecutableElement;
     var isParam = element.getEnclosingElement() instanceof ExecutableElement;
     this.unmapped = UnmappedPrism.isPresent(element);
     this.raw = RawPrism.isPresent(element);
-    this.serialize = !isParam && ignoreReader.serialize();
-    this.deserialize = isParam || !jsonCreatorPresent && !isMethod && ignoreReader.deserialize();
 
     final var fieldName = element.getSimpleName().toString();
     final var publicField = !isMethod && !isParam && element.getModifiers().contains(Modifier.PUBLIC);
@@ -60,6 +57,10 @@ final class FieldReader {
         .map(PropertyPrism::value)
         .map(Util::escapeQuotes)
         .orElse(namingConvention.from(fieldName));
+
+    final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element, propertyName);
+    this.serialize = !isParam && ignoreReader.serialize();
+    this.deserialize = isParam || !jsonCreatorPresent && !isMethod && ignoreReader.deserialize();
 
     initAliases(element);
   }
