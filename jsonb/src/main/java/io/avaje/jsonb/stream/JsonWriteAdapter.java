@@ -305,8 +305,7 @@ final class JsonWriteAdapter implements JsonWriter {
 
   private void writeList(List<?> value) {
     beginArray();
-    for (int i = 0; i < value.size(); i++) {
-      Object element = value.get(i);
+    for (Object element : value) {
       jsonValue(element);
     }
     endArray();
