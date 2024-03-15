@@ -1,13 +1,12 @@
 package io.avaje.jsonb.generator;
 
-import java.lang.invoke.MethodHandles;
-import java.util.function.Predicate;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import java.lang.invoke.MethodHandles;
+import java.util.function.Predicate;
 
 final class PropertyIgnoreReader {
 
@@ -19,13 +18,13 @@ final class PropertyIgnoreReader {
     final var enclosingElements = element.getEnclosingElement().getEnclosedElements();
 
     boolean propertyMethodOverride =
-        element instanceof VariableElement
-            && ElementFilter.methodsIn(enclosingElements).stream()
-                .filter(PropertyPrism::isPresent)
-                .filter(isNotRecordAccessor)
-                .map(PropertyPrism::getInstanceOn)
-                .map(PropertyPrism::value)
-                .anyMatch(propertyName::equals);
+      element instanceof VariableElement
+        && ElementFilter.methodsIn(enclosingElements).stream()
+        .filter(PropertyPrism::isPresent)
+        .filter(isNotRecordAccessor)
+        .map(PropertyPrism::getInstanceOn)
+        .map(PropertyPrism::value)
+        .anyMatch(propertyName::equals);
 
     ignoreSerialize = propertyMethodOverride;
 
@@ -48,17 +47,15 @@ final class PropertyIgnoreReader {
   static {
     try {
       var recordComponentFor =
-          MethodHandles.lookup()
-              .unreflect(Elements.class.getMethod("recordComponentFor", ExecutableElement.class));
-      isNotRecordAccessor =
-          e -> {
-            try {
-              return recordComponentFor.invoke(APContext.elements(), e) == null;
-            } catch (Throwable e1) {
-              return true;
-            }
-          };
-
+        MethodHandles.lookup()
+          .unreflect(Elements.class.getMethod("recordComponentFor", ExecutableElement.class));
+      isNotRecordAccessor = e -> {
+        try {
+          return recordComponentFor.invoke(APContext.elements(), e) == null;
+        } catch (Throwable e1) {
+          return true;
+        }
+      };
     } catch (Exception ex) {
       isNotRecordAccessor = e -> true;
     }
