@@ -8,11 +8,13 @@ import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.logWarn;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -76,6 +78,29 @@ final class ProcessingContext {
     return CTX.get().importedSubtypeMap.getOrDefault(type.asType().toString(), List.of());
   }
 
+  private static boolean buildPluginAvailable() {
+
+    return resource("target/avaje-plugin-exists.txt", "/target/classes")
+        || resource("build/avaje-plugin-exists.txt", "/build/classes/java/main");
+  }
+
+  private static boolean resource(String relativeName, String replace) {
+    try (var inputStream =
+        new URI(
+                filer()
+                    .getResource(StandardLocation.CLASS_OUTPUT, "", relativeName)
+                    .toUri()
+                    .toString()
+                    .replace(replace, ""))
+            .toURL()
+            .openStream()) {
+
+      return inputStream.available() > 0;
+    } catch (IOException | URISyntaxException e) {
+      return false;
+    }
+  }
+
   static void validateModule(String fqn) {
     var module = getProjectModuleElement();
     if (module != null && !CTX.get().validated && !module.isUnnamed()) {
@@ -94,13 +119,17 @@ final class ProcessingContext {
             moduleInfo.provides().stream()
                 .flatMap(s -> s.implementations().stream())
                 .noneMatch(s -> s.contains(fqn));
-
-        if (noProvides) {
+        var buildPluginAvailable = buildPluginAvailable();
+        if (noProvides && !buildPluginAvailable) {
           logError(
               module, "Missing `provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;`", fqn);
         }
 
-        if (noInjectPlugin) {
+        final var noDirectJsonb =
+            moduleInfo.requires().stream()
+                .noneMatch(
+                    r -> r.getDependency().getQualifiedName().contentEquals("io.avaje.jsonb"));
+        if (noInjectPlugin && (!buildPluginAvailable || noDirectJsonb)) {
           logWarn(
               module,
               "`requires io.avaje.jsonb.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance",
