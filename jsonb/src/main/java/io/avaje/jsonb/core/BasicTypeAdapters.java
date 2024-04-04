@@ -392,7 +392,11 @@ final class BasicTypeAdapters {
         case STRING:
           return this.stringAdapter.fromJson(reader);
         case NUMBER:
-          return this.doubleAdapter.fromJson(reader);
+          var d = this.doubleAdapter.fromJson(reader);
+          if (d % 1 == 0) {
+            return d.longValue();
+          }
+          return d;
         case BOOLEAN:
           return this.booleanAdapter.fromJson(reader);
         case NULL:

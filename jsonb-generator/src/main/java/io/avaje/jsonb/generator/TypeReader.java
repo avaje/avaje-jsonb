@@ -509,7 +509,11 @@ final class TypeReader {
 
     for (int pos = 0, size = fields.size(); pos < size; pos++) {
       final var field = fields.get(pos);
-      field.position(pos + offset);
+      if (pos > 0 && fields.get(pos - 1).propertyName().equals(field.propertyName())) {
+        field.position(pos - 1);
+      } else {
+        field.position(pos + offset);
+      }
     }
   }
 

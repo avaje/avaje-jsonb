@@ -8,3 +8,4 @@ build/
 *.project
 *.class
 .DS_Store
+jsonb-generator/.factorypath
