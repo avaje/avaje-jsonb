@@ -3,6 +3,7 @@ name: JDK EA
 
 on:
   push:
+  pull_request:
   workflow_dispatch:
   schedule:
     - cron: '39 6 * * 1,3,5'
