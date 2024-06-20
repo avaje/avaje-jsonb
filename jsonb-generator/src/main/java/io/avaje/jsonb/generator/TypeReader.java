@@ -138,7 +138,7 @@ final class TypeReader {
         var element = param.element();
         var matchingField =
             localFields.stream()
-                .filter(f -> f.propertyName().equals(name) || f.fieldName().equals(name)|| f.fieldName().equals(name))
+                .filter(f -> f.propertyName().equals(name) || f.fieldName().equals(name))
                 .findFirst();
         matchingField.ifPresentOrElse(f -> f.readParam(element), () -> readField(element, localFields));
       }
