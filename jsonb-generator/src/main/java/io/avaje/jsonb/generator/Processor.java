@@ -307,6 +307,7 @@ public final class Processor extends AbstractProcessor {
       if (beanReader.hasJsonAnnotation()) {
         logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);
       }
+      logNote("Skipped writing JsonAdapter for %s due to non accessible fields", beanReader);
       return;
     }
     try {

@@ -28,6 +28,7 @@ final class JavaTimeAdapters {
     if (type == ZoneId.class) return JavaTimeAdapters.ZONE_ID_ADAPTER.nullSafe();
     if (type == ZoneOffset.class) return JavaTimeAdapters.ZONE_OFFSET_ADAPTER.nullSafe();
     if (type == Date.class) return JavaTimeAdapters.UTIL_DATE.nullSafe();
+    if (type == Duration.class) return JavaTimeAdapters.DURATION_ADAPTER.nullSafe();
 
     return null;
   };
@@ -52,6 +53,23 @@ final class JavaTimeAdapters {
         return "JsonAdapter(Date)";
       }
     };
+
+  private static final JsonAdapter<Duration> DURATION_ADAPTER = new JsonAdapter<>() {
+    @Override
+    public Duration fromJson(JsonReader reader) {
+      return Duration.parse(reader.readString());
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, Duration value) {
+      writer.value(value.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Duration)";
+    }
+  };
 
   private static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<>() {
     @Override
