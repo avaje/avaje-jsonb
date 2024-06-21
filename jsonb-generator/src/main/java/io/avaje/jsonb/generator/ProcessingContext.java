@@ -44,7 +44,11 @@ final class ProcessingContext {
   }
 
   static FileObject createMetaInfWriterFor(String interfaceType) throws IOException {
-    return filer().createResource(StandardLocation.CLASS_OUTPUT, "", interfaceType);
+    return filer()
+        .createResource(
+            StandardLocation.CLASS_OUTPUT,
+            "",
+            interfaceType.replace("META-INF/services/", "META-INF/generated-services/"));
   }
 
   static void addImportedPrism(ImportPrism prism, Element element) {
@@ -101,15 +105,7 @@ final class ProcessingContext {
         boolean noInjectPlugin =
           injectPresent && !moduleInfo.containsOnModulePath("io.avaje.jsonb.plugin");
 
-        var noProvides =
-          moduleInfo.provides().stream()
-            .flatMap(s -> s.implementations().stream())
-            .noneMatch(s -> s.contains(fqn));
-
         var buildPluginAvailable = buildPluginAvailable();
-        if (noProvides && !buildPluginAvailable) {
-          logError(module, "Missing `provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;`", fqn);
-        }
 
         final var noDirectJsonb =
           moduleInfo.requires().stream()

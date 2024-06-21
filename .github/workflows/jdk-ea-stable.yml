@@ -1,5 +1,5 @@
 
-name: avaje-jsonb EA stable
+name: JDK EA Stable
 
 on:
   push:

@@ -8,4 +8,5 @@ build/
 *.project
 *.class
 .DS_Store
-jsonb-generator/.factorypath
+*.factorypath
+jsonb-generator/io.avaje.jsonb.spi.JsonbExtension

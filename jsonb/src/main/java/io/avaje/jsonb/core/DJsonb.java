@@ -41,9 +41,9 @@ final class DJsonb implements Jsonb {
     if (adapter != null) {
       this.io = adapter;
     } else {
-      Iterator<AdapterFactory> iterator = ServiceLoader.load(AdapterFactory.class).iterator();
-      if (iterator.hasNext()) {
-        this.io = iterator.next().create(serializeNulls, serializeEmpty, failOnUnknown);
+      var adapterFactoryOptional = ExtensionLoader.adapterFactory();
+      if (adapterFactoryOptional.isPresent()) {
+        this.io = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
       } else {
         this.io = new JsonStream(serializeNulls, serializeEmpty, failOnUnknown, strategy);
       }
@@ -277,8 +277,8 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder add(JsonbComponent component) {
-      component.register(this);
+    public Builder add(JsonbCustomizer component) {
+      component.customize(this);
       return this;
     }
 
@@ -289,12 +289,12 @@ final class DJsonb implements Jsonb {
     }
 
     private void registerComponents() {
-      // first register all user defined JsonbComponent
-      for (JsonbComponent next : ServiceLoader.load(JsonbComponent.class)) {
-        next.register(this);
+      // first register all user defined JsonbCustomizer
+      for (JsonbCustomizer next : ExtensionLoader.customizers()) {
+        next.customize(this);
       }
-      for (GeneratedComponent next : ServiceLoader.load(GeneratedComponent.class)) {
-        next.register(this);
+      for (GeneratedComponent next : ExtensionLoader.generatedComponents()) {
+        next.customize(this);
       }
     }
 

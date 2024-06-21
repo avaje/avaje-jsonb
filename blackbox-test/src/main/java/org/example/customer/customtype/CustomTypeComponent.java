@@ -1,15 +1,18 @@
 package org.example.customer.customtype;
 
+import io.avaje.jsonb.JsonAdapter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.spi.JsonbCustomizer;
+import io.avaje.spi.ServiceProvider;
 
-import io.avaje.jsonb.*;
-
-/**
- * Register via service loading.
- */
-public class CustomTypeComponent implements JsonbComponent {
+/** Register via service loading. */
+@ServiceProvider
+public class CustomTypeComponent implements JsonbCustomizer {
 
   @Override
-  public void register(Jsonb.Builder builder) {
+  public void customize(Jsonb.Builder builder) {
     builder.add(MyCustomScalarType.class, new CustomTypeAdapterWithStar().nullSafe());
   }
 
@@ -26,6 +29,4 @@ public class CustomTypeComponent implements JsonbComponent {
       return MyCustomScalarType.of(encoded.substring(4)); // trim those stars
     }
   }
-
 }
-

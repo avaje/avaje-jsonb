@@ -58,7 +58,7 @@ final class SimpleComponentWriter {
 
   private void writeRegister() {
     writer.append("  @Override").eol();
-    writer.append("  public void register(Jsonb.Builder builder) {").eol();
+    writer.append("  public void customize(Jsonb.Builder builder) {").eol();
     final List<String> strings = metaData.allFactories();
     for (final String adapterFullName : strings) {
       final String adapterShortName = Util.shortName(adapterFullName);
@@ -91,7 +91,7 @@ final class SimpleComponentWriter {
     writeMetaDataEntry(all);
     writer.append("})").eol();
 
-    writer.append("public class %s implements Jsonb.GeneratedComponent {", shortName).eol().eol();
+    writer.append("public class %s implements GeneratedComponent {", shortName).eol().eol();
   }
 
   private void writeMetaDataEntry(List<String> entries) {
