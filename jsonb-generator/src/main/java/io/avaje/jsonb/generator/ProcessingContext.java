@@ -44,11 +44,13 @@ final class ProcessingContext {
   }
 
   static FileObject createMetaInfWriterFor(String interfaceType) throws IOException {
-    return filer()
-        .createResource(
-            StandardLocation.CLASS_OUTPUT,
-            "",
-            interfaceType.replace("META-INF/services/", "META-INF/generated-services/"));
+
+    var serviceFile =
+        APContext.typeElement("io.avaje.spi.internal.ServiceProcessor") != null
+            ? interfaceType.replace("META-INF/services/", "META-INF/generated-services/")
+            : interfaceType;
+
+    return filer().createResource(StandardLocation.CLASS_OUTPUT, "", serviceFile);
   }
 
   static void addImportedPrism(ImportPrism prism, Element element) {
