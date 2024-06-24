@@ -3,7 +3,7 @@ package io.avaje.jsonb;
 import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.AdapterFactory;
 import io.avaje.jsonb.spi.JsonStreamAdapter;
-import io.avaje.jsonb.spi.JsonbCustomizer;
+import io.avaje.jsonb.spi.JsonbComponent;
 import io.avaje.jsonb.spi.PropertyNames;
 import io.avaje.jsonb.stream.BufferRecycleStrategy;
 import io.avaje.jsonb.stream.JsonOutput;
@@ -394,7 +394,7 @@ public interface Jsonb {
     /**
      * Add a Component which can provide multiple JsonAdapters and or configuration.
      */
-    Builder add(JsonbCustomizer component);
+    Builder add(JsonbComponent component);
 
     /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.

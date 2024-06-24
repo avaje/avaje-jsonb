@@ -4,15 +4,15 @@ import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonReader;
 import io.avaje.jsonb.JsonWriter;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.spi.JsonbCustomizer;
+import io.avaje.jsonb.spi.JsonbComponent;
 import io.avaje.spi.ServiceProvider;
 
 /** Register via service loading. */
 @ServiceProvider
-public class CustomTypeComponent implements JsonbCustomizer {
+public class CustomTypeComponent implements JsonbComponent {
 
   @Override
-  public void customize(Jsonb.Builder builder) {
+  public void register(Jsonb.Builder builder) {
     builder.add(MyCustomScalarType.class, new CustomTypeAdapterWithStar().nullSafe());
   }
 

@@ -11,8 +11,8 @@ import io.avaje.jsonb.Jsonb;
  * {@code provides} clause in module-info.
  */
 @FunctionalInterface
-public interface JsonbCustomizer extends JsonbExtension {
+public interface JsonbComponent extends JsonbExtension {
 
-  /** Customize the builder. */
-  void customize(Jsonb.Builder builder);
+  /** Register JsonAdapters with the Builder. */
+  void register(Jsonb.Builder builder);
 }

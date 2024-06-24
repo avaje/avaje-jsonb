@@ -251,7 +251,7 @@ public final class Processor extends AbstractProcessor {
     try {
       componentWriter.initialise();
     } catch (final IOException e) {
-      logError("Error creating writer for JsonbCustomizer", e);
+      logError("Error creating writer for JsonbComponent", e);
     }
   }
 

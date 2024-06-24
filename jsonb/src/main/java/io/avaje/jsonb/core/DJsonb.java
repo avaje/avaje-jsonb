@@ -277,8 +277,8 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder add(JsonbCustomizer component) {
-      component.customize(this);
+    public Builder add(JsonbComponent component) {
+      component.register(this);
       return this;
     }
 
@@ -289,12 +289,12 @@ final class DJsonb implements Jsonb {
     }
 
     private void registerComponents() {
-      // first register all user defined JsonbCustomizer
-      for (JsonbCustomizer next : ExtensionLoader.customizers()) {
-        next.customize(this);
+      // first register all user defined JsonbComponent
+      for (JsonbComponent next : ExtensionLoader.customizers()) {
+        next.register(this);
       }
       for (GeneratedComponent next : ExtensionLoader.generatedComponents()) {
-        next.customize(this);
+        next.register(this);
       }
     }
 
