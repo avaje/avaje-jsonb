@@ -8,7 +8,6 @@ import io.avaje.jsonb.spi.JsonbComponent;
 import io.avaje.spi.ServiceProvider;
 
 /** Register via service loading. */
-@ServiceProvider
 public class CustomTypeComponent implements JsonbComponent {
 
   @Override
