@@ -290,7 +290,7 @@ final class DJsonb implements Jsonb {
 
     private void registerComponents() {
       // first register all user defined JsonbComponent
-      for (JsonbComponent next : ExtensionLoader.customizers()) {
+      for (JsonbComponent next : ExtensionLoader.userComponents()) {
         next.register(this);
       }
       for (GeneratedComponent next : ExtensionLoader.generatedComponents()) {

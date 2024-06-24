@@ -14,7 +14,7 @@ import io.avaje.jsonb.spi.JsonbExtension;
 final class ExtensionLoader {
 
   private static final List<GeneratedComponent> generatedComponents = new ArrayList<>();
-  private static final List<JsonbComponent> customizers = new ArrayList<>();
+  private static final List<JsonbComponent> userComponents = new ArrayList<>();
   private static Optional<AdapterFactory> adapterFactory = Optional.empty();
 
   static {
@@ -22,7 +22,7 @@ final class ExtensionLoader {
       if (spi instanceof GeneratedComponent) {
         generatedComponents.add((GeneratedComponent) spi);
       } else if (spi instanceof JsonbComponent) {
-        customizers.add((JsonbComponent) spi);
+        userComponents.add((JsonbComponent) spi);
       } else if (spi instanceof AdapterFactory) {
         adapterFactory = Optional.of((AdapterFactory) spi);
       }
@@ -33,8 +33,8 @@ final class ExtensionLoader {
     return generatedComponents;
   }
 
-  static List<JsonbComponent> customizers() {
-    return customizers;
+  static List<JsonbComponent> userComponents() {
+    return userComponents;
   }
 
   static Optional<AdapterFactory> adapterFactory() {
