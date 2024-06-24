@@ -6,12 +6,10 @@ import io.avaje.inject.BeanScopeBuilder;
 import io.avaje.inject.spi.InjectPlugin;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.stream.BufferRecycleStrategy;
-import io.avaje.spi.ServiceProvider;
 
 /**
  * Plugin for avaje inject that provides a default Jsonb instance.
  */
-@ServiceProvider
 public final class DefaultJsonbProvider implements InjectPlugin {
 
   @Override

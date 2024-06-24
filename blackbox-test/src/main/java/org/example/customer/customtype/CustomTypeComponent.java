@@ -1,13 +1,11 @@
 package org.example.customer.customtype;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.spi.JsonbComponent;
-import io.avaje.spi.ServiceProvider;
 
-/** Register via service loading. */
+import io.avaje.jsonb.*;
+
+/**
+ * Register via service loading.
+ */
 public class CustomTypeComponent implements JsonbComponent {
 
   @Override
@@ -28,4 +26,6 @@ public class CustomTypeComponent implements JsonbComponent {
       return MyCustomScalarType.of(encoded.substring(4)); // trim those stars
     }
   }
+
 }
+
