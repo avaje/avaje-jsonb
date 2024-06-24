@@ -14,6 +14,7 @@ import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 final class ComponentReader {
 
@@ -24,14 +25,18 @@ final class ComponentReader {
   }
 
   void read() {
-    String componentFullName = loadMetaInfServices();
-    if (componentFullName != null) {
-      TypeElement moduleType = typeElement(componentFullName);
-      if (moduleType != null) {
-        componentMetaData.setFullName(componentFullName);
-        readMetaData(moduleType);
-      }
-    }
+    loadMetaInf().stream()
+        .map(APContext::typeElement)
+        .filter(Objects::nonNull)
+        .filter(t -> "io.avaje.jsonb.spi.GeneratedComponent".equals(t.getSuperclass().toString()))
+        .findFirst()
+        .ifPresent(
+            moduleType -> {
+              if (moduleType != null) {
+                componentMetaData.setFullName(moduleType.getQualifiedName().toString());
+                readMetaData(moduleType);
+              }
+            });
   }
 
   /**
@@ -54,11 +59,6 @@ final class ComponentReader {
             .forEach(componentMetaData::addFactory);
       }
     }
-  }
-
-  private String loadMetaInfServices() {
-    final List<String> lines = loadMetaInf();
-    return lines.isEmpty() ? null : lines.get(0);
   }
 
   private List<String> loadMetaInf() {
