@@ -1,12 +1,17 @@
 package org.example.customer.customtype;
 
 
-import io.avaje.jsonb.*;
+import io.avaje.jsonb.JsonAdapter;
+import io.avaje.jsonb.JsonReader;
+import io.avaje.jsonb.JsonWriter;
+import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.spi.JsonbComponent;
+import io.avaje.spi.ServiceProvider;
 
 /**
  * Register via service loading.
  */
+@ServiceProvider
 public class CustomTypeComponent implements JsonbComponent {
 
   @Override
