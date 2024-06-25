@@ -8,5 +8,6 @@ module io.avaje.jsonb {
   uses io.avaje.jsonb.spi.JsonbExtension;
 
   requires static io.helidon.webserver;
+  requires static io.avaje.spi;
 
 }
