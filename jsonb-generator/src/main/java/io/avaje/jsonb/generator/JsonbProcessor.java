@@ -334,10 +334,10 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private void registerSPI(Set<? extends Element> beans) {
     ElementFilter.typesIn(beans).stream()
-      .filter(this::isExtension)
-      .map(TypeElement::getQualifiedName)
-      .map(Object::toString)
-      .forEach(ProcessingContext::addJsonSpi);
+        .filter(this::isExtension)
+        .map(TypeElement::getQualifiedName)
+        .map(Object::toString)
+        .forEach(ProcessingContext::addJsonSpi);
   }
 
   private boolean isExtension(TypeElement te) {

@@ -30,7 +30,8 @@ final class ProcessingContext {
     private final boolean injectPresent;
 
     Ctx(ProcessingEnvironment env) {
-      this.injectPresent = env.getElementUtils().getTypeElement("io.avaje.inject.Component") != null;
+      this.injectPresent =
+          env.getElementUtils().getTypeElement("io.avaje.inject.Component") != null;
     }
   }
 
@@ -111,7 +112,7 @@ final class ProcessingContext {
             .noneMatch(r -> r.getDependency().getQualifiedName().contentEquals("io.avaje.jsonb"));
 
         if (noInjectPlugin && (!buildPluginAvailable || noDirectJsonb)) {
-          logWarn(module, "`requires io.avaje.jsonb.plugin` must be explicitly added or else avaje-inject may fail to detect and wire the default Jsonb instance");
+          logWarn(module, "`requires io.avaje.jsonb.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance");
         }
 
       } catch (Exception e) {
@@ -120,7 +121,7 @@ final class ProcessingContext {
     }
   }
 
-  static void addJsonSpi(String spi) {
+  public static void addJsonSpi(String spi) {
     CTX.get().services.add(spi);
   }
 
@@ -132,12 +133,12 @@ final class ProcessingContext {
   static Set<String> readExistingMetaInfServices() {
     var services = CTX.get().services;
     try (final var file =
-           APContext.filer()
-             .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
-             .toUri()
-             .toURL()
-             .openStream();
-         final var buffer = new BufferedReader(new InputStreamReader(file));) {
+            APContext.filer()
+                .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
+                .toUri()
+                .toURL()
+                .openStream();
+        final var buffer = new BufferedReader(new InputStreamReader(file)); ) {
 
       String line;
       while ((line = buffer.readLine()) != null) {
