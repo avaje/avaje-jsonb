@@ -3,7 +3,9 @@ package io.avaje.jsonb.generator;
 import static io.avaje.jsonb.generator.ProcessingContext.createMetaInfWriterFor;
 import static io.avaje.jsonb.generator.APContext.createSourceFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +13,7 @@ import java.util.TreeSet;
 
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 final class SimpleComponentWriter {
 
@@ -48,12 +51,34 @@ final class SimpleComponentWriter {
   }
 
   void writeMetaInf() throws IOException {
+    var services = readExistingMetaInfServices();
     final FileObject fileObject = createMetaInfWriterFor(Constants.META_INF_COMPONENT);
     if (fileObject != null) {
+      services.add(metaData.fullName());
       final Writer writer = fileObject.openWriter();
-      writer.write(metaData.fullName());
+      writer.write(String.join("\n", services));
       writer.close();
     }
+  }
+
+  private static Set<String> readExistingMetaInfServices() {
+    var services = new TreeSet<String>();
+    try (final var file =
+            APContext.filer()
+                .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
+                .toUri()
+                .toURL()
+                .openStream();
+        final var buffer = new BufferedReader(new InputStreamReader(file)); ) {
+
+      String line;
+      while ((line = buffer.readLine()) != null) {
+        line.replaceAll("\\s", "").replace(",", "\n").lines().forEach(services::add);
+      }
+    } catch (Exception e) {
+      // not a critical error
+    }
+    return services;
   }
 
   private void writeRegister() {
