@@ -24,6 +24,7 @@
   <properties>
     <surefire.useModulePath>false</surefire.useModulePath>
     <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
+    <spi.version>1.11</spi.version>
   </properties>
 
   <modules>

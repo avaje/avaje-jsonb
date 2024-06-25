@@ -108,7 +108,7 @@ final class ProcessingContext {
 
         var buildPluginAvailable = buildPluginAvailable();
         if (noProvides && !buildPluginAvailable) {
-          logError(module, "Missing `provides io.avaje.jsonb.Jsonb.GeneratedComponent with %s;`", fqn);
+          logError(module, "Missing `provides io.avaje.jsonb.spi.JsonbExtension with %s;`", fqn);
         }
 
         final var noDirectJsonb =

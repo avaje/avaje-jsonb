@@ -2,6 +2,7 @@ package org.example.customer.customtype;
 
 
 import io.avaje.jsonb.*;
+import io.avaje.jsonb.spi.JsonbComponent;
 
 /**
  * Register via service loading.

@@ -3,7 +3,7 @@ package io.avaje.jsonb.spi;
 /**
  * Factory that is service loaded to create the adapter for underlying json parsing and generation.
  */
-public interface AdapterFactory {
+public interface AdapterFactory extends JsonbExtension  {
 
   /**
    * Create the adapter to use for the underlying json parsing and generation.

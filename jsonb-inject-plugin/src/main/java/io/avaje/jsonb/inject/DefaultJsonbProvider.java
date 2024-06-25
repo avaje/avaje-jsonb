@@ -1,23 +1,26 @@
 package io.avaje.jsonb.inject;
 
+import java.lang.reflect.Type;
+
 import io.avaje.inject.BeanScopeBuilder;
+import io.avaje.inject.spi.InjectPlugin;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.stream.BufferRecycleStrategy;
 
 /**
  * Plugin for avaje inject that provides a default Jsonb instance.
  */
-public final class DefaultJsonbProvider implements io.avaje.inject.spi.Plugin {
+public final class DefaultJsonbProvider implements InjectPlugin {
 
   @Override
-  public Class<?>[] provides() {
-    return new Class<?>[]{Jsonb.class};
+  public Type[] provides() {
+    return new Type[]{Jsonb.class};
   }
 
   @Override
   public void apply(BeanScopeBuilder builder) {
     builder.provideDefault(null, Jsonb.class, () -> {
-      var props = builder.propertyPlugin();
+      var props = builder.configPlugin();
 
       return Jsonb.builder()
         .failOnUnknown(props.equalTo("jsonb.deserialize.failOnUnknown", "true"))

@@ -2,8 +2,8 @@ package io.avaje.jsonb;
 
 import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.AdapterFactory;
-import io.avaje.jsonb.spi.Bootstrap;
 import io.avaje.jsonb.spi.JsonStreamAdapter;
+import io.avaje.jsonb.spi.JsonbComponent;
 import io.avaje.jsonb.spi.PropertyNames;
 import io.avaje.jsonb.stream.BufferRecycleStrategy;
 import io.avaje.jsonb.stream.JsonOutput;
@@ -13,8 +13,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.util.Iterator;
-import java.util.ServiceLoader;
 
 /**
  * Provides access to json adapters by type.
@@ -102,10 +100,6 @@ public interface Jsonb {
    * }</pre>
    */
   static Builder builder() {
-    Iterator<Bootstrap> bootstrapService = ServiceLoader.load(Bootstrap.class).iterator();
-    if (bootstrapService.hasNext()) {
-      return bootstrapService.next().builder();
-    }
     return DefaultBootstrap.builder();
   }
 
@@ -423,17 +417,5 @@ public interface Jsonb {
      * Create a JsonAdapter given the Jsonb instance.
      */
     JsonAdapter<?> build(Jsonb jsonb);
-  }
-
-  /**
-   * Components register JsonAdapters Jsonb.Builder
-   */
-  @FunctionalInterface
-  interface GeneratedComponent extends JsonbComponent {
-
-    /**
-     * Register JsonAdapters with the Builder.
-     */
-    void register(Builder builder);
   }
 }
