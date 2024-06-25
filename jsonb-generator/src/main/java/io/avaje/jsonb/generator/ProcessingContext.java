@@ -112,7 +112,7 @@ final class ProcessingContext {
             .noneMatch(r -> r.getDependency().getQualifiedName().contentEquals("io.avaje.jsonb"));
 
         if (noInjectPlugin && (!buildPluginAvailable || noDirectJsonb)) {
-          logWarn(module, "`requires io.avaje.jsonb.plugin` must be explicity added or else avaje-inject may fail to detect and wire the default Jsonb instance");
+          logWarn(module, "`requires io.avaje.jsonb.plugin` must be explicitly added or else avaje-inject may fail to detect and wire the default Jsonb instance");
         }
 
       } catch (Exception e) {
@@ -121,7 +121,7 @@ final class ProcessingContext {
     }
   }
 
-  public static void addJsonSpi(String spi) {
+  static void addJsonSpi(String spi) {
     CTX.get().services.add(spi);
   }
 
