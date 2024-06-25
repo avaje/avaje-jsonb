@@ -4,5 +4,5 @@ module io.avaje.jsonb.generator {
   requires static io.avaje.jsonb;
   requires static io.avaje.prism;
 
-  provides javax.annotation.processing.Processor with io.avaje.jsonb.generator.Processor;
+  provides javax.annotation.processing.Processor with io.avaje.jsonb.generator.JsonbProcessor;
 }
