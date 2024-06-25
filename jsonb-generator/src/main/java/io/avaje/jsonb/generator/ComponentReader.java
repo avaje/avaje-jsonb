@@ -25,7 +25,7 @@ final class ComponentReader {
   }
 
   void read() {
-    loadMetaInf().stream()
+    ProcessingContext.readExistingMetaInfServices().stream()
         .map(APContext::typeElement)
         .filter(Objects::nonNull)
         .filter(t -> "io.avaje.jsonb.spi.GeneratedComponent".equals(t.getSuperclass().toString()))
@@ -59,38 +59,5 @@ final class ComponentReader {
             .forEach(componentMetaData::addFactory);
       }
     }
-  }
-
-  private List<String> loadMetaInf() {
-    try {
-      FileObject fileObject = processingEnv()
-        .getFiler()
-        .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT);
-
-      if (fileObject != null) {
-        List<String> lines = new ArrayList<>();
-        Reader reader = fileObject.openReader(true);
-        LineNumberReader lineReader = new LineNumberReader(reader);
-        String line;
-        while ((line = lineReader.readLine()) != null) {
-          line = line.trim();
-          if (!line.isEmpty()) {
-            lines.add(line);
-          }
-        }
-        return lines;
-      }
-
-    } catch (FileNotFoundException | NoSuchFileException e) {
-      // logDebug("no services file yet");
-
-    } catch (FilerException e) {
-      logNote("FilerException reading services file");
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      logWarn("Error reading services file: " + e.getMessage());
-    }
-    return Collections.emptyList();
   }
 }

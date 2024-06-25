@@ -29,9 +29,10 @@ import java.util.stream.Stream;
   JSON_IMPORT,
   JSON_IMPORT_LIST,
   JSON_MIXIN,
-  ValuePrism.PRISM_TYPE
+  ValuePrism.PRISM_TYPE,
+  "io.avaje.spi.ServiceProvider"
 })
-public final class Processor extends AbstractProcessor {
+public final class JsonbProcessor extends AbstractProcessor {
 
   private final ComponentMetaData metaData = new ComponentMetaData();
   private final List<BeanReader> allReaders = new ArrayList<>();
@@ -69,16 +70,23 @@ public final class Processor extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     APContext.setProjectModuleElement(annotations, round);
     readModule();
-    writeValueAdapters(round.getElementsAnnotatedWith(typeElement(ValuePrism.PRISM_TYPE)));
-    writeAdapters(round.getElementsAnnotatedWith(typeElement(JSON)));
-    writeAdaptersForMixInTypes(round.getElementsAnnotatedWith(typeElement(JSON_MIXIN)));
-    writeAdaptersForImportedList(round.getElementsAnnotatedWith(typeElement(JSON_IMPORT_LIST)));
-    writeAdaptersForImported(round.getElementsAnnotatedWith(typeElement(JSON_IMPORT)));
-    registerCustomAdapters(round.getElementsAnnotatedWith(typeElement(CustomAdapterPrism.PRISM_TYPE)));
+    getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
+    getElements(round, JSON).ifPresent(this::writeAdapters);
+    getElements(round, JSON_MIXIN).ifPresent(this::writeAdaptersForMixInTypes);
+    getElements(round, JSON_IMPORT_LIST).ifPresent(this::writeAdaptersForImportedList);
+    getElements(round, JSON_IMPORT).ifPresent(this::writeAdaptersForImported);
+    getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
+    getElements(round, "io.avaje.spi.ServiceProvider").ifPresent(this::registerSPI);
+
     initialiseComponent();
     cascadeTypes();
     writeComponent(round.processingOver());
     return false;
+  }
+
+  // Optional because annotations are not guaranteed to exist
+  private Optional<? extends Set<? extends Element>> getElements(RoundEnvironment round, String name) {
+    return Optional.ofNullable(typeElement(name)).map(round::getElementsAnnotatedWith);
   }
 
   private void registerCustomAdapters(Set<? extends Element> elements) {
@@ -322,5 +330,17 @@ public final class Processor extends AbstractProcessor {
     } catch (final IOException e) {
       logError("Error writing JsonAdapter for %s %s", beanReader, e);
     }
+  }
+
+  private void registerSPI(Set<? extends Element> beans) {
+    ElementFilter.typesIn(beans).stream()
+      .filter(this::isExtension)
+      .map(TypeElement::getQualifiedName)
+      .map(Object::toString)
+      .forEach(ProcessingContext::addJsonSpi);
+  }
+
+  private boolean isExtension(TypeElement te) {
+    return APContext.isAssignable(te, "io.avaje.jsonb.spi.JsonbExtension");
   }
 }
