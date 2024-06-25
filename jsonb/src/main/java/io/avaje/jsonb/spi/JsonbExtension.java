@@ -1,7 +1,5 @@
 package io.avaje.jsonb.spi;
 
-import io.avaje.spi.Service;
-
 /**
  * Superclass for all Jsonb SPI classes.
  *
@@ -9,6 +7,5 @@ import io.avaje.spi.Service;
  * @see GeneratedComponent
  * @see AdapterFactory
  */
-@Service
 public interface JsonbExtension {
 }
