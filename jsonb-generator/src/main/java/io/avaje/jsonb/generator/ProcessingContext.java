@@ -30,8 +30,7 @@ final class ProcessingContext {
     private final boolean injectPresent;
 
     Ctx(ProcessingEnvironment env) {
-      this.injectPresent =
-          env.getElementUtils().getTypeElement("io.avaje.inject.Component") != null;
+      this.injectPresent = env.getElementUtils().getTypeElement("io.avaje.inject.Component") != null;
     }
   }
 
@@ -133,12 +132,12 @@ final class ProcessingContext {
   static Set<String> readExistingMetaInfServices() {
     var services = CTX.get().services;
     try (final var file =
-            APContext.filer()
-                .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
-                .toUri()
-                .toURL()
-                .openStream();
-        final var buffer = new BufferedReader(new InputStreamReader(file)); ) {
+           APContext.filer()
+             .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
+             .toUri()
+             .toURL()
+             .openStream();
+         final var buffer = new BufferedReader(new InputStreamReader(file));) {
 
       String line;
       while ((line = buffer.readLine()) != null) {
