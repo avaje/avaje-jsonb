@@ -3,7 +3,7 @@ package io.avaje.jsonb.generator.models.valid;
 import io.avaje.jsonb.Json;
 
 @Json
-public class PackagePrivate {
+class PackagePrivate {
 
   Long id;
   String street;
