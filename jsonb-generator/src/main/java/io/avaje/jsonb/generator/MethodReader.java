@@ -46,7 +46,7 @@ final class MethodReader {
   }
 
   boolean isPublic() {
-    return element.getModifiers().contains(Modifier.PUBLIC);
+    return Util.isPublic(element);
   }
 
   boolean isProtected() {

@@ -1,6 +1,9 @@
 package io.avaje.jsonb.generator;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 
 import static io.avaje.jsonb.generator.APContext.typeElement;
 import static io.avaje.jsonb.generator.APContext.logError;
@@ -178,9 +181,7 @@ final class Util {
         .map(Util::extractTypeWithNest)
         .orElseGet(
             () -> {
-              logError(
-                  element,
-                  "Custom Adapters must implement JsonAdapter");
+              logError(element, "Custom Adapters must implement JsonAdapter");
               return "Invalid";
             });
   }
@@ -207,5 +208,30 @@ final class Util {
       }
       return result.toString();
     }
+  }
+
+  static boolean isPublic(Element element) {
+    var mods = element.getModifiers();
+
+    if (mods.contains(Modifier.PUBLIC)) {
+      return true;
+    }
+    if (mods.contains(Modifier.PRIVATE) || mods.contains(Modifier.PROTECTED)) {
+      return false;
+    }
+    boolean isImported;
+    if (element instanceof TypeElement) {
+
+      isImported = ProcessingContext.isImported((TypeElement) element);
+    } else {
+      isImported = ProcessingContext.isImported((TypeElement) element.getEnclosingElement());
+    }
+
+    if (element instanceof VariableElement) {
+
+      return !isImported && !mods.contains(Modifier.FINAL);
+    }
+
+    return !isImported;
   }
 }

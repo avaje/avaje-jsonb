@@ -79,15 +79,17 @@ final class TypeReader {
 
     jsonCreator = jsonCreator.or(baseJsonCreator(baseType));
     constructor = jsonCreator
-      .map(TypeReader::readJsonCreator)
+      .map(this::readJsonCreator)
       .orElse(null);
 
     this.hasJsonCreator = jsonCreator.isPresent();
   }
 
-  private static MethodReader readJsonCreator(ExecutableElement ex) {
+  private MethodReader readJsonCreator(ExecutableElement ex) {
     var mods = ex.getModifiers();
-    if (ex.getKind() != ElementKind.CONSTRUCTOR && !mods.contains(Modifier.STATIC) && !mods.contains(Modifier.PUBLIC)) {
+    if (ex.getKind() != ElementKind.CONSTRUCTOR
+        && !mods.contains(Modifier.STATIC)
+        && Util.isPublic(ex)) {
       logError(ex, "@Json.Creator can only be placed on contructors and static factory methods");
     }
     return new MethodReader(ex).read();
@@ -263,7 +265,7 @@ final class TypeReader {
   }
 
   private boolean checkMethod2(ExecutableElement methodElement) {
-    if (!methodElement.getModifiers().contains(Modifier.PUBLIC)) {
+    if (!Util.isPublic(methodElement)) {
       return false;
     }
     if (extendsThrowable) {

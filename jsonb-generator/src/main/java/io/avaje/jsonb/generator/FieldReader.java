@@ -48,7 +48,7 @@ final class FieldReader {
     this.raw = RawPrism.isPresent(element);
 
     final var fieldName = element.getSimpleName().toString();
-    final var publicField = !isMethod && !isParam && element.getModifiers().contains(Modifier.PUBLIC);
+    final var publicField = !isMethod && !isParam && Util.isPublic(element);
     final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
 
     this.property = new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);

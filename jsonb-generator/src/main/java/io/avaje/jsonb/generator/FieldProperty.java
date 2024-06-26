@@ -232,7 +232,7 @@ final class FieldProperty {
     } else if (publicField) {
       writer.append("%s.%s%s", varName, fieldName, suffix);
     } else {
-      throw new IllegalStateException("Field " + fieldName + " is inaccessible. Add a getter or make the field public.");
+      throw new IllegalStateException("Field " + fieldName + " is inaccessible. Add a getter or make the field public or package-private.");
     }
   }
 
@@ -276,6 +276,9 @@ final class FieldProperty {
   void writeFromJsonSetter(Append writer, String varName, String prefix, String num) {
     if (unmapped) {
       writeFromJsonUnmapped(writer, varName);
+      return;
+    }
+    if (constructorParam) {
       return;
     }
     if (setter != null && optional) {
