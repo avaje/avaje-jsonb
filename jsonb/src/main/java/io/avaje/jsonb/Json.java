@@ -10,6 +10,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -36,8 +37,8 @@ import io.avaje.jsonb.Json.Import.List;
  *
  * }</pre>
  */
-@Retention(CLASS)
 @Target(TYPE)
+@Retention(SOURCE)
 public @interface Json {
 
   /**
@@ -74,7 +75,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(CLASS)
+  @Retention(SOURCE)
   @Repeatable(List.class)
   @Target({TYPE, PACKAGE, MODULE})
   @interface Import {
@@ -96,7 +97,7 @@ public @interface Json {
     /**
      * The list of types to Import for Jsonb.
      */
-    @Retention(CLASS)
+    @Retention(SOURCE)
     @Target({TYPE, PACKAGE, MODULE})
     @interface List {
 
@@ -114,7 +115,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(CLASS)
+  @Retention(SOURCE)
   @Target({FIELD, METHOD})
   @interface Property {
 
@@ -134,7 +135,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(CLASS)
+  @Retention(SOURCE)
   @Target({FIELD, PARAMETER})
   @interface Alias {
 
@@ -152,8 +153,8 @@ public @interface Json {
    * We can explicitly use {@code serialize=true} to include the property in
    * serialization but not deserialization.
    */
-  @Retention(CLASS)
   @Target(FIELD)
+  @Retention(SOURCE)
   @interface Ignore {
 
     /**
@@ -180,7 +181,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(CLASS)
+  @Retention(SOURCE)
   @Target({FIELD, METHOD, PARAMETER})
   @interface Unmapped {
 
@@ -213,8 +214,8 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(RUNTIME)
   @Target(METHOD)
+  @Retention(SOURCE)
   @interface Value {}
 
   /**
@@ -236,8 +237,8 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(CLASS)
   @Target(TYPE)
+  @Retention(SOURCE)
   @Repeatable(SubTypes.class)
   @interface SubType {
 
@@ -258,8 +259,8 @@ public @interface Json {
    * Container of all the concrete SubType's that an interface type or abstract
    * type can be represented as.
    */
-  @Retention(CLASS)
   @Target(TYPE)
+  @Retention(SOURCE)
   @interface SubTypes {
 
     SubType[] value();
@@ -268,7 +269,7 @@ public @interface Json {
   /**
    * Marks a String field as containing raw JSON content.
    */
-  @Retention(CLASS)
+  @Retention(SOURCE)
   @Target({FIELD, METHOD})
   @interface Raw {
 
@@ -294,8 +295,8 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(CLASS)
   @Target(TYPE)
+  @Retention(SOURCE)
   @interface MixIn {
     /** The concrete type to mix. */
     Class<?> value();
@@ -335,7 +336,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(CLASS)
+  @Retention(SOURCE)
   @Target({CONSTRUCTOR, METHOD})
   @interface Creator {}
 
