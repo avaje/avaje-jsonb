@@ -219,13 +219,7 @@ final class Util {
     if (mods.contains(Modifier.PRIVATE) || mods.contains(Modifier.PROTECTED)) {
       return false;
     }
-    boolean isImported;
-    if (element instanceof TypeElement) {
-
-      isImported = ProcessingContext.isImported((TypeElement) element);
-    } else {
-      isImported = ProcessingContext.isImported((TypeElement) element.getEnclosingElement());
-    }
+    boolean isImported = ProcessingContext.isImported(element);
 
     if (element instanceof VariableElement) {
 
