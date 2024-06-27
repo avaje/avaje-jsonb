@@ -90,7 +90,7 @@ final class TypeReader {
     if (ex.getKind() != ElementKind.CONSTRUCTOR
         && !mods.contains(Modifier.STATIC)
         && Util.isPublic(ex)) {
-      logError(ex, "@Json.Creator can only be placed on contructors and static factory methods");
+      logError(ex, "@Json.Creator can only be placed on constructors and static factory methods");
     }
     return new MethodReader(ex).read();
   }

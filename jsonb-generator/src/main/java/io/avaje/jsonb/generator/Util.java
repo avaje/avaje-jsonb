@@ -82,7 +82,6 @@ final class Util {
   /** Trim off annotations from the raw type if present. */
   public static String trimAnnotations(String input) {
     input = COMMA_PATTERN.matcher(input).replaceAll(",");
-
     return cutAnnotations(input);
   }
 
@@ -98,7 +97,6 @@ final class Util {
       currentIndex = matcher.start();
     }
     final var result = input.substring(0, pos) + input.substring(currentIndex + 1);
-
     return cutAnnotations(result);
   }
 
@@ -171,19 +169,17 @@ final class Util {
   }
 
   static String baseTypeOfAdapter(TypeElement element) {
-
     return element.getInterfaces().stream()
-        .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
-        .findFirst()
-        .map(Object::toString)
-        .map(GenericType::parse)
-        .map(GenericType::firstParamType)
-        .map(Util::extractTypeWithNest)
-        .orElseGet(
-            () -> {
-              logError(element, "Custom Adapters must implement JsonAdapter");
-              return "Invalid";
-            });
+      .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
+      .findFirst()
+      .map(Object::toString)
+      .map(GenericType::parse)
+      .map(GenericType::firstParamType)
+      .map(Util::extractTypeWithNest)
+      .orElseGet(() -> {
+        logError(element, "Custom Adapters must implement JsonAdapter");
+        return "Invalid";
+      });
   }
 
   static String extractTypeWithNest(String fullType) {
@@ -212,7 +208,6 @@ final class Util {
 
   static boolean isPublic(Element element) {
     var mods = element.getModifiers();
-
     if (mods.contains(Modifier.PUBLIC)) {
       return true;
     }
@@ -220,12 +215,9 @@ final class Util {
       return false;
     }
     boolean isImported = ProcessingContext.isImported(element);
-
     if (element instanceof VariableElement) {
-
       return !isImported && !mods.contains(Modifier.FINAL);
     }
-
     return !isImported;
   }
 }

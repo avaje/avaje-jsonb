@@ -22,8 +22,7 @@ final class AdapterName {
     if ("".equals(originPackage)) {
       this.adapterPackage = "jsonb";
     } else {
-      this.adapterPackage =
-          ProcessingContext.isImported(origin) ? originPackage + ".jsonb" : originPackage;
+      this.adapterPackage = ProcessingContext.isImported(origin) ? originPackage + ".jsonb" : originPackage;
     }
     this.fullName = adapterPackage + "." + shortName + "JsonAdapter";
   }
