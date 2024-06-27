@@ -215,7 +215,6 @@ public final class JsonbProcessor extends AbstractProcessor {
       final TypeMirror mirror = MixInPrism.getInstanceOn(mixin).value();
       final String importType = mirror.toString();
       final TypeElement element = asTypeElement(mirror);
-
       mixInImports.add(importType);
       writeAdapterForMixInType(element, typeElement(mixin.asType().toString()));
     }

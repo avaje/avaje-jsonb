@@ -26,7 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class ProcessorTest {
+class JsonbProcessorTest {
 
   @AfterEach
   void deleteGeneratedFiles() throws IOException {

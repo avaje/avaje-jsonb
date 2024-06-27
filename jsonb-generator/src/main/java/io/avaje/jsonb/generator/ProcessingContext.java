@@ -16,6 +16,7 @@ import java.util.*;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
@@ -65,6 +66,11 @@ final class ProcessingContext {
 
   static Optional<JsonPrism> importedJson(TypeElement type) {
     return Optional.ofNullable(CTX.get().importedJsonMap.get(type.asType().toString()));
+  }
+
+  static boolean isImported(Element element) {
+    var moduleName = APContext.getProjectModuleElement().getQualifiedName();
+    return !APContext.elements().getModuleOf(element).getQualifiedName().contentEquals(moduleName);
   }
 
   static List<SubTypePrism> importedSubtypes(TypeElement type) {
