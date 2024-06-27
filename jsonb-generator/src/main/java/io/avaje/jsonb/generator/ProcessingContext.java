@@ -26,7 +26,6 @@ final class ProcessingContext {
 
   private static final class Ctx {
     private final Map<String, JsonPrism> importedJsonMap = new HashMap<>();
-    private final Set<String> importedTypes = new HashSet<>();
     private final Map<String, List<SubTypePrism>> importedSubtypeMap = new HashMap<>();
     private final Set<String> services = new TreeSet<>();
     private final boolean injectPresent;
@@ -59,23 +58,19 @@ final class ProcessingContext {
     final var json = CTX.get().importedJsonMap;
     final var subtypes = CTX.get().importedSubtypeMap;
     prism.value().forEach(m -> {
-      addImportedType(m);
       final var type = m.toString();
       json.put(type, prism.jsonSettings());
       subtypes.put(type, prism.subtypes());
     });
   }
 
-  static void addImportedType(TypeMirror mirror) {
-    CTX.get().importedTypes.add(mirror.toString());
-  }
-
   static Optional<JsonPrism> importedJson(TypeElement type) {
     return Optional.ofNullable(CTX.get().importedJsonMap.get(type.asType().toString()));
   }
 
-  static boolean isImported(TypeElement type) {
-    return CTX.get().importedTypes.contains(type.asType().toString());
+  static boolean isImported(Element element) {
+    var moduleName = APContext.getProjectModuleElement().getQualifiedName();
+    return !APContext.elements().getModuleOf(element).getQualifiedName().contentEquals(moduleName);
   }
 
   static List<SubTypePrism> importedSubtypes(TypeElement type) {
