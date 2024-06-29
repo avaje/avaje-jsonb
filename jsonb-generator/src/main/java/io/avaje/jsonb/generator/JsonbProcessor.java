@@ -16,6 +16,8 @@ import javax.lang.model.util.ElementFilter;
 import io.avaje.prism.GenerateAPContext;
 import io.avaje.prism.GenerateModuleInfoReader;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -59,7 +61,11 @@ public final class JsonbProcessor extends AbstractProcessor {
     try {
 
       var file = APContext.getBuildResource("avaje-processors.txt");
-      Files.writeString(file, "avaje-jsonb-generator\n", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+      var addition =
+          file.toFile().exists()
+              ? Files.lines(file).distinct().collect(joining("\n")) + "\navaje-jsonb-generator"
+              : "avaje-jsonb-generator";
+      Files.writeString(file, addition, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
     } catch (IOException e) {
       // not an issue worth failing over
     }
