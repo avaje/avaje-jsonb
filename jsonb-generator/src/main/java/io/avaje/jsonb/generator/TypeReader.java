@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -170,7 +171,23 @@ final class TypeReader {
 
   private void readField(Element element, List<FieldReader> localFields) {
     final Element mixInField = mixInFields.get(element.getSimpleName().toString());
-    if (mixInField != null && mixInField.asType().equals(element.asType())) {
+    if (mixInField != null && APContext.types().isSameType(mixInField.asType(), element.asType())) {
+
+      var mixinModifiers = new HashSet<>(mixInField.getModifiers());
+      var modifiers = new HashSet<>(mixInField.getModifiers());
+
+      Arrays.stream(Modifier.values())
+          .filter(m -> m != Modifier.PRIVATE || m != Modifier.PROTECTED || m != Modifier.PUBLIC)
+          .forEach(
+              m -> {
+                modifiers.remove(m);
+                mixinModifiers.remove(m);
+              });
+
+      if (!modifiers.equals(mixinModifiers)) {
+       APContext.logError(mixInField, "mixIn fields must have the same modifiers as the target class");
+      }
+
       element = mixInField;
     }
     if (element.asType().toString().contains("java.util.Optional")) {
