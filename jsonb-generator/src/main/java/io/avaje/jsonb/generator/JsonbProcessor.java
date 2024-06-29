@@ -17,6 +17,7 @@ import io.avaje.prism.GenerateAPContext;
 import io.avaje.prism.GenerateModuleInfoReader;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -53,6 +54,14 @@ public final class JsonbProcessor extends AbstractProcessor {
     super.init(processingEnv);
     ProcessingContext.init(processingEnv);
     this.componentWriter = new SimpleComponentWriter(metaData);
+    // write a note in target so that other apts can know inject is running
+    try {
+
+      var file = APContext.getBuildResource("avaje-processors/avaje-jsonb-generator");
+      Files.writeString(file, "avaje-inject-generator initialized");
+    } catch (IOException e) {
+      // not an issue worth failing over
+    }
   }
 
   /**

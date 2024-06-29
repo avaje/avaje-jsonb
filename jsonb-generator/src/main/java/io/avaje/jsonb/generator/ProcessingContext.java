@@ -78,20 +78,8 @@ final class ProcessingContext {
   }
 
   private static boolean buildPluginAvailable() {
-    return resourceExists("target/avaje-plugin-exists.txt")
-      || resourceExists("build/avaje-plugin-exists.txt");
-  }
-
-  private static boolean resourceExists(String relativeName) {
     try {
-      final String resource =
-        filer()
-          .getResource(StandardLocation.CLASS_OUTPUT, "", relativeName)
-          .toUri()
-          .toString()
-          .replaceFirst("/target/classes", "")
-          .replaceFirst("/build/classes/java/main", "");
-      return Paths.get(new URI(resource)).toFile().exists();
+      return APContext.getBuildResource("avaje-plugin-exists.txt").toFile().exists();
     } catch (final Exception e) {
       return false;
     }
