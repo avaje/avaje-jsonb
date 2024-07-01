@@ -16,7 +16,11 @@ import javax.lang.model.util.ElementFilter;
 import io.avaje.prism.GenerateAPContext;
 import io.avaje.prism.GenerateModuleInfoReader;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -53,6 +57,22 @@ public final class JsonbProcessor extends AbstractProcessor {
     super.init(processingEnv);
     ProcessingContext.init(processingEnv);
     this.componentWriter = new SimpleComponentWriter(metaData);
+    // write a note in target so that other apts can know inject is running
+    try {
+      var file = APContext.getBuildResource("avaje-processors.txt");
+      var addition = new StringBuilder();
+      if (file.toFile().exists()) {
+        var result = Stream.concat(Files.lines(file), Stream.of("avaje-jsonb-generator"))
+          .distinct()
+          .collect(joining("\n"));
+        addition.append(result);
+      } else {
+        addition.append("avaje-jsonb-generator");
+      }
+      Files.writeString(file, addition, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+    } catch (IOException e) {
+      // not an issue worth failing over
+    }
   }
 
   /**
@@ -94,30 +114,24 @@ public final class JsonbProcessor extends AbstractProcessor {
       final var type = typeElement.getQualifiedName().toString();
       if (CustomAdapterPrism.getInstanceOn(typeElement).isGeneric()) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
-            .filter(isStaticFactory())
-            .findFirst()
-            .ifPresentOrElse(
-                x -> {},
-                () ->
-                    logError(
-                        typeElement,
-                        "Generic adapters require a public static JsonAdapter.Factory FACTORY field"));
+          .filter(isStaticFactory())
+          .findFirst()
+          .ifPresentOrElse(
+            x -> {},
+            () -> logError(typeElement, "Generic adapters require a public static JsonAdapter.Factory FACTORY field"));
 
         metaData.addFactory(type);
       } else {
         ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream()
-            .filter(m -> m.getModifiers().contains(Modifier.PUBLIC))
-            .filter(m -> m.getParameters().size() == 1)
-            .map(m -> m.getParameters().get(0).asType().toString())
-            .map(Util::trimAnnotations)
-            .filter("io.avaje.jsonb.Jsonb"::equals)
-            .findAny()
-            .ifPresentOrElse(
-                x -> {},
-                () ->
-                    logError(
-                        typeElement,
-                        "Non-Generic adapters must have a public constructor with a single Jsonb parameter"));
+          .filter(m -> m.getModifiers().contains(Modifier.PUBLIC))
+          .filter(m -> m.getParameters().size() == 1)
+          .map(m -> m.getParameters().get(0).asType().toString())
+          .map(Util::trimAnnotations)
+          .filter("io.avaje.jsonb.Jsonb"::equals)
+          .findAny()
+          .ifPresentOrElse(
+            x -> {},
+            () -> logError(typeElement, "Non-Generic adapters must have a public constructor with a single Jsonb parameter"));
 
         metaData.add(type);
       }
