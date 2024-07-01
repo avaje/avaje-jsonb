@@ -239,7 +239,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     for (final TypeMirror importType : importPrism.value()) {
       // if imported by mixin annotation skip
       if (mixInImports.contains(importType.toString())) {
-        return;
+        continue;
       }
       writeAdapterForImportedType(asTypeElement(importType), implementationType(importPrism));
     }
