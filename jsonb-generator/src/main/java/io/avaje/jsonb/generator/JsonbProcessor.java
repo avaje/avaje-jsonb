@@ -65,7 +65,6 @@ public final class JsonbProcessor extends AbstractProcessor {
         var result =
             Stream.concat(Files.lines(file), Stream.of("avaje-jsonb-generator"))
                 .distinct()
-                .peek(s -> System.out.println(s))
                 .collect(joining("\n"));
         addition.append(result);
       } else {
