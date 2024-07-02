@@ -3,8 +3,6 @@ package io.avaje.jsonb.generator;
 final class Constants {
 
   static final String META_INF_COMPONENT = "META-INF/services/io.avaje.jsonb.spi.JsonbExtension";
-  static final String JSONB_WILD = "io.avaje.jsonb.*";
-  static final String JSONB_SPI = "io.avaje.jsonb.spi.*";
   static final String JSONB = "io.avaje.jsonb.Jsonb";
   static final String JSON = "io.avaje.jsonb.Json";
   static final String JSON_IMPORT = "io.avaje.jsonb.Json.Import";

@@ -165,13 +165,11 @@ final class ClassReader implements BeanReader {
       importTypes.add(Constants.REFLECT_TYPE);
       importTypes.add(Constants.PARAMETERIZED_TYPE);
     }
-    importTypes.add(Constants.JSONB_WILD);
     importTypes.add(Constants.IOEXCEPTION);
-    importTypes.add(Constants.JSONB_SPI);
     if (!hasSubTypes) {
       importTypes.add(Constants.METHODHANDLE);
     }
-    if (Util.validImportType(type) && !ProcessingContext.isImported(beanType)) {
+    if (!ProcessingContext.isImported(beanType)) {
       importTypes.add(type);
     }
     for (final FieldReader allField : allFields) {
@@ -183,19 +181,29 @@ final class ClassReader implements BeanReader {
     if (implementation != null) {
       implementation.addImported(importTypes);
     }
+
+    if (supportsViewBuilder()) {
+      importTypes.add("io.avaje.jsonb.spi.ViewBuilder");
+      importTypes.add("io.avaje.jsonb.spi.ViewBuilderAware");
+    }
+    importTypes.add("io.avaje.jsonb.JsonAdapter");
+    importTypes.add(Constants.JSONB);
+    importTypes.add("io.avaje.jsonb.JsonReader");
+    importTypes.add("io.avaje.jsonb.JsonWriter");
+    importTypes.add("io.avaje.jsonb.Types");
+    importTypes.add("io.avaje.jsonb.spi.Generated");
+    importTypes.add("io.avaje.jsonb.spi.PropertyNames");
     return importTypes;
   }
 
   private void addImported(Set<String> importTypes) {
-    if (Util.validImportType(type)) {
-      importTypes.add(type);
-    }
+    importTypes.add(type);
   }
 
   @Override
-  public void writeImports(Append writer) {
+  public void writeImports(Append writer, String packageName) {
     for (final String importType : importTypes()) {
-      if (Util.validImportType(importType)) {
+      if (Util.validImportType(importType, packageName)) {
         writer.append("import %s;", Util.sanitizeImports(importType)).eol();
       }
     }

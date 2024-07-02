@@ -62,9 +62,11 @@ public final class JsonbProcessor extends AbstractProcessor {
       var file = APContext.getBuildResource("avaje-processors.txt");
       var addition = new StringBuilder();
       if (file.toFile().exists()) {
-        var result = Stream.concat(Files.lines(file), Stream.of("avaje-jsonb-generator"))
-          .distinct()
-          .collect(joining("\n"));
+        var result =
+            Stream.concat(Files.lines(file), Stream.of("avaje-jsonb-generator"))
+                .distinct()
+                .peek(s -> System.out.println(s))
+                .collect(joining("\n"));
         addition.append(result);
       } else {
         addition.append("avaje-jsonb-generator");
