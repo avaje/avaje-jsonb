@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UtilTest {
 
@@ -49,5 +49,19 @@ class UtilTest {
     assertEquals("org.foo.Bar", Util.sanitizeImports("org.foo.Bar"));
     assertEquals("org.foo.Bar", Util.sanitizeImports("org.foo.Bar[]"));
     assertEquals("org.foo.Bar", Util.sanitizeImports("@some.Nullable org.foo.Bar[]"));
+  }
+
+  @Test
+  void validImportType_expect_false() {
+    assertFalse(Util.validImportType("int", "org.foo"));
+    assertFalse(Util.validImportType("java.lang.Integer", "org.foo"));
+    assertFalse(Util.validImportType("org.foo.Bar", "org.foo"));
+  }
+
+  @Test
+  void validImportType_expect_true() {
+    assertTrue(Util.validImportType("java.lang.something.Foo", "org.foo"));
+    assertTrue(Util.validImportType("org.foo.some.Bar", "org.foo"));
+    assertTrue(Util.validImportType("org.other.Bar", "org.foo"));
   }
 }

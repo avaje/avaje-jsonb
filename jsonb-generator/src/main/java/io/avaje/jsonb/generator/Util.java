@@ -25,14 +25,18 @@ final class Util {
 
   static boolean validImportType(String type, String packageName) {
     return type.indexOf('.') > -1
-            && !type.startsWith("java.lang.")
-            && transform(type.replace(packageName + ".", ""), s -> s.contains("."))
-        || (type.startsWith("java.lang.")
-            && transform(type.replace("java.lang.", ""), s -> s.contains(".")));
+      && !type.startsWith("java.lang.")
+      && importDifferentPackage(type, packageName)
+      || importJavaLangSubpackage(type);
   }
 
-  private static <T> T transform(String s, Function<String, T> func) {
-    return func.apply(s);
+  private static boolean importDifferentPackage(String type, String packageName) {
+    String result = type.replace(packageName + '.', "");
+    return result.indexOf('.') > 0;
+  }
+
+  private static boolean importJavaLangSubpackage(String type) {
+    return type.startsWith("java.lang.") && importDifferentPackage(type, "java.lang");
   }
 
   public static String sanitizeImports(String type) {
