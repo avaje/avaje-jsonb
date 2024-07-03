@@ -31,8 +31,7 @@ final class Util {
   }
 
   private static boolean importDifferentPackage(String type, String packageName) {
-    String result = type.replace(packageName + '.', "");
-    return result.indexOf('.') > 0;
+    return type.replace(packageName + '.', "").indexOf('.') > 0;
   }
 
   private static boolean importJavaLangSubpackage(String type) {
