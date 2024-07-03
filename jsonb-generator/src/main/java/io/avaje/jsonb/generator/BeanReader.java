@@ -9,7 +9,7 @@ interface BeanReader {
 
   void read();
 
-  void writeImports(Append writer);
+  void writeImports(Append writer, String packageName);
 
   void writeFields(Append writer);
 

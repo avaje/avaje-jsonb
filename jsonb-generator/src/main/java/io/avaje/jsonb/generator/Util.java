@@ -10,6 +10,7 @@ import static io.avaje.jsonb.generator.APContext.logError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,8 +23,19 @@ final class Util {
   private static final Pattern COMMA_PATTERN =
       Pattern.compile(", (?=(?:[^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)");
 
-  static boolean validImportType(String type) {
-    return type.indexOf('.') > 0;
+  static boolean validImportType(String type, String packageName) {
+    return type.indexOf('.') > -1
+      && !type.startsWith("java.lang.")
+      && importDifferentPackage(type, packageName)
+      || importJavaLangSubpackage(type);
+  }
+
+  private static boolean importDifferentPackage(String type, String packageName) {
+    return type.replace(packageName + '.', "").indexOf('.') > 0;
+  }
+
+  private static boolean importJavaLangSubpackage(String type) {
+    return type.startsWith("java.lang.") && importDifferentPackage(type, "java.lang");
   }
 
   public static String sanitizeImports(String type) {

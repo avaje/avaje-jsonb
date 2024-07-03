@@ -108,11 +108,13 @@ final class SimpleComponentWriter {
 
   private void writeImports() {
     importTypes.add(Constants.JSONB);
-    importTypes.add(Constants.JSONB_SPI);
     importTypes.addAll(metaData.allImports());
+    importTypes.add("io.avaje.jsonb.spi.Generated");
+    importTypes.add("io.avaje.jsonb.spi.GeneratedComponent");
+    importTypes.add("io.avaje.jsonb.spi.MetaData");
 
     for (final String importType : importTypes) {
-      if (Util.validImportType(importType)) {
+      if (Util.validImportType(importType, metaData.packageName())) {
         writer.append("import %s;", importType).eol();
       }
     }

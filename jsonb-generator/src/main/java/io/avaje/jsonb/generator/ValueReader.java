@@ -73,25 +73,27 @@ final class ValueReader implements BeanReader {
   }
 
   private Set<String> importTypes() {
-    importTypes.add(Constants.JSONB_WILD);
     importTypes.add(Constants.IOEXCEPTION);
-    importTypes.add(Constants.JSONB_SPI);
     importTypes.add("java.util.EnumMap");
     importTypes.add("java.util.HashMap");
     importTypes.add("java.util.Map");
-    if (Util.validImportType(type)) {
-      importTypes.add(type);
-    }
-    importTypes.add(Constants.JSONB_SPI);
+    importTypes.add(type);
     importTypes.add(element.asType().toString());
     importTypes.add(method.getReturnType().toString());
+    importTypes.add("io.avaje.jsonb.spi.PropertyNames");
+    importTypes.add("io.avaje.jsonb.JsonAdapter");
+    importTypes.add("io.avaje.jsonb.JsonDataException");
+    importTypes.add("io.avaje.jsonb.JsonReader");
+    importTypes.add("io.avaje.jsonb.JsonWriter");
+    importTypes.add("io.avaje.jsonb.spi.Generated");
+    importTypes.add(Constants.JSONB);
     return importTypes;
   }
 
   @Override
-  public void writeImports(Append writer) {
+  public void writeImports(Append writer, String packageName) {
     for (final String importType : importTypes()) {
-      if (Util.validImportType(importType)) {
+      if (Util.validImportType(importType, packageName)) {
         writer.append("import %s;", Util.sanitizeImports(importType)).eol();
       }
     }
