@@ -10,3 +10,4 @@ build/
 .DS_Store
 *.factorypath
 jsonb-generator/io.avaje.jsonb.spi.JsonbExtension
+jsonb-generator/avaje-processors.txt
