@@ -472,23 +472,32 @@ final class ClassReader implements BeanReader {
 
   private void writeJsonBuildResult(Append writer, String varName) {
     writer.append("    // build and return %s", shortName).eol();
-      if (constructor == null) {
-        writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
-      } else {
-        writer.append("    %s _$%s = " + constructor.creationString(), shortName, varName);
-        final List<MethodReader.MethodParam> params = constructor.getParams();
-        for (int i = 0, size = params.size(); i < size; i++) {
-          if (i > 0) {
-            writer.append(", ");
-          }
-          final var name = params.get(i).name();
-          // append increasing numbers to constructor params sharing names with other subtypes
-          final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
-          // assuming name matches field here?
-          writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
+    if (constructor == null) {
+      writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+    } else {
+      writer.append("    %s _$%s = " + constructor.creationString(), shortName, varName);
+      final List<MethodReader.MethodParam> params = constructor.getParams();
+      for (int i = 0, size = params.size(); i < size; i++) {
+        if (i > 0) {
+          writer.append(", ");
         }
+
+        final var paramName = params.get(i).name();
+        var name =
+            allFields.stream()
+                .filter(FieldReader::isConstructorParam)
+                .filter(f -> f.propertyName().equals(paramName) || f.fieldName().equals(paramName))
+                .map(FieldReader::fieldName)
+                .findFirst()
+                .orElse(paramName);
+
+        // append increasing numbers to constructor params sharing names with other subtypes
+        final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
+        // assuming name matches field here?
+        writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
       }
-      writer.append(");").eol();
+    }
+    writer.append(");").eol();
     for (final FieldReader allField : allFields) {
       if (allField.includeFromJson()) {
         frequencyMap.compute(allField.fieldName(), (k, v) -> v == null ? 0 : v + 1);

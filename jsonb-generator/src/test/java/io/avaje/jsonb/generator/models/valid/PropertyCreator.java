@@ -36,14 +36,14 @@ public final class PropertyCreator {
 
   @Json.Creator
   public PropertyCreator(
-      String identifier,
+      String uid,
       Instant startup,
       Properties configuration,
       Set<PropertyCreator> instances) {
     this.arguments = null;
     this.hooks = null;
 
-    this.identifier = identifier;
+    this.identifier = uid;
     this.startup = startup;
     this.configuration = configuration;
     this.instances = null;

@@ -293,7 +293,7 @@ final class TypeReader {
 
   private void matchFieldsToSetterOrConstructor() {
     for (FieldReader field : allFields) {
-      if (field.includeFromJson()) {
+      if (field.includeFromJson() && !field.isConstructorParam()) {
         if (constructorParamMap.get(field.fieldName()) != null) {
           field.setConstructorParam();
         } else {
