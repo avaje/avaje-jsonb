@@ -68,6 +68,7 @@ final class FieldReader {
   void readParam(VariableElement element) {
     this.deserialize = true;
     this.isCreatorParam = true;
+    property.setConstructorParam();
     initAliases(element);
   }
 
