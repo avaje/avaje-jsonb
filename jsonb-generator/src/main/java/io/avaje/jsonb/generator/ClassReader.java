@@ -70,7 +70,6 @@ final class ClassReader implements BeanReader {
     subTypes.stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
 
     final var userTypeField = allFields.stream().filter(f -> f.propertyName().equals(typePropertyKey())).findAny();
-
     this.usesTypeProperty = userTypeField.isPresent();
     this.useEnum =
       userTypeField
@@ -222,7 +221,6 @@ final class ClassReader implements BeanReader {
   @Override
   public void writeFields(Append writer) {
     writer.append("  // naming convention %s", namingConvention).eol();
-
     for (final FieldReader allField : allFields) {
       allField.writeDebug(writer);
     }
@@ -264,9 +262,9 @@ final class ClassReader implements BeanReader {
       if (allField.include() && !allField.isRaw() && uniqueTypes.add(allField.adapterShortType())) {
         if (hasSubTypes) {
           final var isCommonDiffType =
-              allFields.stream()
-                  .filter(s -> s.fieldName().equals(allField.fieldName()))
-                  .anyMatch(f -> !allField.adapterShortType().equals(f.adapterShortType()));
+            allFields.stream()
+              .filter(s -> s.fieldName().equals(allField.fieldName()))
+              .anyMatch(f -> !allField.adapterShortType().equals(f.adapterShortType()));
           isCommonFieldMap.put(allField.fieldName(), isCommonDiffType);
         }
         allField.writeConstructor(writer);
@@ -484,12 +482,12 @@ final class ClassReader implements BeanReader {
 
         final var paramName = params.get(i).name();
         var name =
-            allFields.stream()
-                .filter(FieldReader::isConstructorParam)
-                .filter(f -> f.propertyName().equals(paramName) || f.fieldName().equals(paramName))
-                .map(FieldReader::fieldName)
-                .findFirst()
-                .orElse(paramName);
+          allFields.stream()
+            .filter(FieldReader::isConstructorParam)
+            .filter(f -> f.propertyName().equals(paramName) || f.fieldName().equals(paramName))
+            .map(FieldReader::fieldName)
+            .findFirst()
+            .orElse(paramName);
 
         // append increasing numbers to constructor params sharing names with other subtypes
         final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
@@ -583,23 +581,23 @@ final class ClassReader implements BeanReader {
         final var isCommonFieldDiffType = isCommonFieldMap.get(name);
         if (isCommonFieldDiffType == null || !isCommonFieldDiffType) {
           allField.writeFromJsonSwitch(
-              writer,
-              defaultConstructor,
-              varName,
-              caseInsensitiveKeys,
-              allFields.stream()
-                  .filter(x -> x.fieldName().equals(name))
-                  .flatMap(f -> f.aliases().stream())
-                  .collect(toList()));
+            writer,
+            defaultConstructor,
+            varName,
+            caseInsensitiveKeys,
+            allFields.stream()
+              .filter(x -> x.fieldName().equals(name))
+              .flatMap(f -> f.aliases().stream())
+              .collect(toList()));
         } else {
           // if subclass shares a field name with another subclass
           // write a special case statement
           writeSubTypeCase(
-              name,
-              writer,
-              allFields.stream().filter(x -> x.fieldName().equals(name)).collect(toList()),
-              defaultConstructor,
-              varName);
+            name,
+            writer,
+            allFields.stream().filter(x -> x.fieldName().equals(name)).collect(toList()),
+            defaultConstructor,
+            varName);
         }
 
       } else
@@ -622,8 +620,7 @@ final class ClassReader implements BeanReader {
   private void writeSubTypeCase(String name, Append writer, List<FieldReader> commonFields, boolean defaultConstructor, String varName) {
     writer.append("        case \"%s\":", name).eol();
     // get all possible aliases of this field from the subtypes
-    for (final String alias :
-        commonFields.stream().map(FieldReader::aliases).findFirst().orElseGet(List::of)) {
+    for (final String alias : commonFields.stream().map(FieldReader::aliases).findFirst().orElseGet(List::of)) {
       final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
       writer.append("        case \"%s\":", propertyKey).eol();
     }
