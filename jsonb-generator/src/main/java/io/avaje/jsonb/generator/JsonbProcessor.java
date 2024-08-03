@@ -136,7 +136,7 @@ public final class JsonbProcessor extends AbstractProcessor {
           .findAny()
           .ifPresentOrElse(
             x -> {},
-            () -> logError(typeElement, "Non-Generic adapters must have a public constructor with a single Jsonb parameter"));
+            () -> logNote(typeElement, "Non-Generic adapters should have a public constructor with a single Jsonb parameter"));
 
         metaData.add(type);
       }
