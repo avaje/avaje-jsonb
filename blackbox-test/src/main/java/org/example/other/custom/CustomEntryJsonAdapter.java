@@ -1,6 +1,5 @@
 package org.example.other.custom;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
