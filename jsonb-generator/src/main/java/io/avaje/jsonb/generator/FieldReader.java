@@ -2,8 +2,9 @@ package io.avaje.jsonb.generator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+
 import java.util.*;
 
 final class FieldReader {
@@ -16,11 +17,13 @@ final class FieldReader {
   private boolean deserialize;
   private final boolean unmapped;
   private final boolean raw;
+  private final boolean hasCustomSerializer;
 
   private final List<String> aliases = new ArrayList<>();
   private boolean isSubTypeField;
   private final String num;
   private boolean isCreatorParam;
+
 
   FieldReader(
     Element element,
@@ -51,12 +54,22 @@ final class FieldReader {
     final var publicField = !isMethod && !isParam && Util.isPublic(element);
     final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
 
-    this.property = new FieldProperty(type, raw, unmapped, genericTypeParams, publicField, fieldName);
+    final var customSerializer = WithAdapterPrism.getOptionalOn(element).map(WithAdapterPrism::value);
+    this.hasCustomSerializer = customSerializer.isPresent();
+    this.property =
+        new FieldProperty(
+            type,
+            raw,
+            unmapped,
+            genericTypeParams,
+            publicField,
+            fieldName,
+            customSerializer);
     this.propertyName =
-      PropertyPrism.getOptionalOn(element)
-        .map(PropertyPrism::value)
-        .map(Util::escapeQuotes)
-        .orElse(namingConvention.from(fieldName));
+        PropertyPrism.getOptionalOn(element)
+            .map(PropertyPrism::value)
+            .map(Util::escapeQuotes)
+            .orElse(namingConvention.from(fieldName));
 
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element, propertyName);
     this.serialize = !isParam && ignoreReader.serialize();
@@ -165,6 +178,10 @@ final class FieldReader {
 
   boolean isPublicField() {
     return property.isPublicField();
+  }
+
+  boolean hasCustomSerializer() {
+    return hasCustomSerializer;
   }
 
   void writeDebug(Append writer) {

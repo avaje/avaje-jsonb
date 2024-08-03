@@ -1,11 +1,14 @@
 package io.avaje.jsonb.generator;
 
+import static java.util.function.Predicate.not;
+
 import java.util.*;
 
 final class ComponentMetaData {
 
   private final List<String> allTypes = new ArrayList<>();
   private final List<String> factoryTypes = new ArrayList<>();
+  private final List<String> withTypes = new ArrayList<>();
   private String fullName;
 
   @Override
@@ -25,11 +28,18 @@ final class ComponentMetaData {
   }
 
   void add(String type) {
-    allTypes.add(type);
+    Optional.ofNullable(APContext.typeElement(type))
+        .flatMap(CustomAdapterPrism::getOptionalOn)
+        .filter(not(CustomAdapterPrism::global))
+        .ifPresentOrElse(p -> withTypes.add(type), () -> allTypes.add(type));
   }
 
   void addFactory(String fullName) {
     factoryTypes.add(fullName);
+  }
+
+  public void addWithType(String type) {
+    withTypes.add(type);
   }
 
   void setFullName(String fullName) {
@@ -59,6 +69,10 @@ final class ComponentMetaData {
     return factoryTypes;
   }
 
+  List<String> withTypes() {
+    return withTypes;
+  }
+
   /**
    * Return the package imports for the JsonAdapters and related types.
    */
@@ -73,6 +87,7 @@ final class ComponentMetaData {
     }
 
     packageImports.addAll(factoryTypes);
+    packageImports.addAll(withTypes);
     return packageImports;
   }
 

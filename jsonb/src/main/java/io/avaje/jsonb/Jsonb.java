@@ -418,4 +418,6 @@ public interface Jsonb {
      */
     JsonAdapter<?> build(Jsonb jsonb);
   }
+
+  <T> JsonAdapter<T> withAdapter(Class<? extends JsonAdapter<?>> clazz);
 }

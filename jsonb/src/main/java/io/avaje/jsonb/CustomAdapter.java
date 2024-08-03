@@ -66,4 +66,9 @@ public @interface CustomAdapter {
    * Set to true when the adapter is for a type that uses generics.
    */
   boolean isGeneric() default false;
+
+  /**
+   * Whether this adapter should override existing adapters for a type. When disabled the only way to use the adapter
+   */
+  boolean global() default true;
 }

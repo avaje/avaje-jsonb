@@ -1,6 +1,5 @@
 package io.avaje.jsonb;
 
-
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -8,8 +7,6 @@ import static java.lang.annotation.ElementType.MODULE;
 import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import java.lang.annotation.Repeatable;
@@ -339,6 +336,46 @@ public @interface Json {
   @Retention(SOURCE)
   @Target({CONSTRUCTOR, METHOD})
   @interface Creator {}
+
+  /**
+   * Marker annotation that can be used to define constructors or factory methods as one to use
+   * for instantiating  new instances of the associated class. Can be used in Mixin classes to
+   * override an existing deserialization method.
+   * <p>
+   * The parameter names will be used as keys for deserialization instead of the field names.
+   * <p>
+   * <h3>Examples:</h3>
+   *
+   * <pre>{@code
+   *
+   *   @Json
+   *   public class Kingfisher {
+   *
+   *     @Json.Creator
+   *     public Kingfisher(String name) {
+   *        ...
+   *     }
+   *   ...
+   *
+   * }</pre>
+   *
+   * <pre>{@code
+   *
+   *   @Json
+   *   public record Product( ... ) {
+   *
+   *   @Json.Creator
+   *   public static Product factory(String name){
+   *      ...
+   *   }
+   *
+   * }</pre>
+   */
+  @Retention(SOURCE)
+  @Target({FIELD, METHOD})
+  @interface WithAdapter {
+    Class<? extends JsonAdapter<?>> value();
+  }
 
   /**
    * The naming convention that we can use for a given type.
