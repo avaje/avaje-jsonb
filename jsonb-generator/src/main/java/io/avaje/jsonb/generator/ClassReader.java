@@ -236,7 +236,8 @@ final class ClassReader implements BeanReader {
     for (final FieldReader allField : allFields) {
       if (allField.include()
           && !allField.isRaw()
-          && (allField.hasCustomSerializer() || uniqueTypes.add(allField.adapterShortType()))) {
+          && (allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterFieldName())
+              || !allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterShortType()))) {
         allField.writeField(writer);
       }
     }
@@ -263,7 +264,8 @@ final class ClassReader implements BeanReader {
     for (final FieldReader allField : allFields) {
       if (allField.include()
           && !allField.isRaw()
-          && (allField.hasCustomSerializer() || uniqueTypes.add(allField.adapterShortType()))) {
+          && (allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterFieldName())
+              || !allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterShortType()))) {
         if (hasSubTypes) {
           final var isCommonDiffType =
             allFields.stream()
