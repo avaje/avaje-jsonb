@@ -3,7 +3,6 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
 
 import java.util.*;
 
@@ -54,7 +53,7 @@ final class FieldReader {
     final var publicField = !isMethod && !isParam && Util.isPublic(element);
     final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
 
-    final var customSerializer = WithAdapterPrism.getOptionalOn(element).map(WithAdapterPrism::value);
+    final var customSerializer = SerializerPrism.getOptionalOn(element).map(SerializerPrism::value);
     this.hasCustomSerializer = customSerializer.isPresent();
     this.property =
         new FieldProperty(

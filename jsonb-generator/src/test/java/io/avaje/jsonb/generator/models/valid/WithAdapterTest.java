@@ -7,7 +7,7 @@ import io.avaje.jsonb.Json;
 @Json
 public class WithAdapterTest {
 
-  @Json.WithAdapter(MoneySerializer.class)
+  @Json.Serializer(MoneySerializer.class)
   BigDecimal amount;
 
   BigDecimal somethingElse;

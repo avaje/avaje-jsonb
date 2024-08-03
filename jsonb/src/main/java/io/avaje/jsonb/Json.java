@@ -338,42 +338,22 @@ public @interface Json {
   @interface Creator {}
 
   /**
-   * Marker annotation that can be used to define constructors or factory methods as one to use
-   * for instantiating  new instances of the associated class. Can be used in Mixin classes to
-   * override an existing deserialization method.
-   * <p>
-   * The parameter names will be used as keys for deserialization instead of the field names.
-   * <p>
-   * <h3>Examples:</h3>
+   * Use a custom (de)serializer for this field. The custom serializer should be registered with {@link CustomAdapter} with the {@link CustomAdapter#global()} property set to false.
    *
    * <pre>{@code
    *
    *   @Json
-   *   public class Kingfisher {
+   *   public class Example {
    *
-   *     @Json.Creator
-   *     public Kingfisher(String name) {
-   *        ...
-   *     }
-   *   ...
-   *
-   * }</pre>
-   *
-   * <pre>{@code
-   *
-   *   @Json
-   *   public record Product( ... ) {
-   *
-   *   @Json.Creator
-   *   public static Product factory(String name){
-   *      ...
-   *   }
+   *   @Json.Serializer(CustomDateSerializer.class)
+   *   private LocalDate type;
+   *    ...
    *
    * }</pre>
    */
   @Retention(SOURCE)
   @Target({FIELD, METHOD})
-  @interface WithAdapter {
+  @interface Serializer {
     Class<? extends JsonAdapter<?>> value();
   }
 

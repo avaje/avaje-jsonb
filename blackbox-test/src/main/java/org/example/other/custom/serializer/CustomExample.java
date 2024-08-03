@@ -6,4 +6,4 @@ import io.avaje.jsonb.Json;
 
 @Json
 public record CustomExample(
-    @Json.WithAdapter(MoneySerializer.class) BigDecimal amountOwed, BigDecimal somethingElse) {}
+    @Json.Serializer(MoneySerializer.class) BigDecimal amountOwed, BigDecimal somethingElse) {}

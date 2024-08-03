@@ -36,7 +36,7 @@ final class FieldProperty {
         new ArrayList<>(),
         false,
         methodReader.getName(),
-        WithAdapterPrism.getOptionalOn(methodReader.element()).map(WithAdapterPrism::value));
+        SerializerPrism.getOptionalOn(methodReader.element()).map(SerializerPrism::value));
   }
 
   FieldProperty(
@@ -215,7 +215,7 @@ final class FieldProperty {
       customSerializer.ifPresentOrElse(
           c ->
               writer
-                  .append("    this.%s = jsonb.withAdapter(%s.class);", adapterFieldName, Util.shortType(c))
+                  .append("    this.%s = jsonb.customAdapter(%s.class);", adapterFieldName, Util.shortType(c))
                   .eol(),
           () ->
               writer

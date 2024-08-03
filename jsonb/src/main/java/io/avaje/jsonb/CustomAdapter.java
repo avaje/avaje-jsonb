@@ -6,7 +6,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-
 /**
  * Marks a type as a basic user-provided JsonAdapter to be registered automatically.
  *
@@ -68,7 +67,8 @@ public @interface CustomAdapter {
   boolean isGeneric() default false;
 
   /**
-   * Whether this adapter should override existing adapters for a type. When disabled the only way to use the adapter
+   * Whether this adapter should override existing adapters for a type. When disabled the only way
+   * to use the adapter is via the {@link Json.Serializer} annotation
    */
   boolean global() default true;
 }

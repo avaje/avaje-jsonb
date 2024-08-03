@@ -152,7 +152,7 @@ final class DJsonb implements Jsonb {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> JsonAdapter<T> withAdapter(Class<? extends JsonAdapter<?>> cls) {
+  public <T> JsonAdapter<T> customAdapter(Class<? extends JsonAdapter<?>> cls) {
     return (JsonAdapter<T>) adapter(cls);
   }
 
