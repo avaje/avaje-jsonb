@@ -15,6 +15,7 @@ import javax.lang.model.util.ElementFilter;
 
 import io.avaje.prism.GenerateAPContext;
 import io.avaje.prism.GenerateModuleInfoReader;
+import io.avaje.prism.GenerateUtils;
 
 import static java.util.stream.Collectors.joining;
 
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+@GenerateUtils
 @GenerateAPContext
 @GenerateModuleInfoReader
 @SupportedAnnotationTypes({
@@ -112,7 +114,10 @@ public final class JsonbProcessor extends AbstractProcessor {
   private void registerCustomAdapters(Set<? extends Element> elements) {
     for (final var typeElement : ElementFilter.typesIn(elements)) {
       final var type = typeElement.getQualifiedName().toString();
-      if (CustomAdapterPrism.getInstanceOn(typeElement).isGeneric()) {
+      if (typeElement.getInterfaces().stream()
+          .map(UType::parse)
+          .filter(u -> u.full().contains("JsonAdapter"))
+          .anyMatch(u -> u.param0().isGeneric())) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
           .filter(isStaticFactory())
           .findFirst()
