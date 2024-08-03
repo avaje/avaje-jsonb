@@ -112,7 +112,7 @@ final class SimpleAdapterWriter {
       writer.append("@SuppressWarnings({\"unchecked\", \"rawtypes\"})").eol();
     }
     writer.append("@Generated(\"io.avaje.jsonb.generator\")").eol();
-    writer.append("public final class %sJsonAdapter implements JsonAdapter<%s>", adapterShortName, beanReader.shortName());
+    writer.append("public final %sclass %sJsonAdapter implements JsonAdapter<%s>", Util.valhalla(), adapterShortName, beanReader.shortName());
     if (beanReader.supportsViewBuilder()) {
       writer.append(", ViewBuilderAware ");
     }

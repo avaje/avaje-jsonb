@@ -114,12 +114,13 @@ final class ValueReader implements BeanReader {
   public void writeConstructor(Append writer) {
     writer.append("    this.adapter = jsonb.adapter(%s);", genericType.asTypeDeclaration().replace("? extends ", "")).eol();
     if (isEnum) {
-      writer.append("    if(!toValue.isEmpty()) return;").eol();
-      writer.append("    for(final var enumConst : %s.values()) {", shortName).eol();
-      writer.append("      var val = enumConst.%s();", method.getSimpleName()).eol();
-      writer.append("      toValue.put(enumConst, val);").eol();
-      writer.append("      if(toEnum.containsKey(val)) throw new IllegalArgumentException(\"Duplicate value \"+ val + \" from enum method %s. @Json.Value methods must return unique values\");",method.getSimpleName()).eol();
-      writer.append("      toEnum.put(val, enumConst);").eol();
+      writer.append("    if(toValue.isEmpty()) {").eol();
+      writer.append("      for(final var enumConst : %s.values()) {", shortName).eol();
+      writer.append("        var val = enumConst.%s();", method.getSimpleName()).eol();
+      writer.append("        toValue.put(enumConst, val);").eol();
+      writer.append("        if(toEnum.containsKey(val)) throw new IllegalArgumentException(\"Duplicate value \"+ val + \" from enum method %s. @Json.Value methods must return unique values\");",method.getSimpleName()).eol();
+      writer.append("        toEnum.put(val, enumConst);").eol();
+      writer.append("      }").eol();
       writer.append("    }").eol();
     }
   }
