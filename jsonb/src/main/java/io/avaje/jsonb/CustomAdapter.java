@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  *
  * <pre>{@code
  *
- * @CustomAdapter(isGeneric=true)
+ * @CustomAdapter
  * public class CustomJsonAdapter<T> implements JsonAdapter<GenericType<T>> {
  *
  *   private final JsonAdapter<T> genericTypeAdapter;

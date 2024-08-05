@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import static io.avaje.jsonb.core.Util.*;
 import static java.util.Objects.requireNonNull;
@@ -283,6 +284,11 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
+    public <T> Builder add(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
+      return add(newAdapterFactory(type, jsonAdapter));
+    }
+
+    @Override
     public Builder add(JsonbComponent component) {
       component.register(this);
       return this;
@@ -307,20 +313,19 @@ final class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(
-          adapter,
-          factories,
-          serializeNulls,
-          serializeEmpty,
-          failOnUnknown,
-          mathTypesAsString,
-          strategy);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString, strategy);
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
+    }
+
+    static <T> JsonAdapter.Factory newAdapterFactory(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
+      requireNonNull(type);
+      requireNonNull(jsonAdapter);
+      return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter.get() : null;
     }
 
     static JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
