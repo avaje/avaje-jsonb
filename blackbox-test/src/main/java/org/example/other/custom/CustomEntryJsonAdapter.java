@@ -1,6 +1,5 @@
 package org.example.other.custom;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
@@ -13,7 +12,7 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
 import io.avaje.jsonb.spi.PropertyNames;
 
-@CustomAdapter(isGeneric = true)
+@CustomAdapter
 public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
 
   private final JsonAdapter<K> generic1;

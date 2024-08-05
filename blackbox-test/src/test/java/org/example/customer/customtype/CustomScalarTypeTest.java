@@ -50,6 +50,24 @@ class CustomScalarTypeTest {
     assertThat(wrapper1.custom()).isEqualTo(wrapper.custom());
   }
 
+  @Test
+  void toJson_fromJson_usingSupplier() {
+    Jsonb jsonb = Jsonb.builder()
+      // register a supplier
+      .add(MyCustomScalarType.class, () -> new CustomTypeAdapter().nullSafe())
+      .build();
+
+    MyWrapper wrapper = new MyWrapper(42, "hello", new MyCustomScalarType("hello".getBytes(StandardCharsets.UTF_8)));
+
+    String asJson = jsonb.toJson(wrapper);
+    assertThat(asJson).isEqualTo("{\"id\":42,\"base\":\"hello\",\"custom\":\"aGVsbG8=\"}");
+
+    MyWrapper wrapper1 = jsonb.type(MyWrapper.class).fromJson(asJson);
+
+    assertThat(wrapper1).isEqualTo(wrapper);
+    assertThat(wrapper1.custom()).isEqualTo(wrapper.custom());
+  }
+
   static class CustomTypeAdapter implements JsonAdapter<MyCustomScalarType> {
 
     @Override

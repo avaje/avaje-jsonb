@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.util.function.Supplier;
 
 /**
  * Provides access to json adapters by type.
@@ -385,6 +386,11 @@ public interface Jsonb {
      * Add a JsonAdapter to use for the given type.
      */
     <T> Builder add(Type type, JsonAdapter<T> jsonAdapter);
+
+    /**
+     * Add a Supplier which provides a JsonAdapter to use for the given type.
+     */
+    <T> Builder add(Type type, Supplier<JsonAdapter<T>> builder);
 
     /**
      * Add a AdapterBuilder which provides a JsonAdapter to use for the given type.

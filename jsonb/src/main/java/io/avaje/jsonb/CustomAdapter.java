@@ -6,7 +6,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-
 /**
  * Marks a type as a basic user-provided JsonAdapter to be registered automatically.
  *
@@ -35,7 +34,7 @@ import java.lang.annotation.Target;
  *
  * <pre>{@code
  *
- * @CustomAdapter(isGeneric=true)
+ * @CustomAdapter
  * public class CustomJsonAdapter<T> implements JsonAdapter<GenericType<T>> {
  *
  *   private final JsonAdapter<T> genericTypeAdapter;
@@ -60,10 +59,4 @@ import java.lang.annotation.Target;
  */
 @Target(TYPE)
 @Retention(SOURCE)
-public @interface CustomAdapter {
-
-  /**
-   * Set to true when the adapter is for a type that uses generics.
-   */
-  boolean isGeneric() default false;
-}
+public @interface CustomAdapter {}

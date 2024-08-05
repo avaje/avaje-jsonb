@@ -12,7 +12,7 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
 import io.avaje.jsonb.spi.PropertyNames;
 
-@CustomAdapter(isGeneric = true)
+@CustomAdapter
 public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
 
   private final JsonAdapter<K> generic1;
