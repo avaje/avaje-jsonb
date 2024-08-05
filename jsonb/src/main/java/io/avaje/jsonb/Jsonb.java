@@ -319,7 +319,7 @@ public interface Jsonb {
   /**
    * Return the JsonAdapter used to read and write json for the given class.
    *
-   * <p>JsonAdapter is generally used by serialization code. Application code should use
+   * <p>JsonAdapter is generally used by generated serialization code. Application code should use
    * {@link Jsonb#type(Class)} and {@link JsonType} instead.
    */
   <T> JsonAdapter<T> adapter(Class<T> cls);
@@ -327,7 +327,7 @@ public interface Jsonb {
   /**
    * Return the JsonAdapter used to read and write json for the given type.
    *
-   * <p>JsonAdapter is generally used by serialization code. Application code should use
+   * <p>JsonAdapter is generally used by generated serialization code. Application code should use
    * {@link Jsonb#type(Type)} and {@link JsonType} instead.
    */
   <T> JsonAdapter<T> adapter(Type type);
@@ -335,8 +335,8 @@ public interface Jsonb {
   /**
    * Return a registered non-global custom adapter
    *
-   * <p>JsonAdapter is generally used by serialization code. Application code should use {@link
-   * Jsonb#type(Type)} and {@link JsonType} instead.
+   * <p>JsonAdapter is generally used by generated serialization code. Application code should use
+   * {@link Jsonb#type(Type)} and {@link JsonType} instead.
    *
    * @param clazz the class of the custom adapter to retrieve
    * @return the custom adapter used to read and write json for the given type.
@@ -363,7 +363,7 @@ public interface Jsonb {
     /**
      * Set to serialise empty collections or not.
      * <p>
-     * Default is to serialize empty collections.
+     * Default is to serialise empty collections.
      */
     Builder serializeEmpty(boolean serializeEmpty);
 

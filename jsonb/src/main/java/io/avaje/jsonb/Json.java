@@ -354,6 +354,10 @@ public @interface Json {
   @Retention(SOURCE)
   @Target({FIELD, METHOD})
   @interface Serializer {
+
+    /**
+     * The custom serializer to use with this property.
+     */
     Class<? extends JsonAdapter<?>> value();
   }
 

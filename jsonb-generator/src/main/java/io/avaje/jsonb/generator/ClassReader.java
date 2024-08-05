@@ -234,10 +234,7 @@ final class ClassReader implements BeanReader {
       uniqueTypes.add("String");
     }
     for (final FieldReader allField : allFields) {
-      if (allField.include()
-          && !allField.isRaw()
-          && (allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterFieldName())
-              || !allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterShortType()))) {
+      if (includeField(allField, uniqueTypes)) {
         allField.writeField(writer);
       }
     }
@@ -248,6 +245,17 @@ final class ClassReader implements BeanReader {
     }
     writer.append("  private final PropertyNames names;").eol();
     writer.eol();
+  }
+
+  private static boolean includeField(FieldReader allField, Set<String> uniqueTypes) {
+    return allField.include()
+      && !allField.isRaw()
+      && includeFieldUniqueType(allField, uniqueTypes);
+  }
+
+  private static boolean includeFieldUniqueType(FieldReader allField, Set<String> uniqueTypes) {
+    return allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterFieldName())
+      || !allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterShortType());
   }
 
   @Override
@@ -262,10 +270,7 @@ final class ClassReader implements BeanReader {
       uniqueTypes.add("String");
     }
     for (final FieldReader allField : allFields) {
-      if (allField.include()
-          && !allField.isRaw()
-          && (allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterFieldName())
-              || !allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterShortType()))) {
+      if (includeField(allField, uniqueTypes)) {
         if (hasSubTypes) {
           final var isCommonDiffType =
             allFields.stream()

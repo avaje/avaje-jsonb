@@ -23,7 +23,6 @@ final class FieldReader {
   private final String num;
   private boolean isCreatorParam;
 
-
   FieldReader(
     Element element,
     NamingConvention namingConvention,
@@ -56,19 +55,18 @@ final class FieldReader {
     final var customSerializer = SerializerPrism.getOptionalOn(element).map(SerializerPrism::value);
     this.hasCustomSerializer = customSerializer.isPresent();
     this.property =
-        new FieldProperty(
-            type,
-            raw,
-            unmapped,
-            genericTypeParams,
-            publicField,
-            fieldName,
-            customSerializer);
-    this.propertyName =
-        PropertyPrism.getOptionalOn(element)
-            .map(PropertyPrism::value)
-            .map(Util::escapeQuotes)
-            .orElse(namingConvention.from(fieldName));
+      new FieldProperty(
+        type,
+        raw,
+        unmapped,
+        genericTypeParams,
+        publicField,
+        fieldName,
+        customSerializer);
+    this.propertyName = PropertyPrism.getOptionalOn(element)
+      .map(PropertyPrism::value)
+      .map(Util::escapeQuotes)
+      .orElse(namingConvention.from(fieldName));
 
     final PropertyIgnoreReader ignoreReader = new PropertyIgnoreReader(element, propertyName);
     this.serialize = !isParam && ignoreReader.serialize();

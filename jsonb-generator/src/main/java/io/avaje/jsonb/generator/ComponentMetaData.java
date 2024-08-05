@@ -29,9 +29,9 @@ final class ComponentMetaData {
 
   void add(String type) {
     Optional.ofNullable(APContext.typeElement(type))
-        .flatMap(CustomAdapterPrism::getOptionalOn)
-        .filter(not(CustomAdapterPrism::global))
-        .ifPresentOrElse(p -> withTypes.add(type), () -> allTypes.add(type));
+      .flatMap(CustomAdapterPrism::getOptionalOn)
+      .filter(not(CustomAdapterPrism::global))
+      .ifPresentOrElse(p -> withTypes.add(type), () -> allTypes.add(type));
   }
 
   void addFactory(String fullName) {

@@ -30,13 +30,13 @@ final class FieldProperty {
 
   FieldProperty(MethodReader methodReader) {
     this(
-        methodReader.returnType(),
-        false,
-        false,
-        new ArrayList<>(),
-        false,
-        methodReader.getName(),
-        SerializerPrism.getOptionalOn(methodReader.element()).map(SerializerPrism::value));
+      methodReader.returnType(),
+      false,
+      false,
+      new ArrayList<>(),
+      false,
+      methodReader.getName(),
+      SerializerPrism.getOptionalOn(methodReader.element()).map(SerializerPrism::value));
   }
 
   FieldProperty(
@@ -73,10 +73,10 @@ final class FieldProperty {
       defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
       adapterShortType = initAdapterShortType(shortType);
       adapterFieldName =
-          this.customSerializer
-              .map(Util::shortType)
-              .map(s -> Character.toLowerCase(s.charAt(0)) + s.substring(1))
-              .orElse((primitive && !optional ? "p" : "") + initShortName());
+        this.customSerializer
+          .map(Util::shortType)
+          .map(s -> Character.toLowerCase(s.charAt(0)) + s.substring(1))
+          .orElse((primitive && !optional ? "p" : "") + initShortName());
     }
   }
 
@@ -211,16 +211,9 @@ final class FieldProperty {
     if (raw) {
       writer.append("    this.%s = jsonb.rawAdapter();", adapterFieldName).eol();
     } else {
-
       customSerializer.ifPresentOrElse(
-          c ->
-              writer
-                  .append("    this.%s = jsonb.customAdapter(%s.class);", adapterFieldName, Util.shortType(c))
-                  .eol(),
-          () ->
-              writer
-                  .append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asTypeDeclaration())
-                  .eol());
+        c -> writer.append("    this.%s = jsonb.customAdapter(%s.class);", adapterFieldName, Util.shortType(c)).eol(),
+        () -> writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asTypeDeclaration()).eol());
     }
   }
 
