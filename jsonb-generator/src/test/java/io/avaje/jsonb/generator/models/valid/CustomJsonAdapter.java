@@ -9,8 +9,6 @@ import io.avaje.jsonb.generator.models.valid.Example3Packet.Example2Packet;
 @CustomAdapter
 public class CustomJsonAdapter implements JsonAdapter<Example2Packet> {
 
-//  public CustomJsonAdapter(Jsonb jsonb) {}
-
   @Override
   public void toJson(JsonWriter writer, Example2Packet value) {}
 

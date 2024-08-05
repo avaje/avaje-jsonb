@@ -307,14 +307,7 @@ final class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(
-          adapter,
-          factories,
-          serializeNulls,
-          serializeEmpty,
-          failOnUnknown,
-          mathTypesAsString,
-          strategy);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString, strategy);
     }
 
     static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {

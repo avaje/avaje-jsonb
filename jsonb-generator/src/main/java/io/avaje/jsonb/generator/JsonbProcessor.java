@@ -114,10 +114,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   private void registerCustomAdapters(Set<? extends Element> elements) {
     for (final var typeElement : ElementFilter.typesIn(elements)) {
       final var type = typeElement.getQualifiedName().toString();
-      if (typeElement.getInterfaces().stream()
-          .map(UType::parse)
-          .filter(u -> u.full().contains("JsonAdapter"))
-          .anyMatch(u -> u.param0().isGeneric())) {
+      if (isGenericJsonAdapter(typeElement)) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
           .filter(isStaticFactory())
           .findFirst()
@@ -141,6 +138,13 @@ public final class JsonbProcessor extends AbstractProcessor {
         metaData.add(type);
       }
     }
+  }
+
+  private static boolean isGenericJsonAdapter(TypeElement typeElement) {
+    return typeElement.getInterfaces().stream()
+      .map(UType::parse)
+      .filter(u -> u.full().contains("JsonAdapter"))
+      .anyMatch(u -> u.param0().isGeneric());
   }
 
   private static Predicate<VariableElement> isStaticFactory() {
