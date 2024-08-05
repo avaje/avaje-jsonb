@@ -106,20 +106,20 @@ final class ValueReader implements BeanReader {
       writer.append("  private static final Map<%s, %s> toValue = new EnumMap<>(%s.class);", shortName, returnTypeStr, shortName).eol();
       writer.append("  private static final Map<%s, %s> toEnum = new HashMap<>();", returnTypeStr, shortName).eol();
     }
-    writer.append("  private final %s adapter;", adapterShortType).eol();
-    writer.eol();
+    writer.append("  private final %s adapter;", adapterShortType).eol().eol();
   }
 
   @Override
   public void writeConstructor(Append writer) {
     writer.append("    this.adapter = jsonb.adapter(%s);", genericType.asTypeDeclaration().replace("? extends ", "")).eol();
     if (isEnum) {
-      writer.append("    if(!toValue.isEmpty()) return;").eol();
-      writer.append("    for(final var enumConst : %s.values()) {", shortName).eol();
-      writer.append("      var val = enumConst.%s();", method.getSimpleName()).eol();
-      writer.append("      toValue.put(enumConst, val);").eol();
-      writer.append("      if(toEnum.containsKey(val)) throw new IllegalArgumentException(\"Duplicate value \"+ val + \" from enum method %s. @Json.Value methods must return unique values\");",method.getSimpleName()).eol();
-      writer.append("      toEnum.put(val, enumConst);").eol();
+      writer.append("    if (toValue.isEmpty()) {").eol();
+      writer.append("      for (final var enumConst : %s.values()) {", shortName).eol();
+      writer.append("        var val = enumConst.%s();", method.getSimpleName()).eol();
+      writer.append("        toValue.put(enumConst, val);").eol();
+      writer.append("        if (toEnum.containsKey(val)) throw new IllegalArgumentException(\"Duplicate value \" + val + \" from enum method %s. @Json.Value methods must return unique values\");",method.getSimpleName()).eol();
+      writer.append("        toEnum.put(val, enumConst);").eol();
+      writer.append("      }").eol();
       writer.append("    }").eol();
     }
   }
@@ -146,10 +146,9 @@ final class ValueReader implements BeanReader {
 
     if (!isEnum) {
       var constructMethod =
-          constructor.getKind() == ElementKind.CONSTRUCTOR
-              ? "new " + shortName
-              : shortName + "." + constructor.getSimpleName();
-
+        constructor.getKind() == ElementKind.CONSTRUCTOR
+          ? "new " + shortName
+          : shortName + "." + constructor.getSimpleName();
       writer.append("    return %s(adapter.fromJson(reader));", constructMethod).eol();
 
     } else {
