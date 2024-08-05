@@ -62,11 +62,6 @@ import java.lang.annotation.Target;
 public @interface CustomAdapter {
 
   /**
-   * Set to true when the adapter is for a type that uses generics.
-   */
-  boolean isGeneric() default false;
-
-  /**
    * Whether this adapter should override existing adapters for a type. When disabled the only way
    * to use the adapter is via the {@link Json.Serializer} annotation
    */
