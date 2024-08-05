@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 final class FieldProperty {
@@ -25,13 +26,27 @@ final class FieldProperty {
   private int position;
   private MethodReader getter;
   private MethodReader setter;
+  private final Optional<String> customSerializer;
 
   FieldProperty(MethodReader methodReader) {
-    this(methodReader.returnType(), false, false, new ArrayList<>(), false, methodReader.getName());
+    this(
+      methodReader.returnType(),
+      false,
+      false,
+      new ArrayList<>(),
+      false,
+      methodReader.getName(),
+      SerializerPrism.getOptionalOn(methodReader.element()).map(SerializerPrism::value));
   }
 
-  FieldProperty(TypeMirror asType, boolean raw, boolean unmapped, List<String> genericTypeParams,
-                       boolean publicField, String fieldName) {
+  FieldProperty(
+      TypeMirror asType,
+      boolean raw,
+      boolean unmapped,
+      List<String> genericTypeParams,
+      boolean publicField,
+      String fieldName,
+      Optional<TypeMirror> customSerializer) {
     this.raw = raw;
     this.unmapped = unmapped;
     this.publicField = publicField;
@@ -39,6 +54,7 @@ final class FieldProperty {
     this.rawType = Util.trimAnnotations(asType.toString());
     this.optional = rawType.startsWith("java.util.Optional");
     this.genericTypeParams = genericTypeParams;
+    this.customSerializer = customSerializer.map(TypeMirror::toString);
 
     if (raw) {
       genericType = GenericType.parse("java.lang.String");
@@ -56,7 +72,11 @@ final class FieldProperty {
       boolean primitive = PrimitiveUtil.isPrimitive(shortType);
       defaultValue = !primitive ? "null" : PrimitiveUtil.defaultValue(shortType);
       adapterShortType = initAdapterShortType(shortType);
-      adapterFieldName = (primitive && !optional ? "p" : "") + initShortName();
+      adapterFieldName =
+        this.customSerializer
+          .map(Util::shortType)
+          .map(s -> Character.toLowerCase(s.charAt(0)) + s.substring(1))
+          .orElse((primitive && !optional ? "p" : "") + initShortName());
     }
   }
 
@@ -160,6 +180,7 @@ final class FieldProperty {
   }
 
   void addImports(Set<String> importTypes) {
+    customSerializer.ifPresent(t -> importTypes.add(t.toString()));
     if (unmapped) {
       importTypes.add("java.util.*");
     }
@@ -190,7 +211,9 @@ final class FieldProperty {
     if (raw) {
       writer.append("    this.%s = jsonb.rawAdapter();", adapterFieldName).eol();
     } else {
-      writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asTypeDeclaration()).eol();
+      customSerializer.ifPresentOrElse(
+        c -> writer.append("    this.%s = jsonb.customAdapter(%s.class);", adapterFieldName, Util.shortType(c)).eol(),
+        () -> writer.append("    this.%s = jsonb.adapter(%s);", adapterFieldName, asTypeDeclaration()).eol());
     }
   }
 

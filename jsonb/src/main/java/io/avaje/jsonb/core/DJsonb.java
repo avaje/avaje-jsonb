@@ -152,6 +152,12 @@ final class DJsonb implements Jsonb {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public <T> JsonAdapter<T> customAdapter(Class<? extends JsonAdapter<?>> cls) {
+    return (JsonAdapter<T>) adapter(cls);
+  }
+
+  @Override
   public <T> JsonAdapter<T> adapter(Class<T> cls) {
     Type cacheKey = canonicalizeClass(requireNonNull(cls));
     JsonAdapter<T> result = builder.get(cacheKey);

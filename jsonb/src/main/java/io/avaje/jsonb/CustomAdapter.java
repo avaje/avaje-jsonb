@@ -59,4 +59,11 @@ import java.lang.annotation.Target;
  */
 @Target(TYPE)
 @Retention(SOURCE)
-public @interface CustomAdapter {}
+public @interface CustomAdapter {
+
+  /**
+   * Whether this adapter should override existing adapters for a type. When disabled the only way
+   * to use the adapter is via the {@link Json.Serializer} annotation
+   */
+  boolean global() default true;
+}
