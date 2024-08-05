@@ -12,6 +12,7 @@
 @GeneratePrism(io.avaje.jsonb.Json.SubType.class)
 @GeneratePrism(io.avaje.jsonb.Json.Unmapped.class)
 @GeneratePrism(io.avaje.jsonb.Json.Value.class)
+@GeneratePrism(io.avaje.jsonb.Json.Serializer.class)
 @GeneratePrism(io.avaje.jsonb.spi.MetaData.class)
 @GeneratePrism(io.avaje.jsonb.spi.MetaData.Factory.class)
 package io.avaje.jsonb.generator;

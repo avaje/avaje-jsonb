@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.util.function.Supplier;
 
 /**
  * Provides access to json adapters by type.
@@ -317,19 +318,30 @@ public interface Jsonb {
 
   /**
    * Return the JsonAdapter used to read and write json for the given class.
-   * <p>
-   * JsonAdapter is generally used by generated code and your application code
-   * is expected to use {@link Jsonb#type(Class)} and {@link JsonType} instead.
+   *
+   * <p>JsonAdapter is generally used by generated serialization code. Application code should use
+   * {@link Jsonb#type(Class)} and {@link JsonType} instead.
    */
   <T> JsonAdapter<T> adapter(Class<T> cls);
 
   /**
    * Return the JsonAdapter used to read and write json for the given type.
-   * <p>
-   * JsonAdapter is generally used by generated code and your application code
-   * is expected to use {@link Jsonb#type(Type)} and {@link JsonType} instead.
+   *
+   * <p>JsonAdapter is generally used by generated serialization code. Application code should use
+   * {@link Jsonb#type(Type)} and {@link JsonType} instead.
    */
   <T> JsonAdapter<T> adapter(Type type);
+
+  /**
+   * Return a registered non-global custom adapter
+   *
+   * <p>JsonAdapter is generally used by generated serialization code. Application code should use
+   * {@link Jsonb#type(Type)} and {@link JsonType} instead.
+   *
+   * @param clazz the class of the custom adapter to retrieve
+   * @return the custom adapter used to read and write json for the given type.
+   */
+  <T> JsonAdapter<T> customAdapter(Class<? extends JsonAdapter<?>> clazz);
 
   /**
    * Raw JsonAdapter for raw json content.
@@ -351,7 +363,7 @@ public interface Jsonb {
     /**
      * Set to serialise empty collections or not.
      * <p>
-     * Default is to serialize empty collections.
+     * Default is to serialise empty collections.
      */
     Builder serializeEmpty(boolean serializeEmpty);
 
@@ -385,6 +397,11 @@ public interface Jsonb {
      * Add a JsonAdapter to use for the given type.
      */
     <T> Builder add(Type type, JsonAdapter<T> jsonAdapter);
+
+    /**
+     * Add a Supplier which provides a JsonAdapter to use for the given type.
+     */
+    <T> Builder add(Type type, Supplier<JsonAdapter<T>> builder);
 
     /**
      * Add a AdapterBuilder which provides a JsonAdapter to use for the given type.

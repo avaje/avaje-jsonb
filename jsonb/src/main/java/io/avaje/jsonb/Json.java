@@ -1,6 +1,5 @@
 package io.avaje.jsonb;
 
-
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -8,8 +7,6 @@ import static java.lang.annotation.ElementType.MODULE;
 import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import java.lang.annotation.Repeatable;
@@ -339,6 +336,30 @@ public @interface Json {
   @Retention(SOURCE)
   @Target({CONSTRUCTOR, METHOD})
   @interface Creator {}
+
+  /**
+   * Use a custom (de)serializer for this field. The custom serializer should be registered with {@link CustomAdapter} with the {@link CustomAdapter#global()} property set to false.
+   *
+   * <pre>{@code
+   *
+   *   @Json
+   *   public class Example {
+   *
+   *   @Json.Serializer(CustomDateSerializer.class)
+   *   private LocalDate type;
+   *    ...
+   *
+   * }</pre>
+   */
+  @Retention(SOURCE)
+  @Target({FIELD, METHOD})
+  @interface Serializer {
+
+    /**
+     * The custom serializer to use with this property.
+     */
+    Class<? extends JsonAdapter<?>> value();
+  }
 
   /**
    * The naming convention that we can use for a given type.
