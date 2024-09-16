@@ -18,10 +18,7 @@ package io.avaje.jsonb.core;
 import io.avaje.jsonb.*;
 
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 
 import static java.util.Objects.requireNonNull;
@@ -51,6 +48,9 @@ final class BasicTypeAdapters {
         if (type == UUID.class) return new UuidAdapter().nullSafe();
         if (type == URL.class) return new UrlAdapter().nullSafe();
         if (type == URI.class) return new UriAdapter().nullSafe();
+        if (type == InetAddress.class) return new InetAddressAdapter().nullSafe();
+        if (type == Inet4Address.class) return new InetAddressAdapter().nullSafe();
+        if (type == Inet6Address.class) return new InetAddressAdapter().nullSafe();
         if (type == StackTraceElement.class) return new StackTraceElementAdapter().nullSafe();
         if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
         if (type == Throwable.class) return new ThrowableAdapter(jsonb).nullSafe();
@@ -114,6 +114,27 @@ final class BasicTypeAdapters {
     @Override
     public String toString() {
       return "JsonAdapter(URI)";
+    }
+  }
+
+  private static final class InetAddressAdapter implements JsonAdapter<InetAddress> {
+    @Override
+    public InetAddress fromJson(JsonReader reader) {
+      try {
+        return InetAddress.getByName(reader.readString());
+      } catch (UnknownHostException e) {
+        throw new JsonDataException(e);
+      }
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, InetAddress value) {
+      writer.value(value.getHostAddress());
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(InetAddress)";
     }
   }
 
