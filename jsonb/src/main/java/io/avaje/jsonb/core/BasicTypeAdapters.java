@@ -49,6 +49,8 @@ final class BasicTypeAdapters {
         if (type == URL.class) return new UrlAdapter().nullSafe();
         if (type == URI.class) return new UriAdapter().nullSafe();
         if (type == InetAddress.class) return new InetAddressAdapter().nullSafe();
+        if (type == Inet4Address.class) return new InetAddressAdapter().nullSafe();
+        if (type == Inet6Address.class) return new InetAddressAdapter().nullSafe();
         if (type == StackTraceElement.class) return new StackTraceElementAdapter().nullSafe();
         if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
         if (type == Throwable.class) return new ThrowableAdapter(jsonb).nullSafe();
