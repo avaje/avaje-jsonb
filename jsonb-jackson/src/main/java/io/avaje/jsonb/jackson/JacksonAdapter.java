@@ -1,7 +1,6 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import io.avaje.jsonb.JsonIoException;
@@ -102,10 +101,7 @@ public class JacksonAdapter implements JsonStreamAdapter {
      */
     public JacksonAdapter build() {
       if (jsonFactory == null) {
-        jsonFactory = JsonFactory.builder()
-          .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
-          .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
-          .build();
+        jsonFactory = new JsonFactory();
       }
       return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory);
     }
@@ -122,7 +118,7 @@ public class JacksonAdapter implements JsonStreamAdapter {
   public JacksonAdapter() {
     this(false, false, false, new JsonFactory());
   }
-
+  
 
   public JacksonAdapter(JsonFactory factory) {
     this(false, false, false, factory);
