@@ -123,7 +123,6 @@ public class JacksonAdapter implements JsonStreamAdapter {
     this(false, false, false, new JsonFactory());
   }
 
-
   public JacksonAdapter(JsonFactory factory) {
     this(false, false, false, factory);
   }
