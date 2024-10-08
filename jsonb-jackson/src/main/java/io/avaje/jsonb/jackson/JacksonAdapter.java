@@ -102,7 +102,10 @@ public class JacksonAdapter implements JsonStreamAdapter {
      */
     public JacksonAdapter build() {
       if (jsonFactory == null) {
-        jsonFactory = JsonFactory.builder().enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER).enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER).build();
+        jsonFactory = JsonFactory.builder()
+          .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
+          .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+          .build();
       }
       return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory);
     }
@@ -119,7 +122,7 @@ public class JacksonAdapter implements JsonStreamAdapter {
   public JacksonAdapter() {
     this(false, false, false, new JsonFactory());
   }
-  
+
 
   public JacksonAdapter(JsonFactory factory) {
     this(false, false, false, factory);
