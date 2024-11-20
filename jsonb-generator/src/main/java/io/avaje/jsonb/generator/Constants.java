@@ -6,7 +6,7 @@ final class Constants {
   static final String JSONB = "io.avaje.jsonb.Jsonb";
   static final String JSON = "io.avaje.jsonb.Json";
   static final String JSON_IMPORT = "io.avaje.jsonb.Json.Import";
-  static final String JSON_IMPORT_LIST = "io.avaje.jsonb.Json.Import.List";
+  static final String JSON_IMPORT_LIST = "io.avaje.jsonb.Json.Import.Imports";
   static final String JSON_MIXIN = "io.avaje.jsonb.Json.MixIn";
   static final String IOEXCEPTION = "java.io.IOException";
   static final String METHODHANDLE = "java.lang.invoke.MethodHandle";

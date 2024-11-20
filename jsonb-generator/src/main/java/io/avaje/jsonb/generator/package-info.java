@@ -1,7 +1,7 @@
 @GeneratePrism(io.avaje.jsonb.CustomAdapter.class)
 @GeneratePrism(io.avaje.jsonb.Json.class)
 @GeneratePrism(io.avaje.jsonb.Json.Import.class)
-@GeneratePrism(value = io.avaje.jsonb.Json.Import.List.class, name = "ImportListPrism")
+@GeneratePrism(io.avaje.jsonb.Json.Import.Imports.class)
 @GeneratePrism(io.avaje.jsonb.Json.Alias.class)
 @GeneratePrism(io.avaje.jsonb.Json.Creator.class)
 @GeneratePrism(io.avaje.jsonb.Json.Ignore.class)
