@@ -245,7 +245,7 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private void writeAdaptersForImportedList(Set<? extends Element> imported) {
     imported.stream()
-      .flatMap(e -> ImportListPrism.getInstanceOn(e).value().stream())
+      .flatMap(e -> ImportsPrism.getInstanceOn(e).value().stream())
       .forEach(this::addImported);
   }
 
