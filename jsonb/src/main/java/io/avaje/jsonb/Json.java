@@ -13,7 +13,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import io.avaje.jsonb.Json.Import.List;
+import io.avaje.jsonb.Json.Import.Imports;
 
 /**
  * Marks a type for JSON support.
@@ -73,7 +73,7 @@ public @interface Json {
    * }</pre>
    */
   @Retention(SOURCE)
-  @Repeatable(List.class)
+  @Repeatable(Imports.class)
   @Target({TYPE, PACKAGE, MODULE})
   @interface Import {
 
@@ -96,7 +96,7 @@ public @interface Json {
      */
     @Retention(SOURCE)
     @Target({TYPE, PACKAGE, MODULE})
-    @interface List {
+    @interface Imports {
 
       Import[] value();
     }
