@@ -1,7 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.json.*;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 

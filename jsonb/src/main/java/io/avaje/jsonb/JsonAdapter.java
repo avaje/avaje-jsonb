@@ -17,6 +17,8 @@ package io.avaje.jsonb;
 
 import java.lang.reflect.Type;
 
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
 /**

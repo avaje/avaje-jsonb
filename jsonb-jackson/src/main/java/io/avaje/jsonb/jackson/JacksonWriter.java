@@ -1,9 +1,9 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import io.avaje.jsonb.JsonIoException;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.json.JsonIoException;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;

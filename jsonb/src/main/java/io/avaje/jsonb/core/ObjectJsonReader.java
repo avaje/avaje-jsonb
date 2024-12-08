@@ -1,7 +1,7 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.json.JsonReader;
+import io.avaje.json.PropertyNames;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

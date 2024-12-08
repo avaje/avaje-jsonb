@@ -1,9 +1,10 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonException;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.stream.*;
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.BufferedJsonWriter;
-import io.avaje.jsonb.spi.BytesJsonWriter;
-import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -54,7 +55,7 @@ class DJsonType<T> implements JsonType<T> {
   public final JsonType<Optional<T>> optional() {
     return jsonb.type(Types.optionalOf(type));
   }
-  
+
   @Override
   public final String toJson(T value) {
     try (BufferedJsonWriter writer = jsonb.bufferedWriter()) {

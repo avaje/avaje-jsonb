@@ -1,11 +1,12 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonException;
+import io.avaje.json.JsonIoException;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.BufferedJsonWriter;
-import io.avaje.jsonb.spi.BytesJsonWriter;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.json.stream.*;
 import io.avaje.jsonb.spi.ViewBuilder;
-import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.IOException;
 import java.io.OutputStream;

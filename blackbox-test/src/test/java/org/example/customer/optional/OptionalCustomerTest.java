@@ -15,11 +15,8 @@ import org.example.customer.Contact;
 import org.example.customer.Customer;
 import org.junit.jupiter.api.Test;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonType;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.Types;
+import io.avaje.json.*;
+import io.avaje.jsonb.*;
 
 class OptionalCustomerTest {
 

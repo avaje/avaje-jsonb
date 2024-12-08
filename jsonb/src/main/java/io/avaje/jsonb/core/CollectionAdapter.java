@@ -15,6 +15,8 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;

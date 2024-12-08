@@ -15,6 +15,9 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonDataException;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.*;
 
 import java.lang.reflect.Type;

@@ -187,11 +187,11 @@ final class ClassReader implements BeanReader {
     }
     importTypes.add("io.avaje.jsonb.JsonAdapter");
     importTypes.add(Constants.JSONB);
-    importTypes.add("io.avaje.jsonb.JsonReader");
-    importTypes.add("io.avaje.jsonb.JsonWriter");
+    importTypes.add("io.avaje.json.PropertyNames");
+    importTypes.add("io.avaje.json.JsonReader");
+    importTypes.add("io.avaje.json.JsonWriter");
     importTypes.add("io.avaje.jsonb.Types");
     importTypes.add("io.avaje.jsonb.spi.Generated");
-    importTypes.add("io.avaje.jsonb.spi.PropertyNames");
     return importTypes;
   }
 
