@@ -4,6 +4,8 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -304,13 +306,17 @@ final class TypeReader {
   }
 
   private void matchFieldToSetter(FieldReader field) {
-    if (!matchFieldToSetter2(field, false)
+    if (hasNoSetter(field)) {
+      logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+    }
+  }
+
+  private boolean hasNoSetter(FieldReader field) {
+    return !matchFieldToSetter2(field, false)
       && !matchFieldToSetter2(field, true)
       && !matchFieldToSetterByParam(field)
       && !field.isPublicField()
-      && !field.isSubTypeField()) {
-      logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
-    }
+      && !field.isSubTypeField();
   }
 
   private boolean matchFieldToSetterByParam(FieldReader field) {
@@ -458,7 +464,29 @@ final class TypeReader {
       // fallback to the single public constructor
       return allPublic.get(0);
     }
-    // find the largest constructor
+
+    // find the right constructor
+    var contructorFields =
+        allFields.stream()
+            .filter(FieldReader::includeFromJson)
+            .filter(this::hasNoSetter)
+            .map(f -> f.element().asType().toString())
+            .map(Util::trimAnnotations)
+            .collect(toSet());
+
+    return allPublic.stream()
+        .filter(c -> c.getParams().size() == contructorFields.size())
+        .filter(
+            c ->
+                c.getParams().stream()
+                    .map(p -> p.element().asType().toString())
+                    .map(Util::trimAnnotations)
+                    .allMatch(contructorFields::contains))
+        .findFirst()
+        .orElseGet(this::largest);
+  }
+
+  private MethodReader largest() {
     int argCount = 0;
     MethodReader largestConstructor = null;
     for (MethodReader ctor : publicConstructors) {

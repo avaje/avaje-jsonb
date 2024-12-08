@@ -10,6 +10,7 @@ final class FieldReader {
 
   private final Map<String, TypeSubTypeMeta> subTypes = new LinkedHashMap<>();
 
+  private final Element element;
   private final FieldProperty property;
   private final String propertyName;
   private final boolean serialize;
@@ -34,13 +35,13 @@ final class FieldReader {
   }
 
   FieldReader(
-    Element element,
-    NamingConvention namingConvention,
-    TypeSubTypeMeta subType,
-    List<String> genericTypeParams,
-    Integer frequency,
-    boolean jsonCreatorPresent) {
-
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency,
+      boolean jsonCreatorPresent) {
+    this.element = element;
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
     var isMethod = element instanceof ExecutableElement;
@@ -296,4 +297,7 @@ final class FieldReader {
     return aliases;
   }
 
+  public Element element() {
+    return element;
+  }
 }
