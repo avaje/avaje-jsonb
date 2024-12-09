@@ -20,11 +20,13 @@ import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 
+import java.lang.reflect.Type;
+
 import static java.util.Objects.requireNonNull;
 
-final class BasicAdapters {
+final class BaseAdapters {
 
-  static final CoreTypes.Factory FACTORY = (type) -> {
+  static JsonAdapter<?> create(Type type) {
     if (type == Boolean.TYPE) return new BooleanAdapter();
     if (type == Double.TYPE) return new DoubleAdapter();
     if (type == Float.TYPE) return new FloatAdapter();
@@ -38,7 +40,7 @@ final class BasicAdapters {
     if (type == String.class) return new StringAdapter().nullSafe();
 
     return null;
-  };
+  }
 
   private static final class BooleanAdapter implements JsonAdapter<Boolean> {
     @Override

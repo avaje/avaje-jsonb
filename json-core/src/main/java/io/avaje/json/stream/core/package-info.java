@@ -8,6 +8,6 @@
  * with one based on <code>jackson-core</code> to do the underlying JSON parsing
  * and generation.
  *
- * @see io.avaje.json.stream.core.CoreJsonStream
+ * @see io.avaje.json.stream.core.JsonStreamBuilder
  */
 package io.avaje.json.stream.core;

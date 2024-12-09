@@ -5,7 +5,6 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,12 +19,13 @@ import static java.util.Objects.requireNonNull;
  */
 public final class CoreTypes {
 
-  private static final List<Factory> factories = List.of(BasicAdapters.FACTORY);
   private static final Map<Type, JsonAdapter<?>> adapterCache = new ConcurrentHashMap<>();
   private static final NullPlaceholder NULL_PLACEHOLDER = new NullPlaceholder();
 
   /**
    * Return a core supported type adapter or null.
+   * <p>
+   * Supports Boolean, Integer, Long, Double, Float, String.
    *
    * @param type The type to get the adapter for.
    * @return The JsonAdapter for the type or null.
@@ -103,17 +103,11 @@ public final class CoreTypes {
   }
 
   private static JsonAdapter<?> createAdapter(Type type) {
-    for (Factory factory : factories) {
-      final var adapter = factory.create(type);
-      if (adapter != null) {
-        return adapter;
-      }
+    final var adapter = BaseAdapters.create(type);
+    if (adapter != null) {
+      return adapter;
     }
     return NULL_PLACEHOLDER;
-  }
-
-  interface Factory {
-    JsonAdapter<?> create(Type type);
   }
 
   static final class NullPlaceholder implements JsonAdapter<Void> {
