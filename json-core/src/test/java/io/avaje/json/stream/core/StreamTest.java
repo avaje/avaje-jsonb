@@ -28,21 +28,21 @@ class StreamTest {
   private void readStream(String rawJson) {
     try (JsonReader reader = adapter.reader(rawJson)) {
       reader.beginStream();
-     assertTrue(reader.hasNextStreamElement());
+      assertTrue(reader.hasNextStreamElement());
       reader.beginObject();
-     assertThat(reader.hasNextField()).isTrue();
-     assertThat(reader.nextField()).isEqualTo("key");
-     assertThat(reader.readString()).isEqualTo("a");
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("key");
+      assertThat(reader.readString()).isEqualTo("a");
       reader.endObject();
 
-     assertTrue(reader.hasNextStreamElement());
+      assertTrue(reader.hasNextStreamElement());
       reader.beginObject();
-     assertThat(reader.hasNextField()).isTrue();
-     assertThat(reader.nextField()).isEqualTo("key");
-     assertThat(reader.readString()).isEqualTo("b");
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("key");
+      assertThat(reader.readString()).isEqualTo("b");
       reader.endObject();
 
-     assertFalse(reader.hasNextStreamElement());
+      assertFalse(reader.hasNextStreamElement());
       reader.endStream();
     }
   }

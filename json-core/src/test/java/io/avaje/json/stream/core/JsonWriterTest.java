@@ -24,9 +24,9 @@ class JsonWriterTest {
 
     jsonWriter.value("test");
     jsonWriter.flush();
-   assertThat(writer.toCharArray()).isEqualTo("\"test\"".toCharArray());
+    assertThat(writer.toCharArray()).isEqualTo("\"test\"".toCharArray());
     jsonWriter.close();
-   assertThat(writer.toCharArray()).isEqualTo("\"test\"".toCharArray());
+    assertThat(writer.toCharArray()).isEqualTo("\"test\"".toCharArray());
   }
 
   @Test
@@ -37,7 +37,7 @@ class JsonWriterTest {
     writeHello(generator, "hello");
 
     String asJson = os.toString();
-   assertThat(asJson).isEqualTo("{\"one\":\"hello\"}");
+    assertThat(asJson).isEqualTo("{\"one\":\"hello\"}");
 
     ByteArrayOutputStream os1 = new ByteArrayOutputStream();
     JsonGenerator generator1 = ThreadLocalPool.shared().generator(JsonOutput.of(os1));
@@ -45,7 +45,7 @@ class JsonWriterTest {
     writeHello(generator1, "hi");
 
     String asJson1 = os1.toString();
-   assertThat(asJson1).isEqualTo("{\"one\":\"hi\"}");
+    assertThat(asJson1).isEqualTo("{\"one\":\"hi\"}");
   }
 
   @Test
@@ -53,11 +53,11 @@ class JsonWriterTest {
 
     JsonGenerator generator = StripedLockFreePool.shared().generator();
     writeHello(generator, "hello");
-   assertThat(generator.toString()).isEqualTo("{\"one\":\"hello\"}");
+    assertThat(generator.toString()).isEqualTo("{\"one\":\"hello\"}");
 
     JsonGenerator generator1 = StripedLockFreePool.shared().generator();
     writeHello(generator1, "hi");
-   assertThat(generator1.toString()).isEqualTo("{\"one\":\"hi\"}");
+    assertThat(generator1.toString()).isEqualTo("{\"one\":\"hi\"}");
   }
 
   private void writeHello(JsonGenerator generator, String message) {
@@ -101,7 +101,7 @@ class JsonWriterTest {
     fw.close();
 
     String asJson = os.toString();
-   assertThat(asJson).isEqualTo("[{\"one\":\"hello\",\"size\":43},{\"one\":\"another\",\"active\":true,\"flags\":[42,43]}]");
+    assertThat(asJson).isEqualTo("[{\"one\":\"hello\",\"size\":43},{\"one\":\"another\",\"active\":true,\"flags\":[42,43]}]");
   }
 
 
@@ -114,7 +114,7 @@ class JsonWriterTest {
 
     JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
 
-    JsonNames names = JsonNames.of("one", "size", "active","flags");
+    JsonNames names = JsonNames.of("one", "size", "active", "flags");
 
     fw.beginArray();
 
@@ -140,7 +140,7 @@ class JsonWriterTest {
     fw.close();
 
     String asJson = os.toString();
-   assertThat(asJson).isEqualTo("[{\"one\":\"hello\",\"size\":43},{\"one\":\"another\",\"active\":true,\"flags\":[42,43]}]");
+    assertThat(asJson).isEqualTo("[{\"one\":\"hello\",\"size\":43},{\"one\":\"another\",\"active\":true,\"flags\":[42,43]}]");
 
   }
 }

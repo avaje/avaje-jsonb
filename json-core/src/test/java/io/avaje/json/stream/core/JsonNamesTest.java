@@ -11,12 +11,12 @@ class JsonNamesTest {
 
     JsonNames names = JsonNames.of("one", "two", "three");
 
-   assertThat(names.lookup(23)).isNull();
-   assertThat(names.lookup(-23)).isNull();
+    assertThat(names.lookup(23)).isNull();
+    assertThat(names.lookup(-23)).isNull();
 
-   assertThat(names.lookup(Escape.nameHash("one"))).isEqualTo("one");
-   assertThat(names.lookup(Escape.nameHash("two"))).isEqualTo("two");
-   assertThat(names.lookup(Escape.nameHash("three"))).isEqualTo("three");
+    assertThat(names.lookup(Escape.nameHash("one"))).isEqualTo("one");
+    assertThat(names.lookup(Escape.nameHash("two"))).isEqualTo("two");
+    assertThat(names.lookup(Escape.nameHash("three"))).isEqualTo("three");
   }
 
   @Test
@@ -31,7 +31,7 @@ class JsonNamesTest {
 
   private static void check(JsonNames names, String key) {
     String statusCode = names.lookup(Escape.nameHash(key));
-   assertThat(statusCode).isEqualTo(key);
+    assertThat(statusCode).isEqualTo(key);
   }
 
 }

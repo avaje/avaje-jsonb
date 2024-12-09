@@ -26,7 +26,7 @@ class JsonReadAdapterTest {
     jr.process(bytes, bytes.length);
 
     JsonReadAdapter reader =
-        new JsonReadAdapter(jr, ThreadLocalPool.shared(), true);
+      new JsonReadAdapter(jr, ThreadLocalPool.shared(), true);
     readExampleWithAsserts(reader);
     reader.close();
   }
@@ -55,15 +55,15 @@ class JsonReadAdapterTest {
 
   private void readExampleWithAsserts(JsonReader reader) {
     reader.beginObject();
-   assertTrue(reader.hasNextField());
-   assertEquals("name", reader.nextField());
-   assertEquals("roberto", reader.readString());
-   assertTrue(reader.hasNextField());
-   assertEquals("age", reader.nextField());
-   assertEquals(42, reader.readInt());
-   assertTrue(reader.hasNextField());
-   assertEquals("notes", reader.nextField());
-   assertEquals("fooFooFoo", reader.readString());
+    assertTrue(reader.hasNextField());
+    assertEquals("name", reader.nextField());
+    assertEquals("roberto", reader.readString());
+    assertTrue(reader.hasNextField());
+    assertEquals("age", reader.nextField());
+    assertEquals(42, reader.readInt());
+    assertTrue(reader.hasNextField());
+    assertEquals("notes", reader.nextField());
+    assertEquals("fooFooFoo", reader.readString());
   }
 
   @Test
@@ -73,22 +73,22 @@ class JsonReadAdapterTest {
     JsonStream adapter = JsonStream.builder().failOnUnknown(true).build();
     try (JsonReader reader = adapter.reader(input)) {
       reader.beginObject();
-     assertTrue(reader.hasNextField());
-     assertEquals("name", reader.nextField());
-     assertEquals("roberto", reader.readString());
-     assertTrue(reader.hasNextField());
-     assertEquals("val0", reader.nextField());
-     assertEquals(BigInteger.valueOf(123), reader.readBigInteger());
-     assertTrue(reader.hasNextField());
-     assertEquals("val1", reader.nextField());
-     assertEquals(BigInteger.valueOf(1234567890123456789L), reader.readBigInteger());
-     assertTrue(reader.hasNextField());
-     assertEquals("val2", reader.nextField());
-     assertEquals(BigInteger.valueOf(1234567890123456789L), reader.readBigInteger());
+      assertTrue(reader.hasNextField());
+      assertEquals("name", reader.nextField());
+      assertEquals("roberto", reader.readString());
+      assertTrue(reader.hasNextField());
+      assertEquals("val0", reader.nextField());
+      assertEquals(BigInteger.valueOf(123), reader.readBigInteger());
+      assertTrue(reader.hasNextField());
+      assertEquals("val1", reader.nextField());
+      assertEquals(BigInteger.valueOf(1234567890123456789L), reader.readBigInteger());
+      assertTrue(reader.hasNextField());
+      assertEquals("val2", reader.nextField());
+      assertEquals(BigInteger.valueOf(1234567890123456789L), reader.readBigInteger());
 
-     assertTrue(reader.hasNextField());
-     assertEquals("notes", reader.nextField());
-     assertEquals("end", reader.readString());
+      assertTrue(reader.hasNextField());
+      assertEquals("notes", reader.nextField());
+      assertEquals("end", reader.readString());
     }
   }
 }

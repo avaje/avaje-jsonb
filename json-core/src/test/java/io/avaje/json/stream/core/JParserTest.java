@@ -22,8 +22,8 @@ class JParserTest {
     String content = "{\"id\":43, \"content\":\"my-content\"}";
     initParserViaByteArray(parser, content);
 
-   assertThat(parser.nextField()).isEqualTo("content");
-   assertThat(parser.readRaw()).isEqualTo("\"my-content\"");
+    assertThat(parser.nextField()).isEqualTo("content");
+    assertThat(parser.readRaw()).isEqualTo("\"my-content\"");
   }
 
   @Test
@@ -34,8 +34,8 @@ class JParserTest {
     String content = "{\"id\":43, \"content\":" + raw + "}";
     initParserViaByteArray(parser, content);
 
-   assertThat(parser.nextField()).isEqualTo("content");
-   assertThat(parser.readRaw()).isEqualTo(raw);
+    assertThat(parser.nextField()).isEqualTo("content");
+    assertThat(parser.readRaw()).isEqualTo(raw);
   }
 
   @Test
@@ -45,8 +45,8 @@ class JParserTest {
     String content = "{\"id\":43, \"content\":\"my-content\"}";
     initParserViaStream(parser, content);
 
-   assertThat(parser.nextField()).isEqualTo("content");
-   assertThat(parser.readRaw()).isEqualTo("\"my-content\"");
+    assertThat(parser.nextField()).isEqualTo("content");
+    assertThat(parser.readRaw()).isEqualTo("\"my-content\"");
   }
 
   @Test
@@ -56,8 +56,8 @@ class JParserTest {
     String content = "{\"id\":43, \"content\":\"this-is-my-content-that-exceeds-buffer-size|this-is-my-content-that-exceeds-buffer-size\"}";
     initParserViaStream(parser, content);
 
-   assertThat(parser.nextField()).isEqualTo("content");
-   assertThat(parser.readRaw()).isEqualTo("\"this-is-my-content-that-exceeds-buffer-size|this-is-my-content-that-exceeds-buffer-size\"");
+    assertThat(parser.nextField()).isEqualTo("content");
+    assertThat(parser.readRaw()).isEqualTo("\"this-is-my-content-that-exceeds-buffer-size|this-is-my-content-that-exceeds-buffer-size\"");
   }
 
   @Test
@@ -68,8 +68,8 @@ class JParserTest {
     String content = "{\"id\":43, \"content\":" + raw + "}";
 
     initParserViaStream(parser, content);
-   assertThat(parser.nextField()).isEqualTo("content");
-   assertThat(parser.readRaw()).isEqualTo(raw);
+    assertThat(parser.nextField()).isEqualTo("content");
+    assertThat(parser.readRaw()).isEqualTo(raw);
   }
 
   private String createLargeContent() {
@@ -96,8 +96,8 @@ class JParserTest {
   private void initialReadToContent(JParser parser) {
     parser.nextToken();
     parser.nextToken();
-   assertThat(parser.nextField()).isEqualTo("id");
-   assertThat(parser.readInt()).isEqualTo(43);
+    assertThat(parser.nextField()).isEqualTo("id");
+    assertThat(parser.readInt()).isEqualTo(43);
     parser.nextToken();
     parser.nextToken();
   }

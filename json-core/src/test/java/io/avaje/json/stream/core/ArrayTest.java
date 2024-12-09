@@ -40,7 +40,7 @@ class ArrayTest {
     JsonAdapter<Object> arrayOfLong = CoreTypes.createArray(Long.class, longAdapter);
     try (JsonReader reader = adapter.reader("[1,2,3]")) {
       Object result = arrayOfLong.fromJson(reader);
-      Long[] asLong = (Long[])result;
+      Long[] asLong = (Long[]) result;
       assertThat(asLong).hasSize(3);
       assertThat(asLong).contains(1L, 2L, 3L);
     }
@@ -87,7 +87,6 @@ class ArrayTest {
       reader.endArray();
     }
   }
-
 
 
   @Test

@@ -417,7 +417,7 @@ public interface Jsonb {
     /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
-    Builder add(io.avaje.jsonb.AdapterFactory factory);
+    Builder add(AdapterFactory factory);
 
     /**
      * Build and return the Jsonb instance with all the given adapters and factories registered.
