@@ -56,6 +56,15 @@ public final class CoreTypes {
     return ArrayAdapter.byteArray();
   }
 
+  /**
+   * Create a JsonAdapter for a Map with a given adapter for the values.
+   * @param valueAdapter The JsonAdapter used for the values in the map.
+   * @return The JsonAdapter for the map.
+   */
+  public static <V> JsonAdapter<Map<String, V>> createMap(JsonAdapter<V> valueAdapter) {
+    return MapAdapter.create(valueAdapter);
+  }
+
   private static JsonAdapter<?> createAdapter(Type type) {
     for (Factory factory : factories) {
       final var adapter = factory.create(type);

@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.jsonb.core;
+package io.avaje.json.core;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
-import io.avaje.jsonb.*;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -30,24 +29,14 @@ import java.util.Map;
  */
 final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
 
-  static final AdapterFactory FACTORY =
-      (type, jsonb) -> {
-        final var rawType = Util.rawType(type);
-        if (rawType != Map.class) {
-          return null;
-        }
-        final var valueTypes = Util.mapValueTypes(type, rawType);
-
-        if (valueTypes[0] != String.class) {
-          return null;
-        }
-        return new MapAdapter<>(jsonb, valueTypes[1]).nullSafe();
-      };
+  static <V> JsonAdapter<Map<String, V>> create(JsonAdapter<V> valueAdapter) {
+    return new MapAdapter<>(valueAdapter);
+  }
 
   private final JsonAdapter<V> valueAdapter;
 
-  MapAdapter(Jsonb jsonb, Type valueType) {
-    this.valueAdapter = jsonb.adapter(valueType);
+  MapAdapter(JsonAdapter<V> valueAdapter) {
+    this.valueAdapter = valueAdapter;
   }
 
   @Override

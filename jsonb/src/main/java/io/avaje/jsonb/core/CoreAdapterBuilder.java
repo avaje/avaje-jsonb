@@ -45,7 +45,7 @@ final class CoreAdapterBuilder {
     this.factories.add(JavaTimeAdapters.FACTORY);
     this.factories.add(new MathAdapters(mathAsString));
     this.factories.add(CollectionAdapter.FACTORY);
-    this.factories.add(MapAdapter.FACTORY);
+    this.factories.add(CoreAdapters.MAP_FACTORY);
     this.factories.add(EnumMapAdapter.FACTORY);
     this.factories.add(CoreAdapters.ARRAY_FACTORY);
     this.factories.add(OptionalAdapters.FACTORY);
