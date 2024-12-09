@@ -46,7 +46,7 @@ final class ComponentReader {
     for (final AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
 
       final MetaDataPrism metaData = MetaDataPrism.getInstance(annotationMirror);
-      final FactoryPrism metaDataFactory = FactoryPrism.getInstance(annotationMirror);
+      final JsonFactoryPrism metaDataFactory = JsonFactoryPrism.getInstance(annotationMirror);
 
       if (metaData != null) {
         metaData.value().stream()

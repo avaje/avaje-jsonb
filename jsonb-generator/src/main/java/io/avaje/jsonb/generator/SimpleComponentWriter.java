@@ -89,7 +89,7 @@ final class SimpleComponentWriter {
     writer.append("@Generated(\"io.avaje.jsonb.generator\")").eol();
     final List<String> factories = metaData.allFactories();
     if (!factories.isEmpty()) {
-      writer.append("@MetaData.Factory({");
+      writer.append("@MetaData.JsonFactory({");
       writeMetaDataEntry(factories);
       writer.append("})").eol();
     }

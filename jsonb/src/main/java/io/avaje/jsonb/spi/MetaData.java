@@ -17,7 +17,7 @@ public @interface MetaData {
   /**
    * For internal use, holds metadata on generated adapters that also have factories.
    */
-  @interface Factory {
+  @interface JsonFactory {
 
     /**
      * The generated JsonAdapters that have a factory.
