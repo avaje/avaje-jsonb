@@ -5,8 +5,10 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
@@ -15,7 +17,6 @@ public final class CoreTypes {
 
   private static final List<Factory> factories = List.of(BasicAdapters.FACTORY);
   private static final Map<Type, JsonAdapter<?>> adapterCache = new ConcurrentHashMap<>();
-
   private static final NullPlaceholder NULL_PLACEHOLDER = new NullPlaceholder();
 
   /**
@@ -34,8 +35,8 @@ public final class CoreTypes {
    */
   @SuppressWarnings("unchecked")
   public static <T> JsonAdapter<T> createArray(Class<?> elementType) {
-    JsonAdapter<Object> adapter = (JsonAdapter<Object>) createAdapter(elementType);
-    return (JsonAdapter<T>)ArrayAdapter.create(elementType, adapter);
+    final var adapter = (JsonAdapter<Object>) createAdapter(elementType);
+    return createArray(elementType, adapter);
   }
 
   /**
@@ -63,6 +64,24 @@ public final class CoreTypes {
    */
   public static <V> JsonAdapter<Map<String, V>> createMap(JsonAdapter<V> valueAdapter) {
     return MapAdapter.create(valueAdapter);
+  }
+
+  /**
+   * Create a JsonAdapter for a List with a given adapter for the elements.
+   * @param elementAdapter The JsonAdapter used for the elements in the list.
+   * @return The JsonAdapter for the list.
+   */
+  public static <V> JsonAdapter<List<V>> createList(JsonAdapter<V> elementAdapter) {
+    return CollectionAdapter.createList(elementAdapter);
+  }
+
+  /**
+   * Create a JsonAdapter for a Set with a given adapter for the elements.
+   * @param elementAdapter The JsonAdapter used for the elements in the set.
+   * @return The JsonAdapter for the set.
+   */
+  public static <V> JsonAdapter<Set<V>> createSet(JsonAdapter<V> elementAdapter) {
+    return CollectionAdapter.createSet(elementAdapter);
   }
 
   private static JsonAdapter<?> createAdapter(Type type) {

@@ -5,6 +5,7 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.stream.*;
+import io.avaje.json.view.ViewBuilderAware;
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.spi.*;

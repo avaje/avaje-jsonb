@@ -181,8 +181,8 @@ final class ClassReader implements BeanReader {
       implementation.addImported(importTypes);
     }
     if (supportsViewBuilder()) {
-      importTypes.add("io.avaje.jsonb.spi.ViewBuilder");
-      importTypes.add("io.avaje.jsonb.spi.ViewBuilderAware");
+      importTypes.add("io.avaje.json.view.ViewBuilder");
+      importTypes.add("io.avaje.json.view.ViewBuilderAware");
     }
     importTypes.add("io.avaje.json.JsonAdapter");
     importTypes.add("io.avaje.json.PropertyNames");

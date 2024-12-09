@@ -4,8 +4,8 @@ import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.spi.ViewBuilder;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.json.view.ViewBuilder;
+import io.avaje.json.view.ViewBuilderAware;
 
 import java.lang.invoke.MethodHandle;
 

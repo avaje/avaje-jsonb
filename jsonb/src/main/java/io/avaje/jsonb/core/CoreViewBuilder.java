@@ -3,8 +3,8 @@ package io.avaje.jsonb.core;
 import io.avaje.json.*;
 import io.avaje.jsonb.*;
 import io.avaje.json.stream.*;
-import io.avaje.jsonb.spi.ViewBuilder;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.json.view.ViewBuilder;
+import io.avaje.json.view.ViewBuilderAware;
 
 import java.io.IOException;
 import java.io.OutputStream;

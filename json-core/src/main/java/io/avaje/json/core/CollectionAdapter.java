@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.jsonb.core;
+package io.avaje.json.core;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
-import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.ViewBuilder;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.json.view.ViewBuilder;
+import io.avaje.json.view.ViewBuilderAware;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -31,31 +29,17 @@ import java.util.*;
  */
 abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuilderAware, JsonAdapter<C> {
 
-  static final AdapterFactory FACTORY = (type, jsonb) -> {
-    Class<?> rawType = Util.rawType(type);
-    if (rawType == List.class || rawType == Collection.class) {
-      return newListAdapter(type, jsonb).nullSafe();
-    } else if (rawType == Set.class) {
-      return newSetAdapter(type, jsonb).nullSafe();
-    }
-    return null;
-  };
-
-  static <T> JsonAdapter<Collection<T>> newListAdapter(Type type, Jsonb jsonb) {
-    Type elementType = Util.collectionElementType(type);
-    JsonAdapter<T> elementAdapter = jsonb.adapter(elementType);
-    return new CollectionAdapter<Collection<T>, T>(elementAdapter) {
+  static <T> JsonAdapter<List<T>> createList(JsonAdapter<T> elementAdapter) {
+    return new CollectionAdapter<>(elementAdapter) {
       @Override
-      Collection<T> newCollection() {
+      List<T> newCollection() {
         return new ArrayList<>();
       }
     };
   }
 
-  static <T> JsonAdapter<Set<T>> newSetAdapter(Type type, Jsonb jsonb) {
-    Type elementType = Util.collectionElementType(type);
-    JsonAdapter<T> elementAdapter = jsonb.adapter(elementType);
-    return new CollectionAdapter<Set<T>, T>(elementAdapter) {
+  static <T> JsonAdapter<Set<T>> createSet(JsonAdapter<T> elementAdapter) {
+    return new CollectionAdapter<>(elementAdapter) {
       @Override
       Set<T> newCollection() {
         return new LinkedHashSet<>();

@@ -2,8 +2,8 @@ package org.example;
 
 import io.avaje.jsonb.*;
 import io.avaje.json.*;
-import io.avaje.jsonb.spi.ViewBuilder;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.json.view.ViewBuilder;
+import io.avaje.json.view.ViewBuilderAware;
 
 import java.lang.invoke.MethodHandle;
 import java.time.Instant;

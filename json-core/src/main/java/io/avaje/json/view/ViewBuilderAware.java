@@ -1,4 +1,4 @@
-package io.avaje.jsonb.spi;
+package io.avaje.json.view;
 
 import java.lang.invoke.MethodHandle;
 

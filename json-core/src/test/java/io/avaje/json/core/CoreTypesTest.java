@@ -7,6 +7,7 @@ import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,5 +34,23 @@ class CoreTypesTest {
     Map<String, Long> fromJsonMap = mapAdapter.fromJson(reader);
 
     assertThat(fromJsonMap).containsOnlyKeys("one", "two");
+  }
+
+  @Test
+  void listOfScalar() {
+    JsonAdapter<Long> longAdapter = CoreTypes.create(Long.class);
+    JsonAdapter<List<Long>> listAdapter = CoreTypes.createList(longAdapter);
+
+    List<Long> vals = List.of(54L, 21L, 63L);
+
+    BufferedJsonWriter writer = stream.bufferedWriter();
+    listAdapter.toJson(writer, vals);
+    String asJson = writer.result();
+    assertThat(asJson).isEqualTo("[54,21,63]");
+
+    JsonReader reader = stream.reader(asJson);
+    List<Long> fromJsnoList = listAdapter.fromJson(reader);
+
+    assertThat(fromJsnoList).containsExactly(54L, 21L, 63L);
   }
 }
