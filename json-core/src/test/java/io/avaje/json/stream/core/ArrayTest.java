@@ -1,8 +1,13 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.core.CoreTypes;
 import org.junit.jupiter.api.Test;
+
+import java.io.StringWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,6 +15,35 @@ import static org.junit.jupiter.api.Assertions.*;
 class ArrayTest {
 
   final CoreJsonStream adapter = CoreJsonStream.builder().serializeNulls(true).serializeEmpty(true).failOnUnknown(false).build();
+
+  @Test
+  void coreTypes_createArray() {
+    JsonAdapter<Long[]> arrayOfLong = CoreTypes.createArray(Long.class);
+    try (JsonReader reader = adapter.reader("[1,2,3]")) {
+      Long[] asLong = arrayOfLong.fromJson(reader);
+      assertThat(asLong).hasSize(3);
+      assertThat(asLong).contains(1L, 2L, 3L);
+    }
+
+    Long[] longArrayVal = {42L, 43L};
+    StringWriter writer = new StringWriter();
+    try (JsonWriter jsonWriter = adapter.writer(writer)) {
+      arrayOfLong.toJson(jsonWriter, longArrayVal);
+    }
+    assertThat(writer.toString()).isEqualTo("[42,43]");
+  }
+
+  @Test
+  void coreTypes_createArray2() {
+    JsonAdapter<Object> longAdapter = CoreTypes.create(Long.class);
+    JsonAdapter<Object> arrayOfLong = CoreTypes.createArray(Long.class, longAdapter);
+    try (JsonReader reader = adapter.reader("[1,2,3]")) {
+      Object result = arrayOfLong.fromJson(reader);
+      Long[] asLong = (Long[])result;
+      assertThat(asLong).hasSize(3);
+      assertThat(asLong).contains(1L, 2L, 3L);
+    }
+  }
 
   @Test
   void readArrayEmpty() {

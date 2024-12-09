@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.jsonb.core;
+package io.avaje.json.core;
 
 import io.avaje.json.JsonAdapter;
-import io.avaje.jsonb.AdapterFactory;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,14 +28,14 @@ import java.util.List;
  * This supports both primitive and object arrays.
  */
 final class ArrayAdapter implements JsonAdapter<Object> {
-  static final AdapterFactory FACTORY = (type, jsonb) -> {
-    Type elementType = Util.arrayComponentType(type);
-    if (elementType == null) return null;
-    if (elementType == byte.class) return new ByteArray();
-    Class<?> elementClass = Util.rawType(elementType);
-    JsonAdapter<Object> elementAdapter = jsonb.adapter(elementType);
+
+  static JsonAdapter<Object> create(Class<?> elementClass, JsonAdapter<Object> elementAdapter) {
     return new ArrayAdapter(elementClass, elementAdapter).nullSafe();
-  };
+  }
+
+  static JsonAdapter<byte[]> byteArray() {
+    return new ByteArray();
+  }
 
   private final Class<?> elementClass;
   private final JsonAdapter<Object> elementAdapter;
@@ -76,7 +74,7 @@ final class ArrayAdapter implements JsonAdapter<Object> {
     return elementAdapter + ".array()";
   }
 
-  static final class ByteArray implements JsonAdapter<byte[]> {
+  private static final class ByteArray implements JsonAdapter<byte[]> {
     @Override
     public byte[] fromJson(JsonReader reader) {
       return reader.readBinary();
