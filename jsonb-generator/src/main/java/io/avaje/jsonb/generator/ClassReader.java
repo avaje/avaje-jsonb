@@ -340,13 +340,10 @@ final class ClassReader implements BeanReader {
 
   private void writeView(Append writer) {
     writer.eol();
+    writer.append("  @SuppressWarnings(\"unchecked\")").eol();
     writer.append("  @Override").eol();
-    writer.append("  public boolean isViewBuilderAware() {").eol();
-    writer.append("    return true;").eol();
-    writer.append("  }").eol().eol();
-    writer.append("  @Override").eol();
-    writer.append("  public ViewBuilderAware viewBuild() {").eol();
-    writer.append("    return this;").eol();
+    writer.append("  public <U> U unwrap(Class<U> viewBuilderAwareClass) {").eol();
+    writer.append("    return (U) this;").eol();
     writer.append("  }").eol().eol();
   }
 

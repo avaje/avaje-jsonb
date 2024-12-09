@@ -199,7 +199,8 @@ final class DJsonb implements Jsonb {
     return (JsonView<T>) viewCache.computeIfAbsent(key, o -> {
       try {
         CoreViewBuilder viewBuilder = new CoreViewBuilder(ViewDsl.parse(dsl));
-        adapter.viewBuild().build(viewBuilder);
+        ViewBuilderAware viewBuilderAware = adapter.unwrap(ViewBuilderAware.class);
+        viewBuilderAware.build(viewBuilder);
         return viewBuilder.build(this);
       } catch (Exception e) {
         throw new IllegalStateException(e);

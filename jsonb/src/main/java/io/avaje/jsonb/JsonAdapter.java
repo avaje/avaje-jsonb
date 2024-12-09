@@ -47,23 +47,23 @@ public interface JsonAdapter<T> {
   }
 
   /**
-   * Return true if this adapter represents a json object or json array of objects that supports json views.
+   * Unwrap a ViewBuilderAware trait if implemented or otherwise null.
+   * <p>
+   * This is implemented on JsonAdapters that also implement ViewBuilderAware
+   * which can create a "view" for some select properties of the adapter
+   * (rather than including all properties of the adapter).
+   * <p>
+   * This defaults to returning null meaning that it does not support
+   * ViewBuilderAware and must always render all it's properties.
    */
-  default boolean isViewBuilderAware() {
-    return false;
-  }
-
-  /**
-   * Return the ViewBuilder.Aware for this adapter.
-   */
-  default ViewBuilderAware viewBuild() {
-    throw new IllegalStateException("This adapter is not ViewBuilderAware");
+  default <U> U unwrap(Class<U> viewBuilderAwareClass) {
+    return null;
   }
 
   /**
    * Factory for creating a JsonAdapter.
    */
-  public interface Factory {
+  interface Factory {
 
     /**
      * Create and return a JsonAdapter given the type and annotations or return null.

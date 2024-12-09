@@ -70,14 +70,11 @@ abstract class CollectionAdapter<C extends Collection<T>, T> implements JsonAdap
 
   abstract C newCollection();
 
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean isViewBuilderAware() {
-    return elementAdapter.isViewBuilderAware();
-  }
-
-  @Override
-  public ViewBuilderAware viewBuild() {
-    return this;
+  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
+    var elementViewBuilder = elementAdapter.unwrap(viewBuilderAwareClass);
+    return elementViewBuilder == null ? null : (U) this;
   }
 
   @Override

@@ -28,14 +28,10 @@ public final class MyBasicJsonAdapter implements JsonAdapter<StreamBasicTest.MyB
     this.names = jsonb.properties("id", "name");
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean isViewBuilderAware() {
-    return true;
-  }
-
-  @Override
-  public ViewBuilderAware viewBuild() {
-    return this;
+  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
+    return (U) this;
   }
 
   @Override

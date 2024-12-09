@@ -50,13 +50,8 @@ final class OptionalAdapters {
     }
 
     @Override
-    public boolean isViewBuilderAware() {
-      return delegate.isViewBuilderAware();
-    }
-
-    @Override
-    public ViewBuilderAware viewBuild() {
-      return delegate.viewBuild();
+    public <U> U unwrap(Class<U> viewBuilderAwareClass) {
+      return delegate.unwrap(viewBuilderAwareClass);
     }
 
     @Override
