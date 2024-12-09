@@ -5,5 +5,5 @@ module io.avaje.jsonb.jackson {
 
   exports io.avaje.jsonb.jackson;
 
-  provides JsonStreamFactory with io.avaje.jsonb.jackson.JacksonAdapterFactory;
+  provides io.avaje.jsonb.spi.JsonStreamFactory with io.avaje.jsonb.jackson.JacksonAdapterFactory;
 }
