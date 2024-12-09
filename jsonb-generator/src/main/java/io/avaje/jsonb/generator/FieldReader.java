@@ -25,11 +25,11 @@ final class FieldReader {
   private boolean isCreatorParam;
 
   FieldReader(
-    Element element,
-    NamingConvention namingConvention,
-    TypeSubTypeMeta subType,
-    List<String> genericTypeParams,
-    Integer frequency) {
+      Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency) {
 
     this(element, namingConvention, subType, genericTypeParams, frequency, false);
   }
@@ -41,6 +41,7 @@ final class FieldReader {
       List<String> genericTypeParams,
       Integer frequency,
       boolean jsonCreatorPresent) {
+
     this.element = element;
     num = frequency == 0 ? "" : frequency.toString();
     addSubType(subType);
@@ -297,7 +298,7 @@ final class FieldReader {
     return aliases;
   }
 
-  public Element element() {
+  Element element() {
     return element;
   }
 }

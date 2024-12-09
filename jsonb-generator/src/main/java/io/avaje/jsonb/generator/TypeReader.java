@@ -43,11 +43,8 @@ final class TypeReader {
   private boolean nonAccessibleField;
 
   private final Map<String, Element> mixInFields;
-
   private final String typePropertyKey;
-
   private final Map<String, Integer> frequencyMap = new HashMap<>();
-
   private final List<MethodProperty> methodProperties = new ArrayList<>();
 
   private boolean optional;
@@ -141,10 +138,9 @@ final class TypeReader {
       for (var param : constructor.getParams()) {
         var name = param.name();
         var element = param.element();
-        var matchingField =
-            localFields.stream()
-                .filter(f -> f.propertyName().equals(name) || f.fieldName().equals(name))
-                .findFirst();
+        var matchingField = localFields.stream()
+          .filter(f -> f.propertyName().equals(name) || f.fieldName().equals(name))
+          .findFirst();
         matchingField.ifPresentOrElse(f -> f.readParam(element), () -> readField(element, localFields));
       }
     }
@@ -163,7 +159,6 @@ final class TypeReader {
         } else {
           commonField.addSubType(currentSubType);
         }
-
         if (commonField == null && currentSubType != null) {
           localField.setSubTypeField();
         }
@@ -174,22 +169,19 @@ final class TypeReader {
   private void readField(Element element, List<FieldReader> localFields) {
     final Element mixInField = mixInFields.get(element.getSimpleName().toString());
     if (mixInField != null && APContext.types().isSameType(mixInField.asType(), element.asType())) {
-
       var mixinModifiers = new HashSet<>(mixInField.getModifiers());
       var modifiers = new HashSet<>(mixInField.getModifiers());
 
       Arrays.stream(Modifier.values())
-          .filter(m -> m != Modifier.PRIVATE || m != Modifier.PROTECTED || m != Modifier.PUBLIC)
-          .forEach(
-              m -> {
-                modifiers.remove(m);
-                mixinModifiers.remove(m);
-              });
+        .filter(m -> m != Modifier.PRIVATE || m != Modifier.PROTECTED || m != Modifier.PUBLIC)
+        .forEach(m -> {
+          modifiers.remove(m);
+          mixinModifiers.remove(m);
+        });
 
       if (!modifiers.equals(mixinModifiers)) {
        APContext.logError(mixInField, "mixIn fields must have the same modifiers as the target class");
       }
-
       element = mixInField;
     }
     if (element.asType().toString().contains("java.util.Optional")) {
@@ -466,24 +458,21 @@ final class TypeReader {
     }
 
     // find the right constructor
-    var contructorFields =
-        allFields.stream()
-            .filter(FieldReader::includeFromJson)
-            .filter(this::hasNoSetter)
-            .map(f -> f.element().asType().toString())
-            .map(Util::trimAnnotations)
-            .collect(toSet());
+    var constructorFields = allFields.stream()
+      .filter(FieldReader::includeFromJson)
+      .filter(this::hasNoSetter)
+      .map(f -> f.element().asType().toString())
+      .map(Util::trimAnnotations)
+      .collect(toSet());
 
     return allPublic.stream()
-        .filter(c -> c.getParams().size() == contructorFields.size())
-        .filter(
-            c ->
-                c.getParams().stream()
-                    .map(p -> p.element().asType().toString())
-                    .map(Util::trimAnnotations)
-                    .allMatch(contructorFields::contains))
-        .findFirst()
-        .orElseGet(this::largest);
+      .filter(c -> c.getParams().size() == constructorFields.size())
+      .filter(c -> c.getParams().stream()
+        .map(p -> p.element().asType().toString())
+        .map(Util::trimAnnotations)
+        .allMatch(constructorFields::contains))
+      .findFirst()
+      .orElseGet(this::largest);
   }
 
   private MethodReader largest() {
