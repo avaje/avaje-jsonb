@@ -84,7 +84,7 @@ final class ValueReader implements BeanReader {
     importTypes.add("io.avaje.json.PropertyNames");
     importTypes.add("io.avaje.json.JsonReader");
     importTypes.add("io.avaje.json.JsonWriter");
-    importTypes.add("io.avaje.jsonb.JsonAdapter");
+    importTypes.add("io.avaje.json.JsonAdapter");
     importTypes.add("io.avaje.jsonb.spi.Generated");
     importTypes.add(Constants.JSONB);
     return importTypes;

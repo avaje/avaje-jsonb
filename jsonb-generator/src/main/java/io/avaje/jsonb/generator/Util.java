@@ -182,7 +182,7 @@ final class Util {
 
   static String baseTypeOfAdapter(TypeElement element) {
     return element.getInterfaces().stream()
-      .filter(t -> t.toString().contains("io.avaje.jsonb.JsonAdapter"))
+      .filter(t -> t.toString().contains("io.avaje.json.JsonAdapter"))
       .findFirst()
       .map(Object::toString)
       .map(GenericType::parse)

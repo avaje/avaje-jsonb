@@ -1,6 +1,6 @@
 package io.avaje.jsonb.spi;
 
-import io.avaje.jsonb.JsonAdapter;
+import io.avaje.json.JsonAdapter;
 
 import java.lang.invoke.MethodHandle;
 

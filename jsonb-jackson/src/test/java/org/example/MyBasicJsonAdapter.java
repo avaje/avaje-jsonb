@@ -1,6 +1,6 @@
 package org.example;
 
-import io.avaje.jsonb.JsonAdapter;
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
@@ -12,7 +12,7 @@ import io.avaje.jsonb.spi.ViewBuilderAware;
 import java.lang.invoke.MethodHandle;
 
 @Generated
-public final class MyBasicJsonAdapter implements JsonAdapter<StreamBasicTest.MyBasic>, ViewBuilderAware {
+public final class MyBasicJsonAdapter implements ViewBuilderAware, JsonAdapter<StreamBasicTest.MyBasic> {
 
   // naming convention Match
   // id [int] name:id constructor

@@ -15,7 +15,8 @@
  */
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonAdapter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.jsonb.AdapterFactory;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 
@@ -29,7 +30,7 @@ import java.util.List;
  * This supports both primitive and object arrays.
  */
 final class ArrayAdapter implements JsonAdapter<Object> {
-  static final Factory FACTORY = (type, jsonb) -> {
+  static final AdapterFactory FACTORY = (type, jsonb) -> {
     Type elementType = Util.arrayComponentType(type);
     if (elementType == null) return null;
     if (elementType == byte.class) return new ByteArray();

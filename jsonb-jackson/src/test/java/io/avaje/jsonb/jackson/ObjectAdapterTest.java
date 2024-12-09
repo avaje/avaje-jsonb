@@ -1,8 +1,8 @@
 package io.avaje.jsonb.jackson;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonType;
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonWriter;
+import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 

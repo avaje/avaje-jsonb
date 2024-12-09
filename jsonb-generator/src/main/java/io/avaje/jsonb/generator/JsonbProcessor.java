@@ -120,7 +120,7 @@ public final class JsonbProcessor extends AbstractProcessor {
           .findFirst()
           .ifPresentOrElse(
             x -> {},
-            () -> logError(typeElement, "Generic adapters require a public static JsonAdapter.Factory FACTORY field"));
+            () -> logError(typeElement, "Generic adapters require a public static AdapterFactory FACTORY field"));
 
         metaData.addFactory(type);
       } else {

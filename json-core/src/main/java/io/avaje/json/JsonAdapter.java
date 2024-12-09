@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.jsonb;
-
-import java.lang.reflect.Type;
-
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+package io.avaje.json;
 
 /**
  * The core API for serialization to and from json.
@@ -58,18 +52,5 @@ public interface JsonAdapter<T> {
    */
   default <U> U unwrap(Class<U> viewBuilderAwareClass) {
     return null;
-  }
-
-  /**
-   * Factory for creating a JsonAdapter.
-   */
-  interface Factory {
-
-    /**
-     * Create and return a JsonAdapter given the type and annotations or return null.
-     * <p>
-     * Returning null means that the adapter could be created by another factory.
-     */
-    JsonAdapter<?> create(Type type, Jsonb jsonb);
   }
 }

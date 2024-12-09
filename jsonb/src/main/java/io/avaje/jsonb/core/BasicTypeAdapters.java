@@ -15,6 +15,7 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
@@ -29,25 +30,14 @@ import static java.util.Objects.requireNonNull;
 final class BasicTypeAdapters {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  static final JsonAdapter.Factory FACTORY =
+  static final AdapterFactory FACTORY =
       (type, jsonb) -> {
-        if (type == Boolean.TYPE) return new BooleanAdapter();
         if (type == Byte.TYPE) return new ByteAdapter();
         if (type == Character.TYPE) return new CharacterAdapter();
-        if (type == Double.TYPE) return new DoubleAdapter();
-        if (type == Float.TYPE) return new FloatAdapter();
-        if (type == Integer.TYPE) return new IntegerAdapter();
-        if (type == Long.TYPE) return new LongAdapter();
         if (type == Short.TYPE) return new ShortAdapter();
-        if (type == Boolean.class) return new BooleanAdapter().nullSafe();
         if (type == Byte.class) return new ByteAdapter().nullSafe();
         if (type == Character.class) return new CharacterAdapter().nullSafe();
-        if (type == Double.class) return new DoubleAdapter().nullSafe();
-        if (type == Float.class) return new FloatAdapter().nullSafe();
-        if (type == Integer.class) return new IntegerAdapter().nullSafe();
-        if (type == Long.class) return new LongAdapter().nullSafe();
         if (type == Short.class) return new ShortAdapter().nullSafe();
-        if (type == String.class) return new StringAdapter().nullSafe();
         if (type == UUID.class) return new UuidAdapter().nullSafe();
         if (type == URL.class) return new UrlAdapter().nullSafe();
         if (type == URI.class) return new UriAdapter().nullSafe();

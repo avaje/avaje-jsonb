@@ -15,6 +15,7 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
@@ -29,7 +30,7 @@ import java.util.Map;
  */
 final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
 
-  static final Factory FACTORY =
+  static final AdapterFactory FACTORY =
       (type, jsonb) -> {
         final var rawType = Util.rawType(type);
         if (rawType != Map.class) {

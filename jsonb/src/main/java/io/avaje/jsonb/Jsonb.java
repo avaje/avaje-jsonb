@@ -1,5 +1,6 @@
 package io.avaje.jsonb;
 
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
@@ -416,7 +417,7 @@ public interface Jsonb {
     /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
-    Builder add(JsonAdapter.Factory factory);
+    Builder add(io.avaje.jsonb.AdapterFactory factory);
 
     /**
      * Build and return the Jsonb instance with all the given adapters and factories registered.

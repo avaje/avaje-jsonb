@@ -2,7 +2,8 @@ package io.avaje.jsonb.core;
 
 import java.util.Date;
 
-import io.avaje.jsonb.JsonAdapter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.jsonb.AdapterFactory;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 
@@ -13,7 +14,7 @@ import java.time.*;
  */
 final class JavaTimeAdapters {
 
-  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+  static final AdapterFactory FACTORY = (type, jsonb) -> {
     if (type == Instant.class) return JavaTimeAdapters.INSTANT_ADAPTER.nullSafe();
     if (type == LocalDate.class) return JavaTimeAdapters.LOCAL_DATE_ADAPTER.nullSafe();
     if (type == LocalDateTime.class) return JavaTimeAdapters.LOCAL_DATE_TIME_ADAPTER.nullSafe();

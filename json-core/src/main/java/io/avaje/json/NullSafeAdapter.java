@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.avaje.jsonb;
+package io.avaje.json;
 
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.jsonb.spi.ViewBuilderAware;
 
 final class NullSafeAdapter<T> implements JsonAdapter<T> {
 

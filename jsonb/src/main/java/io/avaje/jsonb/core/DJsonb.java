@@ -1,10 +1,12 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.stream.*;
 import io.avaje.jsonb.*;
+import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.spi.*;
 
 import java.io.InputStream;
@@ -32,7 +34,7 @@ final class DJsonb implements Jsonb {
 
   DJsonb(
       JsonStream adapter,
-      List<JsonAdapter.Factory> factories,
+      List<AdapterFactory> factories,
       boolean serializeNulls,
       boolean serializeEmpty,
       boolean failOnUnknown,
@@ -236,7 +238,7 @@ final class DJsonb implements Jsonb {
    */
   static final class DBuilder implements Jsonb.Builder {
 
-    private final List<JsonAdapter.Factory> factories = new ArrayList<>();
+    private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;
     private boolean mathTypesAsString;
     private boolean serializeNulls;
@@ -302,7 +304,7 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder add(JsonAdapter.Factory factory) {
+    public Builder add(AdapterFactory factory) {
       factories.add(factory);
       return this;
     }
@@ -323,19 +325,19 @@ final class DJsonb implements Jsonb {
       return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString, strategy);
     }
 
-    static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
+    static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
     }
 
-    static <T> JsonAdapter.Factory newAdapterFactory(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
+    static <T> AdapterFactory newAdapterFactory(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter.get() : null;
     }
 
-    static JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
+    static AdapterFactory newAdapterFactory(Type type, AdapterBuilder builder) {
       requireNonNull(type);
       requireNonNull(builder);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? builder.build(jsonb).nullSafe() : null;

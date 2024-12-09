@@ -15,6 +15,7 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.*;
@@ -28,9 +29,9 @@ import java.util.*;
 /**
  * Converts collection types to JSON arrays containing their converted contents.
  */
-abstract class CollectionAdapter<C extends Collection<T>, T> implements JsonAdapter<C>, ViewBuilderAware {
+abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuilderAware, JsonAdapter<C> {
 
-  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+  static final AdapterFactory FACTORY = (type, jsonb) -> {
     Class<?> rawType = Util.rawType(type);
     if (rawType == List.class || rawType == Collection.class) {
       return newListAdapter(type, jsonb).nullSafe();
