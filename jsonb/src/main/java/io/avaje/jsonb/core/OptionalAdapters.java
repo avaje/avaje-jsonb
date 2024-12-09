@@ -7,6 +7,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 import io.avaje.json.JsonAdapter;
+import io.avaje.json.view.ViewBuilderAware;
 import io.avaje.jsonb.AdapterFactory;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
@@ -50,8 +51,13 @@ final class OptionalAdapters {
     }
 
     @Override
-    public <U> U unwrap(Class<U> viewBuilderAwareClass) {
-      return delegate.unwrap(viewBuilderAwareClass);
+    public boolean isViewBuilderAware() {
+      return delegate.isViewBuilderAware();
+    }
+
+    @Override
+    public ViewBuilderAware viewBuild() {
+      return delegate.viewBuild();
     }
 
     @Override

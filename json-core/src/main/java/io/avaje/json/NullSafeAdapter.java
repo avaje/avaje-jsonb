@@ -16,6 +16,8 @@
 package io.avaje.json;
 
 
+import io.avaje.json.view.ViewBuilderAware;
+
 final class NullSafeAdapter<T> implements JsonAdapter<T> {
 
   private final JsonAdapter<T> delegate;
@@ -43,8 +45,13 @@ final class NullSafeAdapter<T> implements JsonAdapter<T> {
   }
 
   @Override
-  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
-    return delegate.unwrap(viewBuilderAwareClass);
+  public boolean isViewBuilderAware() {
+    return delegate.isViewBuilderAware();
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return delegate.viewBuild();
   }
 
   @Override

@@ -4,7 +4,6 @@ import io.avaje.json.*;
 import io.avaje.jsonb.*;
 import io.avaje.json.stream.*;
 import io.avaje.json.view.ViewBuilder;
-import io.avaje.json.view.ViewBuilderAware;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -72,10 +71,9 @@ final class CoreViewBuilder implements ViewBuilder {
   @Override
   public void add(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) {
     if (viewDsl.contains(name)) {
-      ViewBuilderAware viewBuilderAware = adapter.unwrap(ViewBuilderAware.class);
-      if (viewBuilderAware != null) {
+      if (adapter.isViewBuilderAware()) {
         viewDsl.push(name);
-        viewBuilderAware.build(this, name, methodHandle);
+        adapter.viewBuild().build(this, name, methodHandle);
         viewDsl.pop();
       } else {
         current.add(new Scalar(names.add(name), adapter, methodHandle));
@@ -97,8 +95,7 @@ final class CoreViewBuilder implements ViewBuilder {
   public void addArray(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) {
     try {
       CoreViewBuilder nested = new CoreViewBuilder(viewDsl, names);
-      ViewBuilderAware viewBuilderAware = adapter.unwrap(ViewBuilderAware.class);
-      viewBuilderAware.build(nested);
+      adapter.viewBuild().build(nested);
       JsonView<Object> nestedView = nested.build();
       if (name == null) {
         if (current != null) {

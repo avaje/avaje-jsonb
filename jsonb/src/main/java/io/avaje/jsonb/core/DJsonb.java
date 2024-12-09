@@ -5,7 +5,6 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.stream.*;
-import io.avaje.json.view.ViewBuilderAware;
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.spi.*;
@@ -202,8 +201,7 @@ final class DJsonb implements Jsonb {
     return (JsonView<T>) viewCache.computeIfAbsent(key, o -> {
       try {
         CoreViewBuilder viewBuilder = new CoreViewBuilder(ViewDsl.parse(dsl));
-        ViewBuilderAware viewBuilderAware = adapter.unwrap(ViewBuilderAware.class);
-        viewBuilderAware.build(viewBuilder);
+        adapter.viewBuild().build(viewBuilder);
         return viewBuilder.build(this);
       } catch (Exception e) {
         throw new IllegalStateException(e);

@@ -55,11 +55,14 @@ abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuil
 
   abstract C newCollection();
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
-    var elementViewBuilder = elementAdapter.unwrap(viewBuilderAwareClass);
-    return elementViewBuilder == null ? null : (U) this;
+  public boolean isViewBuilderAware() {
+    return elementAdapter.isViewBuilderAware();
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
   }
 
   @Override

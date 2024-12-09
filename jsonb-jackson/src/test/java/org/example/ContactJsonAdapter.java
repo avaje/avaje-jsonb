@@ -19,10 +19,14 @@ public class ContactJsonAdapter implements ViewBuilderAware, JsonAdapter<Contact
     stringAdapter = jsonb.adapter(String.class);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
-    return (U) this;
+  public boolean isViewBuilderAware() {
+    return true;
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
   }
 
   @Override

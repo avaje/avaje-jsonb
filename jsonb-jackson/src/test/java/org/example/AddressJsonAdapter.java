@@ -20,10 +20,14 @@ public class AddressJsonAdapter implements ViewBuilderAware, JsonAdapter<Address
     names = jsonb.properties("street", "suburb", "city");
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
-    return (U) this;
+  public boolean isViewBuilderAware() {
+    return true;
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
   }
 
   @Override

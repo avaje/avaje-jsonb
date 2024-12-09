@@ -27,10 +27,14 @@ public class CustomerJsonAdapter implements ViewBuilderAware, JsonAdapter<Custom
     names = jsonb.properties("id", "name", "whenCreated", "billingAddress", "contacts");
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
-    return (U) this;
+  public boolean isViewBuilderAware() {
+    return true;
+  }
+
+  @Override
+  public ViewBuilderAware viewBuild() {
+    return this;
   }
 
   @Override
