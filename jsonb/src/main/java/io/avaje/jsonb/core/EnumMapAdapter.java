@@ -1,5 +1,9 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonDataException;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.*;
 
 import java.lang.reflect.Type;
@@ -10,7 +14,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 final class EnumMapAdapter<K extends Enum<K>, V> implements JsonAdapter<Map<K, V>> {
 
-  static final Factory FACTORY =
+  static final AdapterFactory FACTORY =
       (type, jsonb) -> {
         final var rawType = Util.rawType(type);
         if (rawType != EnumMap.class && rawType != Map.class) {

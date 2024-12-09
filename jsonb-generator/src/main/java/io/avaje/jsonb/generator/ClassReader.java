@@ -180,18 +180,18 @@ final class ClassReader implements BeanReader {
     if (implementation != null) {
       implementation.addImported(importTypes);
     }
-
     if (supportsViewBuilder()) {
-      importTypes.add("io.avaje.jsonb.spi.ViewBuilder");
-      importTypes.add("io.avaje.jsonb.spi.ViewBuilderAware");
+      importTypes.add("io.avaje.json.view.ViewBuilder");
+      importTypes.add("io.avaje.json.view.ViewBuilderAware");
     }
-    importTypes.add("io.avaje.jsonb.JsonAdapter");
+    importTypes.add("io.avaje.json.JsonAdapter");
+    importTypes.add("io.avaje.json.PropertyNames");
+    importTypes.add("io.avaje.json.JsonReader");
+    importTypes.add("io.avaje.json.JsonWriter");
+    importTypes.add("io.avaje.jsonb.AdapterFactory");
     importTypes.add(Constants.JSONB);
-    importTypes.add("io.avaje.jsonb.JsonReader");
-    importTypes.add("io.avaje.jsonb.JsonWriter");
     importTypes.add("io.avaje.jsonb.Types");
     importTypes.add("io.avaje.jsonb.spi.Generated");
-    importTypes.add("io.avaje.jsonb.spi.PropertyNames");
     return importTypes;
   }
 
@@ -340,6 +340,7 @@ final class ClassReader implements BeanReader {
 
   private void writeView(Append writer) {
     writer.eol();
+    writer.append("  @SuppressWarnings(\"unchecked\")").eol();
     writer.append("  @Override").eol();
     writer.append("  public boolean isViewBuilderAware() {").eol();
     writer.append("    return true;").eol();

@@ -1,9 +1,7 @@
 package org.example.customer.customtype;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
+import io.avaje.json.*;
+import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;

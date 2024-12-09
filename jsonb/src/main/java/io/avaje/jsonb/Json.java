@@ -13,6 +13,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import io.avaje.json.JsonAdapter;
 import io.avaje.jsonb.Json.Import.Imports;
 
 /**

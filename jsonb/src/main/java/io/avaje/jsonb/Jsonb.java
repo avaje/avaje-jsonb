@@ -1,12 +1,13 @@
 package io.avaje.jsonb;
 
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.*;
 import io.avaje.jsonb.core.DefaultBootstrap;
-import io.avaje.jsonb.spi.AdapterFactory;
-import io.avaje.jsonb.spi.JsonStreamAdapter;
+import io.avaje.jsonb.spi.JsonStreamFactory;
 import io.avaje.jsonb.spi.JsonbComponent;
-import io.avaje.jsonb.spi.PropertyNames;
-import io.avaje.jsonb.stream.BufferRecycleStrategy;
-import io.avaje.jsonb.stream.JsonOutput;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -386,12 +387,12 @@ public interface Jsonb {
     /**
      * Explicitly set the adapter to use.
      * <p>
-     * When not set the JsonStreamAdapter is service loaded using {@link AdapterFactory}
+     * When not set the JsonStreamAdapter is service loaded using {@link JsonStreamFactory}
      * with a fallback default of using the built-in implementation.
      *
      * @param streamAdapter The underlying adapter to use when generating and parsing
      */
-    Builder adapter(JsonStreamAdapter streamAdapter);
+    Builder adapter(JsonStream streamAdapter);
 
     /**
      * Add a JsonAdapter to use for the given type.
@@ -416,7 +417,7 @@ public interface Jsonb {
     /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
-    Builder add(JsonAdapter.Factory factory);
+    Builder add(AdapterFactory factory);
 
     /**
      * Build and return the Jsonb instance with all the given adapters and factories registered.

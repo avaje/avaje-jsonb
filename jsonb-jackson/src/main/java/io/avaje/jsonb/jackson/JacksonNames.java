@@ -1,7 +1,7 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.io.SerializedString;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.json.PropertyNames;
 
 final class JacksonNames implements PropertyNames {
 

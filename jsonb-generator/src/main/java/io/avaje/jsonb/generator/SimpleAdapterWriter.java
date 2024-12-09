@@ -59,7 +59,7 @@ final class SimpleAdapterWriter {
       if (nestedIndex != -1) {
         typeName = typeName.substring(nestedIndex + 1);
       }
-      writer.append("  public static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {").eol();
+      writer.append("  public static final AdapterFactory FACTORY = (type, jsonb) -> {").eol();
       writer.append("    if (Types.isGenericTypeOf(type, %s.class)) {", typeName).eol();
       writer.append("      Type[] args = Types.typeArguments(type);").eol();
       writer.append("      return new %sJsonAdapter(jsonb", adapterShortName);

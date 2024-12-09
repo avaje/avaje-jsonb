@@ -1,10 +1,13 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.*;
 import io.avaje.jsonb.*;
+import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.spi.*;
-import io.avaje.jsonb.stream.BufferRecycleStrategy;
-import io.avaje.jsonb.stream.JsonOutput;
-import io.avaje.jsonb.stream.JsonStream;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,14 +27,14 @@ import static java.util.Objects.requireNonNull;
 final class DJsonb implements Jsonb {
 
   private final CoreAdapterBuilder builder;
-  private final JsonStreamAdapter io;
+  private final JsonStream io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ViewKey, JsonView<?>> viewCache = new ConcurrentHashMap<>();
   private final JsonType<Object> anyType;
 
   DJsonb(
-      JsonStreamAdapter adapter,
-      List<JsonAdapter.Factory> factories,
+      JsonStream adapter,
+      List<AdapterFactory> factories,
       boolean serializeNulls,
       boolean serializeEmpty,
       boolean failOnUnknown,
@@ -46,7 +49,12 @@ final class DJsonb implements Jsonb {
       if (adapterFactoryOptional.isPresent()) {
         this.io = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
       } else {
-        this.io = new JsonStream(serializeNulls, serializeEmpty, failOnUnknown, strategy);
+        this.io = JsonStream.builder()
+          .serializeNulls(serializeNulls)
+          .serializeEmpty(serializeEmpty)
+          .failOnUnknown(failOnUnknown)
+          .bufferRecycling(strategy)
+          .build();
       }
     }
     this.anyType = type(Object.class);
@@ -229,12 +237,12 @@ final class DJsonb implements Jsonb {
    */
   static final class DBuilder implements Jsonb.Builder {
 
-    private final List<JsonAdapter.Factory> factories = new ArrayList<>();
+    private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;
     private boolean mathTypesAsString;
     private boolean serializeNulls;
     private boolean serializeEmpty = true;
-    private JsonStreamAdapter adapter;
+    private JsonStream adapter;
     private BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
 
     @Override
@@ -268,7 +276,7 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder adapter(JsonStreamAdapter streamAdapter) {
+    public Builder adapter(JsonStream streamAdapter) {
       this.adapter = streamAdapter;
       return this;
     }
@@ -295,7 +303,7 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder add(JsonAdapter.Factory factory) {
+    public Builder add(AdapterFactory factory) {
       factories.add(factory);
       return this;
     }
@@ -316,19 +324,19 @@ final class DJsonb implements Jsonb {
       return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString, strategy);
     }
 
-    static <T> JsonAdapter.Factory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
+    static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
     }
 
-    static <T> JsonAdapter.Factory newAdapterFactory(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
+    static <T> AdapterFactory newAdapterFactory(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter.get() : null;
     }
 
-    static JsonAdapter.Factory newAdapterFactory(Type type, AdapterBuilder builder) {
+    static AdapterFactory newAdapterFactory(Type type, AdapterBuilder builder) {
       requireNonNull(type);
       requireNonNull(builder);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? builder.build(jsonb).nullSafe() : null;

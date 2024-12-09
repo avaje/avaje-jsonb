@@ -3,9 +3,8 @@ package io.avaje.jsonb.jackson;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.StreamReadFeature;
 
-import io.avaje.jsonb.JsonReader;
+import io.avaje.json.JsonReader;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
@@ -34,7 +33,7 @@ class UnwrapJacksonParserTest {
       JsonType<Map<String, Object>> jsonMap = jsonb.type(Object.class).map();
 
       Map<String, Object> map = jsonMap.fromJson(reader);
-      assertThat(map.get("id")).isEqualTo(42D);
+      assertThat(map.get("id")).isEqualTo(42L);
       assertThat(map.get("name")).isEqualTo("rob");
     }
   }

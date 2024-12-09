@@ -6,18 +6,19 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.view.ViewBuilderAware;
+import io.avaje.jsonb.AdapterFactory;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
-import io.avaje.jsonb.spi.ViewBuilderAware;
 
 final class OptionalAdapters {
 
   private OptionalAdapters() {}
 
-  static final JsonAdapter.Factory FACTORY = (type, jsonb) -> {
+  static final AdapterFactory FACTORY = (type, jsonb) -> {
     if (Types.isGenericTypeOf(type, Optional.class)) {
       final Type[] args = Types.typeArguments(type);
       return new OptionalAdapter<>(jsonb, args[0]).nullSafe();

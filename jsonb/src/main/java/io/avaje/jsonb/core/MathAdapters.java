@@ -1,15 +1,16 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.jsonb.AdapterFactory;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-final class MathAdapters implements JsonAdapter.Factory {
+final class MathAdapters implements AdapterFactory {
 
   private final JsonAdapter<BigDecimal> decimal;
   private final JsonAdapter<BigInteger> bigint;

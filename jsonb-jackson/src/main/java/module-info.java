@@ -1,4 +1,3 @@
-
 module io.avaje.jsonb.jackson {
 
   requires transitive io.avaje.jsonb;
@@ -6,5 +5,5 @@ module io.avaje.jsonb.jackson {
 
   exports io.avaje.jsonb.jackson;
 
-  provides io.avaje.jsonb.spi.AdapterFactory with io.avaje.jsonb.jackson.JacksonAdapterFactory;
+  provides io.avaje.jsonb.spi.JsonStreamFactory with io.avaje.jsonb.jackson.JacksonAdapterFactory;
 }

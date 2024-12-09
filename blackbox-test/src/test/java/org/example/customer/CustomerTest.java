@@ -1,5 +1,6 @@
 package org.example.customer;
 
+import io.avaje.json.*;
 import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 

@@ -2,14 +2,14 @@ package org.example.customer.skip;
 
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.stream.JsonStream;
+import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SkipTest {
 
-  Jsonb jsonb = Jsonb.builder().adapter(new JsonStream()).build();
+  Jsonb jsonb = Jsonb.builder().adapter(JsonStream.builder().build()).build();
   JsonType<MyCustomer> type = jsonb.type(MyCustomer.class);
 
   @Test

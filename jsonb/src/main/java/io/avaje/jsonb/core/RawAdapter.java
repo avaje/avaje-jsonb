@@ -1,8 +1,8 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 
 final class RawAdapter {
 

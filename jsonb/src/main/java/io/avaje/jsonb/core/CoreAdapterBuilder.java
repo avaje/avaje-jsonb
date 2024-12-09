@@ -15,9 +15,10 @@
  */
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.jsonb.AdapterFactory;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -30,22 +31,23 @@ import java.util.concurrent.locks.ReentrantLock;
 final class CoreAdapterBuilder {
 
   private final DJsonb context;
-  private final List<JsonAdapter.Factory> factories;
+  private final List<AdapterFactory> factories;
   private final ThreadLocal<LookupChain> lookupChainThreadLocal = new ThreadLocal<>();
   private final Map<Object, JsonAdapter<?>> adapterCache = new ConcurrentHashMap<>();
   private final ReentrantLock lock = new ReentrantLock();
 
-  CoreAdapterBuilder(DJsonb context, List<JsonAdapter.Factory> userFactories, boolean mathAsString) {
+  CoreAdapterBuilder(DJsonb context, List<AdapterFactory> userFactories, boolean mathAsString) {
     this.context = context;
     this.factories = new ArrayList<>();
     this.factories.addAll(userFactories);
+    this.factories.add(CoreAdapters.FACTORY);
     this.factories.add(BasicTypeAdapters.FACTORY);
     this.factories.add(JavaTimeAdapters.FACTORY);
     this.factories.add(new MathAdapters(mathAsString));
-    this.factories.add(CollectionAdapter.FACTORY);
-    this.factories.add(MapAdapter.FACTORY);
+    this.factories.add(CoreAdapters.COLLECTION_FACTORY);
+    this.factories.add(CoreAdapters.MAP_FACTORY);
     this.factories.add(EnumMapAdapter.FACTORY);
-    this.factories.add(ArrayAdapter.FACTORY);
+    this.factories.add(CoreAdapters.ARRAY_FACTORY);
     this.factories.add(OptionalAdapters.FACTORY);
   }
 
@@ -82,7 +84,7 @@ final class CoreAdapterBuilder {
         return adapterFromCall;
       }
       // Ask each factory to create the JSON adapter.
-      for (JsonAdapter.Factory factory : factories) {
+      for (AdapterFactory factory : factories) {
         JsonAdapter<T> result = (JsonAdapter<T>) factory.create(type, context);
         if (result != null) {
           // Success! Notify the LookupChain so it is cached and can be used by re-entrant calls.

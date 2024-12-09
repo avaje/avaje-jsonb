@@ -80,11 +80,11 @@ final class ValueReader implements BeanReader {
     importTypes.add(type);
     importTypes.add(element.asType().toString());
     importTypes.add(method.getReturnType().toString());
-    importTypes.add("io.avaje.jsonb.spi.PropertyNames");
-    importTypes.add("io.avaje.jsonb.JsonAdapter");
-    importTypes.add("io.avaje.jsonb.JsonDataException");
-    importTypes.add("io.avaje.jsonb.JsonReader");
-    importTypes.add("io.avaje.jsonb.JsonWriter");
+    importTypes.add("io.avaje.json.JsonDataException");
+    importTypes.add("io.avaje.json.PropertyNames");
+    importTypes.add("io.avaje.json.JsonReader");
+    importTypes.add("io.avaje.json.JsonWriter");
+    importTypes.add("io.avaje.json.JsonAdapter");
     importTypes.add("io.avaje.jsonb.spi.Generated");
     importTypes.add(Constants.JSONB);
     return importTypes;

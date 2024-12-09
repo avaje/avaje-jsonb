@@ -1,7 +1,10 @@
 package org.example;
 
-import io.avaje.jsonb.*;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonWriter;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.JsonView;
+import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;

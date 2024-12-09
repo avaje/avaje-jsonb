@@ -1,8 +1,7 @@
 package org.example.other;
 
-import io.avaje.jsonb.JsonAdapter;
 import io.avaje.jsonb.JsonType;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.*;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
 

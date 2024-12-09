@@ -1,15 +1,15 @@
 package org.example;
 
 import io.avaje.jsonb.*;
-import io.avaje.jsonb.spi.PropertyNames;
-import io.avaje.jsonb.spi.ViewBuilder;
-import io.avaje.jsonb.spi.ViewBuilderAware;
+import io.avaje.json.*;
+import io.avaje.json.view.ViewBuilder;
+import io.avaje.json.view.ViewBuilderAware;
 
 import java.lang.invoke.MethodHandle;
 import java.time.Instant;
 import java.util.List;
 
-public class CustomerJsonAdapter implements JsonAdapter<Customer>, ViewBuilderAware {
+public class CustomerJsonAdapter implements ViewBuilderAware, JsonAdapter<Customer> {
 
   private final JsonAdapter<Integer> intAdapter;
   private final JsonAdapter<String> stringAdapter;

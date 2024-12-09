@@ -4,13 +4,8 @@ import java.lang.reflect.Type;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 
-import io.avaje.jsonb.CustomAdapter;
-import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.Types;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.jsonb.*;
+import io.avaje.json.*;
 
 @CustomAdapter
 public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
@@ -19,10 +14,9 @@ public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
   private final JsonAdapter<V> generic2;
   private final PropertyNames names;
 
-  public static final JsonAdapter.Factory FACTORY =
+  public static final AdapterFactory FACTORY =
       (type, jsonb) -> {
         if (Types.isGenericTypeOf(type, Entry.class)) {
-
           return new CustomEntryJsonAdapter<>(jsonb, Types.typeArguments(type));
         }
         return null;
