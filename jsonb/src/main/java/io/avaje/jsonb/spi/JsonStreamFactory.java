@@ -5,7 +5,7 @@ import io.avaje.json.stream.JsonStream;
 /**
  * Factory that is service loaded to create the adapter for underlying json parsing and generation.
  */
-public interface AdapterFactory extends JsonbExtension  {
+public interface JsonStreamFactory extends JsonbExtension  {
 
   /**
    * Create the adapter to use for the underlying json parsing and generation.

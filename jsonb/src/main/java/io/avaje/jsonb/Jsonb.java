@@ -6,7 +6,7 @@ import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.stream.*;
 import io.avaje.jsonb.core.DefaultBootstrap;
-import io.avaje.jsonb.spi.AdapterFactory;
+import io.avaje.jsonb.spi.JsonStreamFactory;
 import io.avaje.jsonb.spi.JsonbComponent;
 
 import java.io.InputStream;
@@ -387,7 +387,7 @@ public interface Jsonb {
     /**
      * Explicitly set the adapter to use.
      * <p>
-     * When not set the JsonStreamAdapter is service loaded using {@link AdapterFactory}
+     * When not set the JsonStreamAdapter is service loaded using {@link JsonStreamFactory}
      * with a fallback default of using the built-in implementation.
      *
      * @param streamAdapter The underlying adapter to use when generating and parsing

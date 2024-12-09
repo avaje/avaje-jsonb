@@ -7,7 +7,7 @@ import io.avaje.spi.Service;
  *
  * @see JsonbComponent
  * @see GeneratedComponent
- * @see AdapterFactory
+ * @see JsonStreamFactory
  */
 @Service
 public interface JsonbExtension {
