@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 class CoreTypesTest {
 
@@ -52,5 +52,33 @@ class CoreTypesTest {
     List<Long> fromJsnoList = listAdapter.fromJson(reader);
 
     assertThat(fromJsnoList).containsExactly(54L, 21L, 63L);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void createBasicObject() {
+    JsonAdapter<Object> basicObject = CoreTypes.createBasicObject();
+
+    Map<String, Object> inner = new LinkedHashMap<>();
+    inner.put("nm", "r");
+    inner.put("va", 56L);
+
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("one", 45L);
+    map.put("two", List.of(45, 46));
+    map.put("three", inner);
+
+
+    BufferedJsonWriter writer = stream.bufferedWriter();
+    basicObject.toJson(writer, map);
+    String asJson = writer.result();
+    assertThat(asJson).isEqualTo("{\"one\":45,\"two\":[45,46],\"three\":{\"nm\":\"r\",\"va\":56}}");
+
+    JsonReader reader = stream.reader(asJson);
+    Map<String, Object> resultMap = (Map<String, Object>)basicObject.fromJson(reader);
+    assertThat(resultMap.get("one")).isEqualTo(45L);
+    assertThat(resultMap.get("two")).isEqualTo(List.of(45L, 46L));
+    assertThat(resultMap.get("three")).isInstanceOf(Map.class);
+    assertThat(resultMap.get("three")).isEqualTo(inner);
   }
 }
