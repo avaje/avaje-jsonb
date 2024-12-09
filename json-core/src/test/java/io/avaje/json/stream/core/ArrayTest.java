@@ -5,6 +5,7 @@ import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.core.CoreTypes;
+import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ArrayTest {
 
-  final CoreJsonStream adapter = CoreJsonStream.builder().serializeNulls(true).serializeEmpty(true).failOnUnknown(false).build();
+  final JsonStream adapter = CoreJsonStream.builder().serializeNulls(true).serializeEmpty(true).failOnUnknown(false).build();
 
   @Test
   void coreTypes_createArray() {

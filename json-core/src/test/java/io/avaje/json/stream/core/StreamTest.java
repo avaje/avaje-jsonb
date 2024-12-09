@@ -1,6 +1,7 @@
 package io.avaje.json.stream.core;
 
 import io.avaje.json.JsonReader;
+import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StreamTest {
 
-  final CoreJsonStream adapter = CoreJsonStream.builder().serializeNulls(true).serializeEmpty(true).failOnUnknown(false).build();
+  final JsonStream adapter = JsonStream.builder().serializeNulls(true).serializeEmpty(true).failOnUnknown(false).build();
 
   @Test
   void readStreamMultipleObjectArrays() {

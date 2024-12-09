@@ -1,6 +1,7 @@
 package io.avaje.json.stream.core;
 
 import io.avaje.json.JsonReader;
+import io.avaje.json.stream.JsonStream;
 import io.avaje.json.stream.core.Recyclers.ThreadLocalPool;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class JsonReadAdapterTest {
 
   @Test
   void via_adapter_usingReader() {
-    CoreJsonStream adapter = CoreJsonStream.builder().build();
+    JsonStream adapter = JsonStream.builder().build();
     try (JsonReader reader = adapter.reader(new StringReader(jsonStringInput))) {
       readExampleWithAsserts(reader);
     }
@@ -43,7 +44,7 @@ class JsonReadAdapterTest {
 
   @Test
   void via_adapter_usingString() {
-    CoreJsonStream adapter = CoreJsonStream.builder().build();
+    JsonStream adapter = JsonStream.builder().build();
     try (JsonReader reader = adapter.reader(jsonStringInput)) {
       readExampleWithAsserts(reader);
     }
@@ -69,7 +70,7 @@ class JsonReadAdapterTest {
   void bigInt() {
     String input = "{\"name\":\"roberto\", \"val0\": 123, \"val1\": \"1234567890123456789\", \"val2\": 1234567890123456789 , \"notes\" :\"end\"}";
 
-    CoreJsonStream adapter = CoreJsonStream.builder().failOnUnknown(true).build();
+    JsonStream adapter = JsonStream.builder().failOnUnknown(true).build();
     try (JsonReader reader = adapter.reader(input)) {
       reader.beginObject();
      assertTrue(reader.hasNextField());

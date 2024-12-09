@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 
 import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import io.avaje.json.JsonWriter;
@@ -16,7 +17,7 @@ class JsonWriterTest {
 
   @Test
   void flush_expect_flushUnderlyingWriter() {
-    CoreJsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
 
     CharArrayWriter writer = new CharArrayWriter();
     JsonWriter jsonWriter = build.writer(writer);

@@ -4,7 +4,7 @@ import io.avaje.json.stream.BufferRecycleStrategy;
 import io.avaje.json.stream.JsonStream;
 
 /**
- * Used to build JsonStream with custom settings.
+ * Used to build the default JsonStream implementation with custom settings.
  */
 public final class JsonStreamBuilder implements JsonStream.Builder {
 
@@ -16,6 +16,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   /**
    * Set to true to serialize nulls. Defaults to false.
    */
+  @Override
   public JsonStreamBuilder serializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
     return this;
@@ -24,6 +25,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   /**
    * Set to true to serialize empty collections. Defaults to false.
    */
+  @Override
   public JsonStreamBuilder serializeEmpty(boolean serializeEmpty) {
     this.serializeEmpty = serializeEmpty;
     return this;
@@ -32,6 +34,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   /**
    * Set to true to fail on unknown properties. Defaults to false.
    */
+  @Override
   public JsonStreamBuilder failOnUnknown(boolean failOnUnknown) {
     this.failOnUnknown = failOnUnknown;
     return this;
@@ -40,6 +43,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   /**
    * Determines how byte buffers are recycled
    */
+  @Override
   public JsonStreamBuilder bufferRecycling(BufferRecycleStrategy strategy) {
     this.strategy = strategy;
     return this;
@@ -48,7 +52,8 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   /**
    * Build and return the JsonStream.
    */
-  public CoreJsonStream build() {
+  @Override
+  public JsonStream build() {
     return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, strategy);
   }
 }
