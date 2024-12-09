@@ -1,6 +1,6 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.jsonb.JsonReader;
+import io.avaje.json.JsonReader;
 
 /**
  * Adapter that supports closing the JsonReader when returned object (aka Stream) is closed.

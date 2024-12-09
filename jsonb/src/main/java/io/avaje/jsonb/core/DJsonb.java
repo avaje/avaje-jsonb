@@ -1,10 +1,11 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.*;
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.*;
-import io.avaje.jsonb.stream.BufferRecycleStrategy;
-import io.avaje.jsonb.stream.JsonOutput;
-import io.avaje.jsonb.stream.JsonStream;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,13 +25,13 @@ import static java.util.Objects.requireNonNull;
 final class DJsonb implements Jsonb {
 
   private final CoreAdapterBuilder builder;
-  private final JsonStreamAdapter io;
+  private final JsonStream io;
   private final Map<Type, DJsonType<?>> typeCache = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ViewKey, JsonView<?>> viewCache = new ConcurrentHashMap<>();
   private final JsonType<Object> anyType;
 
   DJsonb(
-      JsonStreamAdapter adapter,
+      JsonStream adapter,
       List<JsonAdapter.Factory> factories,
       boolean serializeNulls,
       boolean serializeEmpty,
@@ -46,7 +47,12 @@ final class DJsonb implements Jsonb {
       if (adapterFactoryOptional.isPresent()) {
         this.io = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
       } else {
-        this.io = new JsonStream(serializeNulls, serializeEmpty, failOnUnknown, strategy);
+        this.io = JsonStream.builder()
+          .serializeNulls(serializeNulls)
+          .serializeEmpty(serializeEmpty)
+          .failOnUnknown(failOnUnknown)
+          .bufferRecycling(strategy)
+          .build();
       }
     }
     this.anyType = type(Object.class);
@@ -193,7 +199,8 @@ final class DJsonb implements Jsonb {
     return (JsonView<T>) viewCache.computeIfAbsent(key, o -> {
       try {
         CoreViewBuilder viewBuilder = new CoreViewBuilder(ViewDsl.parse(dsl));
-        adapter.viewBuild().build(viewBuilder);
+        ViewBuilderAware viewBuilderAware = adapter.unwrap(ViewBuilderAware.class);
+        viewBuilderAware.build(viewBuilder);
         return viewBuilder.build(this);
       } catch (Exception e) {
         throw new IllegalStateException(e);
@@ -234,7 +241,7 @@ final class DJsonb implements Jsonb {
     private boolean mathTypesAsString;
     private boolean serializeNulls;
     private boolean serializeEmpty = true;
-    private JsonStreamAdapter adapter;
+    private JsonStream adapter;
     private BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
 
     @Override
@@ -268,7 +275,7 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public Builder adapter(JsonStreamAdapter streamAdapter) {
+    public Builder adapter(JsonStream streamAdapter) {
       this.adapter = streamAdapter;
       return this;
     }

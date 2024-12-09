@@ -1,6 +1,7 @@
 module io.avaje.jsonb.generator {
 
   requires java.compiler;
+  requires static io.avaje.json;
   requires static io.avaje.jsonb;
   requires static io.avaje.prism;
 

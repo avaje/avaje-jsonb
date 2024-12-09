@@ -3,9 +3,9 @@ package io.avaje.jsonb.jackson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TreeNode;
-import io.avaje.jsonb.JsonIoException;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.json.JsonIoException;
+import io.avaje.json.JsonReader;
+import io.avaje.json.PropertyNames;
 
 import java.io.IOException;
 import java.math.BigDecimal;

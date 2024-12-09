@@ -1,11 +1,11 @@
 package org.example;
 
 import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.spi.Generated;
-import io.avaje.jsonb.spi.PropertyNames;
+import io.avaje.json.PropertyNames;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
 
@@ -28,14 +28,10 @@ public final class MyBasicJsonAdapter implements JsonAdapter<StreamBasicTest.MyB
     this.names = jsonb.properties("id", "name");
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean isViewBuilderAware() {
-    return true;
-  }
-
-  @Override
-  public ViewBuilderAware viewBuild() {
-    return this;
+  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
+    return (U) this;
   }
 
   @Override

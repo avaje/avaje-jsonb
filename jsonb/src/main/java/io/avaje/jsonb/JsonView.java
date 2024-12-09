@@ -1,6 +1,7 @@
 package io.avaje.jsonb;
 
-import io.avaje.jsonb.stream.JsonOutput;
+import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.JsonWriter;
 
 import java.io.OutputStream;
 import java.io.Writer;

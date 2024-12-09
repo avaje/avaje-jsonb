@@ -1,6 +1,6 @@
 package org.example.customer;
 
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 

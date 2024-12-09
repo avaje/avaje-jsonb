@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonDataException;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonDataException;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.spi.Generated;
 

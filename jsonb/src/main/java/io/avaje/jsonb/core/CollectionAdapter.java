@@ -15,6 +15,8 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.*;
 import io.avaje.jsonb.spi.ViewBuilder;
 import io.avaje.jsonb.spi.ViewBuilderAware;
@@ -68,14 +70,11 @@ abstract class CollectionAdapter<C extends Collection<T>, T> implements JsonAdap
 
   abstract C newCollection();
 
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean isViewBuilderAware() {
-    return elementAdapter.isViewBuilderAware();
-  }
-
-  @Override
-  public ViewBuilderAware viewBuild() {
-    return this;
+  public <U> U unwrap(Class<U> viewBuilderAwareClass) {
+    var elementViewBuilder = elementAdapter.unwrap(viewBuilderAwareClass);
+    return elementViewBuilder == null ? null : (U) this;
   }
 
   @Override

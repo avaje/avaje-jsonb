@@ -4,10 +4,10 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 
-import io.avaje.jsonb.JsonException;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.spi.BufferedJsonWriter;
-import io.avaje.jsonb.spi.DelegateJsonWriter;
+import io.avaje.json.JsonException;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.stream.BufferedJsonWriter;
+import io.avaje.json.stream.DelegateJsonWriter;
 
 final class JacksonWriteBuffer extends DelegateJsonWriter implements BufferedJsonWriter {
 

@@ -1,9 +1,9 @@
 package io.avaje.jsonb.jackson;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.spi.BytesJsonWriter;
-import io.avaje.jsonb.spi.DelegateJsonWriter;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.stream.BytesJsonWriter;
+import io.avaje.json.stream.DelegateJsonWriter;
 
 final class JacksonWriteAsBytes extends DelegateJsonWriter implements BytesJsonWriter {
 

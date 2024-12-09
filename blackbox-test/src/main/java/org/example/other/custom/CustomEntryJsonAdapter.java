@@ -6,11 +6,9 @@ import java.util.Map.Entry;
 
 import io.avaje.jsonb.CustomAdapter;
 import io.avaje.jsonb.JsonAdapter;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.*;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
-import io.avaje.jsonb.spi.PropertyNames;
 
 @CustomAdapter
 public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {

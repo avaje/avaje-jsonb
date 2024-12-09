@@ -15,6 +15,9 @@
  */
 package io.avaje.jsonb.core;
 
+import io.avaje.json.JsonDataException;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.*;
 
 import java.lang.reflect.Type;
@@ -388,7 +391,7 @@ final class BasicTypeAdapters {
   @SuppressWarnings("rawtypes")
   static final class ObjectJsonAdapter implements JsonAdapter<Object> {
     private final Jsonb jsonb;
-    private final JsonAdapter<List> listJsonAdapter;
+    private final JsonAdapter<List> listAdapter;
     private final JsonAdapter<Map> mapAdapter;
     private final JsonAdapter<String> stringAdapter;
     private final JsonAdapter<Double> doubleAdapter;
@@ -396,7 +399,7 @@ final class BasicTypeAdapters {
 
     ObjectJsonAdapter(Jsonb jsonb) {
       this.jsonb = jsonb;
-      this.listJsonAdapter = jsonb.adapter(List.class);
+      this.listAdapter = jsonb.adapter(List.class);
       this.mapAdapter = jsonb.adapter(Map.class);
       this.stringAdapter = jsonb.adapter(String.class);
       this.doubleAdapter = jsonb.adapter(Double.class);
@@ -407,19 +410,19 @@ final class BasicTypeAdapters {
     public Object fromJson(JsonReader reader) {
       switch (reader.currentToken()) {
         case BEGIN_ARRAY:
-          return this.listJsonAdapter.fromJson(reader);
+          return listAdapter.fromJson(reader);
         case BEGIN_OBJECT:
-          return this.mapAdapter.fromJson(reader);
+          return mapAdapter.fromJson(reader);
         case STRING:
-          return this.stringAdapter.fromJson(reader);
+          return stringAdapter.fromJson(reader);
         case NUMBER:
-          var d = this.doubleAdapter.fromJson(reader);
+          var d = doubleAdapter.fromJson(reader);
           if (d % 1 == 0) {
             return d.longValue();
           }
           return d;
         case BOOLEAN:
-          return this.booleanAdapter.fromJson(reader);
+          return booleanAdapter.fromJson(reader);
         case NULL:
           return null;
         default:

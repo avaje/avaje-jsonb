@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonpCharacterEscapes;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
-import io.avaje.jsonb.JsonWriter;
+import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
 import org.example.Address;
 import org.example.MyComponent;

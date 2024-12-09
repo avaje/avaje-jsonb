@@ -1,8 +1,7 @@
 package org.example.customer;
 
-import io.avaje.jsonb.JsonException;
-import io.avaje.jsonb.JsonType;
-import io.avaje.jsonb.Jsonb;
+import io.avaje.json.*;
+import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;

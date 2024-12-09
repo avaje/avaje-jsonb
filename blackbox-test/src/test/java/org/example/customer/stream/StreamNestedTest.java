@@ -1,6 +1,6 @@
 package org.example.customer.stream;
 
-import io.avaje.jsonb.JsonReader;
+import io.avaje.json.*;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;

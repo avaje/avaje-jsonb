@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import io.avaje.jsonb.JsonIoException;
-import io.avaje.jsonb.JsonReader;
-import io.avaje.jsonb.JsonWriter;
-import io.avaje.jsonb.spi.BufferedJsonWriter;
-import io.avaje.jsonb.spi.BytesJsonWriter;
-import io.avaje.jsonb.spi.JsonStreamAdapter;
-import io.avaje.jsonb.spi.PropertyNames;
-import io.avaje.jsonb.stream.JsonOutput;
+import io.avaje.json.JsonIoException;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.BufferedJsonWriter;
+import io.avaje.json.stream.BytesJsonWriter;
+import io.avaje.json.stream.JsonStream;
+import io.avaje.json.stream.JsonOutput;
 
 import java.io.*;
 
@@ -53,7 +53,7 @@ import java.io.*;
  *   <li>failOnUnknown false</li>
  * </ul>
  */
-public class JacksonAdapter implements JsonStreamAdapter {
+public class JacksonAdapter implements JsonStream {
 
   /**
    * Used to build JacksonAdapter with custom settings.

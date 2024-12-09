@@ -1,7 +1,7 @@
 package org.example;
 
 import io.avaje.jsonb.Json;
-import io.avaje.jsonb.JsonReader;
+import io.avaje.json.JsonReader;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;

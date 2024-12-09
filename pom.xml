@@ -29,6 +29,7 @@
   </properties>
 
   <modules>
+    <module>json-core</module>
     <module>jsonb</module>
     <module>jsonb-generator</module>
     <module>jsonb-jackson</module>

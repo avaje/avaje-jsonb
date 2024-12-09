@@ -1,5 +1,7 @@
 package io.avaje.jsonb;
 
+import io.avaje.json.JsonReader;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
