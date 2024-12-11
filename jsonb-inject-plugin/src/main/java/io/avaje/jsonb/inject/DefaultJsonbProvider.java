@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import io.avaje.inject.BeanScopeBuilder;
 import io.avaje.inject.spi.InjectPlugin;
 import io.avaje.jsonb.Jsonb;
-import io.avaje.jsonb.stream.BufferRecycleStrategy;
+import io.avaje.json.stream.BufferRecycleStrategy;
 
 /**
  * Plugin for avaje inject that provides a default Jsonb instance.
