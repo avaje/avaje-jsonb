@@ -30,6 +30,7 @@
 
   <modules>
     <module>json-core</module>
+    <module>json-node</module>
     <module>jsonb</module>
     <module>jsonb-generator</module>
     <module>jsonb-jackson</module>
