@@ -27,7 +27,7 @@ public final class JsonArray implements JsonNode {
     return new JsonArray(Collections.unmodifiableList(children));
   }
 
-  JsonArray(List<JsonNode> children) {
+  private JsonArray(List<JsonNode> children) {
     this.children = requireNonNull(children);
   }
 
@@ -42,17 +42,24 @@ public final class JsonArray implements JsonNode {
   }
 
   /**
-   * Return the child elements.
-   */
-  public List<JsonNode> elements() {
-    return children;
-  }
-
-  /**
    * Return true if the json array is empty.
    */
   public boolean isEmpty() {
     return children.isEmpty();
+  }
+
+  /**
+   * Return the number of elements.
+   */
+  public int size() {
+    return children.size();
+  }
+
+  /**
+   * Return the child elements.
+   */
+  public List<JsonNode> elements() {
+    return children;
   }
 
   /**

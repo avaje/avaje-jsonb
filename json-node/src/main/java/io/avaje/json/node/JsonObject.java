@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -42,6 +43,27 @@ public final class JsonObject implements JsonNode {
   }
 
   /**
+   * Return true if the json object contains no elements.
+   */
+  public boolean isEmpty() {
+    return children.isEmpty();
+  }
+
+  /**
+   * Return the number of elements.
+   */
+  public int size() {
+    return children.size();
+  }
+
+  /**
+   * Return true if the object contains the given key.
+   */
+  public boolean containsKey(String key) {
+    return children.containsKey(key);
+  }
+
+  /**
    * Return the elements of the object.
    */
   public Map<String, JsonNode> elements() {
@@ -60,7 +82,8 @@ public final class JsonObject implements JsonNode {
     return this;
   }
 
-//  public JsonNode put(String key, JsonNode value) {
-//    return children.put(key, value);
-//  }
+  public Optional<JsonNode> get(String key) {
+    return Optional.ofNullable(children.get(key));
+  }
+
 }

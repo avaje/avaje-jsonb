@@ -21,4 +21,8 @@ public final class JsonString implements JsonNode {
   public String text() {
     return value;
   }
+
+  public String value() {
+    return value;
+  }
 }

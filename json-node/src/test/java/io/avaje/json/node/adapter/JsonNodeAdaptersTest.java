@@ -115,6 +115,9 @@ class JsonNodeAdaptersTest {
   void arrayOfMixed_explicitUseOfStream() {
     JsonArray jsonArray = JsonArray.of(List.of(JsonInteger.of(42), JsonString.of("foo")));
 
+    assertThat(jsonArray.isEmpty()).isFalse();
+    assertThat(jsonArray.size()).isEqualTo(2);
+
     var writer = stream.bufferedWriter();
     nodeAdapter.toJson(writer, jsonArray);
     var asJson = writer.result();
@@ -130,6 +133,11 @@ class JsonNodeAdaptersTest {
     var obj = JsonObject.create()
       .add("name", JsonString.of("foo"))
       .add("other", JsonInteger.of(42));
+
+    assertThat(obj.isEmpty()).isFalse();
+    assertThat(obj.size()).isEqualTo(2);
+    assertThat(obj.containsKey("name")).isTrue();
+    assertThat(obj.containsKey("DoesNotExist")).isFalse();
 
     String asJson0 = node.toJson(obj);
     assertThat(asJson0).isEqualTo("{\"name\":\"foo\",\"other\":42}");
