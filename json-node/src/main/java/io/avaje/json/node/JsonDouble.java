@@ -17,6 +17,11 @@ public final class JsonDouble implements JsonNumber {
   }
 
   @Override
+  public String toString() {
+    return text();
+  }
+
+  @Override
   public Type type() {
     return Type.NUMBER;
   }

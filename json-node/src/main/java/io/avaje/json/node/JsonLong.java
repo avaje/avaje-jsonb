@@ -17,6 +17,11 @@ public final class JsonLong implements JsonNumber {
   }
 
   @Override
+  public String toString() {
+    return text();
+  }
+
+  @Override
   public Type type() {
     return Type.NUMBER;
   }

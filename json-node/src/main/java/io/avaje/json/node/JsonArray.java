@@ -32,6 +32,11 @@ public final class JsonArray implements JsonNode {
   }
 
   @Override
+  public String toString() {
+    return text();
+  }
+
+  @Override
   public Type type() {
     return Type.ARRAY;
   }

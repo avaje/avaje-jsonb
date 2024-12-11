@@ -33,6 +33,11 @@ public final class JsonObject implements JsonNode {
   }
 
   @Override
+  public String toString() {
+    return text();
+  }
+
+  @Override
   public Type type() {
     return Type.OBJECT;
   }
