@@ -17,6 +17,13 @@ class JsonLongTest {
   }
 
   @Test
+  void isEqualTo() {
+    assertThat(jsonLong).isEqualTo(JsonLong.of(42));
+    assertThat(jsonLong).isNotEqualTo(JsonLong.of(43));
+    assertThat(jsonLong).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
   void copy() {
     assertThat(jsonLong.copy()).isSameAs(jsonLong);
   }

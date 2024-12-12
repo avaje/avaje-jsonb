@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -39,6 +40,19 @@ public final class JsonArray implements JsonNode {
 
   private JsonArray(List<JsonNode> children) {
     this.children = requireNonNull(children);
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (!(object instanceof JsonArray)) return false;
+    JsonArray jsonArray = (JsonArray) object;
+    return Objects.equals(children, jsonArray.children);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(children);
   }
 
   @Override

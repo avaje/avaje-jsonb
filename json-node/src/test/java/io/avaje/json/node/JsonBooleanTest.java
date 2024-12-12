@@ -18,6 +18,12 @@ class JsonBooleanTest {
   }
 
   @Test
+  void isEqualTo() {
+    assertThat(jsonBoolean).isEqualTo(JsonBoolean.of(true));
+    assertThat(jsonBoolean).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
   void copy() {
     assertThat(jsonBoolean.copy()).isSameAs(jsonBoolean);
   }

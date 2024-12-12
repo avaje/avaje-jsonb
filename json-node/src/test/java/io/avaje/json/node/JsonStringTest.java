@@ -16,6 +16,13 @@ class JsonStringTest {
   }
 
   @Test
+  void isEqualTo() {
+    assertThat(jsonString).isEqualTo(JsonString.of("foo"));
+    assertThat(jsonString).isNotEqualTo(JsonString.of("NotFoo"));
+    assertThat(jsonString).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
   void copy() {
     assertThat(jsonString.copy()).isSameAs(jsonString);
   }

@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
@@ -42,6 +43,19 @@ public final class JsonObject implements JsonNode {
 
   private JsonObject(Map<String, JsonNode> children) {
     this.children = requireNonNull(children);
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (!(object instanceof JsonObject)) return false;
+    JsonObject that = (JsonObject) object;
+    return Objects.equals(children, that.children);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(children);
   }
 
   @Override
