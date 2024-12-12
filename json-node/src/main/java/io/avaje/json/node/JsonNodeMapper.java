@@ -40,6 +40,8 @@ public interface JsonNodeMapper {
     return new NodeAdapterBuilder();
   }
 
+  <T> NodeMapper<T> mapper(JsonAdapter<T> customAdapter);
+
   /**
    * Return a NodeMapper for ANY json content.
    * <p>

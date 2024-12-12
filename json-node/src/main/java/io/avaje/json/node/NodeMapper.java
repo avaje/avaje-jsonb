@@ -18,7 +18,7 @@ import java.io.Writer;
  * @see JsonNodeMapper#objectMapper()
  * @see JsonNodeMapper#nodeMapper()
  */
-public interface NodeMapper<T extends JsonNode> {
+public interface NodeMapper<T> {
 
   /**
    * Read the return the value from the json content.

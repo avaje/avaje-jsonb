@@ -30,6 +30,11 @@ final class DJsonNodeMapper implements JsonNodeMapper {
   }
 
   @Override
+  public <T> NodeMapper<T> mapper(JsonAdapter<T> customAdapter) {
+    return new DMapper<>(customAdapter, jsonStream);
+  }
+
+  @Override
   public NodeMapper<JsonNode> nodeMapper() {
     return new DMapper<>(nodeAdapter, jsonStream);
   }

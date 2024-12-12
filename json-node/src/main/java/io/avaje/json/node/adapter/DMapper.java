@@ -12,7 +12,7 @@ import io.avaje.json.stream.JsonStream;
 
 import java.io.*;
 
-final class DMapper<T extends JsonNode> implements NodeMapper<T> {
+final class DMapper<T> implements NodeMapper<T> {
 
   private final JsonAdapter<T> adapter;
   private final JsonStream jsonStream;
