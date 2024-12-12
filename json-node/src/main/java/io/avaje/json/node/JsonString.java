@@ -43,6 +43,11 @@ public final /*value*/ class JsonString implements JsonNode {
   }
 
   @Override
+  public String toPlain() {
+    return value;
+  }
+
+  @Override
   public Type type() {
     return Type.STRING;
   }

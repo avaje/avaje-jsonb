@@ -34,6 +34,11 @@ class JsonLongTest {
   }
 
   @Test
+  void toPlain() {
+    assertThat(jsonLong.toPlain()).isEqualTo(42L);
+  }
+
+  @Test
   void value() {
     assertThat(jsonLong.intValue()).isEqualTo(42);
     assertThat(jsonLong.longValue()).isEqualTo(42L);

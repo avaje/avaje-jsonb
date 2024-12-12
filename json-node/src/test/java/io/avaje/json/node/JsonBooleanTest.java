@@ -29,6 +29,12 @@ class JsonBooleanTest {
   }
 
   @Test
+  void toPlain() {
+    assertThat(jsonBoolean.toPlain()).isTrue();
+    assertThat(JsonBoolean.of(false).toPlain()).isFalse();
+  }
+
+  @Test
   void unmodifiable() {
     assertThat(jsonBoolean.unmodifiable()).isSameAs(jsonBoolean);
   }

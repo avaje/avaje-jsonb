@@ -46,6 +46,11 @@ public final /*value*/ class JsonInteger implements JsonNumber {
   }
 
   @Override
+  public Integer toPlain() {
+    return value;
+  }
+
+  @Override
   public Type type() {
     return Type.NUMBER;
   }

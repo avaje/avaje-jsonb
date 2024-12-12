@@ -46,6 +46,11 @@ public final /*value*/ class JsonDecimal implements JsonNumber {
   }
 
   @Override
+  public BigDecimal toPlain() {
+    return value;
+  }
+
+  @Override
   public Type type() {
     return Type.NUMBER;
   }

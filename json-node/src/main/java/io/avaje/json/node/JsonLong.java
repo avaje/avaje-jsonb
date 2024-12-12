@@ -46,6 +46,11 @@ public final /*value*/ class JsonLong implements JsonNumber {
   }
 
   @Override
+  public Long toPlain() {
+    return value;
+  }
+
+  @Override
   public Type type() {
     return Type.NUMBER;
   }

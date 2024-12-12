@@ -91,6 +91,15 @@ public final class JsonObject implements JsonNode {
     return new JsonObject(mapCopy);
   }
 
+  @Override
+  public Map<String, Object> toPlain() {
+    final var mapCopy = new LinkedHashMap<String, Object>();
+    for (Map.Entry<String, JsonNode> entry : children.entrySet()) {
+      mapCopy.put(entry.getKey(), entry.getValue().toPlain());
+    }
+    return mapCopy;
+  }
+
   /**
    * Return true if the json object contains no elements.
    */
@@ -157,6 +166,17 @@ public final class JsonObject implements JsonNode {
    */
   public JsonObject add(String key, long value) {
     return add(key, JsonLong.of(value));
+  }
+
+  /**
+   * Remove the node for the given key returning the removed value.
+   *
+   * @param key The key to remove.
+   * @return The node that has been removed.
+   */
+  @Nullable
+  public JsonNode remove(String key) {
+    return children.remove(key);
   }
 
   /**

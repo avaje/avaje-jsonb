@@ -95,6 +95,20 @@ class JsonObjectTest {
   }
 
   @Test
+  void remove() {
+    var obj = JsonObject.create().add("one", 1).add("two", 2).add("three", 3);
+    assertThat(obj.elements().keySet()).containsExactly("one", "two", "three");
+
+    JsonNode two = obj.remove("two");
+    assertThat(two).isNotNull();
+    assertThat(two).isInstanceOf(JsonInteger.class);
+    assertThat(two.text()).isEqualTo("2");
+
+    assertThat(obj.elements().keySet()).containsExactly("one", "three");
+    assertThat(obj.toString()).isEqualTo("{one=1, three=3}");
+  }
+
+  @Test
   void get() {
     JsonNode name = basicObject.get("name");
     assertThat(name.text()).isEqualTo("foo");
@@ -163,5 +177,17 @@ class JsonObjectTest {
 
     assertThatThrownBy(() -> copy.add("canMutate", true))
       .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void toPlain() {
+    final var source = JsonObject.create()
+      .add("name", "foo")
+      .add("other", JsonObject.create().add("b", 42));
+
+    Map<String, Object> plainMap = source.toPlain();
+    assertThat(plainMap).containsOnlyKeys("name", "other");
+    assertThat(plainMap.get("name")).isEqualTo("foo");
+    assertThat(plainMap.get("other")).isEqualTo(Map.of("b", 42));
   }
 }
