@@ -7,7 +7,7 @@ import io.avaje.json.stream.JsonStream;
 
 import java.lang.reflect.Type;
 
-final class DJsonNodeAdapter implements JsonNodeAdapter {
+final class DJsonNodeMapper implements JsonNodeMapper {
 
   static final BooleanAdapter BOOLEAN_ADAPTER = new BooleanAdapter();
   static final StringAdapter STRING_ADAPTER = new StringAdapter();
@@ -22,7 +22,7 @@ final class DJsonNodeAdapter implements JsonNodeAdapter {
   private final ObjectAdapter objectAdapter;
   private final ArrayAdapter arrayAdapter;
 
-  DJsonNodeAdapter(JsonStream jsonStream, NodeAdapter nodeAdapter, ObjectAdapter objectAdapter, ArrayAdapter arrayAdapter) {
+  DJsonNodeMapper(JsonStream jsonStream, NodeAdapter nodeAdapter, ObjectAdapter objectAdapter, ArrayAdapter arrayAdapter) {
     this.jsonStream = jsonStream;
     this.nodeAdapter = nodeAdapter;
     this.objectAdapter = objectAdapter;
@@ -45,7 +45,7 @@ final class DJsonNodeAdapter implements JsonNodeAdapter {
 
   @Override
   public <T extends JsonNode> T fromJson(Class<T> type, String json) {
-    JsonAdapter<T> adapter = of(type);
+    JsonAdapter<T> adapter = adapter(type);
     try (JsonReader reader = jsonStream.reader(json)) {
       return adapter.fromJson(reader);
     }
@@ -53,11 +53,11 @@ final class DJsonNodeAdapter implements JsonNodeAdapter {
 
   @SuppressWarnings("unchecked")
   @Override
-  public JsonAdapter<?> create(Type type) {
+  public JsonAdapter<?> adapter(Type type) {
     if (type instanceof Class) {
       Class<?> cls = (Class<?>) type;
       if (JsonNode.class.isAssignableFrom(cls)) {
-        return of((Class<? extends JsonNode>)cls);
+        return adapter((Class<? extends JsonNode>)cls);
       }
     }
     return null;
@@ -65,7 +65,7 @@ final class DJsonNodeAdapter implements JsonNodeAdapter {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends JsonNode> JsonAdapter<T> of(Class<T> type) {
+  public <T extends JsonNode> JsonAdapter<T> adapter(Class<T> type) {
     if (type == JsonNode.class) return (JsonAdapter<T>) nodeAdapter;
     if (type == JsonObject.class) return (JsonAdapter<T>) objectAdapter;
     if (type == JsonArray.class) return (JsonAdapter<T>) arrayAdapter;

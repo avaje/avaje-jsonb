@@ -11,23 +11,23 @@ import java.lang.reflect.Type;
  *
  * <pre>{@code
  *
- * static final JsonNodeAdapter node = JsonNodeAdapter.builder().build();
+ * static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
  *
  * JsonArray jsonArray = JsonArray.create()
  * .add(JsonInteger.of(42))
  * .add(JsonString.of("foo"));
  *
- * var asJson = node.toJson(jsonArray);
+ * var asJson = mapper.toJson(jsonArray);
  *
- * JsonNode jsonNodeFromJson = node.fromJson(asJson);
+ * JsonNode jsonNodeFromJson = mapper.fromJson(asJson);
  * assertThat(jsonNodeFromJson).isInstanceOf(JsonArray.class);
  *
- * JsonArray arrayFromJson = node.fromJson(JsonArray.class, asJson);
+ * JsonArray arrayFromJson = mapper.fromJson(JsonArray.class, asJson);
  * assertThat(arrayFromJson.elements()).hasSize(2);
  *
  * }</pre>
  */
-public interface JsonNodeAdapter {
+public interface JsonNodeMapper {
 
   /**
    * Create a Builder for the JsonNodeAdapter.
@@ -37,18 +37,10 @@ public interface JsonNodeAdapter {
   }
 
   /**
-   * Return the JsonAdapter for the given JsonNode type.
-   *
-   * @param type The JsonNode type
-   * @return The adapter for the given type
-   */
-  <T extends JsonNode> JsonAdapter<T> of(Class<T> type);
-
-  /**
    * Helper method to write the node to JSON.
    *
    * <pre>{@code
-   * static final JsonNodeAdapter node = JsonNodeAdapter.builder().build();
+   * static final JsonNodeMapper node = JsonNodeMapper.builder().build();
    *
    * JsonArray jsonArray = JsonArray.create()
    * .add(JsonInteger.of(42))
@@ -63,7 +55,7 @@ public interface JsonNodeAdapter {
    * Helper method to read JSON returning a JsonNode.
    *
    * <pre>{@code
-   * static final JsonNodeAdapter node = JsonNodeAdapter.builder().build();
+   * static final JsonNodeMapper node = JsonNodeMapper.builder().build();
    *
    * JsonNode nodeFromJson = node.fromJson(jsonContent);
    * }</pre>
@@ -74,7 +66,7 @@ public interface JsonNodeAdapter {
    * Helper method to read JSON with an expected JsonNode type.
    *
    * <pre>{@code
-   * static final JsonNodeAdapter node = JsonNodeAdapter.builder().build();
+   * static final JsonNodeMapper node = JsonNodeMapper.builder().build();
    *
    * JsonArray arrayFromJson = node.fromJson(JsonArray.class, jsonContent);
    * }</pre>
@@ -82,19 +74,27 @@ public interface JsonNodeAdapter {
   <T extends JsonNode> T fromJson(Class<T> type, String json);
 
   /**
+   * Return the JsonAdapter for the given JsonNode type.
+   *
+   * @param type The JsonNode type
+   * @return The adapter for the given type
+   */
+  <T extends JsonNode> JsonAdapter<T> adapter(Class<T> type);
+
+  /**
    * Create a JsonAdapter for the given generic type or null if the
    * type is not actually a JsonNode type.
    */
-  JsonAdapter<?> create(Type type);
+  JsonAdapter<?> adapter(Type type);
 
   /**
-   * Build the JsonNodeAdapter.
+   * Build the JsonNodeMapper.
    */
   interface Builder {
 
     /**
-     * Set the default JsonStream to use when using {@link JsonNodeAdapter#toJson(JsonNode)}
-     * {@link JsonNodeAdapter#fromJson(String)}.
+     * Set the default JsonStream to use when using {@link JsonNodeMapper#toJson(JsonNode)}
+     * {@link JsonNodeMapper#fromJson(String)}.
      * <p>
      * When not set this defaults to {@code JsonStream.builder().build()}.
      *
@@ -111,8 +111,8 @@ public interface JsonNodeAdapter {
     Builder numberAdapter(JsonAdapter<JsonNumber> numberAdapter);
 
     /**
-     * Build and return the JsonNodeAdapter.
+     * Build and return the JsonNodeMapper.
      */
-    JsonNodeAdapter build();
+    JsonNodeMapper build();
   }
 }

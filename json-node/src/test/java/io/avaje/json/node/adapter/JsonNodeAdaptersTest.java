@@ -13,84 +13,84 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonNodeAdaptersTest {
 
-  static final JsonNodeAdapter node = JsonNodeAdapter.builder().build();
+  static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
 
   static final JsonStream stream = JsonStream.builder().build();
-  static final JsonAdapter<JsonNode> nodeAdapter = node.of(JsonNode.class);
+  static final JsonAdapter<JsonNode> nodeAdapter = mapper.adapter(JsonNode.class);
 
   @Test
   void create_expect_null() {
-    assertThat(node.create(LocalDate.class)).isNull();
+    assertThat(mapper.adapter(LocalDate.class)).isNull();
   }
 
   @Test
   void create_JsonNode_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonNode.class);
-    JsonAdapter<JsonNode> adapter = node.of(JsonNode.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonNode.class);
+    JsonAdapter<JsonNode> adapter = mapper.adapter(JsonNode.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonObject_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonObject.class);
-    JsonAdapter<JsonObject> adapter = node.of(JsonObject.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonObject.class);
+    JsonAdapter<JsonObject> adapter = mapper.adapter(JsonObject.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonArray_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonArray.class);
-    JsonAdapter<JsonArray> adapter = node.of(JsonArray.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonArray.class);
+    JsonAdapter<JsonArray> adapter = mapper.adapter(JsonArray.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonInteger_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonInteger.class);
-    JsonAdapter<JsonInteger> adapter = node.of(JsonInteger.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonInteger.class);
+    JsonAdapter<JsonInteger> adapter = mapper.adapter(JsonInteger.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonLong_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonLong.class);
-    JsonAdapter<JsonLong> adapter = node.of(JsonLong.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonLong.class);
+    JsonAdapter<JsonLong> adapter = mapper.adapter(JsonLong.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonDouble_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonDouble.class);
-    JsonAdapter<JsonDouble> adapter = node.of(JsonDouble.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonDouble.class);
+    JsonAdapter<JsonDouble> adapter = mapper.adapter(JsonDouble.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonDecimal_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonDecimal.class);
-    JsonAdapter<JsonDecimal> adapter = node.of(JsonDecimal.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonDecimal.class);
+    JsonAdapter<JsonDecimal> adapter = mapper.adapter(JsonDecimal.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonNumber_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonNumber.class);
-    JsonAdapter<JsonNumber> adapter = node.of(JsonNumber.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonNumber.class);
+    JsonAdapter<JsonNumber> adapter = mapper.adapter(JsonNumber.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
   @Test
   void create_JsonBoolean_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonBoolean.class);
-    JsonAdapter<JsonBoolean> adapter = node.of(JsonBoolean.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonBoolean.class);
+    JsonAdapter<JsonBoolean> adapter = mapper.adapter(JsonBoolean.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
 
   @Test
   void create_JsonString_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = node.create(JsonString.class);
-    JsonAdapter<JsonString> adapter = node.of(JsonString.class);
+    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonString.class);
+    JsonAdapter<JsonString> adapter = mapper.adapter(JsonString.class);
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
@@ -101,13 +101,13 @@ class JsonNodeAdaptersTest {
       .add(42)
       .add("foo");
 
-    var asJson = node.toJson(jsonArray);
+    var asJson = mapper.toJson(jsonArray);
     assertThat(asJson).isEqualTo("[42,\"foo\"]");
 
-    JsonArray arrayFromJson = node.fromJson(JsonArray.class, asJson);
+    JsonArray arrayFromJson = mapper.fromJson(JsonArray.class, asJson);
     assertThat(arrayFromJson.elements()).hasSize(2);
 
-    JsonNode jsonNodeFromJson = node.fromJson(asJson);
+    JsonNode jsonNodeFromJson = mapper.fromJson(asJson);
     assertThat(jsonNodeFromJson).isInstanceOf(JsonArray.class);
   }
 
@@ -139,10 +139,10 @@ class JsonNodeAdaptersTest {
     assertThat(obj.containsKey("name")).isTrue();
     assertThat(obj.containsKey("DoesNotExist")).isFalse();
 
-    String asJson0 = node.toJson(obj);
+    String asJson0 = mapper.toJson(obj);
     assertThat(asJson0).isEqualTo("{\"name\":\"foo\",\"other\":42}");
 
-    JsonObject jsonObjectFromJson = node.fromJson(JsonObject.class, asJson0);
+    JsonObject jsonObjectFromJson = mapper.fromJson(JsonObject.class, asJson0);
     assertThat(jsonObjectFromJson.elements()).containsKeys("name", "other");
 
     var writer = stream.bufferedWriter();
