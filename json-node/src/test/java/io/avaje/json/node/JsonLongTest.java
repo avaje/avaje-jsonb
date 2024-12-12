@@ -31,7 +31,7 @@ class JsonLongTest {
     assertThat(jsonLong.intValue()).isEqualTo(42);
     assertThat(jsonLong.longValue()).isEqualTo(42L);
     assertThat(jsonLong.doubleValue()).isEqualTo(42D);
-    assertThat(jsonLong.numberValue()).isEqualTo(42);
+    assertThat(jsonLong.numberValue()).isEqualTo(42L);
     assertThat(jsonLong.decimalValue()).isEqualTo(BigDecimal.valueOf(42));
   }
 
