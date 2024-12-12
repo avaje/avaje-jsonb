@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,6 +131,18 @@ class JsonArrayTest {
 
     assertThatThrownBy(() -> copy.add("canMutate"))
             .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void toPlain() {
+    final JsonArray source = JsonArray.create()
+      .add("foo")
+      .add(JsonObject.create().add("b", 42));
+
+    List<Object> plain = source.toPlain();
+    assertThat(plain).hasSize(2);
+    assertThat(plain.get(0)).isEqualTo("foo");
+    assertThat(plain.get(1)).isEqualTo(Map.of("b", 42));
   }
 
 }

@@ -34,6 +34,11 @@ class JsonDecimalTest {
   }
 
   @Test
+  void toPlain() {
+    assertThat(jsonDecimal.toPlain()).isEqualTo(new BigDecimal("42.3"));
+  }
+
+  @Test
   void value() {
     assertThat(jsonDecimal.doubleValue()).isEqualTo(42.3D);
     assertThat(jsonDecimal.numberValue()).isEqualTo(new BigDecimal("42.3"));

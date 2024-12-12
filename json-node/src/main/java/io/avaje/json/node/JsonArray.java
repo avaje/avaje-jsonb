@@ -79,6 +79,15 @@ public final class JsonArray implements JsonNode {
   }
 
   @Override
+  public List<Object> toPlain() {
+    final var newList = new ArrayList<>(children.size());
+    for (JsonNode child : children) {
+      newList.add(child.toPlain());
+    }
+    return newList;
+  }
+
+  @Override
   public Type type() {
     return Type.ARRAY;
   }

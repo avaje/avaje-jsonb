@@ -178,4 +178,16 @@ class JsonObjectTest {
     assertThatThrownBy(() -> copy.add("canMutate", true))
       .isInstanceOf(UnsupportedOperationException.class);
   }
+
+  @Test
+  void toPlain() {
+    final var source = JsonObject.create()
+      .add("name", "foo")
+      .add("other", JsonObject.create().add("b", 42));
+
+    Map<String, Object> plainMap = source.toPlain();
+    assertThat(plainMap).containsOnlyKeys("name", "other");
+    assertThat(plainMap.get("name")).isEqualTo("foo");
+    assertThat(plainMap.get("other")).isEqualTo(Map.of("b", 42));
+  }
 }

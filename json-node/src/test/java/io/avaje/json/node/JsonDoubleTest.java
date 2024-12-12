@@ -34,6 +34,11 @@ class JsonDoubleTest {
   }
 
   @Test
+  void toPlain() {
+    assertThat(jsonDouble.toPlain()).isEqualTo(42.3D);
+  }
+
+  @Test
   void value() {
     assertThat(jsonDouble.intValue()).isEqualTo(42);
     assertThat(jsonDouble.longValue()).isEqualTo(42L);

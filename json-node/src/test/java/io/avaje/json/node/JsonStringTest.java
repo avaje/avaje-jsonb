@@ -33,6 +33,11 @@ class JsonStringTest {
   }
 
   @Test
+  void toPlain() {
+    assertThat(jsonString.toPlain()).isEqualTo("foo");
+  }
+
+  @Test
   void value() {
     assertThat(jsonString.value()).isEqualTo("foo");
     assertThat(jsonString.text()).isEqualTo("foo");

@@ -43,6 +43,11 @@ public final /*value*/ class JsonBoolean implements JsonNode {
   }
 
   @Override
+  public Boolean toPlain() {
+    return value;
+  }
+
+  @Override
   public Type type() {
     return Type.BOOLEAN;
   }

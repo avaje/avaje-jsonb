@@ -81,6 +81,11 @@ public /*sealed*/ interface JsonNode
   JsonNode copy();
 
   /**
+   * Return the JsonNode as its plain Java value ({@code String, Integer, List, Map etc}).
+   */
+  Object toPlain();
+
+  /**
    * Find a node given a path using dot notation.
    *
    * @param path The path in dot notation

@@ -46,6 +46,11 @@ public final /*value*/ class JsonDouble implements JsonNumber {
   }
 
   @Override
+  public Double toPlain() {
+    return value;
+  }
+
+  @Override
   public Type type() {
     return Type.NUMBER;
   }
