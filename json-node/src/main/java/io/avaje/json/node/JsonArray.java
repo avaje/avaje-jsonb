@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -65,6 +66,13 @@ public final class JsonArray implements JsonNode {
    */
   public List<JsonNode> elements() {
     return children;
+  }
+
+  /**
+   * Return the stream of child elements.
+   */
+  public Stream<JsonNode> stream() {
+    return children.stream();
   }
 
   /**

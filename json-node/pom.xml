@@ -14,6 +14,12 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-json</artifactId>
       <version>3.0-RC1</version>
