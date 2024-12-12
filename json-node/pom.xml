@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>3.0-RC1</version>
+    <version>3.0-RC2</version>
   </parent>
 
   <artifactId>avaje-json-node</artifactId>
@@ -27,6 +27,13 @@
       <groupId>io.avaje</groupId>
       <artifactId>avaje-json</artifactId>
       <version>3.0-RC1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsonb</artifactId>
+      <version>3.0-RC1</version>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
