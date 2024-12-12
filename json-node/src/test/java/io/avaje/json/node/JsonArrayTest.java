@@ -86,4 +86,5 @@ class JsonArrayTest {
     assertThat(elements.get(3)).isInstanceOf(JsonBoolean.class);
     assertThat(elements.get(4)).isInstanceOf(JsonObject.class);
   }
+
 }
