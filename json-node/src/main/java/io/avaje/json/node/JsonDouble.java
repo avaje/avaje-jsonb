@@ -4,7 +4,7 @@ import io.avaje.json.JsonWriter;
 
 import java.math.BigDecimal;
 
-public final class JsonDouble implements JsonNumber {
+public final /*value*/ class JsonDouble implements JsonNumber {
 
   private final double value;
 
@@ -19,6 +19,16 @@ public final class JsonDouble implements JsonNumber {
   @Override
   public String toString() {
     return text();
+  }
+
+  @Override
+  public JsonDouble unmodifiable() {
+    return this;
+  }
+
+  @Override
+  public JsonDouble copy() {
+    return this;
   }
 
   @Override

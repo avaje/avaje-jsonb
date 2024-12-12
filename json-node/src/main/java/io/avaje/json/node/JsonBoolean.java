@@ -1,6 +1,6 @@
 package io.avaje.json.node;
 
-public final class JsonBoolean implements JsonNode {
+public final /*value*/ class JsonBoolean implements JsonNode {
 
   private final boolean value;
 
@@ -15,6 +15,16 @@ public final class JsonBoolean implements JsonNode {
   @Override
   public String toString() {
     return text();
+  }
+
+  @Override
+  public JsonBoolean unmodifiable() {
+    return this;
+  }
+
+  @Override
+  public JsonBoolean copy() {
+    return this;
   }
 
   @Override

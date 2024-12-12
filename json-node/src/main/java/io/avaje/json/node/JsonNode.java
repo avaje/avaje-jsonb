@@ -73,6 +73,16 @@ public interface JsonNode {
   String text();
 
   /**
+   * Return an unmodifiable deep copy of the JsonNode.
+   */
+  JsonNode unmodifiable();
+
+  /**
+   * Return a mutable deep copy of the JsonNode.
+   */
+  JsonNode copy();
+
+  /**
    * Find a node given a path using dot notation.
    * @param path The path in dot notation
    * @return The found node or null

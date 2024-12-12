@@ -1,6 +1,6 @@
 package io.avaje.json.node;
 
-public final class JsonString implements JsonNode {
+public final /*value*/ class JsonString implements JsonNode {
 
   private final String value;
 
@@ -15,6 +15,16 @@ public final class JsonString implements JsonNode {
   @Override
   public String toString() {
     return text();
+  }
+
+  @Override
+  public JsonString unmodifiable() {
+    return this;
+  }
+
+  @Override
+  public JsonString copy() {
+    return this;
   }
 
   @Override

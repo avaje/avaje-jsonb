@@ -38,6 +38,24 @@ public final class JsonArray implements JsonNode {
   }
 
   @Override
+  public JsonArray unmodifiable() {
+    final var newList = new ArrayList<JsonNode>(children.size());
+    for (JsonNode child : children) {
+      newList.add(child.unmodifiable());
+    }
+    return of(newList);
+  }
+
+  @Override
+  public JsonArray copy() {
+    final var newList = new ArrayList<JsonNode>(children.size());
+    for (JsonNode child : children) {
+      newList.add(child.copy());
+    }
+    return new JsonArray(newList);
+  }
+
+  @Override
   public Type type() {
     return Type.ARRAY;
   }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JsonArrayTest {
 
@@ -85,6 +86,33 @@ class JsonArrayTest {
     assertThat(elements.get(2)).isInstanceOf(JsonLong.class);
     assertThat(elements.get(3)).isInstanceOf(JsonBoolean.class);
     assertThat(elements.get(4)).isInstanceOf(JsonObject.class);
+  }
+
+  @Test
+  void copy() {
+    final JsonArray source = JsonArray.create()
+            .add("foo")
+            .add(JsonObject.create().add("b", 42));
+
+    JsonArray copy = source.copy();
+    assertThat(copy.toString()).isEqualTo(source.toString());
+
+    copy.add("canMutate");
+    assertThat(copy.size()).isEqualTo(3);
+    assertThat(source.size()).isEqualTo(2);
+  }
+
+  @Test
+  void unmodifiable() {
+    final JsonArray source = JsonArray.create()
+            .add("foo")
+            .add(JsonObject.create().add("b", 42));
+
+    JsonArray copy = source.unmodifiable();
+    assertThat(copy.toString()).isEqualTo(source.toString());
+
+    assertThatThrownBy(() -> copy.add("canMutate"))
+            .isInstanceOf(UnsupportedOperationException.class);
   }
 
 }

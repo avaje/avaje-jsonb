@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JsonObjectTest {
 
@@ -115,5 +115,32 @@ class JsonObjectTest {
     assertThat(node.extract("address.notJunk", BigDecimal.TEN)).isEqualTo(BigDecimal.TEN);
 
     assertThat(node.extract("address.other.deep")).isEqualTo("one");
+  }
+
+  @Test
+  void copy() {
+    final JsonObject source = JsonObject.create()
+      .add("name", "foo")
+      .add("other", JsonObject.create().add("b", 42));
+
+    JsonObject copy = source.copy();
+    assertThat(copy.toString()).isEqualTo(source.toString());
+
+    copy.add("canMutate", true);
+    assertThat(copy.containsKey("canMutate")).isTrue();
+    assertThat(source.containsKey("canMutate")).isFalse();
+  }
+
+  @Test
+  void unmodifiable() {
+    final JsonObject source = JsonObject.create()
+      .add("name", "foo")
+      .add("other", JsonObject.create().add("b", 42));
+
+    JsonObject copy = source.unmodifiable();
+    assertThat(copy.toString()).isEqualTo(source.toString());
+
+    assertThatThrownBy(() -> copy.add("canMutate", true))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 }
