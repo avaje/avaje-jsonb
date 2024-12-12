@@ -98,7 +98,7 @@ public final class CoreTypes {
    * types of: String, Integer, Long, Double, Boolean plus List and Map
    * of those types.
    */
-  public static JsonAdapter<Object> createBasicObject() {
+  public static CoreAdapters createCoreAdapters() {
     return new BasicObjectAdapter();
   }
 
@@ -121,5 +121,26 @@ public final class CoreTypes {
     public Void fromJson(JsonReader reader) {
       throw new UnsupportedOperationException();
     }
+  }
+
+  /**
+   * The basic JsonAdapter types.
+   */
+  public interface CoreAdapters {
+
+    /**
+     * Return the Object JsonAdapter.
+     */
+    JsonAdapter<Object> objectAdapter();
+
+    /**
+     * Return the List JsonAdapter.
+     */
+    JsonAdapter<List<Object>> listAdapter();
+
+    /**
+     * Return the Map JsonAdapter.
+     */
+    JsonAdapter<Map<String, Object>> mapAdapter();
   }
 }
