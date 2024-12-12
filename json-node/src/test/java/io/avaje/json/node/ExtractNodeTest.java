@@ -39,12 +39,12 @@ class ExtractNodeTest {
     "    ]\n" +
     "  }";
 
-  static final JsonNodeAdapter node = JsonNodeAdapter.builder().build();
+  static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
 
   @Test
   void extract() {
 
-    JsonObject object = ExtractNodeTest.node.fromJson(JsonObject.class, content);
+    JsonObject object = mapper.fromJsonObject(content);
     JsonArray arrayWithNestedPerson = (JsonArray) object.get("people");
 
     List<JsonNode> peopleNodes =
@@ -79,7 +79,7 @@ class ExtractNodeTest {
 
   @Test
   void extractMissing_expect_IllegalArgumentException() {
-    JsonObject object = ExtractNodeTest.node.fromJson(JsonObject.class, content);
+    JsonObject object = ExtractNodeTest.mapper.fromJsonObject(content);
 
     assertThatThrownBy(() -> object.extractNode("missing.path.here"))
       .isInstanceOf(IllegalArgumentException.class)
@@ -88,7 +88,7 @@ class ExtractNodeTest {
 
   @Test
   void extractMissing_missing_object() {
-    JsonObject object = ExtractNodeTest.node.fromJson(JsonObject.class, content);
+    JsonObject object = ExtractNodeTest.mapper.fromJsonObject(content);
 
     JsonNode result = object.extractNode("missing.path.here", JsonObject.empty());
     assertThat(result).isSameAs(JsonObject.empty());
@@ -96,7 +96,7 @@ class ExtractNodeTest {
 
   @Test
   void extractMissing_missing_array() {
-    JsonObject object = ExtractNodeTest.node.fromJson(JsonObject.class, content);
+    JsonObject object = ExtractNodeTest.mapper.fromJson(JsonObject.class, content);
 
     JsonNode result = object.extractNode("missing.path.here", JsonArray.empty());
     assertThat(result).isSameAs(JsonArray.empty());

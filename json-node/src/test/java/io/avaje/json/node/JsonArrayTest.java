@@ -36,7 +36,7 @@ class JsonArrayTest {
     "    ]\n" +
     "}";
 
-  static final JsonNodeAdapter node = JsonNodeAdapter.builder().build();
+  static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
 
   static final JsonArray basicArray = JsonArray.create()
     .add(JsonInteger.of(42))
@@ -45,7 +45,7 @@ class JsonArrayTest {
   @Test
   void streamFilter() {
 
-    JsonObject top = node.fromJson(JsonObject.class, input);
+    JsonObject top = mapper.fromJson(JsonObject.class, input);
     JsonArray phoneNumbers = (JsonArray)top.get("phoneNumbers");
 
     List<String> result =

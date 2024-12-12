@@ -14,8 +14,8 @@ final class NodeAdapter implements JsonAdapter<JsonNode>  {
   private final JsonAdapter<JsonNumber> numberAdapter;
 
   NodeAdapter(JsonAdapter<JsonNumber> numberAdapter) {
-    this.booleanAdapter = DJsonNodeAdapter.BOOLEAN_ADAPTER;
-    this.stringAdapter = DJsonNodeAdapter.STRING_ADAPTER;
+    this.booleanAdapter = DJsonNodeMapper.BOOLEAN_ADAPTER;
+    this.stringAdapter = DJsonNodeMapper.STRING_ADAPTER;
     this.numberAdapter = numberAdapter;
     this.arrayAdapter = new ArrayAdapter(this);
     this.objectAdapter = new ObjectAdapter(this);
