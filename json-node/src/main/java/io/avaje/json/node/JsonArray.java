@@ -83,4 +83,32 @@ public final class JsonArray implements JsonNode {
     return this;
   }
 
+  /**
+   * Add a String value.
+   */
+  public JsonArray add(String value) {
+    return add(JsonString.of(value));
+  }
+
+  /**
+   * Add a boolean value.
+   */
+  public JsonArray add(boolean value) {
+    return add(JsonBoolean.of(value));
+  }
+
+  /**
+   * Add a int value.
+   */
+  public JsonArray add(int value) {
+    return add(JsonInteger.of(value));
+  }
+
+  /**
+   * Add a long value.
+   */
+  public JsonArray add(long value) {
+    return add(JsonLong.of(value));
+  }
+
 }
