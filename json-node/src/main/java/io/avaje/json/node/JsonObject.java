@@ -160,6 +160,17 @@ public final class JsonObject implements JsonNode {
   }
 
   /**
+   * Remove the node for the given key returning the removed value.
+   *
+   * @param key The key to remove.
+   * @return The node that has been removed.
+   */
+  @Nullable
+  public JsonNode remove(String key) {
+    return children.remove(key);
+  }
+
+  /**
    * Return the direct element at the given path throwing IllegalArgumentException
    * if it is missing.
    *
