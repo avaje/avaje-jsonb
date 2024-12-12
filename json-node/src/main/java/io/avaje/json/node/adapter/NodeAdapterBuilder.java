@@ -6,7 +6,7 @@ import io.avaje.json.node.JsonNumber;
 import io.avaje.json.stream.JsonStream;
 
 /**
- * Builder for JsonNodeAdapter.
+ * Builder for JsonNodeMapper.
  */
 public final class NodeAdapterBuilder implements JsonNodeMapper.Builder {
 

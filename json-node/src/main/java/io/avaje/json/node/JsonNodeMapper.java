@@ -34,7 +34,7 @@ import java.lang.reflect.Type;
 public interface JsonNodeMapper {
 
   /**
-   * Create a Builder for the JsonNodeAdapter.
+   * Create a Builder for the JsonNodeMapper.
    */
   static Builder builder() {
     return new NodeAdapterBuilder();
