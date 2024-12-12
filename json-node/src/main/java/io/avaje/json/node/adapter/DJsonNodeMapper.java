@@ -30,6 +30,21 @@ final class DJsonNodeMapper implements JsonNodeMapper {
   }
 
   @Override
+  public NodeMapper<JsonNode> nodeMapper() {
+    return new DMapper<>(nodeAdapter, jsonStream);
+  }
+
+  @Override
+  public NodeMapper<JsonObject> objectMapper() {
+    return new DMapper<>(objectAdapter, jsonStream);
+  }
+
+  @Override
+  public NodeMapper<JsonArray> arrayMapper() {
+    return new DMapper<>(arrayAdapter, jsonStream);
+  }
+
+  @Override
   public String toJson(JsonNode node) {
     final var writer = jsonStream.bufferedWriter();
     nodeAdapter.toJson(writer, node);
@@ -40,6 +55,20 @@ final class DJsonNodeMapper implements JsonNodeMapper {
   public JsonNode fromJson(String json) {
     try (JsonReader reader = jsonStream.reader(json)) {
       return nodeAdapter.fromJson(reader);
+    }
+  }
+
+  @Override
+  public JsonObject fromJsonObject(String json) {
+    try (JsonReader reader = jsonStream.reader(json)) {
+      return objectAdapter.fromJson(reader);
+    }
+  }
+
+  @Override
+  public JsonArray fromJsonArray(String json) {
+    try (JsonReader reader = jsonStream.reader(json)) {
+      return arrayAdapter.fromJson(reader);
     }
   }
 

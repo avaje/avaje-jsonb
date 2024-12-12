@@ -104,7 +104,7 @@ class JsonNodeAdaptersTest {
     var asJson = mapper.toJson(jsonArray);
     assertThat(asJson).isEqualTo("[42,\"foo\"]");
 
-    JsonArray arrayFromJson = mapper.fromJson(JsonArray.class, asJson);
+    JsonArray arrayFromJson = mapper.fromJsonArray(asJson);
     assertThat(arrayFromJson.elements()).hasSize(2);
 
     JsonNode jsonNodeFromJson = mapper.fromJson(asJson);
