@@ -98,8 +98,8 @@ class JsonNodeAdaptersTest {
   @Test
   void arrayCreateOfMixed_defaultStream() {
     JsonArray jsonArray = JsonArray.create()
-      .add(JsonInteger.of(42))
-      .add(JsonString.of("foo"));
+      .add(42)
+      .add("foo");
 
     var asJson = node.toJson(jsonArray);
     assertThat(asJson).isEqualTo("[42,\"foo\"]");

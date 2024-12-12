@@ -69,4 +69,21 @@ class JsonArrayTest {
     assertThat(JsonArray.create().text()).isEqualTo("[]");
     assertThat(basicArray.text()).isEqualTo("[42, foo]");
   }
+
+  @Test
+  void add() {
+    JsonArray array = JsonArray.create()
+      .add("string")
+      .add(1).add(99L)
+      .add(true)
+      .add(JsonObject.create());
+
+    List<JsonNode> elements = array.elements();
+    assertThat(elements).hasSize(5);
+    assertThat(elements.get(0)).isInstanceOf(JsonString.class);
+    assertThat(elements.get(1)).isInstanceOf(JsonInteger.class);
+    assertThat(elements.get(2)).isInstanceOf(JsonLong.class);
+    assertThat(elements.get(3)).isInstanceOf(JsonBoolean.class);
+    assertThat(elements.get(4)).isInstanceOf(JsonObject.class);
+  }
 }
