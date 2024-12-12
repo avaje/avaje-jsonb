@@ -110,6 +110,15 @@ public /*sealed*/ interface JsonNode
   }
 
   /**
+   * Extract the int from the given path if present or the given default value.
+   *
+   * @param missingValue The value to use when the path is missing.
+   */
+  default int extract(String path, int missingValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Extract the long from the given path if present or the given default value.
    *
    * @param missingValue The value to use when the path is missing.

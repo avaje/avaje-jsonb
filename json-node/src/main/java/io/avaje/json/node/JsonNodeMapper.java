@@ -41,6 +41,15 @@ public interface JsonNodeMapper {
   }
 
   /**
+   * Create a NodeMapper for the specific type given the JsonAdapter.
+   *
+   * @param customAdapter The type specific JsonAdapter to use.
+   * @param <T>           The specific custom type being mapped.
+   * @return The type specific NodeMapper.
+   */
+  <T> NodeMapper<T> mapper(JsonAdapter<T> customAdapter);
+
+  /**
    * Return a NodeMapper for ANY json content.
    * <p>
    * The NodeMapper provides support for all reading and writing options
@@ -80,8 +89,8 @@ public interface JsonNodeMapper {
    * var asJson = mapper.toJson(jsonArray);
    * }</pre>
    *
-   * @see NodeMapper#toJson(JsonNode, OutputStream)
-   * @see NodeMapper#toJson(JsonNode, Writer)
+   * @see NodeMapper#toJson(Object, OutputStream)
+   * @see NodeMapper#toJson(Object, Writer)
    */
   String toJson(JsonNode node);
 
