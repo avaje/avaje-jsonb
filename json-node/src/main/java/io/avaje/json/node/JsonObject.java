@@ -14,9 +14,17 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JsonObject implements JsonNode {
 
+  private static final JsonObject EMPTY = new JsonObject(Collections.emptyMap());
   private static final Pattern PATH_PATTERN = Pattern.compile("\\.");
 
   private final Map<String, JsonNode> children;
+
+  /**
+   * Create an empty immutable JsonObject.
+   */
+  public static JsonObject empty() {
+    return EMPTY;
+  }
 
   /**
    * Create a new mutable JsonObject to add elements to.
@@ -53,7 +61,7 @@ public final class JsonObject implements JsonNode {
 
   @Override
   public JsonObject unmodifiable() {
-    final var mapCopy = new LinkedHashMap<String,JsonNode>();
+    final var mapCopy = new LinkedHashMap<String, JsonNode>();
     for (Map.Entry<String, JsonNode> entry : children.entrySet()) {
       mapCopy.put(entry.getKey(), entry.getValue().unmodifiable());
     }
@@ -62,7 +70,7 @@ public final class JsonObject implements JsonNode {
 
   @Override
   public JsonObject copy() {
-    final var mapCopy = new LinkedHashMap<String,JsonNode>();
+    final var mapCopy = new LinkedHashMap<String, JsonNode>();
     for (Map.Entry<String, JsonNode> entry : children.entrySet()) {
       mapCopy.put(entry.getKey(), entry.getValue().copy());
     }
@@ -143,6 +151,7 @@ public final class JsonObject implements JsonNode {
    *
    * @param key The child key that must exist.
    * @return The child node.
+   * @throws IllegalArgumentException when the path is missing.
    */
   public JsonNode get(String key) {
     final var node = children.get(key);
@@ -167,40 +176,57 @@ public final class JsonObject implements JsonNode {
     return null;
   }
 
-  @Nullable
   @Override
   public String extract(String path) {
     final var node = find(path);
-    return node == null ? null : node.text();
+    if (node == null) {
+      throw new IllegalArgumentException("Node not present for " + path);
+    }
+    return node.text();
   }
 
   @Override
-  public String extract(String path, String defaultValue) {
+  public String extract(String path, String missing) {
     final var name = find(path);
-    return name == null ? defaultValue : name.text();
+    return name == null ? missing : name.text();
   }
 
   @Override
-  public long extract(String path, long defaultValue) {
+  public long extract(String path, long missing) {
     final var node = find(path);
     return !(node instanceof JsonNumber)
-      ? defaultValue
+      ? missing
       : ((JsonNumber) node).longValue();
   }
 
   @Override
-  public Number extract(String path, Number defaultValue) {
+  public Number extract(String path, Number missingValue) {
     final var node = find(path);
     return !(node instanceof JsonNumber)
-      ? defaultValue
+      ? missingValue
       : ((JsonNumber) node).numberValue();
   }
 
   @Override
-  public boolean extract(String path, boolean defaultValue) {
+  public boolean extract(String path, boolean missing) {
     final var node = find(path);
     return !(node instanceof JsonBoolean)
-      ? defaultValue
+      ? missing
       : ((JsonBoolean) node).value();
+  }
+
+  @Override
+  public JsonNode extractNode(String path) {
+    final var node = find(path);
+    if (node == null) {
+      throw new IllegalArgumentException("Node not present for " + path);
+    }
+    return node;
+  }
+
+  @Override
+  public JsonNode extractNode(String path, JsonNode missing) {
+    final var node = find(path);
+    return node != null ? node : missing;
   }
 }

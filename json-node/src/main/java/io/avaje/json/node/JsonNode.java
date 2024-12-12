@@ -82,6 +82,7 @@ public /*sealed*/ interface JsonNode
 
   /**
    * Find a node given a path using dot notation.
+   *
    * @param path The path in dot notation
    * @return The found node or null
    */
@@ -92,37 +93,67 @@ public /*sealed*/ interface JsonNode
 
   /**
    * Extract the text from the node at the given path.
+   *
+   * @throws IllegalArgumentException When the given path is missing.
    */
-  @Nullable
   default String extract(String path) {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Extract the text from the given path if present or the given default value.
+   *
+   * @param missingValue The value to use when the path is missing.
    */
-  default String extract(String path, String defaultValue) {
+  default String extract(String path, String missingValue) {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Extract the long from the given path if present or the given default value.
+   *
+   * @param missingValue The value to use when the path is missing.
    */
-  default long extract(String path, long defaultValue) {
+  default long extract(String path, long missingValue) {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Extract the int from the given path if present or the given default value.
+   *
+   * @param missingValue The value to use when the path is missing.
    */
-  default Number extract(String path, Number defaultValue) {
+  default Number extract(String path, Number missingValue) {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Extract the boolean from the given path if present or the given default value.
+   *
+   * @param missingValue The value to use when the path is missing.
    */
-  default boolean extract(String path, boolean defaultValue) {
+  default boolean extract(String path, boolean missingValue) {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Extract the node from the given path if present or throw IllegalArgumentException
+   * if it is missing.
+   *
+   * @throws IllegalArgumentException When the given path is missing.
+   */
+  default JsonNode extractNode(String path) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Extract the node from the given path if present or the given default value.
+   *
+   * @param missingValue The node to use when the path is missing.
+   * @return The node for the given path.
+   */
+  default JsonNode extractNode(String path, JsonNode missingValue) {
+    throw new UnsupportedOperationException();
+  }
+
 }
