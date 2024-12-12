@@ -186,16 +186,16 @@ public final class JsonObject implements JsonNode {
   }
 
   @Override
-  public String extract(String path, String missing) {
+  public String extract(String path, String missingValue) {
     final var name = find(path);
-    return name == null ? missing : name.text();
+    return name == null ? missingValue : name.text();
   }
 
   @Override
-  public long extract(String path, long missing) {
+  public long extract(String path, long missingValue) {
     final var node = find(path);
     return !(node instanceof JsonNumber)
-      ? missing
+      ? missingValue
       : ((JsonNumber) node).longValue();
   }
 
@@ -208,10 +208,10 @@ public final class JsonObject implements JsonNode {
   }
 
   @Override
-  public boolean extract(String path, boolean missing) {
+  public boolean extract(String path, boolean missingValue) {
     final var node = find(path);
     return !(node instanceof JsonBoolean)
-      ? missing
+      ? missingValue
       : ((JsonBoolean) node).value();
   }
 
@@ -225,8 +225,8 @@ public final class JsonObject implements JsonNode {
   }
 
   @Override
-  public JsonNode extractNode(String path, JsonNode missing) {
+  public JsonNode extractNode(String path, JsonNode missingValue) {
     final var node = find(path);
-    return node != null ? node : missing;
+    return node != null ? node : missingValue;
   }
 }
