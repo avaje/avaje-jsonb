@@ -2,6 +2,7 @@ package io.avaje.json.node;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +30,7 @@ class JsonObjectTest {
   @Test
   void type() {
     assertThat(emptyObject.type()).isEqualTo(JsonNode.Type.OBJECT);
+    assertThat(emptyObject.type().isObject()).isTrue();
   }
 
   @Test
@@ -74,13 +76,44 @@ class JsonObjectTest {
 
   @Test
   void get() {
-    Optional<JsonNode> name = basicObject.get("name");
-    assertThat(name).isNotEmpty();
-    String nameVal = name.stream()
-      .map(JsonNode::text)
-      .findFirst()
-      .orElse("NotPresent");
+    JsonNode name = basicObject.get("name");
+    assertThat(name.text()).isEqualTo("foo");
+  }
 
-    assertThat(nameVal).isEqualTo("foo");
+  @Test
+  void find() {
+    JsonNode name = basicObject.find("name");
+    assertThat(name).isNotNull();
+    assertThat(name).isInstanceOf(JsonString.class);
+  }
+
+
+  @Test
+  void findNested() {
+    var node = JsonObject.create()
+      .add("person", JsonObject.create().add("name", "myName").add("type", "doo").add("active", true))
+      .add("address", JsonObject.create().add("size", 42).add("junk", 99L).add("other", JsonObject.create().add("deep", "one")));
+
+    JsonNode name = node.find("name");
+    assertThat(name).isNull();
+
+    JsonNode personName = node.find("person.name");
+    assertThat(personName).isNotNull();
+    assertThat(personName.text()).isEqualTo("myName");
+
+    assertThat(node.extract("person.name")).isEqualTo("myName");
+    assertThat(node.extract("person.active")).isEqualTo("true");
+    assertThat(node.extract("person.active", false)).isEqualTo(true);
+    assertThat(node.extract("person.missing", false)).isEqualTo(false);
+
+    assertThat(node.extract("address.size", -1)).isEqualTo(42);
+    assertThat(node.extract("address.junk", -1L)).isEqualTo(99L);
+    assertThat(node.extract("address.notSize", -1)).isEqualTo(-1);
+    assertThat(node.extract("address.notJunk", -1L)).isEqualTo(-1L);
+    assertThat(node.extract("address.notJunk", -1.9D)).isEqualTo(-1.9D);
+    assertThat(node.extract("address.size", BigDecimal.TEN)).isEqualTo(42);
+    assertThat(node.extract("address.notJunk", BigDecimal.TEN)).isEqualTo(BigDecimal.TEN);
+
+    assertThat(node.extract("address.other.deep")).isEqualTo("one");
   }
 }
