@@ -51,6 +51,24 @@ public final class JsonObject implements JsonNode {
     return children.toString();
   }
 
+  @Override
+  public JsonObject unmodifiable() {
+    final var mapCopy = new LinkedHashMap<String,JsonNode>();
+    for (Map.Entry<String, JsonNode> entry : children.entrySet()) {
+      mapCopy.put(entry.getKey(), entry.getValue().unmodifiable());
+    }
+    return JsonObject.of(mapCopy);
+  }
+
+  @Override
+  public JsonObject copy() {
+    final var mapCopy = new LinkedHashMap<String,JsonNode>();
+    for (Map.Entry<String, JsonNode> entry : children.entrySet()) {
+      mapCopy.put(entry.getKey(), entry.getValue().copy());
+    }
+    return new JsonObject(mapCopy);
+  }
+
   /**
    * Return true if the json object contains no elements.
    */
