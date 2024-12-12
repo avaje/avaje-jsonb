@@ -7,7 +7,7 @@ import io.avaje.json.JsonWriter;
 import java.util.List;
 import java.util.Map;
 
-final class BasicObjectAdapter implements JsonAdapter<Object>  {
+final class BasicObjectAdapter implements JsonAdapter<Object>, CoreTypes.CoreAdapters  {
 
   private final JsonAdapter<String> stringAdapter;
   private final JsonAdapter<Double> doubleAdapter;
@@ -25,6 +25,21 @@ final class BasicObjectAdapter implements JsonAdapter<Object>  {
     this.booleanAdapter = CoreTypes.create(Boolean.class);
     this.listAdapter = CoreTypes.createList(this);
     this.mapAdapter = CoreTypes.createMap(this);
+  }
+
+  @Override
+  public JsonAdapter<Object> objectAdapter() {
+    return this;
+  }
+
+  @Override
+  public JsonAdapter<List<Object>> listAdapter() {
+    return listAdapter;
+  }
+
+  @Override
+  public JsonAdapter<Map<String, Object>> mapAdapter() {
+    return mapAdapter;
   }
 
   @Override

@@ -56,8 +56,9 @@ class CoreTypesTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void createBasicObject() {
-    JsonAdapter<Object> basicObject = CoreTypes.createBasicObject();
+  void createCoreAdapters() {
+    CoreTypes.CoreAdapters coreAdapters = CoreTypes.createCoreAdapters();
+    JsonAdapter<Object> basicObject = coreAdapters.objectAdapter();
 
     Map<String, Object> inner = new LinkedHashMap<>();
     inner.put("nm", "r");
