@@ -7,7 +7,8 @@ import java.math.BigDecimal;
 /**
  * JsonNode Number type.
  */
-public interface JsonNumber extends JsonNode {
+public /*sealed*/ interface JsonNumber extends JsonNode
+  /*permits JsonInteger, JsonLong, JsonDouble, JsonDecimal*/ {
 
   /**
    * Return the int value for the number.
