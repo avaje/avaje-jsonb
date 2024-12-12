@@ -102,6 +102,7 @@ class JsonObjectTest {
     assertThat(personName.text()).isEqualTo("myName");
 
     assertThat(node.extract("person.name")).isEqualTo("myName");
+    assertThat(node.extract("person.missing", "SomeDefaultValue")).isEqualTo("SomeDefaultValue");
     assertThat(node.extract("person.active")).isEqualTo("true");
     assertThat(node.extract("person.active", false)).isEqualTo(true);
     assertThat(node.extract("person.missing", false)).isEqualTo(false);

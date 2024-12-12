@@ -3,62 +3,60 @@ package io.avaje.json.node;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Represents the code JSON types.
+ * Represents the core JSON types.
  */
-public interface JsonNode {
+public /*sealed*/ interface JsonNode
+  /*permits JsonArray, JsonObject, JsonBoolean, JsonString, JsonNumber*/ {
 
   /**
    * The types for JsonNode.
    */
   enum Type {
-    ARRAY(true, false),
-    OBJECT(false, true),
+    ARRAY(false),
+    OBJECT(false),
     NULL(),
     BOOLEAN(),
     STRING(),
-    NUMBER(true),
+    NUMBER(),
     ;
     // BINARY,
-    // MISSING,
     // POJO
     private final boolean value;
-    private final boolean numberType;
-    private final boolean arrayType;
-    private final boolean objectType;
 
     Type() {
-      this(true, false, false, false);
+      this(true);
     }
 
-    Type(boolean numberType) {
-      this(true, numberType, false, false);
-    }
-
-    Type(boolean arrayType, boolean objectType) {
-      this(false, false, arrayType, objectType);
-    }
-
-    Type(boolean value, boolean numberType, boolean arrayType, boolean objectType) {
+    Type(boolean value) {
       this.value = value;
-      this.numberType = numberType;
-      this.arrayType = arrayType;
-      this.objectType = objectType;
     }
 
+    /**
+     * True for JsonBoolean, JsonString and JsonNumber's and NULL.
+     */
     public boolean isValue() {
       return value;
     }
 
+    /**
+     * True for the JsonNumber implementations only.
+     */
     public boolean isNumber() {
-      return numberType;
+      return this == Type.NUMBER;
     }
 
+    /**
+     * True for JsonArray only.
+     */
     public boolean isArray() {
-      return arrayType;
+      return this == Type.ARRAY;
     }
 
+    /**
+     * True for JsonObject only.
+     */
     public boolean isObject() {
-      return objectType;
+      return this == Type.OBJECT;
     }
   }
 
