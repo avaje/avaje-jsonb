@@ -34,6 +34,11 @@ class JsonIntegerTest {
   }
 
   @Test
+  void toPlain() {
+    assertThat(jsonInteger.toPlain()).isEqualTo(42);
+  }
+
+  @Test
   void value() {
     assertThat(jsonInteger.intValue()).isEqualTo(42);
     assertThat(jsonInteger.longValue()).isEqualTo(42L);
