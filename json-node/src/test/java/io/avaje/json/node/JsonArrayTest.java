@@ -39,8 +39,25 @@ class JsonArrayTest {
   static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
 
   static final JsonArray basicArray = JsonArray.create()
-    .add(JsonInteger.of(42))
-    .add(JsonString.of("foo"));
+    .add(42)
+    .add("foo");
+
+
+  @Test
+  void isEqualTo() {
+    var array0 = JsonArray.create().add(1).add(2);
+    var array1 = JsonArray.create().add(1).add(2);
+
+    assertThat(array1).isEqualTo(array0);
+  }
+
+  @Test
+  void isEqualTo_expect_false() {
+    var array0 = JsonArray.create().add(1).add(2);
+    var array1 = JsonArray.create().add(1);
+
+    assertThat(array1).isNotEqualTo(array0);
+  }
 
   @Test
   void streamFilter() {

@@ -28,6 +28,26 @@ class JsonObjectTest {
   }
 
   @Test
+  void isEqualTo() {
+    var other = JsonObject.create()
+      .add("name", JsonString.of("foo"))
+      .add("other", JsonInteger.of(42));
+
+    assertThat(basicObject).isEqualTo(other);
+    assertThat(basicObject).isNotEqualTo(JsonString.of("NotFoo"));
+    assertThat(basicObject).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
+  void isEqualTo_expect_false() {
+    var other = JsonObject.create()
+      .add("name", JsonString.of("foo"));
+
+    assertThat(basicObject).isNotEqualTo(other);
+    assertThat(basicObject).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
   void type() {
     assertThat(emptyObject.type()).isEqualTo(JsonNode.Type.OBJECT);
     assertThat(emptyObject.type().isObject()).isTrue();

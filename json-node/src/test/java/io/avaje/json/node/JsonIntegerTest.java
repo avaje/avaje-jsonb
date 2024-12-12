@@ -17,6 +17,13 @@ class JsonIntegerTest {
   }
 
   @Test
+  void isEqualTo() {
+    assertThat(jsonInteger).isEqualTo(JsonInteger.of(42));
+    assertThat(jsonInteger).isNotEqualTo(JsonInteger.of(43));
+    assertThat(jsonInteger).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
   void copy() {
     assertThat(jsonInteger.copy()).isSameAs(jsonInteger);
   }

@@ -17,6 +17,13 @@ class JsonDecimalTest {
   }
 
   @Test
+  void isEqualTo() {
+    assertThat(jsonDecimal).isEqualTo(JsonDecimal.of(new BigDecimal("42.3")));
+    assertThat(jsonDecimal).isNotEqualTo(JsonDecimal.of(new BigDecimal("42.0")));
+    assertThat(jsonDecimal).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
   void copy() {
     assertThat(jsonDecimal.copy()).isSameAs(jsonDecimal);
   }

@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import io.avaje.json.JsonWriter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public final /*value*/ class JsonDouble implements JsonNumber {
 
@@ -14,6 +15,19 @@ public final /*value*/ class JsonDouble implements JsonNumber {
 
   private JsonDouble(double value) {
     this.value = value;
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (!(object instanceof JsonDouble)) return false;
+    JsonDouble that = (JsonDouble) object;
+    return Double.compare(value, that.value) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(value);
   }
 
   @Override

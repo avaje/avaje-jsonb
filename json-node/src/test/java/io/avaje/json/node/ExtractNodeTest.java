@@ -78,6 +78,20 @@ class ExtractNodeTest {
   }
 
   @Test
+  void extract_nestedPath_lastNames() {
+    JsonObject object = mapper.fromJsonObject(content);
+    JsonArray arrayWithNestedPerson = (JsonArray) object.get("people");
+
+    List<String> lastNames =
+      arrayWithNestedPerson.stream()
+        .filter(node -> "family".equals(node.extract("type")))
+        .map(node -> node.extract("person.lastName"))
+        .collect(Collectors.toList());
+
+    assertThat(lastNames).containsExactly("Blast", "CLast");
+  }
+
+  @Test
   void extractMissing_expect_IllegalArgumentException() {
     JsonObject object = ExtractNodeTest.mapper.fromJsonObject(content);
 

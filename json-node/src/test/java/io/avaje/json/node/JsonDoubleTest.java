@@ -17,6 +17,13 @@ class JsonDoubleTest {
   }
 
   @Test
+  void isEqualTo() {
+    assertThat(jsonDouble).isEqualTo(JsonDouble.of(42.3));
+    assertThat(jsonDouble).isNotEqualTo(JsonDouble.of(42.2));
+    assertThat(jsonDouble).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
   void copy() {
     assertThat(jsonDouble.copy()).isSameAs(jsonDouble);
   }
