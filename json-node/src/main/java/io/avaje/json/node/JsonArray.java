@@ -12,7 +12,16 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JsonArray implements JsonNode {
 
+  private static final JsonArray EMPTY = new JsonArray(Collections.emptyList());
+
   private final List<JsonNode> children;
+
+  /**
+   * Create an empty immutable JsonArray.
+   */
+  public static JsonArray empty() {
+    return EMPTY;
+  }
 
   /**
    * Create a new JsonArray that can be added to.
