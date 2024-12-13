@@ -62,9 +62,15 @@ final class FieldProperty {
       adapterFieldName = "rawAdapter";
       defaultValue = "null";
     } else if (unmapped) {
-      genericType = GenericType.parse("java.lang.Object");
-      adapterShortType = "JsonAdapter<Object>";
-      adapterFieldName = "objectJsonAdapter";
+      if (unmappedJsonObject()) {
+        genericType = GenericType.parse("io.avaje.json.node.JsonNode");
+        adapterShortType = "JsonAdapter<JsonNode>";
+        adapterFieldName = "jsonNodeAdapter";
+      } else {
+        genericType = GenericType.parse("java.lang.Object");
+        adapterShortType = "JsonAdapter<Object>";
+        adapterFieldName = "objectJsonAdapter";
+      }
       defaultValue = "null";
     } else {
       genericType = GenericType.parse(rawType);
@@ -78,6 +84,10 @@ final class FieldProperty {
           .map(s -> Character.toLowerCase(s.charAt(0)) + s.substring(1))
           .orElse((primitive && !optional ? "p" : "") + initShortName());
     }
+  }
+
+  private boolean unmappedJsonObject() {
+    return rawType.startsWith("io.avaje.json.node");
   }
 
   void setConstructorParam() {
@@ -180,9 +190,9 @@ final class FieldProperty {
   }
 
   void addImports(Set<String> importTypes) {
-    customSerializer.ifPresent(t -> importTypes.add(t.toString()));
-    if (unmapped) {
-      importTypes.add("java.util.*");
+    customSerializer.ifPresent(importTypes::add);
+    if (unmapped && unmappedJsonObject()) {
+      importTypes.add("io.avaje.json.node.JsonNode");
     }
     if (!raw) {
       genericType.addImports(importTypes);
@@ -232,13 +242,19 @@ final class FieldProperty {
 
   void writeToJson(Append writer, String varName, String prefix) {
     if (unmapped) {
-      writer.append("%sMap<String, Object> unmapped = ", prefix);
+      writer.append("%svar unmapped = ", prefix);
       writeGetValue(writer, varName, ";");
       writer.eol();
       writer.append("%sif (unmapped != null) {", prefix).eol();
-      writer.append("%s for (Map.Entry<String, Object> entry : unmapped.entrySet()) {", prefix).eol();
-      writer.append("%s   writer.name(entry.getKey());", prefix).eol();
-      writer.append("%s   objectJsonAdapter.toJson(writer, entry.getValue());", prefix).eol();
+      if (unmappedJsonObject()) {
+        writer.append("%s for (var entry : unmapped.elements().entrySet()) {", prefix).eol();
+        writer.append("%s   writer.name(entry.getKey());", prefix).eol();
+        writer.append("%s   jsonNodeAdapter.toJson(writer, entry.getValue());", prefix).eol();
+      } else {
+        writer.append("%s for (var entry : unmapped.entrySet()) {", prefix).eol();
+        writer.append("%s   writer.name(entry.getKey());", prefix).eol();
+        writer.append("%s   objectJsonAdapter.toJson(writer, entry.getValue());", prefix).eol();
+      }
       writer.append("%s }", prefix).eol();
       writer.append("%s}", prefix).eol();
     } else {
