@@ -135,6 +135,16 @@ public interface SimpleMapper {
   interface Type<T> {
 
     /**
+     * Create a list type for this type.
+     */
+    Type<List<T>> list();
+
+    /**
+     * Create a map type with string keys and this type as the value type.
+     */
+    Type<Map<String, T>> map();
+
+    /**
      * Read the return the value from the json content.
      */
     T fromJson(String content);
