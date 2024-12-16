@@ -43,23 +43,6 @@ public interface JsonNodeMapper {
   }
 
   /**
-   * Return the property names as PropertyNames.
-   * <p>
-   * Provides the option of optimising the writing of json for property names
-   * by having them already escaped and encoded rather than as plain strings.
-   */
-  PropertyNames properties(String... names);
-
-  /**
-   * Return a Type specific mapper for the given JsonAdapter.
-   *
-   * @param customAdapter The custom adapter to use.
-   * @param <T>           The type of the class to map to/from json.
-   * @return The Type specific mapper.
-   */
-  <T> SimpleMapper.Type<T> type(JsonAdapter<T> customAdapter);
-
-  /**
    * Return a NodeMapper for ANY json content.
    * <p>
    * The NodeMapper provides support for all reading and writing options
@@ -165,6 +148,23 @@ public interface JsonNodeMapper {
    * type is not actually a JsonNode type.
    */
   JsonAdapter<?> adapter(Type type);
+
+  /**
+   * Return the property names as PropertyNames.
+   * <p>
+   * Provides the option of optimising the writing of json for property names
+   * by having them already escaped and encoded rather than as plain strings.
+   */
+  PropertyNames properties(String... names);
+
+  /**
+   * Return a Type specific mapper for the given JsonAdapter.
+   *
+   * @param customAdapter The custom adapter to use.
+   * @param <T>           The type of the class to map to/from json.
+   * @return The Type specific mapper.
+   */
+  <T> SimpleMapper.Type<T> type(JsonAdapter<T> customAdapter);
 
   /**
    * Build the JsonNodeMapper.
