@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public final /*value*/ class JsonLong implements JsonNumber {
 
+  private static final long serialVersionUID = 1L;
+
   private final long value;
 
   public static JsonLong of(long value) {

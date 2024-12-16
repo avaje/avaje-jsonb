@@ -4,6 +4,8 @@ import java.util.Objects;
 
 public final /*value*/ class JsonBoolean implements JsonNode {
 
+  private static final long serialVersionUID = 1L;
+
   private final boolean value;
 
   public static JsonBoolean of(boolean value) {

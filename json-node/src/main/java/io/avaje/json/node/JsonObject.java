@@ -15,6 +15,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JsonObject implements JsonNode {
 
+  private static final long serialVersionUID = 1L;
   private static final JsonObject EMPTY = new JsonObject(Collections.emptyMap());
   private static final Pattern PATH_PATTERN = Pattern.compile("\\.");
 

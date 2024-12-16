@@ -4,6 +4,8 @@ import java.util.Objects;
 
 public final /*value*/ class JsonString implements JsonNode {
 
+  private static final long serialVersionUID = 1L;
+
   private final String value;
 
   public static JsonString of(String value) {

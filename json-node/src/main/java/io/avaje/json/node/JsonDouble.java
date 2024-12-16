@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public final /*value*/ class JsonDouble implements JsonNumber {
 
+  private static final long serialVersionUID = 1L;
+
   private final double value;
 
   public static JsonDouble of(double value) {

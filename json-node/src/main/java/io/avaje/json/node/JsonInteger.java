@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public final /*value*/ class JsonInteger implements JsonNumber {
 
+  private static final long serialVersionUID = 1L;
+
   private final int value;
 
   public static JsonInteger of(int value) {

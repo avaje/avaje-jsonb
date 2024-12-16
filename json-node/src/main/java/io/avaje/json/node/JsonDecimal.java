@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public final /*value*/ class JsonDecimal implements JsonNumber {
 
+  private static final long serialVersionUID = 1L;
+
   private final BigDecimal value;
 
   public static JsonDecimal of(BigDecimal value) {
