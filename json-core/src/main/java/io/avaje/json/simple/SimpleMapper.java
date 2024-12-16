@@ -52,7 +52,16 @@ public interface SimpleMapper {
   PropertyNames properties(String... names);
 
   /**
-   * Return a mapper for Object with more reading/writing options.
+   * Return a Type specific mapper for the given JsonAdapter.
+   *
+   * @param customAdapter The custom adapter to use.
+   * @param <T>           The type of the class to map to/from json.
+   * @return The Type specific mapper.
+   */
+  <T> Type<T> type(JsonAdapter<T> customAdapter);
+
+  /**
+   * Return a mapper for any json content.
    */
   Type<Object> object();
 
@@ -65,15 +74,6 @@ public interface SimpleMapper {
    * Return a mapper for json ARRAY content with more reading/writing options.
    */
   Type<List<Object>> list();
-
-  /**
-   * Return a Type specific mapper for the given JsonAdapter.
-   *
-   * @param customAdapter The custom adapter to use.
-   * @param <T>           The type of the class to map to/from json.
-   * @return The Type specific mapper.
-   */
-  <T> Type<T> type(JsonAdapter<T> customAdapter);
 
   /**
    * Write the object to JSON string.
