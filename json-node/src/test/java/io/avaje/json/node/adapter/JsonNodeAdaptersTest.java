@@ -3,9 +3,11 @@ package io.avaje.json.node.adapter;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.node.*;
+import io.avaje.json.simple.SimpleMapper;
 import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -67,9 +69,15 @@ class JsonNodeAdaptersTest {
 
   @Test
   void create_JsonDecimal_expect_sameInstance() {
-    JsonAdapter<?> jsonAdapter = mapper.adapter(JsonDecimal.class);
+    JsonAdapter<JsonDecimal> jsonAdapter = mapper.adapter(JsonDecimal.class);
     JsonAdapter<JsonDecimal> adapter = mapper.adapter(JsonDecimal.class);
     assertThat(jsonAdapter).isSameAs(adapter);
+
+    SimpleMapper.Type<JsonDecimal> type = mapper.type(jsonAdapter);
+
+    String asJson1 = type.toJson(JsonDecimal.of(new BigDecimal("23.45")));
+    assertThat(asJson1).isEqualTo("23.45");
+    assertThat(type.fromJson(asJson1)).isEqualTo(JsonDecimal.of(new BigDecimal("23.45")));
   }
 
   @Test

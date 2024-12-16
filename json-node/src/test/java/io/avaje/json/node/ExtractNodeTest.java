@@ -75,6 +75,16 @@ class ExtractNodeTest {
 
     assertThat(missingOther).hasSize(2);
     assertThat(missingOther).containsExactly("BOther", "MISSING!");
+
+    List<String> missingOther2 =
+      arrayWithNestedPerson.stream()
+        .filter(node -> "family".equals(node.extract("type")))
+        .flatMap(node -> node.extractNodeOrEmpty("person.other").stream())
+        .map(JsonNode::text)
+        .collect(Collectors.toList());
+
+    assertThat(missingOther2).hasSize(1);
+    assertThat(missingOther2).containsExactly("BOther");
   }
 
   @Test
