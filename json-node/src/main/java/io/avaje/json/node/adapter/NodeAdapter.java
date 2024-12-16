@@ -33,6 +33,7 @@ final class NodeAdapter implements JsonAdapter<JsonNode>  {
   public JsonNode fromJson(JsonReader reader) {
     switch (reader.currentToken()) {
       case NULL:
+        reader.isNullValue();
         return null;
       case BEGIN_ARRAY:
         return arrayAdapter.fromJson(reader);
@@ -55,8 +56,7 @@ final class NodeAdapter implements JsonAdapter<JsonNode>  {
       writer.nullValue();
       return;
     }
-    JsonNode.Type type = value.type();
-    switch (type) {
+    switch (value.type()) {
       case NULL:
         writer.nullValue();
         break;

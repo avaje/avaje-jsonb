@@ -19,7 +19,7 @@ class JsonObjectTest {
 
   @Test
   void of() {
-    Map<String,JsonNode> map = new LinkedHashMap<>();
+    Map<String, JsonNode> map = new LinkedHashMap<>();
     map.put("name", JsonString.of("foo"));
     map.put("other", JsonInteger.of(42));
 
@@ -189,5 +189,14 @@ class JsonObjectTest {
     assertThat(plainMap).containsOnlyKeys("name", "other");
     assertThat(plainMap.get("name")).isEqualTo("foo");
     assertThat(plainMap.get("other")).isEqualTo(Map.of("b", 42));
+  }
+
+  @Test
+  void nullValuesInMap() {
+    String s = "{\"a\":1,\"b\":null,\"c\":null,\"d\":4}";
+    JsonNodeMapper mapper = JsonNodeMapper.builder().build();
+    JsonObject jsonObject = mapper.fromJsonObject(s);
+
+    assertThat(jsonObject.elements().keySet()).containsExactly("a", "b", "c", "d");
   }
 }
