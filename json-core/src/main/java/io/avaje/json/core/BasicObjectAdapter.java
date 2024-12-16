@@ -60,6 +60,7 @@ final class BasicObjectAdapter implements JsonAdapter<Object>, CoreTypes.CoreAda
       case BOOLEAN:
         return booleanAdapter.fromJson(reader);
       case NULL:
+        reader.isNullValue();
         return null;
       default:
         throw new IllegalStateException("Expected a value but was " + reader.currentToken() + " at path " + reader.location());
