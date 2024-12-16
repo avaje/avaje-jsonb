@@ -4,15 +4,14 @@ import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
-import io.avaje.json.node.JsonNode;
-import io.avaje.json.node.NodeMapper;
+import io.avaje.json.simple.SimpleMapper;
 import io.avaje.json.stream.BufferedJsonWriter;
 import io.avaje.json.stream.BytesJsonWriter;
 import io.avaje.json.stream.JsonStream;
 
 import java.io.*;
 
-final class DMapper<T> implements NodeMapper<T> {
+final class DMapper<T> implements SimpleMapper.Type<T> {
 
   private final JsonAdapter<T> adapter;
   private final JsonStream jsonStream;

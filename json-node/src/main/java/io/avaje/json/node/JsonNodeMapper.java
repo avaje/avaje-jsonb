@@ -2,6 +2,7 @@ package io.avaje.json.node;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.node.adapter.NodeAdapterBuilder;
+import io.avaje.json.simple.SimpleMapper;
 import io.avaje.json.stream.JsonStream;
 
 import java.io.InputStream;
@@ -47,7 +48,7 @@ public interface JsonNodeMapper {
    * @param <T>           The specific custom type being mapped.
    * @return The type specific NodeMapper.
    */
-  <T> NodeMapper<T> mapper(JsonAdapter<T> customAdapter);
+  <T> SimpleMapper.Type<T> mapper(JsonAdapter<T> customAdapter);
 
   /**
    * Return a NodeMapper for ANY json content.
@@ -55,7 +56,7 @@ public interface JsonNodeMapper {
    * The NodeMapper provides support for all reading and writing options
    * such as InputStream, OutputStream, Reader, Writer etc.
    */
-  NodeMapper<JsonNode> nodeMapper();
+  SimpleMapper.Type<JsonNode> nodeMapper();
 
   /**
    * Return a NodeMapper for json OBJECT content.
@@ -63,7 +64,7 @@ public interface JsonNodeMapper {
    * The NodeMapper provides support for all reading and writing options
    * such as InputStream, OutputStream, Reader, Writer etc.
    */
-  NodeMapper<JsonObject> objectMapper();
+  SimpleMapper.Type<JsonObject> objectMapper();
 
   /**
    * Return a NodeMapper for json ARRAY content.
@@ -71,7 +72,7 @@ public interface JsonNodeMapper {
    * The NodeMapper provides support for all reading and writing options
    * such as InputStream, OutputStream, Reader, Writer etc.
    */
-  NodeMapper<JsonArray> arrayMapper();
+  SimpleMapper.Type<JsonArray> arrayMapper();
 
   /**
    * Write the node to JSON string.
@@ -89,8 +90,8 @@ public interface JsonNodeMapper {
    * var asJson = mapper.toJson(jsonArray);
    * }</pre>
    *
-   * @see NodeMapper#toJson(Object, OutputStream)
-   * @see NodeMapper#toJson(Object, Writer)
+   * @see SimpleMapper.Type#toJson(Object, OutputStream)
+   * @see SimpleMapper.Type#toJson(Object, Writer)
    */
   String toJson(JsonNode node);
 
@@ -98,7 +99,7 @@ public interface JsonNodeMapper {
    * Read any json content returning a JsonNode.
    * <p>
    * For options to read json content from InputStream, Reader etc
-   * use the fromJson methods on {@link NodeMapper}.
+   * use the fromJson methods on {@link SimpleMapper.Type}.
    *
    * <pre>{@code
    * static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
@@ -106,8 +107,8 @@ public interface JsonNodeMapper {
    * JsonNode nodeFromJson = mapper.fromJson(jsonContent);
    * }</pre>
    *
-   * @see NodeMapper#fromJson(Reader)
-   * @see NodeMapper#fromJson(InputStream)
+   * @see SimpleMapper.Type#fromJson(Reader)
+   * @see SimpleMapper.Type#fromJson(InputStream)
    */
   JsonNode fromJson(String json);
 
