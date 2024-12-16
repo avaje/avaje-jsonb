@@ -3,6 +3,7 @@ package io.avaje.json.simple;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +15,8 @@ class CustomAdapter2Test {
   @Test
   void mapUsingCustomAdapter() {
 
-    MyAdapterUsingRaw myAdapter = new MyAdapterUsingRaw();
+    PropertyNames names = simpleMapper.properties("foo", "bar");
+    MyAdapterUsingRaw myAdapter = new MyAdapterUsingRaw(names);
 
     SimpleMapper.Type<MyOtherType> type = simpleMapper.type(myAdapter);
 
@@ -36,12 +38,21 @@ class CustomAdapter2Test {
 
   static class MyAdapterUsingRaw implements JsonAdapter<MyOtherType> {
 
+      private final PropertyNames names;
+
+      MyAdapterUsingRaw(PropertyNames names) {
+          this.names = names;
+      }
+
     @Override
     public void toJson(JsonWriter writer, MyOtherType value) {
-      writer.beginObject();
-      writer.name("foo");
+      writer.beginObject(names);
+      writer.name(0);
+      // writer.beginObject();
+      // writer.name("foo");
       writer.value(value.foo);
-      writer.name("bar");
+      writer.name(1);
+      //writer.name("bar");
       writer.value(value.bar);
       writer.endObject();
     }

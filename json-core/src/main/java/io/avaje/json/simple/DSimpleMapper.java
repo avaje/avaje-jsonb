@@ -1,6 +1,7 @@
 package io.avaje.json.simple;
 
 import io.avaje.json.JsonAdapter;
+import io.avaje.json.PropertyNames;
 import io.avaje.json.core.CoreTypes;
 import io.avaje.json.stream.JsonStream;
 
@@ -19,6 +20,11 @@ final class DSimpleMapper implements SimpleMapper {
     this.objectType = new DTypeMapper<>(adapters.objectAdapter(), jsonStream);
     this.mapType = new DTypeMapper<>(adapters.mapAdapter(), jsonStream);
     this.listType = new DTypeMapper<>(adapters.listAdapter(), jsonStream);
+  }
+
+  @Override
+  public PropertyNames properties(String... names) {
+    return jsonStream.properties(names);
   }
 
   @Override

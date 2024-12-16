@@ -3,6 +3,7 @@ package io.avaje.json.simple;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
 import io.avaje.json.stream.JsonStream;
 
 import java.io.InputStream;
@@ -41,6 +42,14 @@ public interface SimpleMapper {
   static Builder builder() {
     return new DSimpleMapperBuilder();
   }
+
+  /**
+   * Return the property names as PropertyNames.
+   * <p>
+   * Provides the option of optimising the writing of json for property names
+   * by having them already escaped and encoded rather than as plain strings.
+   */
+  PropertyNames properties(String... names);
 
   /**
    * Return a mapper for Object with more reading/writing options.
