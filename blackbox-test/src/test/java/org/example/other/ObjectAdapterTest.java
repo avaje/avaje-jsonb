@@ -31,6 +31,24 @@ class ObjectAdapterTest {
   }
 
   @Test
+  void nullInMap() {
+    Object val = objectType.fromJson("{\"a\":1,\"b\":null,\"c\":3}");
+    assertThat(val).isInstanceOf(Map.class);
+
+    String asJson = objectType.toJson(null);
+    assertThat(asJson).isEqualTo("");
+  }
+
+  @Test
+  void nullInList() {
+    Object val = objectType.fromJson("[1,null,3]");
+    assertThat(val).isInstanceOf(List.class);
+
+    String asJson = objectType.toJson(val);
+    assertThat(asJson).isEqualTo("[1,3]");
+  }
+
+  @Test
   void booleanTrue() {
     String asJson = objectType.toJson(true);
     assertThat(asJson).isEqualTo("true");

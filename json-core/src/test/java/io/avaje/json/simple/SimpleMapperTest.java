@@ -33,6 +33,32 @@ class SimpleMapperTest {
   }
 
   @Test
+  void nullDirectly() {
+   var mapFromJson = simpleMapper.fromJson("null");
+    assertThat(mapFromJson).isNull();
+  }
+
+  @Test
+  void mapWithNull() {
+    Map<String, Object> mapFromJson = simpleMapper.fromJsonObject("{\"one\":1,\"two\":null,\"three\":3}");
+
+    assertThat(mapFromJson).containsKeys("one", "two", "three");
+    assertThat(mapFromJson.toString()).isEqualTo("{one=1, two=null, three=3}");
+
+    assertThat(simpleMapper.toJson(mapFromJson)).isEqualTo("{\"one\":1,\"three\":3}");
+  }
+
+  @Test
+  void listWithNull() {
+    List<Object> listFromJson = simpleMapper.fromJsonArray("[1,null,3]");
+
+    assertThat(listFromJson).hasSize(3);
+    assertThat(listFromJson.get(1)).isNull();
+
+    assertThat(simpleMapper.toJson(listFromJson)).isEqualTo("[1,3]");
+  }
+
+  @Test
   void arrayToJsonFromJson() {
 
     Map<String, Long> map0 = new LinkedHashMap<>();
