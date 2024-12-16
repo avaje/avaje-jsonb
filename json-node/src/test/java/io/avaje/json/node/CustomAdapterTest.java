@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
 import io.avaje.json.simple.SimpleMapper;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,21 @@ class CustomAdapterTest {
 
   static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
   static final MyAdapter myAdapter = new MyAdapter(mapper);
-  static final SimpleMapper.Type<MyCustomType> typeMapper = mapper.mapper(myAdapter);
+  static final SimpleMapper.Type<MyCustomType> typeMapper = mapper.type(myAdapter);
+
+  @Test
+  void propertyNames() {
+
+    var adapter = new MyAdapter2(mapper);
+    SimpleMapper.Type<MyCustomType> type = mapper.type(adapter);
+
+    var source = as("a", 1);
+    String asJson = type.toJson(source);
+    assertThat(asJson).isEqualTo("{\"foo\":\"a\",\"bar\":1}");
+
+    MyCustomType myCustomType = type.fromJson(asJson);
+    assertThat(myCustomType).isEqualTo(source);
+  }
 
   @Test
   void mapUsingCustomAdapter() {
@@ -107,6 +122,50 @@ class CustomAdapterTest {
       MyCustomType myCustomType = new MyCustomType();
       myCustomType.foo = jsonObject.extract("foo");
       myCustomType.bar = jsonObject.extract("bar", 0);
+      return myCustomType;
+    }
+  }
+
+  static class MyAdapter2 implements JsonAdapter<MyCustomType> {
+
+    final SimpleMapper.Type<JsonObject> objectMapper;
+    final PropertyNames names;
+
+    public MyAdapter2(JsonNodeMapper mapper) {
+      this.objectMapper = mapper.objectMapper();
+      this.names = mapper.properties("foo", "bar");
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, MyCustomType value) {
+      writer.beginObject(names);
+      writer.name(0);
+      writer.value(value.foo);
+      writer.name(1);
+      writer.value(value.bar);
+      writer.endObject();
+    }
+
+    @Override
+    public MyCustomType fromJson(JsonReader reader) {
+      MyCustomType myCustomType = new MyCustomType();
+      reader.beginObject(names);
+
+      String name;
+      while (reader.hasNextField()) {
+        name = reader.nextField();
+        switch (name) {
+          case "foo":
+            myCustomType.foo = reader.readString();
+            break;
+          case "bar":
+            myCustomType.bar = reader.readInt();
+            break;
+          default:
+            reader.unmappedField(name);
+            reader.skipValue();
+        }
+      }
       return myCustomType;
     }
   }

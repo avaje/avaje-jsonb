@@ -44,15 +44,7 @@ public interface SimpleMapper {
   }
 
   /**
-   * Return the property names as PropertyNames.
-   * <p>
-   * Provides the option of optimising the writing of json for property names
-   * by having them already escaped and encoded rather than as plain strings.
-   */
-  PropertyNames properties(String... names);
-
-  /**
-   * Return a mapper for Object with more reading/writing options.
+   * Return a mapper for any json content.
    */
   Type<Object> object();
 
@@ -65,15 +57,6 @@ public interface SimpleMapper {
    * Return a mapper for json ARRAY content with more reading/writing options.
    */
   Type<List<Object>> list();
-
-  /**
-   * Return a Type specific mapper for the given JsonAdapter.
-   *
-   * @param customAdapter The custom adapter to use.
-   * @param <T>           The type of the class to map to/from json.
-   * @return The Type specific mapper.
-   */
-  <T> Type<T> type(JsonAdapter<T> customAdapter);
 
   /**
    * Write the object to JSON string.
@@ -108,6 +91,23 @@ public interface SimpleMapper {
    * Use {@link #list()} for more reading options.
    */
   List<Object> fromJsonArray(String json);
+
+  /**
+   * Return the property names as PropertyNames.
+   * <p>
+   * Provides the option of optimising the writing of json for property names
+   * by having them already escaped and encoded rather than as plain strings.
+   */
+  PropertyNames properties(String... names);
+
+  /**
+   * Return a Type specific mapper for the given JsonAdapter.
+   *
+   * @param customAdapter The custom adapter to use.
+   * @param <T>           The type of the class to map to/from json.
+   * @return The Type specific mapper.
+   */
+  <T> Type<T> type(JsonAdapter<T> customAdapter);
 
   /**
    * Build the JsonNodeMapper.

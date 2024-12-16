@@ -1,6 +1,7 @@
 package io.avaje.json.node;
 
 import io.avaje.json.JsonAdapter;
+import io.avaje.json.PropertyNames;
 import io.avaje.json.node.adapter.NodeAdapterBuilder;
 import io.avaje.json.simple.SimpleMapper;
 import io.avaje.json.stream.JsonStream;
@@ -19,8 +20,8 @@ import java.lang.reflect.Type;
  * static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
  *
  * JsonArray jsonArray = JsonArray.create()
- * .add(JsonInteger.of(42))
- * .add(JsonString.of("foo"));
+ * .add(42)
+ * .add("foo");
  *
  * var asJson = mapper.toJson(jsonArray);
  *
@@ -40,15 +41,6 @@ public interface JsonNodeMapper {
   static Builder builder() {
     return new NodeAdapterBuilder();
   }
-
-  /**
-   * Create a NodeMapper for the specific type given the JsonAdapter.
-   *
-   * @param customAdapter The type specific JsonAdapter to use.
-   * @param <T>           The specific custom type being mapped.
-   * @return The type specific NodeMapper.
-   */
-  <T> SimpleMapper.Type<T> mapper(JsonAdapter<T> customAdapter);
 
   /**
    * Return a NodeMapper for ANY json content.
@@ -156,6 +148,23 @@ public interface JsonNodeMapper {
    * type is not actually a JsonNode type.
    */
   JsonAdapter<?> adapter(Type type);
+
+  /**
+   * Return the property names as PropertyNames.
+   * <p>
+   * Provides the option of optimising the writing of json for property names
+   * by having them already escaped and encoded rather than as plain strings.
+   */
+  PropertyNames properties(String... names);
+
+  /**
+   * Return a Type specific mapper for the given JsonAdapter.
+   *
+   * @param customAdapter The custom adapter to use.
+   * @param <T>           The type of the class to map to/from json.
+   * @return The Type specific mapper.
+   */
+  <T> SimpleMapper.Type<T> type(JsonAdapter<T> customAdapter);
 
   /**
    * Build the JsonNodeMapper.
