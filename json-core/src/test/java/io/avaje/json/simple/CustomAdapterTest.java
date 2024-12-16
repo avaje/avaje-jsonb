@@ -3,6 +3,7 @@ package io.avaje.json.simple;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
+import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -13,7 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CustomAdapterTest {
 
-  static final SimpleMapper simpleMapper = SimpleMapper.builder().build();
+  static final JsonStream jsonStream = JsonStream.builder().build();
+  static final SimpleMapper simpleMapper = SimpleMapper.builder().jsonStream(jsonStream).build();
   static final MyAdapter myAdapter = new MyAdapter(simpleMapper);
   static final SimpleMapper.Type<MyCustomType> type = simpleMapper.type(myAdapter);
 
