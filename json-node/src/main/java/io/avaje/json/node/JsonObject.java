@@ -2,10 +2,7 @@ package io.avaje.json.node;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
@@ -221,6 +218,12 @@ public final class JsonObject implements JsonNode {
   }
 
   @Override
+  public Optional<String> extractOrEmpty(String path) {
+    final var name = find(path);
+    return name == null ? Optional.empty() : Optional.of(name.text());
+  }
+
+  @Override
   public String extract(String path, String missingValue) {
     final var name = find(path);
     return name == null ? missingValue : name.text();
@@ -271,5 +274,11 @@ public final class JsonObject implements JsonNode {
   public JsonNode extractNode(String path, JsonNode missingValue) {
     final var node = find(path);
     return node != null ? node : missingValue;
+  }
+
+  @Override
+  public Optional<JsonNode> extractNodeOrEmpty(String path) {
+    final var node = find(path);
+    return Optional.ofNullable(node);
   }
 }

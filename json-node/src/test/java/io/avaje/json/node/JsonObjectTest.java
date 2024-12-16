@@ -141,6 +141,9 @@ class JsonObjectTest {
     assertThat(node.extract("person.active", false)).isEqualTo(true);
     assertThat(node.extract("person.missing", false)).isEqualTo(false);
 
+    assertThat(node.extractOrEmpty("person.missing")).isEmpty();
+    assertThat(node.extractOrEmpty("person.name")).isNotEmpty().asString().contains("myName");
+
     assertThat(node.extract("address.size", -1)).isEqualTo(42);
     assertThat(node.extract("address.junk", -1L)).isEqualTo(99L);
     assertThat(node.extract("address.notSize", -1)).isEqualTo(-1);

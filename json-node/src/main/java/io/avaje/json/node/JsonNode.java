@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * Represents the core JSON types.
@@ -108,6 +109,13 @@ public /*sealed*/ interface JsonNode extends Serializable
   }
 
   /**
+   * Extract the text from the given path if present else empty.
+   */
+  default Optional<String> extractOrEmpty(String path) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Extract the text from the given path if present or the given default value.
    *
    * @param missingValue The value to use when the path is missing.
@@ -169,6 +177,15 @@ public /*sealed*/ interface JsonNode extends Serializable
    * @return The node for the given path.
    */
   default JsonNode extractNode(String path, JsonNode missingValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Extract the node from the given path if present else empty.
+   *
+   * @return The node for the given path.
+   */
+  default Optional<JsonNode> extractNodeOrEmpty(String path) {
     throw new UnsupportedOperationException();
   }
 
