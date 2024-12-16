@@ -2,10 +2,12 @@ package io.avaje.json.node;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.Serializable;
+
 /**
  * Represents the core JSON types.
  */
-public /*sealed*/ interface JsonNode
+public /*sealed*/ interface JsonNode extends Serializable
   /*permits JsonArray, JsonObject, JsonBoolean, JsonString, JsonNumber*/ {
 
   /**

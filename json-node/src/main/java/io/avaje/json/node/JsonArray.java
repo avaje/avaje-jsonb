@@ -13,6 +13,8 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JsonArray implements JsonNode {
 
+  private static final long serialVersionUID = 1L;
+
   private static final JsonArray EMPTY = new JsonArray(Collections.emptyList());
 
   private final List<JsonNode> children;
