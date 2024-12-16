@@ -3,6 +3,7 @@ package io.avaje.json.node;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
+import io.avaje.json.simple.SimpleMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +17,7 @@ class CustomAdapterTest {
 
     MyAdapter myAdapter = new MyAdapter(mapper);
 
-    NodeMapper<MyCustomType> typeMapper = mapper.mapper(myAdapter);
+    SimpleMapper.Type<MyCustomType> typeMapper = mapper.mapper(myAdapter);
 
     MyCustomType source = new MyCustomType();
     source.foo = "hi";
@@ -36,7 +37,7 @@ class CustomAdapterTest {
 
   static class MyAdapter implements JsonAdapter<MyCustomType> {
 
-    final NodeMapper<JsonObject> objectMapper;
+    final SimpleMapper.Type<JsonObject> objectMapper;
 
     public MyAdapter(JsonNodeMapper mapper) {
       this.objectMapper = mapper.objectMapper();

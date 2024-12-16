@@ -3,6 +3,7 @@ package io.avaje.json.node.adapter;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.node.*;
+import io.avaje.json.simple.SimpleMapper;
 import io.avaje.json.stream.JsonStream;
 
 import java.lang.reflect.Type;
@@ -30,22 +31,22 @@ final class DJsonNodeMapper implements JsonNodeMapper {
   }
 
   @Override
-  public <T> NodeMapper<T> mapper(JsonAdapter<T> customAdapter) {
+  public <T> SimpleMapper.Type<T> mapper(JsonAdapter<T> customAdapter) {
     return new DMapper<>(customAdapter, jsonStream);
   }
 
   @Override
-  public NodeMapper<JsonNode> nodeMapper() {
+  public SimpleMapper.Type<JsonNode> nodeMapper() {
     return new DMapper<>(nodeAdapter, jsonStream);
   }
 
   @Override
-  public NodeMapper<JsonObject> objectMapper() {
+  public SimpleMapper.Type<JsonObject> objectMapper() {
     return new DMapper<>(objectAdapter, jsonStream);
   }
 
   @Override
-  public NodeMapper<JsonArray> arrayMapper() {
+  public SimpleMapper.Type<JsonArray> arrayMapper() {
     return new DMapper<>(arrayAdapter, jsonStream);
   }
 
