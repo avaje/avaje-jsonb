@@ -74,9 +74,22 @@ public interface SimpleMapper {
   String toJson(Object object);
 
   /**
+   * Write the object to JsonWriter.
+   * <p>
+   * For options to write json content to OutputStream, Writer etc
+   * use {@link Type}.
+   */
+  void toJson(Object object, JsonWriter jsonWriter);
+
+  /**
    * Read the object from JSON string.
    */
   Object fromJson(String json);
+
+  /**
+   * Read the object from JSON.
+   */
+  Object fromJson(JsonReader jsonReader);
 
   /**
    * Read a Map from JSON OBJECT string.
@@ -86,11 +99,25 @@ public interface SimpleMapper {
   Map<String, Object> fromJsonObject(String json);
 
   /**
+   * Read a Map from JSON OBJECT.
+   * <p>
+   * Use {@link #map()} for more reading options.
+   */
+  Map<String, Object> fromJsonObject(JsonReader jsonReader);
+
+  /**
    * Read a List from JSON ARRAY string.
    * <p>
    * Use {@link #list()} for more reading options.
    */
   List<Object> fromJsonArray(String json);
+
+  /**
+   * Read a List from JSON ARRAY.
+   * <p>
+   * Use {@link #list()} for more reading options.
+   */
+  List<Object> fromJsonArray(JsonReader jsonReader);
 
   /**
    * Return the property names as PropertyNames.

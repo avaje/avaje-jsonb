@@ -1,6 +1,9 @@
 package io.avaje.json.simple;
 
 
+import io.avaje.json.JsonReader;
+import io.avaje.json.stream.BufferedJsonWriter;
+import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -30,12 +33,50 @@ class SimpleMapperTest {
 
     Map<String, Object> mapFromJson2 = simpleMapper.map().fromJson(asJson);
     assertThat(mapFromJson2).isEqualTo(mapFromJson);
+
+    JsonStream jsonStream = JsonStream.builder().build();
+    try (JsonReader reader = jsonStream.reader(asJson)) {
+      Map<String, Object> mapFromJson3 = simpleMapper.fromJsonObject(reader);
+      assertThat(mapFromJson3).isEqualTo(mapFromJson);
+    }
+  }
+
+  @Test
+  void toJsonWriter_scalar() {
+    JsonStream jsonStream = JsonStream.builder().build();
+    BufferedJsonWriter writer0 = jsonStream.bufferedWriter();
+    simpleMapper.toJson("hi", writer0);
+    assertThat(writer0.result()).isEqualTo("\"hi\"");
+  }
+
+  @Test
+  void toJsonWriter_map() {
+    JsonStream jsonStream = JsonStream.builder().build();
+    BufferedJsonWriter writer0 = jsonStream.bufferedWriter();
+    simpleMapper.toJson(Map.of("key", 0), writer0);
+    assertThat(writer0.result()).isEqualTo("{\"key\":0}");
+  }
+
+  @Test
+  void toJsonWriter_list() {
+    JsonStream jsonStream = JsonStream.builder().build();
+    BufferedJsonWriter writer0 = jsonStream.bufferedWriter();
+    simpleMapper.toJson(List.of("a", 0), writer0);
+    assertThat(writer0.result()).isEqualTo("[\"a\",0]");
   }
 
   @Test
   void nullDirectly() {
-   var mapFromJson = simpleMapper.fromJson("null");
+    var mapFromJson = simpleMapper.fromJson("null");
     assertThat(mapFromJson).isNull();
+  }
+
+  @Test
+  void objectJsonReader() {
+    try (var reader = JsonStream.builder().build().reader("\"hi\"")) {
+      var fromJson = simpleMapper.fromJson(reader);
+      assertThat(fromJson).isEqualTo("hi");
+    }
   }
 
   @Test
@@ -56,6 +97,16 @@ class SimpleMapperTest {
     assertThat(listFromJson.get(1)).isNull();
 
     assertThat(simpleMapper.toJson(listFromJson)).isEqualTo("[1,3]");
+  }
+
+  @Test
+  void listWithReader() {
+    try (JsonReader reader = JsonStream.builder().build().reader("[1,2]")) {
+      List<Object> listFromJson = simpleMapper.fromJsonArray(reader);
+
+      assertThat(listFromJson).hasSize(2);
+      assertThat(simpleMapper.toJson(listFromJson)).isEqualTo("[1,2]");
+    }
   }
 
   @Test
