@@ -4,6 +4,7 @@ import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.node.*;
 import io.avaje.json.simple.SimpleMapper;
+import io.avaje.json.stream.BufferedJsonWriter;
 import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
@@ -102,6 +103,36 @@ class JsonNodeAdaptersTest {
     assertThat(jsonAdapter).isSameAs(adapter);
   }
 
+  @Test
+  void toJsonWriter() {
+    BufferedJsonWriter writer = stream.bufferedWriter();
+    mapper.toJson(JsonArray.create().add(1).add(2), writer);
+    assertThat(writer.result()).isEqualTo("[1,2]");
+  }
+
+  @Test
+  void fromJson_usingReader() {
+    try (var reader = stream.reader("[42, \"foo\"]")) {
+      JsonNode node = mapper.fromJson(reader);
+      assertThat(node).isEqualTo(JsonArray.create().add(42L).add("foo"));
+    }
+  }
+
+  @Test
+  void fromJsonArray_usingReader() {
+    try (var reader = stream.reader("[42, \"foo\"]")) {
+      JsonArray node = mapper.fromJsonArray(reader);
+      assertThat(node).isEqualTo(JsonArray.create().add(42L).add("foo"));
+    }
+  }
+
+  @Test
+  void fromJsonObject_usingReader() {
+    try (var reader = stream.reader("{\"a\":1,\"b\":2}")) {
+      JsonObject node = mapper.fromJsonObject(reader);
+      assertThat(node).isEqualTo(JsonObject.create().add("a", 1L).add("b", 2L));
+    }
+  }
 
   @Test
   void arrayCreateOfMixed_defaultStream() {

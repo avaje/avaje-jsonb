@@ -1,6 +1,8 @@
 package io.avaje.json.simple;
 
 import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.core.CoreTypes;
 import io.avaje.json.stream.JsonStream;
@@ -53,8 +55,23 @@ final class DSimpleMapper implements SimpleMapper {
   }
 
   @Override
+  public void toJson(Object object, JsonWriter jsonWriter) {
+    objectType.toJson(object, jsonWriter);
+  }
+
+  @Override
   public Object fromJson(String json) {
     return objectType.fromJson(json);
+  }
+
+  @Override
+  public Object fromJson(JsonReader jsonReader) {
+    return objectType.fromJson(jsonReader);
+  }
+
+  @Override
+  public Map<String, Object> fromJsonObject(JsonReader jsonReader) {
+    return mapType.fromJson(jsonReader);
   }
 
   @Override
@@ -65,5 +82,10 @@ final class DSimpleMapper implements SimpleMapper {
   @Override
   public List<Object> fromJsonArray(String json) {
     return listType.fromJson(json);
+  }
+
+  @Override
+  public List<Object> fromJsonArray(JsonReader jsonReader) {
+    return listType.fromJson(jsonReader);
   }
 }

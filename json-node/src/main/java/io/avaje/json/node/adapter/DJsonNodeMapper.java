@@ -2,6 +2,7 @@ package io.avaje.json.node.adapter;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.node.*;
 import io.avaje.json.simple.SimpleMapper;
@@ -64,6 +65,11 @@ final class DJsonNodeMapper implements JsonNodeMapper {
   }
 
   @Override
+  public void toJson(JsonNode node, JsonWriter jsonWriter) {
+    nodeAdapter.toJson(jsonWriter, node);
+  }
+
+  @Override
   public JsonNode fromJson(String json) {
     try (JsonReader reader = jsonStream.reader(json)) {
       return nodeAdapter.fromJson(reader);
@@ -82,6 +88,21 @@ final class DJsonNodeMapper implements JsonNodeMapper {
     try (JsonReader reader = jsonStream.reader(json)) {
       return arrayAdapter.fromJson(reader);
     }
+  }
+
+  @Override
+  public JsonNode fromJson(JsonReader jsonReader) {
+    return nodeAdapter.fromJson(jsonReader);
+  }
+
+  @Override
+  public JsonObject fromJsonObject(JsonReader jsonReader) {
+    return objectAdapter.fromJson(jsonReader);
+  }
+
+  @Override
+  public JsonArray fromJsonArray(JsonReader jsonReader) {
+    return arrayAdapter.fromJson(jsonReader);
   }
 
   @Override

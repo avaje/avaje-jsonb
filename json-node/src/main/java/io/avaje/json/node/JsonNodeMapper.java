@@ -1,6 +1,8 @@
 package io.avaje.json.node;
 
 import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.node.adapter.NodeAdapterBuilder;
 import io.avaje.json.simple.SimpleMapper;
@@ -88,6 +90,17 @@ public interface JsonNodeMapper {
   String toJson(JsonNode node);
 
   /**
+   * Write the node to JSON.
+   * <p>
+   * For options to write json content to OutputStream, Writer etc
+   * use {@link #nodeMapper()}.
+   *
+   * @see SimpleMapper.Type#toJson(Object, OutputStream)
+   * @see SimpleMapper.Type#toJson(Object, Writer)
+   */
+  void toJson(JsonNode node, JsonWriter jsonWriter);
+
+  /**
    * Read any json content returning a JsonNode.
    * <p>
    * For options to read json content from InputStream, Reader etc
@@ -105,6 +118,17 @@ public interface JsonNodeMapper {
   JsonNode fromJson(String json);
 
   /**
+   * Read any json content returning a JsonNode.
+   * <p>
+   * For options to read json content from InputStream, Reader etc
+   * use the fromJson methods on {@link SimpleMapper.Type}.
+   *
+   * @see SimpleMapper.Type#fromJson(Reader)
+   * @see SimpleMapper.Type#fromJson(InputStream)
+   */
+  JsonNode fromJson(JsonReader jsonReader);
+
+  /**
    * Read a JsonObject from json string content.
    * <p>
    * Use this when we know that the json content is a JsonObject.
@@ -115,6 +139,13 @@ public interface JsonNodeMapper {
   JsonObject fromJsonObject(String json);
 
   /**
+   * Read a JsonObject from json string content.
+   * <p>
+   * Use this when we know that the json content is a JsonObject.
+   */
+  JsonObject fromJsonObject(JsonReader jsonReader);
+
+  /**
    * Read a JsonArray from json string content.
    * <p>
    * Use this when we know that the json content is a JsonArray.
@@ -123,6 +154,13 @@ public interface JsonNodeMapper {
    * @return The JsonArray parsed from the content.
    */
   JsonArray fromJsonArray(String json);
+
+  /**
+   * Read a JsonArray from json string content.
+   * <p>
+   * Use this when we know that the json content is a JsonArray.
+   */
+  JsonArray fromJsonArray(JsonReader jsonReader);
 
   /**
    * Helper method to read JSON with an expected JsonNode type.
