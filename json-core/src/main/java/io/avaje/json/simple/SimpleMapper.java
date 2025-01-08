@@ -136,6 +136,10 @@ public interface SimpleMapper {
    */
   <T> Type<T> type(JsonAdapter<T> customAdapter);
 
+  default JsonExtract extract(Map<String, Object> map) {
+    return new DExtract(map);
+  }
+
   /**
    * Build the JsonNodeMapper.
    */
