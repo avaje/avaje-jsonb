@@ -202,4 +202,39 @@ class JsonObjectTest {
 
     assertThat(jsonObject.elements().keySet()).containsExactly("a", "b", "c", "d");
   }
+
+  @Test
+  void extractNumbers() {
+    String s = "{\"aInt\":7,\"aDouble\":23.5,\"text\":\"foo\",\"bool\":true,\"aNull\":null}";
+    JsonNodeMapper mapper = JsonNodeMapper.builder().build();
+    JsonObject jsonObject = mapper.fromJsonObject(s);
+
+    // Number becomes a Long if it can or otherwise a Double
+    assertThat(jsonObject.extract("aInt", BigDecimal.TEN)).isEqualTo(7L);
+    assertThat(jsonObject.extract("aDouble", BigDecimal.TEN)).isEqualTo(23.5D);
+
+    assertThat(jsonObject.extract("aInt", 0)).isEqualTo(7);
+    assertThat(jsonObject.extract("aInt", 0L)).isEqualTo(7L);
+    assertThat(jsonObject.extract("aInt", 0D)).isEqualTo(7D);
+
+    assertThat(jsonObject.extract("aDouble", 0)).isEqualTo(23);
+    assertThat(jsonObject.extract("aDouble", 0L)).isEqualTo(23L);
+    assertThat(jsonObject.extract("aDouble", 0D)).isEqualTo(23.5D);
+
+    assertThat(jsonObject.extract("doesNotExist", 3)).isEqualTo(3);
+    assertThat(jsonObject.extract("doesNotExist", 3L)).isEqualTo(3L);
+    assertThat(jsonObject.extract("doesNotExist", 3.5D)).isEqualTo(3.5D);
+
+    assertThat(jsonObject.extract("text", 3)).isEqualTo(3);
+    assertThat(jsonObject.extract("text", 3L)).isEqualTo(3L);
+    assertThat(jsonObject.extract("text", 3.5D)).isEqualTo(3.5D);
+
+    assertThat(jsonObject.extract("bool", 3)).isEqualTo(3);
+    assertThat(jsonObject.extract("bool", 3L)).isEqualTo(3L);
+    assertThat(jsonObject.extract("bool", 3.5D)).isEqualTo(3.5D);
+
+    assertThat(jsonObject.extract("aNull", 3)).isEqualTo(3);
+    assertThat(jsonObject.extract("aNull", 3L)).isEqualTo(3L);
+    assertThat(jsonObject.extract("aNull", 3.5D)).isEqualTo(3.5D);
+  }
 }
