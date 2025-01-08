@@ -246,6 +246,14 @@ public final class JsonObject implements JsonNode {
   }
 
   @Override
+  public double extract(String path, double missingValue) {
+    final var node = find(path);
+    return !(node instanceof JsonNumber)
+      ? missingValue
+      : ((JsonNumber) node).doubleValue();
+  }
+
+  @Override
   public Number extract(String path, Number missingValue) {
     final var node = find(path);
     return !(node instanceof JsonNumber)

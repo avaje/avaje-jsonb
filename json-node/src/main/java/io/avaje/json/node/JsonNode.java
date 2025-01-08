@@ -143,6 +143,15 @@ public /*sealed*/ interface JsonNode extends Serializable
   }
 
   /**
+   * Extract the long from the given path if present or the given default value.
+   *
+   * @param missingValue The value to use when the path is missing.
+   */
+  default double extract(String path, double missingValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Extract the int from the given path if present or the given default value.
    *
    * @param missingValue The value to use when the path is missing.
