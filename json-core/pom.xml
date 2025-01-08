@@ -9,7 +9,9 @@
     <version>3.9</version>
   </parent>
 
-  <artifactId>avaje-json-core-java8</artifactId>
+  <groupId>io.avaje</groupId>
+  <artifactId>avaje-json-core</artifactId>
+  <version>3.0-RC5-java8</version>
 
   <properties>
     <maven.compiler.release>8</maven.compiler.release>
