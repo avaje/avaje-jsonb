@@ -11,7 +11,7 @@
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-json-core</artifactId>
-  <version>3.0-RC5-java8</version>
+  <version>3.0-RC6-java8</version>
 
   <properties>
     <project.build.outputTimestamp>2024-12-16T11:14:14Z</project.build.outputTimestamp>
