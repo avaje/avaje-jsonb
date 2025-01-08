@@ -14,7 +14,7 @@
   <version>3.0-RC5-java8</version>
 
   <properties>
-    <maven.compiler.release>8</maven.compiler.release>
+    <project.build.outputTimestamp>2024-12-16T11:14:14Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
