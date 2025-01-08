@@ -149,7 +149,7 @@ class SimpleMapperTest {
     String street = extract.extract("address.street");
     LocalDate activeDate = extract.extractOrEmpty("whenActive")
       .map(LocalDate::parse)
-      .orElseThrow();
+      .orElse(LocalDate.now());
 
     assertThat(name).isEqualTo("Rob");
     assertThat(score).isEqualTo(4.5D);
@@ -172,7 +172,7 @@ class SimpleMapperTest {
 
     LocalDate fourAsLocalDate = extract.extractOrEmpty("four")
       .map(LocalDate::parse)
-      .orElseThrow();
+      .orElse(LocalDate.now());
 
     assertThat(fourAsLocalDate)
       .isEqualTo(LocalDate.parse("2025-10-20"));
