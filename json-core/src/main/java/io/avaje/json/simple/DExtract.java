@@ -29,7 +29,7 @@ final class DExtract implements JsonExtract {
 
   @Override
   public String extract(String path) {
-    final var node = find(path, map);
+    final Object node = find(path, map);
     if (node == null) {
       throw new IllegalArgumentException("Node not present for " + path);
     }
@@ -38,19 +38,19 @@ final class DExtract implements JsonExtract {
 
   @Override
   public Optional<String> extractOrEmpty(String path) {
-    final var name = find(path, map);
+    final Object name = find(path, map);
     return name == null ? Optional.empty() : Optional.of(name.toString());
   }
 
   @Override
   public String extract(String path, String missingValue) {
-    final var name = find(path, map);
+    final Object name = find(path, map);
     return name == null ? missingValue : name.toString();
   }
 
   @Override
   public int extract(String path, int missingValue) {
-    final var node = find(path, map);
+    final Object node = find(path, map);
     return !(node instanceof Number)
       ? missingValue
       : ((Number) node).intValue();
@@ -58,7 +58,7 @@ final class DExtract implements JsonExtract {
 
   @Override
   public long extract(String path, long missingValue) {
-    final var node = find(path, map);
+    final Object node = find(path, map);
     return !(node instanceof Number)
       ? missingValue
       : ((Number) node).longValue();
@@ -66,7 +66,7 @@ final class DExtract implements JsonExtract {
 
   @Override
   public double extract(String path, double missingValue) {
-    final var node = find(path, map);
+    final Object node = find(path, map);
     return !(node instanceof Number)
       ? missingValue
       : ((Number) node).doubleValue();
@@ -74,7 +74,7 @@ final class DExtract implements JsonExtract {
 
   @Override
   public boolean extract(String path, boolean missingValue) {
-    final var node = find(path, map);
+    final Object node = find(path, map);
     return !(node instanceof Boolean)
       ? missingValue
       : (Boolean) node;
