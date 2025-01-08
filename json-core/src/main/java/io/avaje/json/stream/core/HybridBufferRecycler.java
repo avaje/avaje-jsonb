@@ -122,7 +122,7 @@ final class HybridBufferRecycler implements BufferRecycler {
     @Override
     public JsonGenerator generator(JsonOutput target) {
       final int index = threadProbe.index();
-      var currentHead = generatorStacks.get(index);
+      JNode currentHead = generatorStacks.get(index);
       while (true) {
         if (currentHead == null) {
           return new VThreadJGenerator(index).prepare(target);
@@ -140,7 +140,7 @@ final class HybridBufferRecycler implements BufferRecycler {
     private JsonParser parser() {
       int index = threadProbe.index();
 
-      var currentHead = parserStacks.get(index);
+      PNode currentHead = parserStacks.get(index);
       while (true) {
         if (currentHead == null) {
           return new VThreadJParser(index);
@@ -157,10 +157,10 @@ final class HybridBufferRecycler implements BufferRecycler {
 
     @Override
     public void recycle(JsonGenerator recycler) {
-      var vThreadBufferRecycler = (VThreadJGenerator) recycler;
-      var newHead = new JNode(vThreadBufferRecycler);
+      VThreadJGenerator vThreadBufferRecycler = (VThreadJGenerator) recycler;
+      JNode newHead = new JNode(vThreadBufferRecycler);
 
-      var next = generatorStacks.get(vThreadBufferRecycler.slot);
+      JNode next = generatorStacks.get(vThreadBufferRecycler.slot);
       while (true) {
         newHead.level = next == null ? 1 : next.level + 1;
         if (generatorStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {
@@ -174,10 +174,10 @@ final class HybridBufferRecycler implements BufferRecycler {
 
     @Override
     public void recycle(JsonParser recycler) {
-      var vThreadBufferRecycler = (VThreadJParser) recycler;
-      var newHead = new PNode(vThreadBufferRecycler);
+      VThreadJParser vThreadBufferRecycler = (VThreadJParser) recycler;
+      PNode newHead = new PNode(vThreadBufferRecycler);
 
-      var next = parserStacks.get(vThreadBufferRecycler.slot);
+      PNode next = parserStacks.get(vThreadBufferRecycler.slot);
       while (true) {
         newHead.level = next == null ? 1 : next.level + 1;
         if (parserStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {

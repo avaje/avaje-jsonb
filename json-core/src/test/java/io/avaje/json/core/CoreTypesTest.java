@@ -41,7 +41,7 @@ class CoreTypesTest {
     JsonAdapter<Long> longAdapter = CoreTypes.create(Long.class);
     JsonAdapter<List<Long>> listAdapter = CoreTypes.createList(longAdapter);
 
-    List<Long> vals = List.of(54L, 21L, 63L);
+    List<Long> vals = UtilList.of(54L, 21L, 63L);
 
     BufferedJsonWriter writer = stream.bufferedWriter();
     listAdapter.toJson(writer, vals);
@@ -66,7 +66,7 @@ class CoreTypesTest {
 
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("one", 45L);
-    map.put("two", List.of(45, 46));
+    map.put("two", UtilList.of(45, 46));
     map.put("three", inner);
 
 
@@ -78,7 +78,7 @@ class CoreTypesTest {
     JsonReader reader = stream.reader(asJson);
     Map<String, Object> resultMap = (Map<String, Object>)basicObject.fromJson(reader);
     assertThat(resultMap.get("one")).isEqualTo(45L);
-    assertThat(resultMap.get("two")).isEqualTo(List.of(45L, 46L));
+    assertThat(resultMap.get("two")).isEqualTo(UtilList.of(45L, 46L));
     assertThat(resultMap.get("three")).isInstanceOf(Map.class);
     assertThat(resultMap.get("three")).isEqualTo(inner);
   }

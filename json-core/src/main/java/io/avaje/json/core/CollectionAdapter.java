@@ -30,7 +30,7 @@ import java.util.*;
 abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuilderAware, JsonAdapter<C> {
 
   static <T> JsonAdapter<List<T>> createList(JsonAdapter<T> elementAdapter) {
-    return new CollectionAdapter<>(elementAdapter) {
+    return new CollectionAdapter(elementAdapter) {
       @Override
       List<T> newCollection() {
         return new ArrayList<>();
@@ -39,7 +39,7 @@ abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuil
   }
 
   static <T> JsonAdapter<Set<T>> createSet(JsonAdapter<T> elementAdapter) {
-    return new CollectionAdapter<>(elementAdapter) {
+    return new CollectionAdapter(elementAdapter) {
       @Override
       Set<T> newCollection() {
         return new LinkedHashSet<>();

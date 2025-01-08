@@ -52,7 +52,7 @@ final class BasicObjectAdapter implements JsonAdapter<Object>, CoreTypes.CoreAda
       case STRING:
         return stringAdapter.fromJson(reader);
       case NUMBER:
-        var d = doubleAdapter.fromJson(reader);
+        Double d = doubleAdapter.fromJson(reader);
         if (d % 1 == 0) {
           return d.longValue();
         }

@@ -4,21 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.avaje</groupId>
-    <artifactId>avaje-jsonb-parent</artifactId>
-    <version>3.0-RC5</version>
+    <groupId>org.avaje</groupId>
+    <artifactId>java8-oss</artifactId>
+    <version>3.9</version>
   </parent>
 
-  <artifactId>avaje-json-core</artifactId>
+  <artifactId>avaje-json-core-java8</artifactId>
+
+  <properties>
+    <maven.compiler.release>8</maven.compiler.release>
+  </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>io.helidon.webserver</groupId>
-      <artifactId>helidon-webserver</artifactId>
-      <version>4.1.0</version>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
 
     <dependency>
       <groupId>io.avaje</groupId>

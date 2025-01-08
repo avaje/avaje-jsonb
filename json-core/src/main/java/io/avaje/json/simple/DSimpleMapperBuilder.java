@@ -15,8 +15,8 @@ final class DSimpleMapperBuilder implements SimpleMapper.Builder {
 
   @Override
   public SimpleMapper build() {
-    final var stream = jsonStream != null ? jsonStream : JsonStream.builder().build();
-    final var coreAdapters = CoreTypes.createCoreAdapters();
+    final JsonStream stream = jsonStream != null ? jsonStream : JsonStream.builder().build();
+    final CoreTypes.CoreAdapters coreAdapters = CoreTypes.createCoreAdapters();
     return new DSimpleMapper(stream, coreAdapters);
   }
 }

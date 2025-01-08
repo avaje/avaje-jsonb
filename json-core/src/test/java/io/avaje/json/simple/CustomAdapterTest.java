@@ -3,6 +3,8 @@ package io.avaje.json.simple;
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
+import io.avaje.json.core.UtilList;
+import io.avaje.json.core.UtilMap;
 import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
@@ -37,9 +39,9 @@ class CustomAdapterTest {
   void list() {
     SimpleMapper.Type<List<MyCustomType>> listType = type.list();
 
-    var v0 = as("a", 1);
-    var v1 = as("b", 2);
-    var list = List.of(v0, v1);
+    MyCustomType v0 = as("a", 1);
+    MyCustomType v1 = as("b", 2);
+    List list = UtilList.of(v0, v1);
 
     String asJson = listType.toJson(list);
 
@@ -51,13 +53,13 @@ class CustomAdapterTest {
   void map() {
     SimpleMapper.Type<Map<String, MyCustomType>> mapType = type.map();
 
-    var v0 = as("a", 1);
-    var v1 = as("b", 2);
-    Map<String, MyCustomType> map = Map.of("one", v0, "two", v1);
+    MyCustomType v0 = as("a", 1);
+    MyCustomType v1 = as("b", 2);
+    Map<String, MyCustomType> map = UtilMap.of("one", v0, "two", v1);
 
     String asJson = mapType.toJson(map);
 
-    var fromJson = mapType.fromJson(asJson);
+    Map<String, MyCustomType> fromJson = mapType.fromJson(asJson);
     assertThat(fromJson).isEqualTo(map);
   }
 
@@ -96,7 +98,7 @@ class CustomAdapterTest {
 
     @Override
     public void toJson(JsonWriter writer, MyCustomType value) {
-      Map<String, Object> foo = Map.of("foo", value.foo, "bar", value.bar);
+      Map<String, Object> foo = UtilMap.of("foo", value.foo, "bar", value.bar);
       map.toJson(foo, writer);
     }
 

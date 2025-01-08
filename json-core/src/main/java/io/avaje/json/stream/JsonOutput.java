@@ -1,7 +1,5 @@
 package io.avaje.json.stream;
 
-import io.helidon.webserver.http.ServerResponse;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,13 +16,6 @@ public interface JsonOutput extends Closeable {
    */
   static JsonOutput of(OutputStream outputStream) {
     return new DJsonOutput(outputStream);
-  }
-
-  /**
-   * Create for Nima ServerResponse.
-   */
-  static JsonOutput of(ServerResponse nimaServerResponse) {
-    return new NimaJsonOutput(nimaServerResponse);
   }
 
   /**

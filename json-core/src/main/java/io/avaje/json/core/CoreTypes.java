@@ -32,7 +32,7 @@ public final class CoreTypes {
    */
   @SuppressWarnings({"unchecked"})
   public static <T> JsonAdapter<T> create(Type type) {
-    final var adapter = adapterCache.computeIfAbsent(type, CoreTypes::createAdapter);
+    final JsonAdapter<?> adapter = adapterCache.computeIfAbsent(type, CoreTypes::createAdapter);
     return adapter == NULL_PLACEHOLDER ? null : (JsonAdapter<T>) adapter;
   }
 
@@ -41,7 +41,7 @@ public final class CoreTypes {
    */
   @SuppressWarnings("unchecked")
   public static <T> JsonAdapter<T> createArray(Class<?> elementType) {
-    final var adapter = (JsonAdapter<Object>) createAdapter(elementType);
+    final JsonAdapter<Object> adapter = (JsonAdapter<Object>) createAdapter(elementType);
     return createArray(elementType, adapter);
   }
 
@@ -103,7 +103,7 @@ public final class CoreTypes {
   }
 
   private static JsonAdapter<?> createAdapter(Type type) {
-    final var adapter = BaseAdapters.create(type);
+    final JsonAdapter<?> adapter = BaseAdapters.create(type);
     if (adapter != null) {
       return adapter;
     }

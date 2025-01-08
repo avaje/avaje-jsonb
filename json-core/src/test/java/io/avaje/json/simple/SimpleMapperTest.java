@@ -2,6 +2,8 @@ package io.avaje.json.simple;
 
 
 import io.avaje.json.JsonReader;
+import io.avaje.json.core.UtilList;
+import io.avaje.json.core.UtilMap;
 import io.avaje.json.stream.BufferedJsonWriter;
 import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
@@ -53,7 +55,7 @@ class SimpleMapperTest {
   void toJsonWriter_map() {
     JsonStream jsonStream = JsonStream.builder().build();
     BufferedJsonWriter writer0 = jsonStream.bufferedWriter();
-    simpleMapper.toJson(Map.of("key", 0), writer0);
+    simpleMapper.toJson(UtilMap.of("key", 0), writer0);
     assertThat(writer0.result()).isEqualTo("{\"key\":0}");
   }
 
@@ -61,20 +63,20 @@ class SimpleMapperTest {
   void toJsonWriter_list() {
     JsonStream jsonStream = JsonStream.builder().build();
     BufferedJsonWriter writer0 = jsonStream.bufferedWriter();
-    simpleMapper.toJson(List.of("a", 0), writer0);
+    simpleMapper.toJson(UtilList.of("a", 0), writer0);
     assertThat(writer0.result()).isEqualTo("[\"a\",0]");
   }
 
   @Test
   void nullDirectly() {
-    var mapFromJson = simpleMapper.fromJson("null");
+    Object mapFromJson = simpleMapper.fromJson("null");
     assertThat(mapFromJson).isNull();
   }
 
   @Test
   void objectJsonReader() {
-    try (var reader = JsonStream.builder().build().reader("\"hi\"")) {
-      var fromJson = simpleMapper.fromJson(reader);
+    try (JsonReader reader = JsonStream.builder().build().reader("\"hi\"")) {
+      Object fromJson = simpleMapper.fromJson(reader);
       assertThat(fromJson).isEqualTo("hi");
     }
   }
@@ -119,7 +121,7 @@ class SimpleMapperTest {
     Map<String, Long> map1 = new LinkedHashMap<>();
     map1.put("one", 27L);
 
-    List<Map<String, Long>> list = List.of(map0, map1);
+    List<Map<String, Long>> list = UtilList.of(map0, map1);
 
     String asJson = simpleMapper.toJson(list);
     assertThat(asJson).isEqualTo("[{\"one\":45,\"two\":93},{\"one\":27}]");
