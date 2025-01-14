@@ -21,13 +21,15 @@ class CustomAdapterTest {
 
   @Test
   void mapUsingCustomAdapter() {
+    SimpleMapper mapper = SimpleMapper.builder().build();
+    SimpleMapper.Type<MyCustomType> myType = mapper.type(MyAdapter::new);
 
     MyCustomType source = new MyCustomType();
     source.foo = "hi";
     source.bar = 42;
-    String asJson = type.toJson(source);
+    String asJson = myType.toJson(source);
 
-    MyCustomType fromJson = type.fromJson(asJson);
+    MyCustomType fromJson = myType.fromJson(asJson);
 
     assertThat(fromJson.foo).isEqualTo(source.foo);
     assertThat(fromJson.bar).isEqualTo(source.bar);

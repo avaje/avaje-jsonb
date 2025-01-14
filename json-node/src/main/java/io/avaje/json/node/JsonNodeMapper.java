@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.util.function.Function;
 
 /**
  * Provide JsonAdapters for the JsonNode types.
@@ -203,6 +204,18 @@ public interface JsonNodeMapper {
    * @return The Type specific mapper.
    */
   <T> SimpleMapper.Type<T> type(JsonAdapter<T> customAdapter);
+
+  /**
+   * Return a Type specific mapper using a function that creates a JsonAdapter.
+   * <p>
+   * Often the adapterFunction is the constructor of the custom JsonAdapter where
+   * the constructor takes JsonNodeMapper as the only argument.
+   *
+   * @param adapterFunction The function that creates a JsonAdapter.
+   * @param <T>             The type of the class to map to/from json.
+   * @return The Type specific mapper.
+   */
+  <T> SimpleMapper.Type<T> type(Function<JsonNodeMapper, JsonAdapter<T>> adapterFunction);
 
   /**
    * Build the JsonNodeMapper.

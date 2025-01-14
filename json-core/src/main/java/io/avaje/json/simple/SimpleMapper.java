@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * A mapper for mapping to basic Java types.
@@ -135,6 +136,18 @@ public interface SimpleMapper {
    * @return The Type specific mapper.
    */
   <T> Type<T> type(JsonAdapter<T> customAdapter);
+
+  /**
+   * Return a Type specific mapper using a function that creates a JsonAdapter.
+   * <p>
+   * Often the adapterFunction is the constructor of the custom JsonAdapter where
+   * the constructor takes SimpleMapper as the only argument.
+   *
+   * @param adapterFunction The function that creates a JsonAdapter.
+   * @param <T>             The type of the class to map to/from json.
+   * @return The Type specific mapper.
+   */
+  <T> Type<T> type(Function<SimpleMapper, JsonAdapter<T>> adapterFunction);
 
   default JsonExtract extract(Map<String, Object> map) {
     return new DExtract(map);

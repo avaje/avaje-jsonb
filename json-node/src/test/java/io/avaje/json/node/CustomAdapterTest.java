@@ -21,9 +21,7 @@ class CustomAdapterTest {
 
   @Test
   void propertyNames() {
-
-    var adapter = new MyAdapter2(mapper);
-    SimpleMapper.Type<MyCustomType> type = mapper.type(adapter);
+    SimpleMapper.Type<MyCustomType> type = mapper.type(MyAdapter2::new);
 
     var source = as("a", 1);
     String asJson = type.toJson(source);
