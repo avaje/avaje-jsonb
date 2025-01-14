@@ -9,6 +9,7 @@ import io.avaje.json.stream.JsonStream;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 final class DSimpleMapper implements SimpleMapper {
 
@@ -32,6 +33,11 @@ final class DSimpleMapper implements SimpleMapper {
   @Override
   public <T> Type<T> type(JsonAdapter<T> myAdapter) {
     return new DTypeMapper<>(myAdapter, jsonStream);
+  }
+
+  @Override
+  public <T> Type<T> type(Function<SimpleMapper, JsonAdapter<T>> adapterFunction) {
+    return type(adapterFunction.apply(this));
   }
 
   @Override

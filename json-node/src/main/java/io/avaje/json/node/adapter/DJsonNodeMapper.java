@@ -9,6 +9,7 @@ import io.avaje.json.simple.SimpleMapper;
 import io.avaje.json.stream.JsonStream;
 
 import java.lang.reflect.Type;
+import java.util.function.Function;
 
 final class DJsonNodeMapper implements JsonNodeMapper {
 
@@ -40,6 +41,11 @@ final class DJsonNodeMapper implements JsonNodeMapper {
   @Override
   public <T> SimpleMapper.Type<T> type(JsonAdapter<T> customAdapter) {
     return new DMapper<>(customAdapter, jsonStream);
+  }
+
+  @Override
+  public <T> SimpleMapper.Type<T> type(Function<JsonNodeMapper, JsonAdapter<T>> adapterFunction) {
+    return type(adapterFunction.apply(this));
   }
 
   @Override
