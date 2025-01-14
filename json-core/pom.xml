@@ -10,6 +10,8 @@
   </parent>
 
   <artifactId>avaje-json-core</artifactId>
+  <name>avaje json core</name>
+  <description>Core JSON Streaming and Generation API</description>
 
   <dependencies>
     <dependency>

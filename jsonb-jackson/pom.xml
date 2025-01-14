@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>avaje-jsonb-jackson</artifactId>
-  <name>jsonb-jackson</name>
+  <name>avaje jsonb jackson</name>
   <description>jackson adapter for avaje-jsonb</description>
 
   <dependencies>
