@@ -12,7 +12,7 @@
   <version>3.0-RC6</version>
 
   <packaging>pom</packaging>
-  <name>jsonb parent</name>
+  <name>avaje json parent pom</name>
   <description>parent pom for jsonb</description>
 
   <scm>
