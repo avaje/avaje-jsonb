@@ -4,11 +4,11 @@
   <parent>
     <artifactId>avaje-jsonb-parent</artifactId>
     <groupId>io.avaje</groupId>
-    <version>3.0-RC6</version>
+    <version>3.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>avaje-jsonb-jackson</artifactId>
-  <name>jsonb-jackson</name>
+  <name>avaje jsonb jackson</name>
   <description>jackson adapter for avaje-jsonb</description>
 
   <dependencies>

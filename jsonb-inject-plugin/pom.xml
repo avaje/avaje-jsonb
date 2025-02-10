@@ -6,11 +6,11 @@
   <parent>
     <artifactId>avaje-jsonb-parent</artifactId>
     <groupId>io.avaje</groupId>
-    <version>3.0-RC6</version>
+    <version>3.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>avaje-jsonb-inject-plugin</artifactId>
-  <name>jsonb-inject-plugin</name>
+  <name>avaje jsonb inject plugin</name>
   <description>avaje-inject plugin for avaje-jsonb</description>
 
   <dependencies>

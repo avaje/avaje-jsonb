@@ -7,12 +7,12 @@ Provides the core API including JsonAdapter, JsonReader, JsonWriter, JsonStream 
 ```xml
 <dependency>
   <groupId>io.avaje</groupId>
-  <artifactId>avaje-json</artifactId>
+  <artifactId>avaje-json-core</artifactId>
   <version>3.0</version>
 </dependency>
 ```
 
-## SimpleMapper
+## JsonMapper
 
 If you only have simple use cases you can use avaje-json
 without avaje-jsonb.
@@ -26,9 +26,9 @@ For use cases that only want to map to the following types:
 - Map<String, Object>
 - List<Object>
 
-### Create a SimpleMapper
+### Create a JsonMapper
 
-static final SimpleMapper mapper = SimpleMapper.builder().build()
+static final JsonMapper mapper = JsonMapper.builder().build()
 
 
 ### Map example

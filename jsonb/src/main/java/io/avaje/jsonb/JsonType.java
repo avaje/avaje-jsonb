@@ -1,6 +1,7 @@
 package io.avaje.jsonb;
 
 import io.avaje.json.JsonReader;
+import io.avaje.json.mapper.JsonMapper;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -43,7 +44,7 @@ import java.util.stream.Stream;
  * Moshi note: JsonType does not exist in Moshi and has been added to provide a
  * slightly nicer API to use than JsonAdapter.
  */
-public interface JsonType<T> extends JsonView<T> {
+public interface JsonType<T> extends JsonView<T>, JsonMapper.Type<T> {
 
   /**
    * Build and return the view given the DSL that specifies the properties to include.

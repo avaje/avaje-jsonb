@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import java.util.Map;
 import java.util.Optional;
@@ -15,9 +15,9 @@ import java.util.Optional;
  * <pre>{@code
  *
  *   String json = "{\"name\":\"Rob\",\"score\":4.5,\"whenActive\":\"2025-10-20\",\"address\":{\"street\":\"Pall Mall\"}}";
- *   Map<String, Object> mapFromJson = simpleMapper.fromJsonObject(json);
+ *   Map<String, Object> mapFromJson = jsonMapper.fromJsonObject(json);
  *
- *   JsonExtract jsonExtract = simpleMapper.extract(mapFromJson);
+ *   JsonExtract jsonExtract = jsonMapper.extract(mapFromJson);
  *
  *   String name = jsonExtract.extract("name");
  *   double score = jsonExtract.extract("score", -1D);

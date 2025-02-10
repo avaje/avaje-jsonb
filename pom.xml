@@ -9,10 +9,10 @@
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-parent</artifactId>
-  <version>3.0-RC6</version>
+  <version>3.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
-  <name>jsonb parent</name>
+  <name>avaje json parent pom</name>
   <description>parent pom for jsonb</description>
 
   <scm>
@@ -25,7 +25,7 @@
     <surefire.useModulePath>false</surefire.useModulePath>
     <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
     <spi.version>2.7</spi.version>
-    <project.build.outputTimestamp>2025-01-08T11:21:14Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-02-10T08:35:50Z</project.build.outputTimestamp>
   </properties>
 
   <modules>

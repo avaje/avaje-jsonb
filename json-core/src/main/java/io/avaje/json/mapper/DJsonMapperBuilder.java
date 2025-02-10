@@ -1,22 +1,22 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import io.avaje.json.core.CoreTypes;
 import io.avaje.json.stream.JsonStream;
 
-final class DSimpleMapperBuilder implements SimpleMapper.Builder {
+final class DJsonMapperBuilder implements JsonMapper.Builder {
 
   private JsonStream jsonStream;
 
   @Override
-  public SimpleMapper.Builder jsonStream(JsonStream jsonStream) {
+  public JsonMapper.Builder jsonStream(JsonStream jsonStream) {
     this.jsonStream = jsonStream;
     return this;
   }
 
   @Override
-  public SimpleMapper build() {
+  public JsonMapper build() {
     final JsonStream stream = jsonStream != null ? jsonStream : JsonStream.builder().build();
     final CoreTypes.CoreAdapters coreAdapters = CoreTypes.createCoreAdapters();
-    return new DSimpleMapper(stream, coreAdapters);
+    return new DJsonMapper(stream, coreAdapters);
   }
 }

@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
@@ -17,19 +17,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CustomAdapterTest {
 
   static final JsonStream jsonStream = JsonStream.builder().build();
-  static final SimpleMapper simpleMapper = SimpleMapper.builder().jsonStream(jsonStream).build();
-  static final MyAdapter myAdapter = new MyAdapter(simpleMapper);
-  static final SimpleMapper.Type<MyCustomType> type = simpleMapper.type(myAdapter);
+  static final JsonMapper mapper = JsonMapper.builder().jsonStream(jsonStream).build();
+  static final MyAdapter myAdapter = new MyAdapter(mapper);
+  static final JsonMapper.Type<MyCustomType> type = mapper.type(myAdapter);
 
   @Test
   void mapUsingCustomAdapter() {
+    JsonMapper mapper = JsonMapper.builder().build();
+    JsonMapper.Type<MyCustomType> myType = mapper.type(MyAdapter::new);
 
     MyCustomType source = new MyCustomType();
     source.foo = "hi";
     source.bar = 42;
-    String asJson = type.toJson(source);
+    String asJson = myType.toJson(source);
 
-    MyCustomType fromJson = type.fromJson(asJson);
+    MyCustomType fromJson = myType.fromJson(asJson);
 
     assertThat(fromJson.foo).isEqualTo(source.foo);
     assertThat(fromJson.bar).isEqualTo(source.bar);
@@ -37,7 +39,7 @@ class CustomAdapterTest {
 
   @Test
   void list() {
-    SimpleMapper.Type<List<MyCustomType>> listType = type.list();
+    JsonMapper.Type<List<MyCustomType>> listType = type.list();
 
     MyCustomType v0 = as("a", 1);
     MyCustomType v1 = as("b", 2);
@@ -51,7 +53,7 @@ class CustomAdapterTest {
 
   @Test
   void map() {
-    SimpleMapper.Type<Map<String, MyCustomType>> mapType = type.map();
+    JsonMapper.Type<Map<String, MyCustomType>> mapType = type.map();
 
     MyCustomType v0 = as("a", 1);
     MyCustomType v1 = as("b", 2);
@@ -90,10 +92,10 @@ class CustomAdapterTest {
 
   static class MyAdapter implements JsonAdapter<MyCustomType> {
 
-    private final SimpleMapper.Type<Map<String, Object>> map;
+    private final JsonMapper.Type<Map<String, Object>> map;
 
-    public MyAdapter(SimpleMapper simpleMapper) {
-      this.map = simpleMapper.map();
+    public MyAdapter(JsonMapper mapper) {
+      this.map = mapper.map();
     }
 
     @Override

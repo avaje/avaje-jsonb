@@ -4,12 +4,12 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>3.0-RC6</version>
+    <version>3.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>avaje-jsonb</artifactId>
-  <name>jsonb</name>
-  <description>avaje-jsonb json streaming and binding library using source code generation</description>
+  <name>avaje jsonb</name>
+  <description>JSON Streaming Generation and data binding library using source code generation</description>
 
   <dependencies>
 

@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
@@ -10,15 +10,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CustomAdapter2Test {
 
-  static final SimpleMapper simpleMapper = SimpleMapper.builder().build();
+  static final JsonMapper mapper = JsonMapper.builder().build();
 
   @Test
   void mapUsingCustomAdapter() {
 
-    PropertyNames names = simpleMapper.properties("foo", "bar");
+    PropertyNames names = mapper.properties("foo", "bar");
     MyAdapterUsingRaw myAdapter = new MyAdapterUsingRaw(names);
 
-    SimpleMapper.Type<MyOtherType> type = simpleMapper.type(myAdapter);
+    JsonMapper.Type<MyOtherType> type = mapper.type(myAdapter);
 
     MyOtherType source = new MyOtherType();
     source.foo = "hi";
