@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
@@ -35,7 +35,7 @@ import java.util.function.Function;
  *
  * }</pre>
  */
-public interface SimpleMapper {
+public interface JsonMapper {
 
   /**
    * Create a new builder for SimpleMapper.
@@ -147,8 +147,11 @@ public interface SimpleMapper {
    * @param <T>             The type of the class to map to/from json.
    * @return The Type specific mapper.
    */
-  <T> Type<T> type(Function<SimpleMapper, JsonAdapter<T>> adapterFunction);
+  <T> Type<T> type(Function<JsonMapper, JsonAdapter<T>> adapterFunction);
 
+  /**
+   * Return the map wrapped via JsonExtract to make extracting values easier.
+   */
   default JsonExtract extract(Map<String, Object> map) {
     return new DExtract(map);
   }
@@ -170,7 +173,7 @@ public interface SimpleMapper {
     /**
      * Build and return the JsonNodeMapper.
      */
-    SimpleMapper build();
+    JsonMapper build();
   }
 
   /**

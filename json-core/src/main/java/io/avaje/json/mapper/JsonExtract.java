@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import java.util.Map;
 import java.util.Optional;

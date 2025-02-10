@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
@@ -15,14 +15,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CustomAdapterTest {
 
   static final JsonStream jsonStream = JsonStream.builder().build();
-  static final SimpleMapper simpleMapper = SimpleMapper.builder().jsonStream(jsonStream).build();
+  static final JsonMapper simpleMapper = JsonMapper.builder().jsonStream(jsonStream).build();
   static final MyAdapter myAdapter = new MyAdapter(simpleMapper);
-  static final SimpleMapper.Type<MyCustomType> type = simpleMapper.type(myAdapter);
+  static final JsonMapper.Type<MyCustomType> type = simpleMapper.type(myAdapter);
 
   @Test
   void mapUsingCustomAdapter() {
-    SimpleMapper mapper = SimpleMapper.builder().build();
-    SimpleMapper.Type<MyCustomType> myType = mapper.type(MyAdapter::new);
+    JsonMapper mapper = JsonMapper.builder().build();
+    JsonMapper.Type<MyCustomType> myType = mapper.type(MyAdapter::new);
 
     MyCustomType source = new MyCustomType();
     source.foo = "hi";
@@ -37,7 +37,7 @@ class CustomAdapterTest {
 
   @Test
   void list() {
-    SimpleMapper.Type<List<MyCustomType>> listType = type.list();
+    JsonMapper.Type<List<MyCustomType>> listType = type.list();
 
     var v0 = as("a", 1);
     var v1 = as("b", 2);
@@ -51,7 +51,7 @@ class CustomAdapterTest {
 
   @Test
   void map() {
-    SimpleMapper.Type<Map<String, MyCustomType>> mapType = type.map();
+    JsonMapper.Type<Map<String, MyCustomType>> mapType = type.map();
 
     var v0 = as("a", 1);
     var v1 = as("b", 2);
@@ -90,9 +90,9 @@ class CustomAdapterTest {
 
   static class MyAdapter implements JsonAdapter<MyCustomType> {
 
-    private final SimpleMapper.Type<Map<String, Object>> map;
+    private final JsonMapper.Type<Map<String, Object>> map;
 
-    public MyAdapter(SimpleMapper simpleMapper) {
+    public MyAdapter(JsonMapper simpleMapper) {
       this.map = simpleMapper.map();
     }
 

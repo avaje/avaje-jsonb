@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-final class DSimpleMapper implements SimpleMapper {
+final class DSimpleMapper implements JsonMapper {
 
   private final JsonStream jsonStream;
   private final Type<Object> objectType;
@@ -36,7 +36,7 @@ final class DSimpleMapper implements SimpleMapper {
   }
 
   @Override
-  public <T> Type<T> type(Function<SimpleMapper, JsonAdapter<T>> adapterFunction) {
+  public <T> Type<T> type(Function<JsonMapper, JsonAdapter<T>> adapterFunction) {
     return type(adapterFunction.apply(this));
   }
 

@@ -5,7 +5,7 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 import io.avaje.json.node.adapter.NodeAdapterBuilder;
-import io.avaje.json.simple.SimpleMapper;
+import io.avaje.json.mapper.JsonMapper;
 import io.avaje.json.stream.JsonStream;
 
 import java.io.InputStream;
@@ -51,7 +51,7 @@ public interface JsonNodeMapper {
    * The NodeMapper provides support for all reading and writing options
    * such as InputStream, OutputStream, Reader, Writer etc.
    */
-  SimpleMapper.Type<JsonNode> nodeMapper();
+  JsonMapper.Type<JsonNode> nodeMapper();
 
   /**
    * Return a NodeMapper for json OBJECT content.
@@ -59,7 +59,7 @@ public interface JsonNodeMapper {
    * The NodeMapper provides support for all reading and writing options
    * such as InputStream, OutputStream, Reader, Writer etc.
    */
-  SimpleMapper.Type<JsonObject> objectMapper();
+  JsonMapper.Type<JsonObject> objectMapper();
 
   /**
    * Return a NodeMapper for json ARRAY content.
@@ -67,7 +67,7 @@ public interface JsonNodeMapper {
    * The NodeMapper provides support for all reading and writing options
    * such as InputStream, OutputStream, Reader, Writer etc.
    */
-  SimpleMapper.Type<JsonArray> arrayMapper();
+  JsonMapper.Type<JsonArray> arrayMapper();
 
   /**
    * Write the node to JSON string.
@@ -85,8 +85,8 @@ public interface JsonNodeMapper {
    * var asJson = mapper.toJson(jsonArray);
    * }</pre>
    *
-   * @see SimpleMapper.Type#toJson(Object, OutputStream)
-   * @see SimpleMapper.Type#toJson(Object, Writer)
+   * @see JsonMapper.Type#toJson(Object, OutputStream)
+   * @see JsonMapper.Type#toJson(Object, Writer)
    */
   String toJson(JsonNode node);
 
@@ -96,8 +96,8 @@ public interface JsonNodeMapper {
    * For options to write json content to OutputStream, Writer etc
    * use {@link #nodeMapper()}.
    *
-   * @see SimpleMapper.Type#toJson(Object, OutputStream)
-   * @see SimpleMapper.Type#toJson(Object, Writer)
+   * @see JsonMapper.Type#toJson(Object, OutputStream)
+   * @see JsonMapper.Type#toJson(Object, Writer)
    */
   void toJson(JsonNode node, JsonWriter jsonWriter);
 
@@ -105,7 +105,7 @@ public interface JsonNodeMapper {
    * Read any json content returning a JsonNode.
    * <p>
    * For options to read json content from InputStream, Reader etc
-   * use the fromJson methods on {@link SimpleMapper.Type}.
+   * use the fromJson methods on {@link JsonMapper.Type}.
    *
    * <pre>{@code
    * static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
@@ -113,8 +113,8 @@ public interface JsonNodeMapper {
    * JsonNode nodeFromJson = mapper.fromJson(jsonContent);
    * }</pre>
    *
-   * @see SimpleMapper.Type#fromJson(Reader)
-   * @see SimpleMapper.Type#fromJson(InputStream)
+   * @see JsonMapper.Type#fromJson(Reader)
+   * @see JsonMapper.Type#fromJson(InputStream)
    */
   JsonNode fromJson(String json);
 
@@ -122,10 +122,10 @@ public interface JsonNodeMapper {
    * Read any json content returning a JsonNode.
    * <p>
    * For options to read json content from InputStream, Reader etc
-   * use the fromJson methods on {@link SimpleMapper.Type}.
+   * use the fromJson methods on {@link JsonMapper.Type}.
    *
-   * @see SimpleMapper.Type#fromJson(Reader)
-   * @see SimpleMapper.Type#fromJson(InputStream)
+   * @see JsonMapper.Type#fromJson(Reader)
+   * @see JsonMapper.Type#fromJson(InputStream)
    */
   JsonNode fromJson(JsonReader jsonReader);
 
@@ -203,7 +203,7 @@ public interface JsonNodeMapper {
    * @param <T>           The type of the class to map to/from json.
    * @return The Type specific mapper.
    */
-  <T> SimpleMapper.Type<T> type(JsonAdapter<T> customAdapter);
+  <T> JsonMapper.Type<T> type(JsonAdapter<T> customAdapter);
 
   /**
    * Return a Type specific mapper using a function that creates a JsonAdapter.
@@ -215,7 +215,7 @@ public interface JsonNodeMapper {
    * @param <T>             The type of the class to map to/from json.
    * @return The Type specific mapper.
    */
-  <T> SimpleMapper.Type<T> type(Function<JsonNodeMapper, JsonAdapter<T>> adapterFunction);
+  <T> JsonMapper.Type<T> type(Function<JsonNodeMapper, JsonAdapter<T>> adapterFunction);
 
   /**
    * Build the JsonNodeMapper.

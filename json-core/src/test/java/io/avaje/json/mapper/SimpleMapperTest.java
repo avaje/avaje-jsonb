@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 
 import io.avaje.json.JsonReader;
@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SimpleMapperTest {
 
-  static final SimpleMapper simpleMapper = SimpleMapper.builder().build();
+  static final JsonMapper simpleMapper = JsonMapper.builder().build();
 
   @Test
   void mapToJsonFromJson() {
