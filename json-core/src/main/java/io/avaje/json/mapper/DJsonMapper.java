@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-final class DSimpleMapper implements JsonMapper {
+final class DJsonMapper implements JsonMapper {
 
   private final JsonStream jsonStream;
   private final Type<Object> objectType;
   private final Type<Map<String,Object>> mapType;
   private final Type<List<Object>> listType;
 
-  DSimpleMapper(JsonStream jsonStream, CoreTypes.CoreAdapters adapters) {
+  DJsonMapper(JsonStream jsonStream, CoreTypes.CoreAdapters adapters) {
     this.jsonStream = jsonStream;
     this.objectType = new DTypeMapper<>(adapters.objectAdapter(), jsonStream);
     this.mapType = new DTypeMapper<>(adapters.mapAdapter(), jsonStream);

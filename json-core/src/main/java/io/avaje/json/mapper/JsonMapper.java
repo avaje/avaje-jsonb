@@ -20,28 +20,32 @@ import java.util.function.Function;
  * This supports the basic Java types of String, Boolean, Integer, Long, Double and
  * Maps and List of these.
  * <p>
+ * If avaje-jsonb is available then you will use that and NOT use this JsonMapper at all.
+ * This JsonMapper is intended to be used by code that ONLY wants to depend on avaje-json-core
+ * and process the basic Java types or provide its own JsonAdapters.
+ * <p>
  * For full support with more types and binding to custom types use avaje-jsonb instead.
  *
  * <h3>Example</h3>
  * <pre>{@code
  *
- *   static final SimpleMapper simpleMapper = SimpleMapper.builder().build();
+ *   static final JsonMapper jsonMapper = JsonMapper.builder().build();
  *
  *   Map<String, Long> map = new LinkedHashMap<>();
  *   map.put("one", 45L);
  *   map.put("two", 93L);
  *
- *   String asJson = simpleMapper.toJson(map);
+ *   String asJson = jsonMapper.toJson(map);
  *
  * }</pre>
  */
 public interface JsonMapper {
 
   /**
-   * Create a new builder for SimpleMapper.
+   * Create a new builder for JsonMapper.
    */
   static Builder builder() {
-    return new DSimpleMapperBuilder();
+    return new DJsonMapperBuilder();
   }
 
   /**
@@ -141,7 +145,7 @@ public interface JsonMapper {
    * Return a Type specific mapper using a function that creates a JsonAdapter.
    * <p>
    * Often the adapterFunction is the constructor of the custom JsonAdapter where
-   * the constructor takes SimpleMapper as the only argument.
+   * the constructor takes JsonMapper as the only argument.
    *
    * @param adapterFunction The function that creates a JsonAdapter.
    * @param <T>             The type of the class to map to/from json.

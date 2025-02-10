@@ -15,9 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CustomAdapterTest {
 
   static final JsonStream jsonStream = JsonStream.builder().build();
-  static final JsonMapper simpleMapper = JsonMapper.builder().jsonStream(jsonStream).build();
-  static final MyAdapter myAdapter = new MyAdapter(simpleMapper);
-  static final JsonMapper.Type<MyCustomType> type = simpleMapper.type(myAdapter);
+  static final JsonMapper mapper = JsonMapper.builder().jsonStream(jsonStream).build();
+  static final MyAdapter myAdapter = new MyAdapter(mapper);
+  static final JsonMapper.Type<MyCustomType> type = mapper.type(myAdapter);
 
   @Test
   void mapUsingCustomAdapter() {
@@ -92,8 +92,8 @@ class CustomAdapterTest {
 
     private final JsonMapper.Type<Map<String, Object>> map;
 
-    public MyAdapter(JsonMapper simpleMapper) {
-      this.map = simpleMapper.map();
+    public MyAdapter(JsonMapper mapper) {
+      this.map = mapper.map();
     }
 
     @Override

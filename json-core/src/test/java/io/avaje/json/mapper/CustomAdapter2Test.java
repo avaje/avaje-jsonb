@@ -10,15 +10,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CustomAdapter2Test {
 
-  static final JsonMapper simpleMapper = JsonMapper.builder().build();
+  static final JsonMapper mapper = JsonMapper.builder().build();
 
   @Test
   void mapUsingCustomAdapter() {
 
-    PropertyNames names = simpleMapper.properties("foo", "bar");
+    PropertyNames names = mapper.properties("foo", "bar");
     MyAdapterUsingRaw myAdapter = new MyAdapterUsingRaw(names);
 
-    JsonMapper.Type<MyOtherType> type = simpleMapper.type(myAdapter);
+    JsonMapper.Type<MyOtherType> type = mapper.type(myAdapter);
 
     MyOtherType source = new MyOtherType();
     source.foo = "hi";
