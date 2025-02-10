@@ -1,4 +1,4 @@
-package io.avaje.json.simple;
+package io.avaje.json.mapper;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonException;
@@ -13,7 +13,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 
-final class DTypeMapper<T> implements SimpleMapper.Type<T> {
+final class DTypeMapper<T> implements JsonMapper.Type<T> {
 
   private final JsonAdapter<T> adapter;
   private final JsonStream jsonStream;
@@ -24,13 +24,13 @@ final class DTypeMapper<T> implements SimpleMapper.Type<T> {
   }
 
   @Override
-  public SimpleMapper.Type<List<T>> list() {
+  public JsonMapper.Type<List<T>> list() {
     final JsonAdapter<List<T>> list = CoreTypes.createList(adapter);
     return new DTypeMapper<>(list, jsonStream);
   }
 
   @Override
-  public SimpleMapper.Type<Map<String, T>> map() {
+  public JsonMapper.Type<Map<String, T>> map() {
     final JsonAdapter<Map<String, T>> map = CoreTypes.createMap(adapter);
     return new DTypeMapper<>(map, jsonStream);
   }

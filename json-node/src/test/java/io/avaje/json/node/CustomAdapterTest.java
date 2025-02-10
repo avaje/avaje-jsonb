@@ -4,7 +4,7 @@ import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
-import io.avaje.json.simple.SimpleMapper;
+import io.avaje.json.mapper.JsonMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,11 +17,11 @@ class CustomAdapterTest {
 
   static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
   static final MyAdapter myAdapter = new MyAdapter(mapper);
-  static final SimpleMapper.Type<MyCustomType> typeMapper = mapper.type(myAdapter);
+  static final JsonMapper.Type<MyCustomType> typeMapper = mapper.type(myAdapter);
 
   @Test
   void propertyNames() {
-    SimpleMapper.Type<MyCustomType> type = mapper.type(MyAdapter2::new);
+    JsonMapper.Type<MyCustomType> type = mapper.type(MyAdapter2::new);
 
     var source = as("a", 1);
     String asJson = type.toJson(source);
@@ -46,7 +46,7 @@ class CustomAdapterTest {
 
   @Test
   void list() {
-    SimpleMapper.Type<List<MyCustomType>> listType = typeMapper.list();
+    JsonMapper.Type<List<MyCustomType>> listType = typeMapper.list();
 
     var v0 = as("a", 1);
     var v1 = as("b", 2);
@@ -60,7 +60,7 @@ class CustomAdapterTest {
 
   @Test
   void map() {
-    SimpleMapper.Type<Map<String, MyCustomType>> mapType = typeMapper.map();
+    JsonMapper.Type<Map<String, MyCustomType>> mapType = typeMapper.map();
 
     var v0 = as("a", 1);
     var v1 = as("b", 2);
@@ -99,7 +99,7 @@ class CustomAdapterTest {
 
   static class MyAdapter implements JsonAdapter<MyCustomType> {
 
-    final SimpleMapper.Type<JsonObject> objectMapper;
+    final JsonMapper.Type<JsonObject> objectMapper;
 
     public MyAdapter(JsonNodeMapper mapper) {
       this.objectMapper = mapper.objectMapper();
@@ -126,7 +126,7 @@ class CustomAdapterTest {
 
   static class MyAdapter2 implements JsonAdapter<MyCustomType> {
 
-    final SimpleMapper.Type<JsonObject> objectMapper;
+    final JsonMapper.Type<JsonObject> objectMapper;
     final PropertyNames names;
 
     public MyAdapter2(JsonNodeMapper mapper) {

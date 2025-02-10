@@ -1,7 +1,7 @@
 package io.avaje.json.node;
 
 import io.avaje.json.JsonWriter;
-import io.avaje.json.simple.SimpleMapper;
+import io.avaje.json.mapper.JsonMapper;
 import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class NodeMapperTest {
 
   static final JsonNodeMapper mapper = JsonNodeMapper.builder().build();
-  static final SimpleMapper.Type<JsonNode> nodeMapper = mapper.nodeMapper();
+  static final JsonMapper.Type<JsonNode> nodeMapper = mapper.nodeMapper();
 
   @Test
   void toJson() {
@@ -76,7 +76,7 @@ class NodeMapperTest {
 
   @Test
   void objectMapper() {
-    SimpleMapper.Type<JsonObject> objectMapper = mapper.objectMapper();
+    JsonMapper.Type<JsonObject> objectMapper = mapper.objectMapper();
 
     JsonObject jsonObject = objectMapper.fromJson("{\"greet\":\"hi\"}");
     assertThat(jsonObject.toString()).isEqualTo("{greet=hi}");
@@ -84,7 +84,7 @@ class NodeMapperTest {
 
   @Test
   void arrayMapper() {
-    SimpleMapper.Type<JsonArray> arrayMapper = mapper.arrayMapper();
+    JsonMapper.Type<JsonArray> arrayMapper = mapper.arrayMapper();
 
     JsonArray jsonArray = arrayMapper.fromJson("[\"a\",\"b\",\"c\"]");
     assertThat(jsonArray.toString()).isEqualTo("[a, b, c]");
