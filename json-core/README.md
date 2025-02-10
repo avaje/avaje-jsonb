@@ -7,7 +7,7 @@ Provides the core API including JsonAdapter, JsonReader, JsonWriter, JsonStream 
 ```xml
 <dependency>
   <groupId>io.avaje</groupId>
-  <artifactId>avaje-json</artifactId>
+  <artifactId>avaje-json-core</artifactId>
   <version>3.0</version>
 </dependency>
 ```
