@@ -88,7 +88,7 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonWriter writer(OutputStream outputStream) {
-    return writer(JsonOutput.of(outputStream));
+    return writer(JsonOutput.ofStream(outputStream));
   }
 
   @Override
