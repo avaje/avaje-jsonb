@@ -91,6 +91,11 @@ final class DJsonb implements Jsonb {
   }
 
   @Override
+  public void toJson(Object any, JsonOutput jsonOutput) {
+    anyType.toJson(any, jsonOutput);
+  }
+
+  @Override
   public PropertyNames properties(String... names) {
     return io.properties(names);
   }
