@@ -304,15 +304,20 @@ final class TypeReader {
   }
 
   private boolean hasNoSetter(FieldReader field) {
-    return !matchFieldToSetter2(field, false)
-      && !matchFieldToSetter2(field, true)
-      && !matchFieldToSetterByParam(field)
-      && !field.isPublicField()
-      && !field.isSubTypeField();
+
+    var propName = field.propertyName();
+    var fieldName = field.fieldName();
+    return !matchSetter(propName, field, false)
+        && !matchSetter(propName, field, true)
+        && !matchFieldToSetterByParam(propName, field)
+        && !matchSetter(fieldName, field, false)
+        && !matchSetter(fieldName, field, true)
+        && !matchFieldToSetterByParam(fieldName, field)
+        && !field.isPublicField()
+        && !field.isSubTypeField();
   }
 
-  private boolean matchFieldToSetterByParam(FieldReader field) {
-    String fieldName = field.fieldName();
+  private boolean matchFieldToSetterByParam(String fieldName, FieldReader field) {
     for (MethodReader methodReader : maybeSetterMethods.values()) {
       List<MethodReader.MethodParam> params = methodReader.getParams();
       MethodReader.MethodParam methodParam = params.get(0);
@@ -324,8 +329,7 @@ final class TypeReader {
     return false;
   }
 
-  private boolean matchFieldToSetter2(FieldReader field, boolean loose) {
-    String name = field.fieldName();
+  private boolean matchSetter(String name, FieldReader field, boolean loose) {
     MethodReader setter = setterLookup(name, loose);
     if (setter != null) {
       field.setterMethod(setter);
@@ -349,9 +353,8 @@ final class TypeReader {
   private MethodReader setterLookup(String name, boolean loose) {
     if (loose) {
       return allSetterMethods.get(name.toLowerCase());
-    } else {
-      return maybeSetterMethods.get(name);
     }
+    return maybeSetterMethods.get(name);
   }
 
   private void matchFieldsToGetter() {
@@ -363,21 +366,29 @@ final class TypeReader {
   }
 
   private void matchFieldToGetter(FieldReader field) {
-    if (!matchFieldToGetter2(field, false)
-      && !matchFieldToGetter2(field, true)
-      && !field.isPublicField()
-      && !field.isSubTypeField()) {
+    var propName = field.propertyName();
+    var fieldName = field.fieldName();
+    if (!matchGetter(propName, field, false)
+        && !matchGetter(propName, field, true)
+        && !matchGetter(fieldName, field, false)
+        && !matchGetter(fieldName, field, true)
+        && !field.isPublicField()
+        && !field.isSubTypeField()) {
       nonAccessibleField = true;
       if (hasJsonAnnotation) {
-        logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
+        logError(
+            "Non accessible field "
+                + baseType
+                + " "
+                + field.fieldName()
+                + " with no matching getter?");
       } else {
         logNote("Non accessible field " + baseType + " " + field.fieldName());
       }
     }
   }
 
-  private boolean matchFieldToGetter2(FieldReader field, boolean loose) {
-    String name = field.fieldName();
+  private boolean matchGetter(String name, FieldReader field, boolean loose) {
     MethodReader getter = getterLookup(name, loose);
     if (getter != null) {
       field.getterMethod(getter);
@@ -406,9 +417,8 @@ final class TypeReader {
   private MethodReader getterLookup(String name, boolean loose) {
     if (!loose) {
       return maybeGetterMethods.get(name);
-    } else {
-      return allGetterMethods.get(name.toLowerCase());
     }
+  return allGetterMethods.get(name.toLowerCase());
   }
 
   private String setterName(String name) {
@@ -522,7 +532,19 @@ final class TypeReader {
     setFieldPositions();
     constructor = determineConstructor();
     if (constructor != null) {
-      List<MethodReader.MethodParam> params = constructor.getParams();
+
+      var constructorParams = constructor.getParams();
+      for (var param : constructorParams) {
+        var name = param.name();
+        var matchingField =
+            allFields.stream()
+                .filter(f -> !f.isConstructorParam())
+                .filter(f -> f.propertyName().equals(name) || f.fieldName().equals(name))
+                .findFirst();
+        matchingField.ifPresent(FieldReader::setConstructorParam);
+      }
+
+      List<MethodReader.MethodParam> params = constructorParams;
       for (MethodReader.MethodParam param : params) {
         constructorParamMap.put(param.name(), param);
       }
