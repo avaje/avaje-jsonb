@@ -307,12 +307,12 @@ final class TypeReader {
 
     var propName = field.propertyName();
     var fieldName = field.fieldName();
-    return !matchSetter(propName, field, false)
-        && !matchSetter(propName, field, true)
-        && !matchFieldToSetterByParam(propName, field)
-        && !matchSetter(fieldName, field, false)
+    return !matchSetter(fieldName, field, false)
         && !matchSetter(fieldName, field, true)
         && !matchFieldToSetterByParam(fieldName, field)
+        && !matchSetter(propName, field, false)
+        && !matchSetter(propName, field, true)
+        && !matchFieldToSetterByParam(propName, field)
         && !field.isPublicField()
         && !field.isSubTypeField();
   }
@@ -368,10 +368,10 @@ final class TypeReader {
   private void matchFieldToGetter(FieldReader field) {
     var propName = field.propertyName();
     var fieldName = field.fieldName();
-    if (!matchGetter(propName, field, false)
-        && !matchGetter(propName, field, true)
-        && !matchGetter(fieldName, field, false)
+    if (!matchGetter(fieldName, field, false)
         && !matchGetter(fieldName, field, true)
+        && !matchGetter(propName, field, false)
+        && !matchGetter(propName, field, true)
         && !field.isPublicField()
         && !field.isSubTypeField()) {
       nonAccessibleField = true;
