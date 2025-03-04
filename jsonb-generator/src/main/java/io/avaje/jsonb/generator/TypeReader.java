@@ -299,8 +299,7 @@ final class TypeReader {
 
   private void matchFieldToSetter(FieldReader field) {
     if (hasNoSetter(field)) {
-      GenericType type = field.type();
-      if (isCollectionType(type)) {
+      if (isCollectionType(field.type())) {
         field.setUseGetterAddAll();
       } else {
         logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
@@ -309,7 +308,7 @@ final class TypeReader {
   }
 
   private boolean isCollectionType(GenericType genericType) {
-    String topType = genericType.topType();
+    final String topType = genericType.topType();
     return "java.util.List".equals(topType)
       || "java.util.Set".equals(topType)
       || "java.util.Collection".equals(topType);
