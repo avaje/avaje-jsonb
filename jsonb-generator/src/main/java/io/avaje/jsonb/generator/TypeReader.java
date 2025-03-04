@@ -299,12 +299,22 @@ final class TypeReader {
 
   private void matchFieldToSetter(FieldReader field) {
     if (hasNoSetter(field)) {
-      logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+      if (isCollectionType(field.type())) {
+        field.setUseGetterAddAll();
+      } else {
+        logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+      }
     }
   }
 
-  private boolean hasNoSetter(FieldReader field) {
+  private boolean isCollectionType(GenericType genericType) {
+    final String topType = genericType.topType();
+    return "java.util.List".equals(topType)
+      || "java.util.Set".equals(topType)
+      || "java.util.Collection".equals(topType);
+  }
 
+  private boolean hasNoSetter(FieldReader field) {
     var propName = field.propertyName();
     var fieldName = field.fieldName();
     return !matchSetter(fieldName, field, false)
