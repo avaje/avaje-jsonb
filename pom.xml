@@ -36,6 +36,7 @@
     <module>jsonb-jackson</module>
     <module>jsonb-inject-plugin</module>
     <module>jsonb-spring-adapter</module>
+    <module>jsonb-bom</module>
   </modules>
 
   <profiles>
