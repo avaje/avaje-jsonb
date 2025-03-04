@@ -23,6 +23,7 @@ final class FieldReader {
   private boolean isSubTypeField;
   private final String num;
   private boolean isCreatorParam;
+  private boolean useGetterAddAll;
 
   FieldReader(
       Element element,
@@ -243,7 +244,7 @@ final class FieldReader {
     if (!deserialize) {
       writer.append("          reader.skipValue();");
     } else {
-      property.writeFromJsonSwitch(writer, varName, defaultConstructor);
+      property.writeFromJsonSwitch(writer, varName, defaultConstructor, useGetterAddAll);
     }
     writer.eol().append("          break;").eol().eol();
   }
@@ -300,5 +301,9 @@ final class FieldReader {
 
   Element element() {
     return element;
+  }
+
+  void setUseGetterAddAll() {
+    useGetterAddAll = true;
   }
 }

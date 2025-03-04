@@ -337,12 +337,14 @@ final class FieldProperty {
     }
   }
 
-  public void writeFromJsonSwitch(Append writer, String varName, boolean defaultConstructor) {
+  public void writeFromJsonSwitch(Append writer, String varName, boolean defaultConstructor, boolean useGetterAddAll) {
     if (defaultConstructor) {
       if (setter != null) {
         writer.append("          _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
       } else if (publicField) {
         writer.append("          _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
+      } else if (useGetterAddAll) {
+        writer.append("          _$%s.%s().addAll(%s.fromJson(reader));", varName, getter.getName(), adapterFieldName);
       }
     } else {
       writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
