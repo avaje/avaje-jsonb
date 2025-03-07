@@ -1,4 +1,4 @@
-@Json.Import(MyOtherClass.class)
+@Json.Import({MyOtherClass.class}) //, java.util.Calendar.class})
 package org.example.customer;
 
 import io.avaje.jsonb.Json;
