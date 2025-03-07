@@ -43,11 +43,11 @@ final class ClassReader implements BeanReader {
   /** An Interface/abstract type with a single implementation */
   private ClassReader implementation;
 
-  ClassReader(TypeElement beanType) {
-    this(beanType, null);
+  ClassReader(TypeElement beanType, String errorContext) {
+    this(beanType, null, errorContext);
   }
 
-  ClassReader(TypeElement beanType, TypeElement mixInElement) {
+  ClassReader(TypeElement beanType, TypeElement mixInElement, String errorContext) {
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
@@ -55,7 +55,7 @@ final class ClassReader implements BeanReader {
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
     this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
-    this.typeReader = new TypeReader(beanType, mixInElement, namingConvention, typePropertyKey());
+    this.typeReader = new TypeReader(errorContext, beanType, mixInElement, namingConvention, typePropertyKey());
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
     this.hasSubTypes = typeReader.hasSubTypes();
@@ -94,7 +94,7 @@ final class ClassReader implements BeanReader {
    * For an interface type set the single implementation to use for fromJson().
    */
   void setImplementationType(TypeElement implementationType) {
-    this.implementation = new ClassReader(implementationType);
+    this.implementation = new ClassReader(implementationType, "");
   }
 
   @Override

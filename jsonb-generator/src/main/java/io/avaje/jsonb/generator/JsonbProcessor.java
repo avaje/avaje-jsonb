@@ -315,11 +315,11 @@ public final class JsonbProcessor extends AbstractProcessor {
     if (valueElements.contains(typeElement.toString())) {
       return;
     }
-    writeAdapter(typeElement, new ClassReader(typeElement));
+    writeAdapter(typeElement, new ClassReader(typeElement, ""));
   }
 
   private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType) {
-    final ClassReader beanReader = new ClassReader(importedType);
+    final ClassReader beanReader = new ClassReader(importedType, "@Json.Import of ");
     if (implementationType != null) {
       beanReader.setImplementationType(implementationType);
     }
@@ -327,7 +327,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {
-    final ClassReader beanReader = new ClassReader(typeElement, mixin);
+    final ClassReader beanReader = new ClassReader(typeElement, mixin, "@Json.Mixin of ");
     writeAdapter(typeElement, beanReader);
   }
 
