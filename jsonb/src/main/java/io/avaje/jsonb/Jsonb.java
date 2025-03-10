@@ -392,7 +392,7 @@ public interface Jsonb {
      */
     Builder calendarAsString(boolean calendarAsString);
 
-      /**
+    /**
      * Determines how byte buffers are recycled
      */
     Builder bufferRecycling(BufferRecycleStrategy strategy);
