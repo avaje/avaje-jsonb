@@ -387,6 +387,12 @@ public interface Jsonb {
     Builder mathTypesAsString(boolean mathTypesAsString);
 
     /**
+     * Set to true for Calendar to serialise as String with timezone and false to serialise
+     * as UTC epoch millis. Defaults to false.
+     */
+    Builder calendarAsString(boolean calendarAsString);
+
+      /**
      * Determines how byte buffers are recycled
      */
     Builder bufferRecycling(BufferRecycleStrategy strategy);
