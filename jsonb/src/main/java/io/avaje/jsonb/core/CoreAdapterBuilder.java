@@ -36,13 +36,14 @@ final class CoreAdapterBuilder {
   private final Map<Object, JsonAdapter<?>> adapterCache = new ConcurrentHashMap<>();
   private final ReentrantLock lock = new ReentrantLock();
 
-  CoreAdapterBuilder(DJsonb context, List<AdapterFactory> userFactories, boolean mathAsString) {
+  CoreAdapterBuilder(DJsonb context, List<AdapterFactory> userFactories, boolean mathAsString, boolean calendarAsString) {
     this.context = context;
     this.factories = new ArrayList<>();
     this.factories.addAll(userFactories);
     this.factories.add(CoreAdapters.FACTORY);
     this.factories.add(BasicTypeAdapters.FACTORY);
     this.factories.add(JavaTimeAdapters.FACTORY);
+    this.factories.add(new JavaTimeAdapters.CalendarFactory(calendarAsString));
     this.factories.add(new MathAdapters(mathAsString));
     this.factories.add(CoreAdapters.COLLECTION_FACTORY);
     this.factories.add(CoreAdapters.MAP_FACTORY);
