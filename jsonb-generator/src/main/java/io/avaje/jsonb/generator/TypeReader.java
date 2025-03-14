@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -263,18 +264,48 @@ final class TypeReader {
       }
     }
     // for getter/accessor methods only, not setters
-    PropertyPrism.getOptionalOn(methodElement).ifPresent(propertyPrism -> {
-      if (!methodElement.getParameters().isEmpty()) {
-        logError(errorContext + baseType + ", @Json.Property can only be placed on Getter Methods, but on %s", methodElement);
-        return;
-      }
+    PropertyPrism.getOptionalOn(methodElement)
+        .filter(p -> !hasRecordPropertyAnnotation(methodElement))
+        .ifPresent(
+            propertyPrism -> {
+              if (!methodElement.getParameters().isEmpty()) {
+                logError(
+                    errorContext
+                        + baseType
+                        + ", @Json.Property can only be placed on Getter Methods, but on %s",
+                    methodElement);
+                return;
+              }
 
-      // getter property as simulated read-only field with getter method
-      final var frequency = frequency(propertyPrism.value());
-      final var reader = new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency);
-      reader.getterMethod(new MethodReader(methodElement));
-      localFields.add(reader);
-    });
+              // getter property as simulated read-only field with getter method
+              final var frequency = frequency(propertyPrism.value());
+              final var reader =
+                  new FieldReader(
+                      element, namingConvention, currentSubType, genericTypeParams, frequency);
+              reader.getterMethod(new MethodReader(methodElement));
+              localFields.add(reader);
+            });
+  }
+
+  private boolean hasRecordPropertyAnnotation(ExecutableElement methodElement) {
+
+    try {
+      return APContext.jdkVersion() < 16
+          || Optional.ofNullable(
+                  Elements.class
+                      .getMethod("recordComponentFor", ExecutableElement.class)
+                      .invoke(APContext.elements(), methodElement))
+              .map(Element.class::cast)
+              .flatMap(
+                  e ->
+                      ElementFilter.fieldsIn(e.getEnclosingElement().getEnclosedElements()).stream()
+                          .filter(f -> f.getSimpleName().contentEquals(e.getSimpleName()))
+                          .findAny())
+              .filter(PropertyPrism::isPresent)
+              .isPresent();
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   private boolean checkMethod2(ExecutableElement methodElement) {
