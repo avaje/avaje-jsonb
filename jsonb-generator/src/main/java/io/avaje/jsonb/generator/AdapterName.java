@@ -9,7 +9,7 @@ final class AdapterName {
   final String fullName;
 
   AdapterName(TypeElement origin) {
-    String originPackage = APContext.elements().getPackageOf(origin).toString();
+    String originPackage = APContext.elements().getPackageOf(origin).getQualifiedName().toString();
     var name = shortName(origin);
     shortName = name.substring(0, name.length() - 1);
     if ("".equals(originPackage)) {
