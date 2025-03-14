@@ -36,6 +36,7 @@ final class TypeReader {
   private final List<String> genericTypeParams;
   private final NamingConvention namingConvention;
   private final boolean hasJsonAnnotation;
+  private final String errorContext;
   private MethodReader constructor;
   private boolean defaultPublicConstructor;
   private final Map<String, MethodReader.MethodParam> constructorParamMap = new LinkedHashMap<>();
@@ -56,7 +57,8 @@ final class TypeReader {
 
   private final boolean hasJsonCreator;
 
-  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
+  TypeReader(String errorContext, TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
+    this.errorContext = errorContext;
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
     Optional<ExecutableElement> jsonCreator = Optional.empty();
@@ -263,7 +265,7 @@ final class TypeReader {
     // for getter/accessor methods only, not setters
     PropertyPrism.getOptionalOn(methodElement).ifPresent(propertyPrism -> {
       if (!methodElement.getParameters().isEmpty()) {
-        logError("Json.Property can only be placed on Getter Methods, but on %s", methodElement);
+        logError(errorContext + baseType + ", @Json.Property can only be placed on Getter Methods, but on %s", methodElement);
         return;
       }
 
@@ -302,7 +304,7 @@ final class TypeReader {
       if (isCollectionType(field.type())) {
         field.setUseGetterAddAll();
       } else {
-        logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+        logError(errorContext + baseType + ", non public field " + field.fieldName() + " with no matching setter or constructor?");
       }
     }
   }
@@ -386,14 +388,9 @@ final class TypeReader {
         && !field.isSubTypeField()) {
       nonAccessibleField = true;
       if (hasJsonAnnotation) {
-        logError(
-            "Non accessible field "
-                + baseType
-                + " "
-                + field.fieldName()
-                + " with no matching getter?");
+        logError(errorContext + baseType + ", non accessible field " + field.fieldName() + " with no matching getter?");
       } else {
-        logNote("Non accessible field " + baseType + " " + field.fieldName());
+        logNote(errorContext + baseType + ", non accessible field " + field.fieldName());
       }
     }
   }

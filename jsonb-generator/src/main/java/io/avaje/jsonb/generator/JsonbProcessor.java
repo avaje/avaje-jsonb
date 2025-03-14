@@ -90,6 +90,9 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
+    if (round.errorRaised()) {
+      return false;
+    }
     APContext.setProjectModuleElement(annotations, round);
     readModule();
     getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
@@ -315,11 +318,11 @@ public final class JsonbProcessor extends AbstractProcessor {
     if (valueElements.contains(typeElement.toString())) {
       return;
     }
-    writeAdapter(typeElement, new ClassReader(typeElement));
+    writeAdapter(typeElement, new ClassReader(typeElement, ""));
   }
 
   private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType) {
-    final ClassReader beanReader = new ClassReader(importedType);
+    final ClassReader beanReader = new ClassReader(importedType, "@Json.Import of ");
     if (implementationType != null) {
       beanReader.setImplementationType(implementationType);
     }
@@ -327,7 +330,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {
-    final ClassReader beanReader = new ClassReader(typeElement, mixin);
+    final ClassReader beanReader = new ClassReader(typeElement, mixin, "@Json.Mixin of ");
     writeAdapter(typeElement, beanReader);
   }
 
