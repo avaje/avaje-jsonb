@@ -3,10 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.avaje</groupId>
+    <artifactId>avaje-jsonb-parent</artifactId>
+    <version>3.1</version>
+  </parent>
 
-  <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-bom</artifactId>
-  <version>3.1-RC1</version>
 
   <packaging>pom</packaging>
   <name>avaje jsonb bom</name>
@@ -21,38 +24,38 @@
       <dependency>
         <groupId>io.avaje</groupId>
         <artifactId>avaje-json-core</artifactId>
-        <version>3.1-RC1</version>
+        <version>3.1</version>
       </dependency>
       <dependency>
         <groupId>io.avaje</groupId>
         <artifactId>avaje-json-node</artifactId>
-        <version>3.1-RC1</version>
+        <version>3.1</version>
       </dependency>
       <dependency>
         <groupId>io.avaje</groupId>
         <artifactId>avaje-jsonb</artifactId>
-        <version>3.1-RC1</version>
+        <version>3.1</version>
       </dependency>
       <dependency>
         <groupId>io.avaje</groupId>
         <artifactId>avaje-jsonb-generator</artifactId>
-        <version>3.1-RC1</version>
+        <version>3.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>io.avaje</groupId>
         <artifactId>avaje-jsonb-inject-plugin</artifactId>
-        <version>3.1-RC1</version>
+        <version>3.1</version>
       </dependency>
       <dependency>
         <groupId>io.avaje</groupId>
         <artifactId>avaje-jsonb-jackson</artifactId>
-        <version>3.1-RC1</version>
+        <version>3.1</version>
       </dependency>
       <dependency>
         <groupId>io.avaje</groupId>
         <artifactId>avaje-jsonb-spring-starter</artifactId>
-        <version>3.1-RC1</version>
+        <version>3.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
