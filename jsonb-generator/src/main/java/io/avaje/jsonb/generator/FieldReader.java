@@ -130,6 +130,10 @@ final class FieldReader {
     return deserialize;
   }
 
+  boolean includeFromJsonBuild() {
+    return deserialize && !isCreatorParam && !property.isConstructorParam();
+  }
+
   boolean includeToJson() {
     return serialize;
   }
