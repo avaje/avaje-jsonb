@@ -286,7 +286,7 @@ final class TypeReader {
               localFields.add(reader);
             });
   }
-
+  
   private boolean hasRecordPropertyAnnotation(ExecutableElement methodElement) {
 
     try {
@@ -297,7 +297,8 @@ final class TypeReader {
                       .invoke(APContext.elements(), methodElement))
               .map(Element.class::cast)
               .flatMap(
-                  e ->
+                  e -> // e is a RecordComponentElement that doesn't have the annotation 
+                       //so we look up the field by name to see if the annotation is present
                       ElementFilter.fieldsIn(e.getEnclosingElement().getEnclosedElements()).stream()
                           .filter(f -> f.getSimpleName().contentEquals(e.getSimpleName()))
                           .findAny())
