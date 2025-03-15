@@ -290,8 +290,8 @@ final class TypeReader {
   private boolean hasRecordPropertyAnnotation(ExecutableElement methodElement) {
 
     try {
-      return APContext.jdkVersion() < 16
-          || Optional.ofNullable(
+      return APContext.jdkVersion() >= 16
+          && Optional.ofNullable(
                   Elements.class
                       .getMethod("recordComponentFor", ExecutableElement.class)
                       .invoke(APContext.elements(), methodElement))
