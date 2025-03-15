@@ -480,7 +480,9 @@ final class ClassReader implements BeanReader {
       writer.append("   // unmappedField... ", varName).eol();
       unmappedField.writeFromJsonUnmapped(writer, varName);
     }
-    writer.append("    return _$%s;", varName).eol();
+    if (directLoad) {
+      writer.append("    return _$%s;", varName).eol();
+    }
     writer.append("  }").eol();
   }
 
@@ -489,11 +491,28 @@ final class ClassReader implements BeanReader {
   }
 
   private void writeJsonBuildResult(Append writer, String varName) {
-    writer.append("    // build and return %s", shortName).eol();
-    if (constructor == null) {
-      writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+    var buildFields = allFields.stream()
+      .filter(FieldReader::includeFromJsonBuild)
+      .collect(toList());
+
+    boolean directReturn = buildFields.isEmpty();
+    if (!directReturn) {
+      writer.append("    // build and return %s", shortName).eol();
     } else {
-      writer.append("    %s _$%s = " + constructor.creationString(), shortName, varName);
+      writer.append("    // direct return").eol();
+      writer.append("    return ");
+    }
+    if (constructor == null) {
+      if (directReturn) {
+        writer.append("new %s(", shortName);
+      } else {
+        writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+      }
+    } else {
+      if (!directReturn) {
+        writer.append("    %s _$%s = ", shortName, varName);
+      }
+      writer.append(constructor.creationString());
       final List<MethodReader.MethodParam> params = constructor.getParams();
       for (int i = 0, size = params.size(); i < size; i++) {
         if (i > 0) {
@@ -516,11 +535,12 @@ final class ClassReader implements BeanReader {
       }
     }
     writer.append(");").eol();
-    for (final FieldReader allField : allFields) {
-      if (allField.includeFromJson()) {
-        frequencyMap.compute(allField.fieldName(), (k, v) -> v == null ? 0 : v + 1);
-        allField.writeFromJsonSetter(writer, varName, "");
-      }
+    for (final FieldReader allField : buildFields) {
+      frequencyMap.compute(allField.fieldName(), (k, v) -> v == null ? 0 : v + 1);
+      allField.writeFromJsonSetter(writer, varName, "");
+    }
+    if (!directReturn) {
+      writer.append("    return _$%s;", varName).eol();
     }
   }
 
