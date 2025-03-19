@@ -49,4 +49,13 @@ class MyJaxbTypeTest {
     assertThat(fromJson2.getTags2()).isEmpty();
     assertThat(fromJson2.getTags3()).isEmpty();
   }
+
+  @Test
+  void nullList() {
+    final var fromJson = jsonb.type(MyJaxbType.class).fromJson("{\"tags\":null,\"tags2\":[],\"name\":\"red\"}");
+    assertThat(fromJson.name()).isEqualTo("red");
+    assertThat(fromJson.getTags()).isEmpty();
+    assertThat(fromJson.getTags2()).isEmpty();
+    assertThat(fromJson.getTags3()).isEmpty();
+  }
 }

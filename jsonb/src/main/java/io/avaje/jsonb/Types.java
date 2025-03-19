@@ -18,19 +18,20 @@ package io.avaje.jsonb;
 import io.avaje.jsonb.core.Util;
 
 import java.lang.reflect.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
  * Factory methods for types.
  */
-public class Types {
+public final class Types {
 
   private Types() {
     // hide
+  }
+
+  public static <T> Collection<T> nullToEmpty(Collection<T> source) {
+    return source == null ? Collections.emptyList() : source;
   }
 
   /**
@@ -70,7 +71,7 @@ public class Types {
   public static ParameterizedType mapOf(Type valueElementType) {
     return newParameterizedType(Map.class, String.class, valueElementType);
   }
-  
+
   /**
    * Returns a Type that is an Optional of the given element type.
    */
