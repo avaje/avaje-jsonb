@@ -344,7 +344,7 @@ final class FieldProperty {
       } else if (publicField) {
         writer.append("          _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
       } else if (useGetterAddAll) {
-        writer.append("          _$%s.%s().addAll(%s.fromJson(reader));", varName, getter.getName(), adapterFieldName);
+        writer.append("          _$%s.%s().addAll(Types.nullToEmpty(%s.fromJson(reader)));", varName, getter.getName(), adapterFieldName);
       }
     } else {
       writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
