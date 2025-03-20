@@ -15,17 +15,28 @@
  */
 package io.avaje.jsonb.core;
 
+import java.lang.reflect.Type;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
-import io.avaje.jsonb.*;
-
-import java.lang.reflect.Type;
-import java.net.*;
-import java.util.*;
-
-import static java.util.Objects.requireNonNull;
+import io.avaje.jsonb.AdapterFactory;
+import io.avaje.jsonb.Jsonb;
 
 final class BasicTypeAdapters {
 
@@ -205,23 +216,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class BooleanAdapter implements JsonAdapter<Boolean> {
-    @Override
-    public Boolean fromJson(JsonReader reader) {
-      return reader.readBoolean();
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, Boolean value) {
-      writer.value(value);
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(Boolean)";
-    }
-  }
-
   static final class ByteAdapter implements JsonAdapter<Byte> {
     @Override
     public Byte fromJson(JsonReader reader) {
@@ -239,7 +233,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class CharacterAdapter implements JsonAdapter<Character> {
+  private static final class CharacterAdapter implements JsonAdapter<Character> {
     @Override
     public Character fromJson(JsonReader reader) {
       final String value = reader.readString();
@@ -261,80 +255,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class DoubleAdapter implements JsonAdapter<Double> {
-    @Override
-    public Double fromJson(JsonReader reader) {
-      return reader.readDouble();
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, Double value) {
-      writer.value(value);
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(Double)";
-    }
-  }
-
-  static final class FloatAdapter implements JsonAdapter<Float> {
-    @Override
-    public Float fromJson(JsonReader reader) {
-      float value = (float) reader.readDouble();
-      if (Float.isInfinite(value)) { // !reader.isLenient() &&
-        throw new JsonDataException("JSON forbids NaN and infinities: " + value + " at path " + reader.location());
-      } else {
-        return value;
-      }
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, Float value) {
-      requireNonNull(value);
-      writer.value(value);
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(Float)";
-    }
-  }
-
-  static final class IntegerAdapter implements JsonAdapter<Integer> {
-    @Override
-    public Integer fromJson(JsonReader reader) {
-      return reader.readInt();
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, Integer value) {
-      writer.value(value);
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(Integer)";
-    }
-  }
-
-  static final class LongAdapter implements JsonAdapter<Long> {
-    @Override
-    public Long fromJson(JsonReader reader) {
-      return reader.readLong();
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, Long value) {
-      writer.value(value);
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(Long)";
-    }
-  }
-
   static final class ShortAdapter implements JsonAdapter<Short> {
     @Override
     public Short fromJson(JsonReader reader) {
@@ -352,23 +272,6 @@ final class BasicTypeAdapters {
     }
   }
 
-  static final class StringAdapter implements JsonAdapter<String> {
-    @Override
-    public String fromJson(JsonReader reader) {
-      return reader.readString();
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, String value) {
-      writer.value(value);
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(String)";
-    }
-  }
-
   static int rangeCheckNextInt(JsonReader reader, String typeMessage, int min, int max) {
     int value = reader.readInt();
     if (value >= min && value <= max) {
@@ -379,7 +282,7 @@ final class BasicTypeAdapters {
   }
 
   @SuppressWarnings("rawtypes")
-  static final class ObjectJsonAdapter implements JsonAdapter<Object> {
+  private static final class ObjectJsonAdapter implements JsonAdapter<Object> {
     private final Jsonb jsonb;
     private final JsonAdapter<List> listAdapter;
     private final JsonAdapter<Map> mapAdapter;
@@ -449,7 +352,7 @@ final class BasicTypeAdapters {
     }
   }
 
-  static class EnumJsonAdapter<T extends Enum<T>> implements JsonAdapter<T> {
+  private static class EnumJsonAdapter<T extends Enum<T>> implements JsonAdapter<T> {
 
     protected final Class<T> enumType;
 
@@ -470,10 +373,6 @@ final class BasicTypeAdapters {
       } else {
         writer.value((String) null);
       }
-    }
-
-    protected final void throwException(Object value, String location) {
-      throw new JsonDataException("Unable to determine enum value " + enumType + " value for " + value + " at " + location);
     }
 
     @Override
