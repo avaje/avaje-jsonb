@@ -1,19 +1,18 @@
 package org.example.other.custom.serializer;
 
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.jsonb.CustomAdapter;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import io.avaje.json.JsonAdapter;
-import io.avaje.jsonb.CustomAdapter;
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.jsonb.Jsonb;
-
 @CustomAdapter(global = false)
-public class MoneySerializer implements JsonAdapter<BigDecimal> {
+public class MoneySerializer2 implements JsonAdapter<BigDecimal> {
 
-  /** Constructor takes Jsonb, registered via AdapterBuilder */
-  public MoneySerializer(Jsonb jsonb) {}
+  /**  Default constructor -> registered via {@code Supplier<JsonAdapter>} */
+  public MoneySerializer2() { }
 
   @Override
   public BigDecimal fromJson(JsonReader reader) {
