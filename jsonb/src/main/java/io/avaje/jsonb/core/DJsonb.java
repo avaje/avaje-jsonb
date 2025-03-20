@@ -346,7 +346,7 @@ final class DJsonb implements Jsonb {
     static <T> AdapterFactory newAdapterFactory(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
-      return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter.get() : null;
+      return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter.get().nullSafe() : null;
     }
 
     static AdapterFactory newAdapterFactory(Type type, AdapterBuilder builder) {
