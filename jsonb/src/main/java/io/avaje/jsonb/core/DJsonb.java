@@ -38,6 +38,7 @@ final class DJsonb implements Jsonb {
       boolean serializeNulls,
       boolean serializeEmpty,
       boolean failOnUnknown,
+      boolean failOnNullPrimitives,
       boolean mathAsString,
       boolean calendarAsString,
       BufferRecycleStrategy strategy) {
@@ -54,6 +55,7 @@ final class DJsonb implements Jsonb {
           .serializeNulls(serializeNulls)
           .serializeEmpty(serializeEmpty)
           .failOnUnknown(failOnUnknown)
+          .failOnNullPrimitives(failOnNullPrimitives)
           .bufferRecycling(strategy)
           .build();
       }
@@ -245,6 +247,7 @@ final class DJsonb implements Jsonb {
 
     private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;
+    private boolean failOnNullPrimitives;
     private boolean mathTypesAsString;
     private boolean calendarAsString;
     private boolean serializeNulls;
@@ -267,6 +270,12 @@ final class DJsonb implements Jsonb {
     @Override
     public Builder failOnUnknown(boolean failOnUnknown) {
       this.failOnUnknown = failOnUnknown;
+      return this;
+    }
+
+    @Override
+    public Builder failOnNullPrimitives(boolean failOnNullPrimitives) {
+      this.failOnNullPrimitives = failOnNullPrimitives;
       return this;
     }
 
@@ -334,7 +343,7 @@ final class DJsonb implements Jsonb {
     @Override
     public DJsonb build() {
       registerComponents();
-      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString, calendarAsString, strategy);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, mathTypesAsString, calendarAsString, strategy);
     }
 
     static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {

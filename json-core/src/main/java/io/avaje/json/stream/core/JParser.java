@@ -372,11 +372,13 @@ class JParser implements JsonParser {
 
   @Override
   public int readInt() {
+    if (isNullValue()) return 0;
     return NumberParser.deserializeInt(this);
   }
 
   @Override
   public long readLong() {
+    if (isNullValue()) return 0L;
     return NumberParser.deserializeLong(this);
   }
 
@@ -387,6 +389,7 @@ class JParser implements JsonParser {
 
   @Override
   public double readDouble() {
+    if (isNullValue()) return 0D;
     return NumberParser.deserializeDouble(this);
   }
 
@@ -404,7 +407,7 @@ class JParser implements JsonParser {
   public boolean readBoolean() {
     if (wasTrue()) {
       return true;
-    } else if (wasFalse()) {
+    } else if (wasFalse() || isNullValue()) {
       return false;
     }
     throw newParseErrorAt("Found invalid boolean value", 0);

@@ -26,7 +26,7 @@ class JsonReadAdapterTest {
     jr.process(bytes, bytes.length);
 
     JsonReadAdapter reader =
-      new JsonReadAdapter(jr, ThreadLocalPool.shared(), true);
+      new JsonReadAdapter(jr, ThreadLocalPool.shared(), true, true);
     readExampleWithAsserts(reader);
     reader.close();
   }
