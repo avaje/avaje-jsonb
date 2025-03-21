@@ -7,7 +7,7 @@ import java.io.IOException;
  */
 public class JsonEofException extends JsonIoException {
 
-  static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
   public JsonEofException(IOException cause) {
     super(cause);
