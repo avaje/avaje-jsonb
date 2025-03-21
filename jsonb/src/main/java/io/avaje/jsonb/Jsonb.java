@@ -382,6 +382,12 @@ public interface Jsonb {
     Builder failOnUnknown(boolean failOnUnknown);
 
     /**
+     * Set to true to fail on NULL for primitive types. Defaults to false, where
+     * a NULL is allowed and returned as the default value of the primitive (false, 0).
+     */
+    Builder failOnNullPrimitives(boolean failOnNullPrimitives);
+
+    /**
      * Set to true for BigDecimal and BigInteger to serialise as String values rather than number values.
      */
     Builder mathTypesAsString(boolean mathTypesAsString);

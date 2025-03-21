@@ -17,12 +17,14 @@ public class JsonbAutoConfiguration {
   @ConditionalOnMissingBean
   Jsonb jsonb(
       @Value("${jsonb.deserialize.failOnUnknown:false}") boolean failUnknown,
+      @Value("${jsonb.deserialize.failOnNullPrimitives:false}") boolean failOnNullPrimitives,
       @Value("${jsonb.serialize.mathTypesAsString:false}") boolean mathTypesAsString,
       @Value("${jsonb.serialize.empty:true}") boolean serializeEmpty,
       @Value("${jsonb.serialize.nulls:false}") boolean serializeNulls) {
 
     return Jsonb.builder()
         .failOnUnknown(failUnknown)
+        .failOnNullPrimitives(failOnNullPrimitives)
         .mathTypesAsString(mathTypesAsString)
         .serializeEmpty(serializeEmpty)
         .serializeNulls(serializeNulls)
