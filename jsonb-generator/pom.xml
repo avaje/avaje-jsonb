@@ -11,7 +11,7 @@
   <name>avaje jsonb generator</name>
   <description>annotation processor generating source code json adapters for avaje-jsonb</description>
   <properties>
-    <avaje.prisms.version>1.40</avaje.prisms.version>
+    <avaje.prisms.version>1.42</avaje.prisms.version>
   </properties>
 
   <dependencies>
