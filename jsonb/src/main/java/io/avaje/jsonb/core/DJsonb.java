@@ -365,17 +365,16 @@ final class DJsonb implements Jsonb {
     }
 
     private boolean hasCustomizations() {
-
       return DEFAULT == null
-          || adapter != null
-          || !factories.isEmpty()
-          || failOnUnknown
-          || failOnNullPrimitives
-          || mathTypesAsString
-          || calendarAsString
-          || serializeNulls
-          || !serializeEmpty
-          || HYBRID_POOL != strategy;
+        || adapter != null
+        || !factories.isEmpty()
+        || failOnUnknown
+        || failOnNullPrimitives
+        || mathTypesAsString
+        || calendarAsString
+        || serializeNulls
+        || !serializeEmpty
+        || HYBRID_POOL != strategy;
     }
 
   static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
