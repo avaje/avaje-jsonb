@@ -1,25 +1,38 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.json.JsonAdapter;
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.json.PropertyNames;
-import io.avaje.json.stream.*;
-import io.avaje.jsonb.*;
-import io.avaje.jsonb.AdapterFactory;
-import io.avaje.jsonb.spi.*;
+import static io.avaje.json.stream.BufferRecycleStrategy.HYBRID_POOL;
+import static io.avaje.jsonb.core.Util.canonicalize;
+import static io.avaje.jsonb.core.Util.canonicalizeClass;
+import static io.avaje.jsonb.core.Util.removeSubtypeWildcard;
+import static java.util.Objects.requireNonNull;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static io.avaje.jsonb.core.Util.*;
-import static java.util.Objects.requireNonNull;
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.BufferRecycleStrategy;
+import io.avaje.json.stream.BufferedJsonWriter;
+import io.avaje.json.stream.BytesJsonWriter;
+import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.JsonStream;
+import io.avaje.jsonb.AdapterFactory;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.JsonView;
+import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.spi.GeneratedComponent;
+import io.avaje.jsonb.spi.JsonbComponent;
 
 /**
  * Default implementation of Jsonb.
@@ -245,6 +258,8 @@ final class DJsonb implements Jsonb {
    */
   static final class DBuilder implements Jsonb.Builder {
 
+    private static final Jsonb DEFAULT = Jsonb.builder().build();
+
     private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;
     private boolean failOnNullPrimitives;
@@ -253,7 +268,7 @@ final class DJsonb implements Jsonb {
     private boolean serializeNulls;
     private boolean serializeEmpty = true;
     private JsonStream adapter;
-    private BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
+    private BufferRecycleStrategy strategy = HYBRID_POOL;
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -341,12 +356,28 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public DJsonb build() {
+    public Jsonb build() {
+      if (!hasCustomizations()) {
+        return DEFAULT;
+      }
       registerComponents();
       return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, mathTypesAsString, calendarAsString, strategy);
     }
 
-    static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
+    private boolean hasCustomizations() {
+      return DEFAULT == null
+        || adapter != null
+        || !factories.isEmpty()
+        || failOnUnknown
+        || failOnNullPrimitives
+        || mathTypesAsString
+        || calendarAsString
+        || serializeNulls
+        || !serializeEmpty
+        || HYBRID_POOL != strategy;
+    }
+
+  static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
