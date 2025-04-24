@@ -5,9 +5,10 @@ import java.math.BigDecimal;
 import io.avaje.jsonb.Json;
 
 @Json
+@Json.Ignore
 public class SerializerTest {
 
-  @Json.Serializer(MoneySerializer.class)
+  @Json.Property(value = "")
   BigDecimal amount;
 
   @Json.Serializer(MoneySerializer.class)

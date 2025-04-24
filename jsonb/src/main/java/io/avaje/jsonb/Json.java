@@ -151,18 +151,14 @@ public @interface Json {
    * We can explicitly use {@code serialize=true} to include the property in
    * serialization but not deserialization.
    */
-  @Target(FIELD)
+  @Target({FIELD, TYPE})
   @Retention(SOURCE)
   @interface Ignore {
 
-    /**
-     * Set this explicitly to true to include in serialization.
-     */
+    /** Include in serialization. */
     boolean serialize() default false;
 
-    /**
-     * Set this explicitly to true to include in deserialization.
-     */
+    /** Include in deserialization. */
     boolean deserialize() default false;
   }
 
@@ -241,7 +237,7 @@ public @interface Json {
   @interface SubType {
 
     /**
-     * The concrete type that extends or implements the base type.
+     * Concrete type that extends or implements the base type.
      */
     Class<?> type();
 

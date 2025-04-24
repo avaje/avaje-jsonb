@@ -1,12 +1,13 @@
 package io.avaje.jsonb.generator;
 
+import java.lang.invoke.MethodHandles;
+import java.util.function.Predicate;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
-import java.lang.invoke.MethodHandles;
-import java.util.function.Predicate;
 
 final class PropertyIgnoreReader {
 
@@ -29,9 +30,14 @@ final class PropertyIgnoreReader {
     ignoreSerialize = propertyMethodOverride;
 
     final IgnorePrism ignored = IgnorePrism.getInstanceOn(element);
+
+    final IgnorePrism ignoreFromType = IgnorePrism.getInstanceOn(element);
     if (ignored != null) {
       ignoreDeserialize = !ignored.deserialize();
       ignoreSerialize = propertyMethodOverride || !ignored.serialize();
+    } else if (ignoreFromType != null) {
+      ignoreDeserialize = !ignoreFromType.deserialize();
+      ignoreSerialize = propertyMethodOverride || !ignoreFromType.serialize();
     }
   }
 
