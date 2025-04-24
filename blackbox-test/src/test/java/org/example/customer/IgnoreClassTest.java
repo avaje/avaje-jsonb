@@ -19,7 +19,7 @@ class IgnoreClassTest {
     assertThat(asJson).isEqualTo("{\"firstName\":\"fn\",\"last\":\"ln\"}");
 
     IgnoreField fromJson = jsonb.type(IgnoreField.class).fromJson(asJson);
-    assertThat(fromJson.getFirstName()).isEqualTo("fn");
+    assertThat(fromJson.getFirstName()).isNull();
     assertThat(fromJson.getLastName()).isNull();
     assertThat(fromJson.getMiddleName()).isNull();
   }

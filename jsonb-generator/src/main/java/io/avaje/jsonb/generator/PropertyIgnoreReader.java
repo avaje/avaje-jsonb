@@ -31,7 +31,7 @@ final class PropertyIgnoreReader {
 
     final IgnorePrism ignored = IgnorePrism.getInstanceOn(element);
 
-    final IgnorePrism ignoreFromType = IgnorePrism.getInstanceOn(element);
+    final IgnorePrism ignoreFromType = IgnorePrism.getInstanceOn(element.getEnclosingElement());
     if (ignored != null) {
       ignoreDeserialize = !ignored.deserialize();
       ignoreSerialize = propertyMethodOverride || !ignored.serialize();
