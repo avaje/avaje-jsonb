@@ -1,4 +1,4 @@
-package io.avaje.jsonb.generator.models.valid.ignore;
+package org.example.customer;
 
 import io.avaje.jsonb.Json;
 import io.avaje.jsonb.Json.Ignore;
