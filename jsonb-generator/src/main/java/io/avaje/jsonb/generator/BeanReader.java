@@ -23,6 +23,8 @@ interface BeanReader {
 
   boolean supportsViewBuilder();
 
+  boolean isPkgPrivate();
+
   String shortName();
 
   /** Return the short name of the element. */

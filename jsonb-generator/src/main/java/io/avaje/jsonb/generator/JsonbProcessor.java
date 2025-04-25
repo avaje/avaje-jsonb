@@ -1,30 +1,50 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.APContext.*;
+import static io.avaje.jsonb.generator.APContext.asTypeElement;
+import static io.avaje.jsonb.generator.APContext.logError;
+import static io.avaje.jsonb.generator.APContext.logNote;
+import static io.avaje.jsonb.generator.APContext.typeElement;
+import static io.avaje.jsonb.generator.Constants.JSON;
+import static io.avaje.jsonb.generator.Constants.JSON_IMPORT;
+import static io.avaje.jsonb.generator.Constants.JSON_IMPORT_LIST;
+import static io.avaje.jsonb.generator.Constants.JSON_MIXIN;
 import static io.avaje.jsonb.generator.ProcessingContext.addImportedPrism;
-import static io.avaje.jsonb.generator.Constants.*;
+import static io.avaje.jsonb.generator.ProcessingContext.createMetaInfWriterFor;
+import static java.util.stream.Collectors.joining;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+import javax.tools.FileObject;
 
 import io.avaje.prism.GenerateAPContext;
 import io.avaje.prism.GenerateModuleInfoReader;
 import io.avaje.prism.GenerateUtils;
-
-import static java.util.stream.Collectors.joining;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 @GenerateUtils
 @GenerateAPContext
@@ -39,7 +59,8 @@ import java.util.stream.Stream;
   "io.avaje.spi.ServiceProvider"
 })
 public final class JsonbProcessor extends AbstractProcessor {
-
+  private final Set<String> writtenTypes = new HashSet<>();
+  private final Map<String, ComponentMetaData> privateMetaData = new HashMap<>();
   private final ComponentMetaData metaData = new ComponentMetaData();
   private final List<BeanReader> allReaders = new ArrayList<>();
   private final Set<String> sourceTypes = new HashSet<>();
@@ -85,7 +106,7 @@ public final class JsonbProcessor extends AbstractProcessor {
       return;
     }
     readModuleInfo = true;
-    new ComponentReader(metaData).read();
+    new ComponentReader(metaData, privateMetaData).read();
   }
 
   @Override
@@ -103,7 +124,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
     getElements(round, "io.avaje.spi.ServiceProvider").ifPresent(this::registerSPI);
 
-    initialiseComponent();
+    metaData.fullName(false);
     cascadeTypes();
     writeComponent(round.processingOver());
     return false;
@@ -219,11 +240,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private boolean cascadeElement(TypeElement element) {
-    return element.getKind() != ElementKind.ENUM && !metaData.contains(adapterName(element));
-  }
-
-  private String adapterName(TypeElement element) {
-    return new AdapterName(element).fullName();
+    return element.getKind() != ElementKind.ENUM && !writtenTypes.contains(element.toString());
   }
 
   private boolean ignoreType(String type) {
@@ -279,21 +296,26 @@ public final class JsonbProcessor extends AbstractProcessor {
     return null;
   }
 
-  private void initialiseComponent() {
-    metaData.initialiseFullName();
-    try {
-      componentWriter.initialise();
-    } catch (final IOException e) {
-      logError("Error creating writer for JsonbComponent", e);
-    }
-  }
-
   private void writeComponent(boolean processingOver) {
     if (processingOver) {
       try {
-        componentWriter.write();
-        componentWriter.writeMetaInf();
+        if (!metaData.all().isEmpty()) {
+          componentWriter.initialise(false);
+          componentWriter.write();
+        }
+
+        for (var meta : privateMetaData.values()) {
+          if (meta.all().isEmpty()) {
+            continue;
+          }
+          var writer = new SimpleComponentWriter(meta);
+          writer.initialise(true);
+          writer.write();
+        }
+        writeMetaInf();
+        ProcessingContext.validateModule();
       } catch (final IOException e) {
+        e.printStackTrace();
         logError("Error writing component", e);
       } finally {
         ProcessingContext.clear();
@@ -335,6 +357,9 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void writeAdapter(TypeElement typeElement, BeanReader beanReader) {
+    if (!writtenTypes.add(typeElement.toString())) {
+      return;
+    }
     beanReader.read();
     if (beanReader.nonAccessibleField()) {
       if (beanReader.hasJsonAnnotation()) {
@@ -344,16 +369,28 @@ public final class JsonbProcessor extends AbstractProcessor {
       return;
     }
     try {
+
       final SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader);
-      metaData.add(beanWriter.fullName());
-      if (beanWriter.hasGenericFactory()) {
-        metaData.addFactory(beanWriter.fullName());
+      if (beanReader.isPkgPrivate()) {
+        var packageName =
+            APContext.elements().getPackageOf(typeElement).getQualifiedName().toString();
+        var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
+        writeMeta(beanWriter, meta);
+      } else {
+        writeMeta(beanWriter, metaData);
       }
       beanWriter.write();
       allReaders.add(beanReader);
       sourceTypes.add(typeElement.getSimpleName().toString());
     } catch (final IOException e) {
       logError("Error writing JsonAdapter for %s %s", beanReader, e);
+    }
+  }
+
+  private void writeMeta(final SimpleAdapterWriter beanWriter, ComponentMetaData meta) {
+    meta.add(beanWriter.fullName());
+    if (beanWriter.hasGenericFactory()) {
+      meta.addFactory(beanWriter.fullName());
     }
   }
 
@@ -367,5 +404,16 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private boolean isExtension(TypeElement te) {
     return APContext.isAssignable(te, "io.avaje.jsonb.spi.JsonbExtension");
+  }
+
+  void writeMetaInf() throws IOException {
+
+    var services = ProcessingContext.readExistingMetaInfServices();
+    final FileObject fileObject = createMetaInfWriterFor(Constants.META_INF_COMPONENT);
+    if (fileObject != null) {
+      final Writer writer = fileObject.openWriter();
+      writer.write(String.join("\n", services));
+      writer.close();
+    }
   }
 }

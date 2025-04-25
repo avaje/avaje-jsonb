@@ -1,18 +1,34 @@
 package io.avaje.jsonb.generator;
 
-import javax.lang.model.element.*;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
-import javax.lang.model.util.Elements;
-
+import static io.avaje.jsonb.generator.APContext.asTypeElement;
+import static io.avaje.jsonb.generator.APContext.logError;
+import static io.avaje.jsonb.generator.APContext.logNote;
+import static io.avaje.jsonb.generator.APContext.typeElement;
+import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 import static java.util.stream.Collectors.toSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static io.avaje.jsonb.generator.APContext.*;
-import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 
 /**
  * Read points for field injection and method injection on baseType plus inherited injection points.
@@ -57,6 +73,7 @@ final class TypeReader {
   private boolean extendsThrowable;
 
   private final boolean hasJsonCreator;
+  private final boolean pkgPrivate;
 
   TypeReader(String errorContext, TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
     this.errorContext = errorContext;
@@ -86,6 +103,10 @@ final class TypeReader {
       .orElse(null);
 
     this.hasJsonCreator = jsonCreator.isPresent();
+
+    this.pkgPrivate =
+        !baseType.getModifiers().contains(Modifier.PUBLIC)
+            || jsonCreator.filter(e -> !e.getModifiers().contains(Modifier.PUBLIC)).isPresent();
   }
 
   private MethodReader readJsonCreator(ExecutableElement ex) {
@@ -667,5 +688,9 @@ final class TypeReader {
 
   boolean extendsThrowable() {
     return extendsThrowable;
+  }
+
+  public boolean isPkgPrivate() {
+    return pkgPrivate;
   }
 }
