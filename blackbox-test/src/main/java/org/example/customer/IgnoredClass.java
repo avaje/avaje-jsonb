@@ -13,6 +13,7 @@ public class IgnoredClass {
   @Json.Ignore private String middleName;
 
   @Property("last")
+  @Json.Ignore(deserialize = true, serialize = true)
   private String lastName;
 
   public IgnoredClass() {}

@@ -20,7 +20,7 @@ class IgnoreClassTest {
 
     var fromJson = jsonb.type(IgnoredClass.class).fromJson(asJson);
     assertThat(fromJson.getFirstName()).isNull();
-    assertThat(fromJson.getLastName()).isNull();
+    assertThat(fromJson.getLastName()).isNotEmpty();
     assertThat(fromJson.getMiddleName()).isNull();
   }
 }
