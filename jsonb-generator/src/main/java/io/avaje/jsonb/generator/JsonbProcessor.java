@@ -315,7 +315,6 @@ public final class JsonbProcessor extends AbstractProcessor {
         writeMetaInf();
         ProcessingContext.validateModule();
       } catch (final IOException e) {
-        e.printStackTrace();
         logError("Error writing component", e);
       } finally {
         ProcessingContext.clear();
