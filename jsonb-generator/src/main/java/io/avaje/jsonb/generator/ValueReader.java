@@ -48,12 +48,12 @@ final class ValueReader implements BeanReader {
         .findFirst())
       .orElse(null);
 
-    pkgPrivate =
-        !beanType.getModifiers().contains(Modifier.PUBLIC)
-            || !e.getModifiers().contains(Modifier.PUBLIC)
-            || !isEnum
-                && constructor != null
-                && !constructor.getModifiers().contains(Modifier.PUBLIC);
+    this.pkgPrivate =
+      !beanType.getModifiers().contains(Modifier.PUBLIC)
+        || !e.getModifiers().contains(Modifier.PUBLIC)
+        || !isEnum
+        && constructor != null
+        && !constructor.getModifiers().contains(Modifier.PUBLIC);
   }
 
   @Override

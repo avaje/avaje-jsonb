@@ -15,8 +15,7 @@ import javax.lang.model.element.TypeElement;
 final class ClassReader implements BeanReader {
 
   private static final boolean useInstanceofPattern = jdkVersion() >= 17;
-  private static final boolean nullSwitch =
-      jdkVersion() >= 21 || jdkVersion() >= 17 && previewEnabled();
+  private static final boolean nullSwitch = jdkVersion() >= 21 || jdkVersion() >= 17 && previewEnabled();
 
   private final TypeElement beanType;
   private final String shortName;

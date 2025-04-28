@@ -25,7 +25,7 @@ final class SimpleAdapterWriter {
     this.adapterPackage = adapterName.adapterPackage();
     this.adapterFullName = adapterName.fullName();
     this.genericParamsCount = beanReader.genericTypeParamsCount();
-    this.pkgPrivate = beanReader.isPkgPrivate()? "":"public ";
+    this.pkgPrivate = beanReader.isPkgPrivate() ? "" : "public ";
   }
 
   String fullName() {

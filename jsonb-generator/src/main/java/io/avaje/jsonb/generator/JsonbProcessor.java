@@ -369,11 +369,9 @@ public final class JsonbProcessor extends AbstractProcessor {
       return;
     }
     try {
-
       final SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader);
       if (beanReader.isPkgPrivate()) {
-        var packageName =
-            APContext.elements().getPackageOf(typeElement).getQualifiedName().toString();
+        var packageName = APContext.elements().getPackageOf(typeElement).getQualifiedName().toString();
         var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
         writeMeta(beanWriter, meta);
       } else {
@@ -406,8 +404,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     return APContext.isAssignable(te, "io.avaje.jsonb.spi.JsonbExtension");
   }
 
-  void writeMetaInf() throws IOException {
-
+  private void writeMetaInf() throws IOException {
     var services = ProcessingContext.readExistingMetaInfServices();
     final FileObject fileObject = createMetaInfWriterFor(Constants.META_INF_COMPONENT);
     if (fileObject != null) {

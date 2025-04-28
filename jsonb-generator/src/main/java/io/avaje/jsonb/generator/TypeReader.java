@@ -103,10 +103,9 @@ final class TypeReader {
       .orElse(null);
 
     this.hasJsonCreator = jsonCreator.isPresent();
-
     this.pkgPrivate =
-        !baseType.getModifiers().contains(Modifier.PUBLIC)
-            || jsonCreator.filter(e -> !e.getModifiers().contains(Modifier.PUBLIC)).isPresent();
+      !baseType.getModifiers().contains(Modifier.PUBLIC)
+        || jsonCreator.filter(e -> !e.getModifiers().contains(Modifier.PUBLIC)).isPresent();
   }
 
   private MethodReader readJsonCreator(ExecutableElement ex) {
@@ -690,7 +689,7 @@ final class TypeReader {
     return extendsThrowable;
   }
 
-  public boolean isPkgPrivate() {
+  boolean isPkgPrivate() {
     return pkgPrivate;
   }
 }
