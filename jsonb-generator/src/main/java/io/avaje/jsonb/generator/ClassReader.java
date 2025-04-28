@@ -14,6 +14,9 @@ import javax.lang.model.element.TypeElement;
 
 final class ClassReader implements BeanReader {
 
+  private static final boolean useInstanceofPattern = jdkVersion() >= 17;
+  private static final boolean nullSwitch = jdkVersion() >= 21 || jdkVersion() >= 17 && previewEnabled();
+
   private final TypeElement beanType;
   private final String shortName;
   private final String type;
@@ -34,12 +37,12 @@ final class ClassReader implements BeanReader {
   private final boolean isRecord;
   private final boolean usesTypeProperty;
   private final boolean useEnum;
-  private static final boolean useInstanceofPattern = jdkVersion() >= 17;
-  private static final boolean nullSwitch = jdkVersion() >= 21 || (jdkVersion() >= 17 && previewEnabled());
   private final Map<String, Integer> frequencyMap = new HashMap<>();
   private final Map<String, Boolean> isCommonFieldMap = new HashMap<>();
   private final boolean optional;
   private final List<TypeSubTypeMeta> subTypes;
+  private final boolean pkgPrivate;
+
   /** An Interface/abstract type with a single implementation */
   private ClassReader implementation;
 
@@ -66,6 +69,7 @@ final class ClassReader implements BeanReader {
     this.subTypes = typeReader.subTypes();
     this.readOnlyInterface = typeReader.extendsThrowable() || allFields.isEmpty() && subTypes.isEmpty();
     this.methodProperties = typeReader.methodProperties();
+    this.pkgPrivate = typeReader.isPkgPrivate();
 
     subTypes.stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
 
@@ -442,7 +446,7 @@ final class ClassReader implements BeanReader {
   }
 
   private void writeFromJsonImplementation(Append writer, String varName) {
-    final boolean directLoad = (constructor == null && !hasSubTypes && !optional);
+    final boolean directLoad = constructor == null && !hasSubTypes && !optional;
     if (directLoad) {
       // default public constructor
       writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
@@ -587,7 +591,7 @@ final class ClassReader implements BeanReader {
   }
 
   String constructorParamName(String name) {
-    if ((unmappedField != null) && unmappedField.fieldName().equals(name)) {
+    if (unmappedField != null && unmappedField.fieldName().equals(name)) {
       return "unmapped";
     }
     return "_val$" + name;
@@ -707,5 +711,10 @@ final class ClassReader implements BeanReader {
 
   private String typePropertyKey() {
     return caseInsensitiveKeys ? typeProperty.toLowerCase() : typeProperty;
+  }
+
+  @Override
+  public boolean isPkgPrivate() {
+    return pkgPrivate;
   }
 }

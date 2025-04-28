@@ -5,6 +5,7 @@ import java.util.TreeSet;
 
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -21,6 +22,7 @@ final class ValueReader implements BeanReader {
   private final String adapterShortType;
   private final boolean isEnum;
   private final ExecutableElement constructor;
+  private final boolean pkgPrivate;
 
   ValueReader(TypeElement beanType, ExecutableElement e) {
     this.method = e;
@@ -45,6 +47,13 @@ final class ValueReader implements BeanReader {
           .equals(Util.trimAnnotations(s.getParameters().get(0).asType().toString())))
         .findFirst())
       .orElse(null);
+
+    this.pkgPrivate =
+      !beanType.getModifiers().contains(Modifier.PUBLIC)
+        || !e.getModifiers().contains(Modifier.PUBLIC)
+        || !isEnum
+        && constructor != null
+        && !constructor.getModifiers().contains(Modifier.PUBLIC);
   }
 
   @Override
@@ -165,5 +174,10 @@ final class ValueReader implements BeanReader {
   @Override
   public boolean supportsViewBuilder() {
     return false;
+  }
+
+  @Override
+  public boolean isPkgPrivate() {
+    return pkgPrivate;
   }
 }
