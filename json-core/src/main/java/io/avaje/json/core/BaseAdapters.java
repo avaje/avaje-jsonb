@@ -15,29 +15,41 @@
  */
 package io.avaje.json.core;
 
+import static java.util.Objects.requireNonNull;
+
+import java.lang.reflect.Type;
+
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 
-import java.lang.reflect.Type;
-
-import static java.util.Objects.requireNonNull;
-
 final class BaseAdapters {
 
+  private static final JsonAdapter<String> STRING_ADAPTER = new StringAdapter().nullSafe();
+  private static final LongAdapter LONG_ADAPTER = new LongAdapter();
+  private static final JsonAdapter<Long> NULL_SAFE_LONG = LONG_ADAPTER.nullSafe();
+  private static final IntegerAdapter INTEGER_ADAPTER = new IntegerAdapter();
+  private static final JsonAdapter<Integer> NULL_SAFE_INT = INTEGER_ADAPTER.nullSafe();
+  private static final FloatAdapter FLOAT_ADAPTER = new FloatAdapter();
+  private static final JsonAdapter<Float> NULL_SAFE_FLOAT = FLOAT_ADAPTER.nullSafe();
+  private static final DoubleAdapter DOUBLE_ADAPTER = new DoubleAdapter();
+  private static final JsonAdapter<Double> NULL_SAFE_DOUBLE = DOUBLE_ADAPTER.nullSafe();
+  private static final BooleanAdapter BOOLEAN_ADAPTER = new BooleanAdapter();
+  private static final JsonAdapter<Boolean> NULL_SAFE_BOOLEAN = BOOLEAN_ADAPTER.nullSafe();
+
   static JsonAdapter<?> create(Type type) {
-    if (type == Boolean.TYPE) return new BooleanAdapter();
-    if (type == Double.TYPE) return new DoubleAdapter();
-    if (type == Float.TYPE) return new FloatAdapter();
-    if (type == Integer.TYPE) return new IntegerAdapter();
-    if (type == Long.TYPE) return new LongAdapter();
-    if (type == Boolean.class) return new BooleanAdapter().nullSafe();
-    if (type == Double.class) return new DoubleAdapter().nullSafe();
-    if (type == Float.class) return new FloatAdapter().nullSafe();
-    if (type == Integer.class) return new IntegerAdapter().nullSafe();
-    if (type == Long.class) return new LongAdapter().nullSafe();
-    if (type == String.class) return new StringAdapter().nullSafe();
+    if (type == Boolean.TYPE) return BOOLEAN_ADAPTER;
+    if (type == Double.TYPE) return DOUBLE_ADAPTER;
+    if (type == Float.TYPE) return FLOAT_ADAPTER;
+    if (type == Integer.TYPE) return INTEGER_ADAPTER;
+    if (type == Long.TYPE) return LONG_ADAPTER;
+    if (type == Boolean.class) return NULL_SAFE_BOOLEAN;
+    if (type == Double.class) return NULL_SAFE_DOUBLE;
+    if (type == Float.class) return NULL_SAFE_FLOAT;
+    if (type == Integer.class) return NULL_SAFE_INT;
+    if (type == Long.class) return NULL_SAFE_LONG;
+    if (type == String.class) return STRING_ADAPTER;
 
     return null;
   }
