@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 
 import io.avaje.json.JsonAdapter;
@@ -37,6 +38,7 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.Types;
 
 final class BasicTypeAdapters {
 
@@ -49,14 +51,15 @@ final class BasicTypeAdapters {
         if (type == Byte.class) return new ByteAdapter().nullSafe();
         if (type == Character.class) return new CharacterAdapter().nullSafe();
         if (type == Short.class) return new ShortAdapter().nullSafe();
+        if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
         if (type == UUID.class) return new UuidAdapter().nullSafe();
         if (type == URL.class) return new UrlAdapter().nullSafe();
         if (type == URI.class) return new UriAdapter().nullSafe();
-        if (type == InetAddress.class) return new InetAddressAdapter().nullSafe();
-        if (type == Inet4Address.class) return new InetAddressAdapter().nullSafe();
-        if (type == Inet6Address.class) return new InetAddressAdapter().nullSafe();
+        if (type == Properties.class) return new PropertiesAdapter(jsonb).nullSafe();
+        if (type == InetAddress.class || type == Inet4Address.class || type == Inet6Address.class) {
+          return new InetAddressAdapter().nullSafe();
+        }
         if (type == StackTraceElement.class) return new StackTraceElementAdapter().nullSafe();
-        if (type == Object.class) return new ObjectJsonAdapter(jsonb).nullSafe();
         if (type == Throwable.class) return new ThrowableAdapter(jsonb).nullSafe();
 
         final Class<?> rawType = Util.rawType(type);
@@ -118,6 +121,35 @@ final class BasicTypeAdapters {
     @Override
     public String toString() {
       return "JsonAdapter(URI)";
+    }
+  }
+
+  private static final class PropertiesAdapter implements JsonAdapter<Properties> {
+    private JsonAdapter<Map<Object, Object>> mapAdapter;
+
+    private PropertiesAdapter(Jsonb jsonb) {
+      this.mapAdapter = jsonb.adapter(Types.mapOf(Object.class));
+    }
+
+    @Override
+    public Properties fromJson(JsonReader reader) {
+      var map = mapAdapter.fromJson(reader);
+      if (map == null) {
+        return null;
+      }
+      var properties = new Properties();
+      properties.putAll(map);
+      return properties;
+    }
+
+    @Override
+    public void toJson(JsonWriter writer, Properties value) {
+      mapAdapter.toJson(writer, value);
+    }
+
+    @Override
+    public String toString() {
+      return "JsonAdapter(Properties)";
     }
   }
 
