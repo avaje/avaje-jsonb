@@ -26,21 +26,17 @@ final class ComponentReader {
 
       if (isGeneratedComponent(moduleType)) {
         var adapters =
-            MetaDataPrism.getInstanceOn(moduleType).value().stream()
-                .map(APContext::asTypeElement)
-                .collect(toList());
+          MetaDataPrism.getInstanceOn(moduleType).value().stream()
+            .map(APContext::asTypeElement)
+            .collect(toList());
 
         if (adapters.get(0).getModifiers().contains(Modifier.PUBLIC)) {
           componentMetaData.setFullName(fqn);
-
           readMetaData(moduleType, componentMetaData);
         } else {
-          // non-public adapters grouped by packageName, does not support generic types
-          // (JsonFactory)
-          var packageName =
-              APContext.elements().getPackageOf(moduleType).getQualifiedName().toString();
+          // non-public adapters grouped by packageName
+          var packageName = APContext.elements().getPackageOf(moduleType).getQualifiedName().toString();
           var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
-
           readMetaData(moduleType, meta);
         }
       }
@@ -48,8 +44,7 @@ final class ComponentReader {
   }
 
   private static boolean isGeneratedComponent(TypeElement moduleType) {
-    return moduleType != null
-        && "io.avaje.jsonb.spi.GeneratedComponent".equals(moduleType.getSuperclass().toString());
+    return moduleType != null && "io.avaje.jsonb.spi.GeneratedComponent".equals(moduleType.getSuperclass().toString());
   }
 
   /** Read the existing JsonAdapters from the MetaData annotation of the generated component. */
@@ -60,10 +55,14 @@ final class ComponentReader {
       final JsonFactoryPrism metaDataFactory = JsonFactoryPrism.getInstance(annotationMirror);
 
       if (metaData != null) {
-        metaData.value().stream().map(TypeMirror::toString).forEach(meta::add);
+        metaData.value().stream()
+          .map(TypeMirror::toString)
+          .forEach(meta::add);
 
       } else if (metaDataFactory != null) {
-        metaDataFactory.value().stream().map(TypeMirror::toString).forEach(meta::addFactory);
+        metaDataFactory.value().stream()
+          .map(TypeMirror::toString)
+          .forEach(meta::addFactory);
       }
     }
   }
