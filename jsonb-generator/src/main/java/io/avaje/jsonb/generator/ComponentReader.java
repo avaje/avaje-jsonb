@@ -38,13 +38,23 @@ final class ComponentReader {
   }
 
   private static boolean hasPublicComponents(TypeElement moduleType) {
-    var firstAdapter =
-      MetaDataPrism.getInstanceOn(moduleType).value().stream()
-        .map(APContext::asTypeElement)
-        .findFirst()
-        .orElseThrow();
+    return MetaDataPrism.getInstanceOn(moduleType).value().stream()
+      .map(APContext::asTypeElement)
+      .findFirst()
+      .map(ComponentReader::hasPublicModifier)
+      .orElse(hasPublicJsonFactory(moduleType));
+  }
 
-    return firstAdapter.getModifiers().contains(Modifier.PUBLIC);
+  private static Boolean hasPublicJsonFactory(TypeElement moduleType) {
+    return JsonFactoryPrism.getInstanceOn(moduleType).value().stream()
+      .map(APContext::asTypeElement)
+      .findFirst()
+      .map(ComponentReader::hasPublicModifier)
+      .orElse(false);
+  }
+
+  private static boolean hasPublicModifier(TypeElement a) {
+    return a.getModifiers().contains(Modifier.PUBLIC);
   }
 
   private static boolean isGeneratedComponent(TypeElement moduleType) {
