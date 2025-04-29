@@ -1,7 +1,6 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.APContext.typeElement;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Map;
 
@@ -25,26 +24,27 @@ final class ComponentReader {
       final TypeElement moduleType = typeElement(fqn);
 
       if (isGeneratedComponent(moduleType)) {
-        var adapters =
-          MetaDataPrism.getInstanceOn(moduleType).value().stream()
-            .map(APContext::asTypeElement)
-            .collect(toList());
-
-        if (adapters.get(0).getModifiers().contains(Modifier.PUBLIC)) {
+        if (hasPublicComponents(moduleType)) {
           componentMetaData.setFullName(fqn);
-          adapters.forEach(t -> readMetaData(moduleType));
-
+          readMetaData(moduleType, componentMetaData);
         } else {
-          // non-public adapters grouped by packageName, does not support generic types (JsonFactory)
+          // non-public adapters grouped by packageName
           var packageName = APContext.elements().getPackageOf(moduleType).getQualifiedName().toString();
           var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
-          adapters.stream()
-            .map(TypeElement::getQualifiedName)
-            .map(Object::toString)
-            .forEach(meta::add);
+          readMetaData(moduleType, meta);
         }
       }
     }
+  }
+
+  private static boolean hasPublicComponents(TypeElement moduleType) {
+    var firstAdapter =
+      MetaDataPrism.getInstanceOn(moduleType).value().stream()
+        .map(APContext::asTypeElement)
+        .findFirst()
+        .orElseThrow();
+
+    return firstAdapter.getModifiers().contains(Modifier.PUBLIC);
   }
 
   private static boolean isGeneratedComponent(TypeElement moduleType) {
@@ -52,7 +52,7 @@ final class ComponentReader {
   }
 
   /** Read the existing JsonAdapters from the MetaData annotation of the generated component. */
-  private void readMetaData(TypeElement moduleType) {
+  private static void readMetaData(TypeElement moduleType, ComponentMetaData meta) {
     for (final AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
 
       final MetaDataPrism metaData = MetaDataPrism.getInstance(annotationMirror);
@@ -61,12 +61,12 @@ final class ComponentReader {
       if (metaData != null) {
         metaData.value().stream()
           .map(TypeMirror::toString)
-          .forEach(componentMetaData::add);
+          .forEach(meta::add);
 
       } else if (metaDataFactory != null) {
         metaDataFactory.value().stream()
           .map(TypeMirror::toString)
-          .forEach(componentMetaData::addFactory);
+          .forEach(meta::addFactory);
       }
     }
   }
