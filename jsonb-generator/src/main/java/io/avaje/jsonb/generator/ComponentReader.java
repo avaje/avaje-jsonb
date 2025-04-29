@@ -56,14 +56,14 @@ final class ComponentReader {
     for (final AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
 
       final MetaDataPrism metaData = MetaDataPrism.getInstance(annotationMirror);
-      final JsonFactoryPrism metaDataFactory = JsonFactoryPrism.getInstance(annotationMirror);
-
       if (metaData != null) {
         metaData.value().stream()
           .map(TypeMirror::toString)
           .forEach(meta::add);
+      }
 
-      } else if (metaDataFactory != null) {
+      final JsonFactoryPrism metaDataFactory = JsonFactoryPrism.getInstance(annotationMirror);
+      if (metaDataFactory != null) {
         metaDataFactory.value().stream()
           .map(TypeMirror::toString)
           .forEach(meta::addFactory);
