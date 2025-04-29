@@ -1,7 +1,6 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.APContext.typeElement;
-import static java.util.stream.Collectors.toList;
 
 import java.util.Map;
 
@@ -25,12 +24,7 @@ final class ComponentReader {
       final TypeElement moduleType = typeElement(fqn);
 
       if (isGeneratedComponent(moduleType)) {
-        var adapters =
-          MetaDataPrism.getInstanceOn(moduleType).value().stream()
-            .map(APContext::asTypeElement)
-            .collect(toList());
-
-        if (adapters.get(0).getModifiers().contains(Modifier.PUBLIC)) {
+        if (hasPublicComponents(moduleType)) {
           componentMetaData.setFullName(fqn);
           readMetaData(moduleType, componentMetaData);
         } else {
@@ -43,12 +37,22 @@ final class ComponentReader {
     }
   }
 
+  private static boolean hasPublicComponents(TypeElement moduleType) {
+    var firstAdapter =
+      MetaDataPrism.getInstanceOn(moduleType).value().stream()
+        .map(APContext::asTypeElement)
+        .findFirst()
+        .orElseThrow();
+
+    return firstAdapter.getModifiers().contains(Modifier.PUBLIC);
+  }
+
   private static boolean isGeneratedComponent(TypeElement moduleType) {
     return moduleType != null && "io.avaje.jsonb.spi.GeneratedComponent".equals(moduleType.getSuperclass().toString());
   }
 
   /** Read the existing JsonAdapters from the MetaData annotation of the generated component. */
-  private void readMetaData(TypeElement moduleType, ComponentMetaData meta) {
+  private static void readMetaData(TypeElement moduleType, ComponentMetaData meta) {
     for (final AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
 
       final MetaDataPrism metaData = MetaDataPrism.getInstance(annotationMirror);
