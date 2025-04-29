@@ -26,47 +26,44 @@ final class ComponentReader {
 
       if (isGeneratedComponent(moduleType)) {
         var adapters =
-          MetaDataPrism.getInstanceOn(moduleType).value().stream()
-            .map(APContext::asTypeElement)
-            .collect(toList());
+            MetaDataPrism.getInstanceOn(moduleType).value().stream()
+                .map(APContext::asTypeElement)
+                .collect(toList());
 
         if (adapters.get(0).getModifiers().contains(Modifier.PUBLIC)) {
           componentMetaData.setFullName(fqn);
-          adapters.forEach(t -> readMetaData(moduleType));
 
+          readMetaData(moduleType, componentMetaData);
         } else {
-          // non-public adapters grouped by packageName, does not support generic types (JsonFactory)
-          var packageName = APContext.elements().getPackageOf(moduleType).getQualifiedName().toString();
+          // non-public adapters grouped by packageName, does not support generic types
+          // (JsonFactory)
+          var packageName =
+              APContext.elements().getPackageOf(moduleType).getQualifiedName().toString();
           var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
-          adapters.stream()
-            .map(TypeElement::getQualifiedName)
-            .map(Object::toString)
-            .forEach(meta::add);
+
+          readMetaData(moduleType, meta);
         }
       }
     }
   }
 
   private static boolean isGeneratedComponent(TypeElement moduleType) {
-    return moduleType != null && "io.avaje.jsonb.spi.GeneratedComponent".equals(moduleType.getSuperclass().toString());
+    return moduleType != null
+        && "io.avaje.jsonb.spi.GeneratedComponent".equals(moduleType.getSuperclass().toString());
   }
 
   /** Read the existing JsonAdapters from the MetaData annotation of the generated component. */
-  private void readMetaData(TypeElement moduleType) {
+  private void readMetaData(TypeElement moduleType, ComponentMetaData meta) {
     for (final AnnotationMirror annotationMirror : moduleType.getAnnotationMirrors()) {
 
       final MetaDataPrism metaData = MetaDataPrism.getInstance(annotationMirror);
       final JsonFactoryPrism metaDataFactory = JsonFactoryPrism.getInstance(annotationMirror);
 
       if (metaData != null) {
-        metaData.value().stream()
-          .map(TypeMirror::toString)
-          .forEach(componentMetaData::add);
+        metaData.value().stream().map(TypeMirror::toString).forEach(meta::add);
 
       } else if (metaDataFactory != null) {
-        metaDataFactory.value().stream()
-          .map(TypeMirror::toString)
-          .forEach(componentMetaData::addFactory);
+        metaDataFactory.value().stream().map(TypeMirror::toString).forEach(meta::addFactory);
       }
     }
   }
