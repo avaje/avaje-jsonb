@@ -146,8 +146,7 @@ public final class JsonbProcessor extends AbstractProcessor {
           .findFirst()
           .ifPresentOrElse(
             x -> {},
-            () ->
-              logError(typeElement, "Generic adapters require a public static AdapterFactory FACTORY field"));
+            () -> logError(typeElement, "Generic adapters require a public static AdapterFactory FACTORY field"));
 
         meta.addFactory(type);
       } else {
@@ -160,8 +159,7 @@ public final class JsonbProcessor extends AbstractProcessor {
           .findAny()
           .ifPresentOrElse(
             x -> {},
-            () ->
-              logNote(typeElement, "Non-Generic adapters should have a public constructor with a single Jsonb parameter"));
+            () -> logNote(typeElement, "Non-Generic adapters should have a public constructor with a single Jsonb parameter"));
 
         meta.add(type);
       }
