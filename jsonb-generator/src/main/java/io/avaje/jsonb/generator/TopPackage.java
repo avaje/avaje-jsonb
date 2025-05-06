@@ -4,7 +4,7 @@ import java.util.Collection;
 
 final class TopPackage {
 
-  private String topPackage;
+  private String topPackage = "";
 
   static String of(Collection<String> values) {
     return new TopPackage(values).value();
