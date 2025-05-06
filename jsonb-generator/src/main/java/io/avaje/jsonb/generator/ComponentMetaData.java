@@ -41,7 +41,9 @@ final class ComponentMetaData {
 
   String fullName(boolean pkgPrivate) {
     if (fullName == null) {
-      String topPackage = TopPackage.of(allTypes);
+      var everyType = new ArrayList<>(allTypes);
+      everyType.addAll(factoryTypes);
+      String topPackage = TopPackage.of(everyType);
       if (!topPackage.endsWith(".jsonb") && !pkgPrivate) {
         topPackage += ".jsonb";
       }
