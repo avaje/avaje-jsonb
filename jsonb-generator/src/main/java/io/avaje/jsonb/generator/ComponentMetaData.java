@@ -31,7 +31,7 @@ final class ComponentMetaData {
     factoryTypes.add(fullName);
   }
 
-  public void addWithType(String type) {
+  void addWithType(String type) {
     withTypes.add(type);
   }
 
@@ -85,7 +85,7 @@ final class ComponentMetaData {
     return packageImports;
   }
 
-  public boolean isEmpty() {
+  boolean isEmpty() {
     return allTypes.isEmpty() && factoryTypes.isEmpty();
   }
 

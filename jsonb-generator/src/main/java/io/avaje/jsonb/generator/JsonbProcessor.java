@@ -138,44 +138,39 @@ public final class JsonbProcessor extends AbstractProcessor {
   private void registerCustomAdapters(Set<? extends Element> elements) {
     for (final var typeElement : ElementFilter.typesIn(elements)) {
       var pkgPrivate = !typeElement.getModifiers().contains(Modifier.PUBLIC);
-
-      var meta =
-          pkgPrivate
-              ? privateMetaData.computeIfAbsent(
-                  APContext.elements().getPackageOf(typeElement).getQualifiedName().toString(),
-                  k -> new ComponentMetaData())
-              : metaData;
+      var meta = pkgPrivate ? pkgPrivateMetaData(typeElement) : metaData;
       final var type = typeElement.getQualifiedName().toString();
       if (isGenericJsonAdapter(typeElement)) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
-            .filter(isStaticFactory())
-            .findFirst()
-            .ifPresentOrElse(
-                x -> {},
-                () ->
-                    logError(
-                        typeElement,
-                        "Generic adapters require a public static AdapterFactory FACTORY field"));
+          .filter(isStaticFactory())
+          .findFirst()
+          .ifPresentOrElse(
+            x -> {},
+            () ->
+              logError(typeElement, "Generic adapters require a public static AdapterFactory FACTORY field"));
 
         meta.addFactory(type);
       } else {
         ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream()
-            .filter(m -> m.getModifiers().contains(Modifier.PUBLIC))
-            .filter(m -> m.getParameters().size() == 1)
-            .map(m -> m.getParameters().get(0).asType().toString())
-            .map(Util::trimAnnotations)
-            .filter("io.avaje.jsonb.Jsonb"::equals)
-            .findAny()
-            .ifPresentOrElse(
-                x -> {},
-                () ->
-                    logNote(
-                        typeElement,
-                        "Non-Generic adapters should have a public constructor with a single Jsonb parameter"));
+          .filter(m -> m.getModifiers().contains(Modifier.PUBLIC))
+          .filter(m -> m.getParameters().size() == 1)
+          .map(m -> m.getParameters().get(0).asType().toString())
+          .map(Util::trimAnnotations)
+          .filter("io.avaje.jsonb.Jsonb"::equals)
+          .findAny()
+          .ifPresentOrElse(
+            x -> {},
+            () ->
+              logNote(typeElement, "Non-Generic adapters should have a public constructor with a single Jsonb parameter"));
 
         meta.add(type);
       }
     }
+  }
+
+  private ComponentMetaData pkgPrivateMetaData(TypeElement typeElement) {
+    var packageName = APContext.elements().getPackageOf(typeElement).getQualifiedName().toString();
+    return privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
   }
 
   private static boolean isGenericJsonAdapter(TypeElement typeElement) {
@@ -384,9 +379,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     try {
       final SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader);
       if (beanReader.isPkgPrivate()) {
-        var packageName = APContext.elements().getPackageOf(typeElement).getQualifiedName().toString();
-        var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
-        writeMeta(beanWriter, meta);
+        writeMeta(beanWriter, pkgPrivateMetaData(typeElement));
       } else {
         writeMeta(beanWriter, metaData);
       }
