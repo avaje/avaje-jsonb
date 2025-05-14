@@ -161,6 +161,11 @@ public final class JsonbProcessor extends AbstractProcessor {
             x -> {},
             () -> logNote(typeElement, "Non-Generic adapters should have a public constructor with a single Jsonb parameter"));
 
+        typeElement.getInterfaces().stream()
+            .filter(t -> t.toString().contains("io.avaje.json.JsonAdapter"))
+            .findFirst()
+            .ifPresent(t -> sourceTypes.add(UType.parse(t).param0().fullWithoutAnnotations()));
+
         meta.add(type);
       }
     }
@@ -229,7 +234,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void cascadeTypesInner() {
-    final ArrayList<BeanReader> copy = new ArrayList<>(allReaders);
+    final var copy = new ArrayList<>(allReaders);
     allReaders.clear();
 
     final Set<String> extraTypes = new TreeSet<>();
@@ -239,22 +244,19 @@ public final class JsonbProcessor extends AbstractProcessor {
     for (final String type : extraTypes) {
       if (!ignoreType(type)) {
         final TypeElement element = typeElement(type);
-        if (element != null && cascadeElement(element)) {
+        if (element != null && element.getKind() != ElementKind.ENUM) {
           writeAdapterForType(element);
         }
       }
     }
   }
 
-  private boolean cascadeElement(TypeElement element) {
-    return element.getKind() != ElementKind.ENUM && !writtenTypes.contains(element.toString());
-  }
-
   private boolean ignoreType(String type) {
     return type.indexOf('.') == -1
-      || type.startsWith("java.")
-      || type.startsWith("javax.")
-      || sourceTypes.contains(type);
+        || type.startsWith("java.")
+        || type.startsWith("javax.")
+        || sourceTypes.contains(type)
+        || writtenTypes.contains(type);
   }
 
   /**
