@@ -1,4 +1,4 @@
-package io.avaje.jsonb.generator.models.valid.custom;
+package org.example.other.custom;
 
 import java.util.List;
 
