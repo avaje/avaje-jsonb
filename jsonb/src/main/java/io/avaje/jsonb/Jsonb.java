@@ -1,20 +1,22 @@
 package io.avaje.jsonb;
 
-import io.avaje.json.JsonAdapter;
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.json.PropertyNames;
-import io.avaje.json.stream.*;
-import io.avaje.jsonb.core.DefaultBootstrap;
-import io.avaje.jsonb.spi.JsonStreamFactory;
-import io.avaje.jsonb.spi.JsonbComponent;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
+
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.BufferRecycleStrategy;
+import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.JsonStream;
+import io.avaje.jsonb.core.DefaultBootstrap;
+import io.avaje.jsonb.spi.JsonStreamFactory;
+import io.avaje.jsonb.spi.JsonbComponent;
 
 /**
  * Provides access to json adapters by type.
@@ -437,6 +439,13 @@ public interface Jsonb {
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
     Builder add(AdapterFactory factory);
+
+    /**
+     * Set the ClassLoader to use when loading modules.
+     *
+     * @param classLoader The ClassLoader to use
+     */
+    Builder classLoader(ClassLoader classLoader);
 
     /**
      * Build and return the Jsonb instance with all the given adapters and factories registered.

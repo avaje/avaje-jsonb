@@ -269,6 +269,7 @@ final class DJsonb implements Jsonb {
     private boolean serializeEmpty = true;
     private JsonStream adapter;
     private BufferRecycleStrategy strategy = HYBRID_POOL;
+    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -345,7 +346,14 @@ final class DJsonb implements Jsonb {
       return this;
     }
 
+    @Override
+    public Builder classLoader(ClassLoader classLoader) {
+      this.classLoader = classLoader;
+      return this;
+    }
+
     private void registerComponents() {
+      ExtensionLoader.init(classLoader);
       // first register all user defined JsonbComponent
       for (JsonbComponent next : ExtensionLoader.userComponents()) {
         next.register(this);
