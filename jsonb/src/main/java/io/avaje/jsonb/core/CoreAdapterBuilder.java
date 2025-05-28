@@ -99,7 +99,7 @@ final class CoreAdapterBuilder {
               + type
               + "\nPossible Causes: \n"
               + "1. Missing @Json or @Json.Import annotation.\n"
-              + "2. The avaje-jsonb-generator depedency was not available during compilation\n");
+              + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
     } catch (IllegalArgumentException e) {
       throw lookupChain.exceptionWithLookupStack(e);
     } finally {
