@@ -94,7 +94,12 @@ final class CoreAdapterBuilder {
           return result;
         }
       }
-      throw new IllegalArgumentException("No JsonAdapter for " + type + ". Perhaps needs @Json or @Json.Import?");
+      throw new IllegalArgumentException(
+          "No JsonAdapter for "
+              + type
+              + "\nPossible Causes: \n"
+              + "1. Missing @Json or @Json.Import annotation.\n"
+              + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
     } catch (IllegalArgumentException e) {
       throw lookupChain.exceptionWithLookupStack(e);
     } finally {
