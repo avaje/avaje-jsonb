@@ -207,7 +207,7 @@ final class FieldProperty {
       } else if ("java.util.Map".equals(topType)) {
         types.add(genericType.firstParamType());
         types.add(genericType.secondParamType());
-      } else {
+      } else if (!GenericType.isGeneric(rawType)) {
         types.add(topType);
       }
     }
