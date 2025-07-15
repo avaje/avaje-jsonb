@@ -22,17 +22,19 @@ final class StreamAdapter<T> implements DJsonClosable<Stream<T>>, JsonAdapter<St
   }
 
   @Override
-  public void toJson(JsonWriter writer, Stream<T> value) {
-    if (lineDelimited) {
-      writer.pretty(false);
-      value.forEach(bean -> {
-        elementAdapter.toJson(writer, bean);
-        writer.writeNewLine();
-      });
-    } else {
-      writer.beginArray();
-      value.forEach(bean -> elementAdapter.toJson(writer, bean));
-      writer.endArray();
+  public void toJson(JsonWriter writer, Stream<T> stream) {
+    try (stream) {
+      if (lineDelimited) {
+        writer.pretty(false);
+        stream.forEach(bean -> {
+          elementAdapter.toJson(writer, bean);
+          writer.writeNewLine();
+        });
+      } else {
+        writer.beginArray();
+        stream.forEach(bean -> elementAdapter.toJson(writer, bean));
+        writer.endArray();
+      }
     }
   }
 
