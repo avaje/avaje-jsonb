@@ -258,7 +258,7 @@ final class DJsonb implements Jsonb {
    */
   static final class DBuilder implements Jsonb.Builder {
 
-    private static final Jsonb DEFAULT = Jsonb.builder().build();
+    static final Jsonb DEFAULT = Jsonb.builder().build();
 
     private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;

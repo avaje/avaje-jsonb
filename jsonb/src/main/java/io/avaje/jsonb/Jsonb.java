@@ -108,6 +108,16 @@ public interface Jsonb {
   }
 
   /**
+   * Get the default Jsonb instance with all generated adapters configured.
+   *
+   * <p>This is a faster alternative to {@code Jsonb.builder().build()} that will return the same
+   * singleton instance.
+   */
+  static Jsonb instance() {
+    return DefaultBootstrap.defaultInstance();
+  }
+
+  /**
    * Return json content for the given object.
    * <p>
    * This is a convenience method for {@code jsonb.type(Object.class).toJson(any) }
