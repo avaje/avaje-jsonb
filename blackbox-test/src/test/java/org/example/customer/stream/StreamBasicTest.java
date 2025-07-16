@@ -27,7 +27,7 @@ class StreamBasicTest {
     JsonType<Stream<MyBasic>> streamType = type.streamAsLines();
 
     String asJson = streamType.toJson(basics.stream());
-    String expected = "{\"id\":1,\"name\":\"a\"}\n{\"id\":2,\"name\":\"b\"}\n{\"id\":3,\"name\":\"c\"}\n";
+    String expected = "{\"id\":1,\"name\":\"a\"}\n{\"id\":2,\"name\":\"b\"}\n{\"id\":3,\"name\":\"c\"}\n\n";
     assertThat(asJson)
       .describedAs("expect new line delimited json content")
       .isEqualTo(expected);
