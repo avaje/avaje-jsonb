@@ -30,6 +30,7 @@ final class StreamAdapter<T> implements DJsonClosable<Stream<T>>, JsonAdapter<St
           elementAdapter.toJson(writer, bean);
           writer.writeNewLine();
         });
+        writer.writeNewLine();
       } else {
         writer.beginArray();
         stream.forEach(bean -> elementAdapter.toJson(writer, bean));
