@@ -141,6 +141,55 @@ class JsonWriterTest {
 
     String asJson = os.toString();
     assertThat(asJson).isEqualTo("[{\"one\":\"hello\",\"size\":43},{\"one\":\"another\",\"active\":true,\"flags\":[42,43]}]");
+  }
 
+  @Test
+  void largeString() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(200);
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    String largeValue = "_123456789_123456789_123456789_123456789_123456789".repeat(11);
+
+    fw.beginObject();
+    fw.name("key");
+    fw.value(largeValue);
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), 0, os.toByteArray().length);
+    assertThat(jsonResult).isEqualTo("{\"key\":\"" + largeValue + "\"}");
+
+    byte[] effectiveBufferSize = dJsonWriter.ensureCapacity(0);
+    assertThat(effectiveBufferSize.length)
+      .describedAs("internal buffer should not grow")
+      .isEqualTo(200);
+  }
+
+  @Test
+  void largeStringUnicode() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(100);
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    String largeValue = "_12£45Ã789ǣ123456789_123456789Ŕ123456789_123456789".repeat(11);
+
+    fw.beginObject();
+    fw.name("key");
+    fw.value(largeValue);
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), 0, os.toByteArray().length);
+    assertThat(jsonResult).isEqualTo("{\"key\":\"" + largeValue + "\"}");
+
+    byte[] effectiveBufferSize = dJsonWriter.ensureCapacity(0);
+    assertThat(effectiveBufferSize.length)
+      .describedAs("internal buffer should not grow")
+      .isEqualTo(100);
   }
 }
