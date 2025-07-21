@@ -6,12 +6,12 @@
   <parent>
     <groupId>org.avaje</groupId>
     <artifactId>java8-oss</artifactId>
-    <version>3.9</version>
+    <version>5.0</version>
   </parent>
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-json-core</artifactId>
-  <version>3.0-java8</version>
+  <version>3.6-java8-RC3</version>
   <name>avaje json core</name>
   <description>Core JSON Streaming and Generation API</description>
 
