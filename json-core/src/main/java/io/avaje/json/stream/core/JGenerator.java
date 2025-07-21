@@ -56,6 +56,8 @@ class JGenerator implements JsonGenerator {
   private static final int OP_END = 4;
 
   private final Grisu3.FastDtoaBuilder doubleBuilder = new Grisu3.FastDtoaBuilder();
+  private final int largeStringMax;
+  private final int largeAsciiMax;
   private byte[] buffer;
   private JsonOutput target;
   private int lastOp;
@@ -77,6 +79,9 @@ class JGenerator implements JsonGenerator {
 
   JGenerator(final byte[] buffer) {
     this.buffer = buffer;
+    // each char can take up to 6 bytes when Unicode escaped, round down 1/8 number of chars
+    this.largeStringMax = buffer.length >> 3;
+    this.largeAsciiMax = buffer.length - 10;
   }
 
   @Override
@@ -132,26 +137,50 @@ class JGenerator implements JsonGenerator {
 
   private void writeString(final String value) {
     final int len = value.length();
+    if (len > largeStringMax) {
+      writeLargeString(value);
+      return;
+    }
     if (position + (len << 2) + (len << 1) + 2 >= buffer.length) {
       enlargeOrFlush(position, (len << 2) + (len << 1) + 2);
     }
-    final byte[] _result = buffer;
-    _result[position] = QUOTE;
-    int cur = position + 1;
-    for (int i = 0; i < len; i++) {
+    buffer[position++] = QUOTE;
+    writeStringSegment(value, 0, len);
+    buffer[position++] = QUOTE;
+  }
+
+  private void writeStringSegment(String value, int i, int end) {
+    int cur = position;
+    for (;i < end; i++) {
       final char c = value.charAt(i);
       if (c > 31 && c != '"' && c != '\\' && c < 126) {
-        _result[cur++] = (byte) c;
+        buffer[cur++] = (byte) c;
       } else {
-        writeQuotedString(value, i, cur, len);
+        writeStringEscape(value, i, cur, end);
         return;
       }
     }
-    _result[cur] = QUOTE;
-    position = cur + 1;
+    position = cur;
   }
 
-  private void writeQuotedString(final String str, int i, int cur, final int len) {
+  /** Break a large string into segments and flush when necessary */
+  private void writeLargeString(String text) {
+    writeByte(QUOTE);
+    int left = text.length();
+    int offset = 0;
+    while (left > 0) {
+      final int len = Math.min(largeStringMax, left);
+      if (position + (len << 2) + (len << 1) + 2 >= buffer.length) {
+        enlargeOrFlush(position, 0); // just flush
+      }
+      writeStringSegment(text, offset, offset + len);
+      offset += len;
+      left -= len;
+    }
+    writeByte(QUOTE);
+  }
+
+  private void writeStringEscape(final String str, int i, int cur, final int len) {
     final byte[] _result = this.buffer;
     for (; i < len; i++) {
       final char c = str.charAt(i);
@@ -327,18 +356,37 @@ class JGenerator implements JsonGenerator {
         }
       }
     }
-    _result[cur] = QUOTE;
-    position = cur + 1;
+    position = cur;
   }
 
   @SuppressWarnings("deprecation")
   private void writeAscii(final String value) {
     final int len = value.length();
+    if (len > largeAsciiMax) {
+      writeLargeAscii(value);
+      return;
+    }
     if (position + len >= buffer.length) {
       enlargeOrFlush(position, len);
     }
     value.getBytes(0, len, buffer, position);
     position += len;
+  }
+
+  /** Break a large ascii into segments and flush when necessary */
+  private void writeLargeAscii(String value) {
+    int left = value.length();
+    int offset = 0;
+    while (left > 0) {
+      final int len = Math.min(largeAsciiMax, left);
+      if (position + len >= buffer.length) {
+        enlargeOrFlush(position, 0); // just flush
+      }
+      value.getBytes(offset, offset + len, buffer, position);
+      position += len;
+      offset += len;
+      left -= len;
+    }
   }
 
   private void writeAscii(final byte[] buf) {

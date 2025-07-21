@@ -1,17 +1,34 @@
 package io.avaje.jsonb.generator;
 
-import javax.lang.model.element.*;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
-
+import static io.avaje.jsonb.generator.APContext.asTypeElement;
+import static io.avaje.jsonb.generator.APContext.logError;
+import static io.avaje.jsonb.generator.APContext.logNote;
+import static io.avaje.jsonb.generator.APContext.typeElement;
+import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 import static java.util.stream.Collectors.toSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static io.avaje.jsonb.generator.APContext.*;
-import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 
 /**
  * Read points for field injection and method injection on baseType plus inherited injection points.
@@ -36,6 +53,7 @@ final class TypeReader {
   private final List<String> genericTypeParams;
   private final NamingConvention namingConvention;
   private final boolean hasJsonAnnotation;
+  private final String errorContext;
   private MethodReader constructor;
   private boolean defaultPublicConstructor;
   private final Map<String, MethodReader.MethodParam> constructorParamMap = new LinkedHashMap<>();
@@ -55,8 +73,10 @@ final class TypeReader {
   private boolean extendsThrowable;
 
   private final boolean hasJsonCreator;
+  private final boolean pkgPrivate;
 
-  TypeReader(TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
+  TypeReader(String errorContext, TypeElement baseType, TypeElement mixInType, NamingConvention namingConvention, String typePropertyKey) {
+    this.errorContext = errorContext;
     this.baseType = baseType;
     this.genericTypeParams = initTypeParams(baseType);
     Optional<ExecutableElement> jsonCreator = Optional.empty();
@@ -83,6 +103,9 @@ final class TypeReader {
       .orElse(null);
 
     this.hasJsonCreator = jsonCreator.isPresent();
+    this.pkgPrivate =
+      !baseType.getModifiers().contains(Modifier.PUBLIC)
+        || jsonCreator.filter(e -> !e.getModifiers().contains(Modifier.PUBLIC)).isPresent();
   }
 
   private MethodReader readJsonCreator(ExecutableElement ex) {
@@ -261,18 +284,49 @@ final class TypeReader {
       }
     }
     // for getter/accessor methods only, not setters
-    PropertyPrism.getOptionalOn(methodElement).ifPresent(propertyPrism -> {
-      if (!methodElement.getParameters().isEmpty()) {
-        logError("Json.Property can only be placed on Getter Methods, but on %s", methodElement);
-        return;
-      }
+    PropertyPrism.getOptionalOn(methodElement)
+      .filter(p -> !hasRecordPropertyAnnotation(methodElement))
+      .ifPresent(propertyPrism -> {
+        if (!methodElement.getParameters().isEmpty()) {
+          logError(errorContext + baseType + ", @Json.Property can only be placed on Getter Methods, but on %s", methodElement);
+          return;
+        }
 
-      // getter property as simulated read-only field with getter method
-      final var frequency = frequency(propertyPrism.value());
-      final var reader = new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency);
-      reader.getterMethod(new MethodReader(methodElement));
-      localFields.add(reader);
-    });
+        // getter property as simulated read-only field with getter method
+        final var frequency = frequency(propertyPrism.value());
+        final var reader = new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency);
+        reader.getterMethod(new MethodReader(methodElement));
+        localFields.add(reader);
+      });
+  }
+
+  private boolean hasRecordPropertyAnnotation(ExecutableElement methodElement) {
+    try {
+      return APContext.jdkVersion() >= 16
+        && Optional.ofNullable(recordComponentFor(methodElement))
+        .map(Element.class::cast)
+        .flatMap(TypeReader::matchingField)
+        .filter(PropertyPrism::isPresent)
+        .isPresent();
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
+   * e is a RecordComponentElement that doesn't have the annotation
+   * look up the field by name to see if the annotation is present
+   */
+  private static Optional<VariableElement> matchingField(Element e) {
+    return ElementFilter.fieldsIn(e.getEnclosingElement().getEnclosedElements()).stream()
+      .filter(f -> f.getSimpleName().contentEquals(e.getSimpleName()))
+      .findAny();
+  }
+
+  private static Object recordComponentFor(ExecutableElement methodElement) throws Exception {
+    return Elements.class
+      .getMethod("recordComponentFor", ExecutableElement.class)
+      .invoke(APContext.elements(), methodElement);
   }
 
   private boolean checkMethod2(ExecutableElement methodElement) {
@@ -299,20 +353,35 @@ final class TypeReader {
 
   private void matchFieldToSetter(FieldReader field) {
     if (hasNoSetter(field)) {
-      logError("Non public field " + baseType + " " + field.fieldName() + " with no matching setter or constructor?");
+      if (isCollectionType(field.type())) {
+        field.setUseGetterAddAll();
+      } else {
+        logError(errorContext + baseType + ", non public field " + field.fieldName() + " with no matching setter or constructor?");
+      }
     }
   }
 
-  private boolean hasNoSetter(FieldReader field) {
-    return !matchFieldToSetter2(field, false)
-      && !matchFieldToSetter2(field, true)
-      && !matchFieldToSetterByParam(field)
-      && !field.isPublicField()
-      && !field.isSubTypeField();
+  private boolean isCollectionType(GenericType genericType) {
+    final String topType = genericType.topType();
+    return "java.util.List".equals(topType)
+      || "java.util.Set".equals(topType)
+      || "java.util.Collection".equals(topType);
   }
 
-  private boolean matchFieldToSetterByParam(FieldReader field) {
-    String fieldName = field.fieldName();
+  private boolean hasNoSetter(FieldReader field) {
+    var propName = field.propertyName();
+    var fieldName = field.fieldName();
+    return !matchSetter(fieldName, field, false)
+        && !matchSetter(fieldName, field, true)
+        && !matchFieldToSetterByParam(fieldName, field)
+        && !matchSetter(propName, field, false)
+        && !matchSetter(propName, field, true)
+        && !matchFieldToSetterByParam(propName, field)
+        && !field.isPublicField()
+        && !field.isSubTypeField();
+  }
+
+  private boolean matchFieldToSetterByParam(String fieldName, FieldReader field) {
     for (MethodReader methodReader : maybeSetterMethods.values()) {
       List<MethodReader.MethodParam> params = methodReader.getParams();
       MethodReader.MethodParam methodParam = params.get(0);
@@ -324,8 +393,7 @@ final class TypeReader {
     return false;
   }
 
-  private boolean matchFieldToSetter2(FieldReader field, boolean loose) {
-    String name = field.fieldName();
+  private boolean matchSetter(String name, FieldReader field, boolean loose) {
     MethodReader setter = setterLookup(name, loose);
     if (setter != null) {
       field.setterMethod(setter);
@@ -349,9 +417,8 @@ final class TypeReader {
   private MethodReader setterLookup(String name, boolean loose) {
     if (loose) {
       return allSetterMethods.get(name.toLowerCase());
-    } else {
-      return maybeSetterMethods.get(name);
     }
+    return maybeSetterMethods.get(name);
   }
 
   private void matchFieldsToGetter() {
@@ -363,21 +430,24 @@ final class TypeReader {
   }
 
   private void matchFieldToGetter(FieldReader field) {
-    if (!matchFieldToGetter2(field, false)
-      && !matchFieldToGetter2(field, true)
-      && !field.isPublicField()
-      && !field.isSubTypeField()) {
+    var propName = field.propertyName();
+    var fieldName = field.fieldName();
+    if (!matchGetter(fieldName, field, false)
+        && !matchGetter(fieldName, field, true)
+        && !matchGetter(propName, field, false)
+        && !matchGetter(propName, field, true)
+        && !field.isPublicField()
+        && !field.isSubTypeField()) {
       nonAccessibleField = true;
       if (hasJsonAnnotation) {
-        logError("Non accessible field " + baseType + " " + field.fieldName() + " with no matching getter?");
+        logError(errorContext + baseType + ", non accessible field " + field.fieldName() + " with no matching getter?");
       } else {
-        logNote("Non accessible field " + baseType + " " + field.fieldName());
+        logNote(errorContext + baseType + ", non accessible field " + field.fieldName());
       }
     }
   }
 
-  private boolean matchFieldToGetter2(FieldReader field, boolean loose) {
-    String name = field.fieldName();
+  private boolean matchGetter(String name, FieldReader field, boolean loose) {
     MethodReader getter = getterLookup(name, loose);
     if (getter != null) {
       field.getterMethod(getter);
@@ -406,9 +476,8 @@ final class TypeReader {
   private MethodReader getterLookup(String name, boolean loose) {
     if (!loose) {
       return maybeGetterMethods.get(name);
-    } else {
-      return allGetterMethods.get(name.toLowerCase());
     }
+  return allGetterMethods.get(name.toLowerCase());
   }
 
   private String setterName(String name) {
@@ -522,7 +591,19 @@ final class TypeReader {
     setFieldPositions();
     constructor = determineConstructor();
     if (constructor != null) {
-      List<MethodReader.MethodParam> params = constructor.getParams();
+
+      var constructorParams = constructor.getParams();
+      for (var param : constructorParams) {
+        var name = param.name();
+        var matchingField =
+            allFields.stream()
+                .filter(f -> !f.isConstructorParam())
+                .filter(f -> f.propertyName().equals(name) || f.fieldName().equals(name))
+                .findFirst();
+        matchingField.ifPresent(FieldReader::setConstructorParam);
+      }
+
+      List<MethodReader.MethodParam> params = constructorParams;
       for (MethodReader.MethodParam param : params) {
         constructorParamMap.put(param.name(), param);
       }
@@ -606,5 +687,9 @@ final class TypeReader {
 
   boolean extendsThrowable() {
     return extendsThrowable;
+  }
+
+  boolean isPkgPrivate() {
+    return pkgPrivate;
   }
 }

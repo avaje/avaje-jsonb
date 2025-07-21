@@ -88,6 +88,9 @@ public interface JsonStream {
     /** Set to true to fail on unknown properties. Defaults to false. */
     Builder failOnUnknown(boolean failOnUnknown);
 
+    /** Set to true to fail on NULL for primitive types. Defaults to false. */
+    Builder failOnNullPrimitives(boolean failOnNullPrimitives);
+
     /** Determines how byte buffers are recycled */
     Builder bufferRecycling(BufferRecycleStrategy strategy);
 

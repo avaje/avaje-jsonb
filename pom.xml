@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.avaje</groupId>
     <artifactId>java11-oss</artifactId>
-    <version>4.5</version>
+    <version>5.1</version>
   </parent>
 
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-parent</artifactId>
-  <version>3.1-SNAPSHOT</version>
+  <version>3.6</version>
 
   <packaging>pom</packaging>
   <name>avaje json parent pom</name>
@@ -24,8 +24,8 @@
   <properties>
     <surefire.useModulePath>false</surefire.useModulePath>
     <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
-    <spi.version>2.7</spi.version>
-    <project.build.outputTimestamp>2025-02-10T08:35:50Z</project.build.outputTimestamp>
+    <spi.version>2.13</spi.version>
+    <project.build.outputTimestamp>2025-07-21T18:31:18Z</project.build.outputTimestamp>
   </properties>
 
   <modules>
@@ -36,6 +36,7 @@
     <module>jsonb-jackson</module>
     <module>jsonb-inject-plugin</module>
     <module>jsonb-spring-adapter</module>
+    <module>jsonb-bom</module>
   </modules>
 
   <profiles>

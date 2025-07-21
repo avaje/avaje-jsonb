@@ -1,5 +1,6 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.PropertyNames;
 
@@ -10,11 +11,13 @@ final class JsonReadAdapter implements JsonReader {
 
   private final JsonParser reader;
   private final boolean failOnUnknown;
+  private final boolean failOnNullPrimitives;
   private final BufferRecycler recycler;
 
-  JsonReadAdapter(JsonParser reader, BufferRecycler recycler, boolean failOnUnknown) {
+  JsonReadAdapter(JsonParser reader, BufferRecycler recycler, boolean failOnUnknown, boolean failOnNullPrimitives) {
     this.reader = reader;
     this.failOnUnknown = failOnUnknown;
+    this.failOnNullPrimitives = failOnNullPrimitives;
     this.recycler = recycler;
   }
 
@@ -88,21 +91,25 @@ final class JsonReadAdapter implements JsonReader {
 
   @Override
   public boolean readBoolean() {
+    if (failOnNullPrimitives && reader.isNullValue()) throw new JsonDataException("Read NULL value for boolean");
     return reader.readBoolean();
   }
 
   @Override
   public int readInt() {
+    if (failOnNullPrimitives && reader.isNullValue()) throw new JsonDataException("Read NULL value for int");
     return reader.readInt();
   }
 
   @Override
   public long readLong() {
+    if (failOnNullPrimitives && reader.isNullValue()) throw new JsonDataException("Read NULL value for long");
     return reader.readLong();
   }
 
   @Override
   public double readDouble() {
+    if (failOnNullPrimitives && reader.isNullValue()) throw new JsonDataException("Read NULL value for double");
     return reader.readDouble();
   }
 

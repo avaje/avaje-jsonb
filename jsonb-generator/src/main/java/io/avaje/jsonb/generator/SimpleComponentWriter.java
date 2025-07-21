@@ -1,6 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import static io.avaje.jsonb.generator.ProcessingContext.createMetaInfWriterFor;
 import static io.avaje.jsonb.generator.APContext.createSourceFile;
 
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 
 final class SimpleComponentWriter {
@@ -19,19 +17,21 @@ final class SimpleComponentWriter {
   private final Set<String> importTypes = new TreeSet<>();
   private Append writer;
   private JavaFileObject fileObject;
+  private String fullName;
+  private String packageName;
 
   SimpleComponentWriter(ComponentMetaData metaData) {
     this.metaData = metaData;
   }
 
-  void initialise() throws IOException {
-    var name = metaData.fullName();
+  void initialise(boolean pkgPrivate) throws IOException {
+    fullName = metaData.fullName(pkgPrivate);
+    packageName = Util.packageOf(fullName);
     if (fileObject == null) {
-      fileObject = createSourceFile(name);
+      fileObject = createSourceFile(fullName);
     }
     if (!metaData.isEmpty()) {
-      ProcessingContext.addJsonSpi(metaData.fullName());
-      ProcessingContext.validateModule();
+      ProcessingContext.addJsonSpi(fullName);
     }
   }
 
@@ -47,16 +47,6 @@ final class SimpleComponentWriter {
     writeRegister();
     writeClassEnd();
     writer.close();
-  }
-
-  void writeMetaInf() throws IOException {
-    var services = ProcessingContext.readExistingMetaInfServices();
-    final FileObject fileObject = createMetaInfWriterFor(Constants.META_INF_COMPONENT);
-    if (fileObject != null) {
-      final Writer writer = fileObject.openWriter();
-      writer.write(String.join("\n", services));
-      writer.close();
-    }
   }
 
   private void writeRegister() {
@@ -84,7 +74,6 @@ final class SimpleComponentWriter {
   }
 
   private void writeClassStart() {
-    final String fullName = metaData.fullName();
     final String shortName = Util.shortName(fullName);
     writer.append("@Generated(\"io.avaje.jsonb.generator\")").eol();
     final List<String> factories = metaData.allFactories();
@@ -120,7 +109,7 @@ final class SimpleComponentWriter {
     importTypes.add("io.avaje.jsonb.spi.MetaData");
 
     for (final String importType : importTypes) {
-      if (Util.validImportType(importType, metaData.packageName())) {
+      if (Util.validImportType(importType, packageName)) {
         writer.append("import %s;", importType).eol();
       }
     }
@@ -128,7 +117,6 @@ final class SimpleComponentWriter {
   }
 
   private void writePackage() {
-    final String packageName = metaData.packageName();
     if (packageName != null && !packageName.isEmpty()) {
       writer.append("package %s;", packageName).eol().eol();
     }

@@ -83,6 +83,10 @@ abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuil
 
   @Override
   public void toJson(JsonWriter writer, C value) {
+    if (value == null) {
+      writer.nullValue();
+      return;
+    }
     if (value.isEmpty()) {
       writer.emptyArray();
       return;

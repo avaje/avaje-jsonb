@@ -36,13 +36,14 @@ final class CoreAdapterBuilder {
   private final Map<Object, JsonAdapter<?>> adapterCache = new ConcurrentHashMap<>();
   private final ReentrantLock lock = new ReentrantLock();
 
-  CoreAdapterBuilder(DJsonb context, List<AdapterFactory> userFactories, boolean mathAsString) {
+  CoreAdapterBuilder(DJsonb context, List<AdapterFactory> userFactories, boolean mathAsString, boolean calendarAsString) {
     this.context = context;
     this.factories = new ArrayList<>();
     this.factories.addAll(userFactories);
     this.factories.add(CoreAdapters.FACTORY);
     this.factories.add(BasicTypeAdapters.FACTORY);
     this.factories.add(JavaTimeAdapters.FACTORY);
+    this.factories.add(new JavaTimeAdapters.CalendarFactory(calendarAsString));
     this.factories.add(new MathAdapters(mathAsString));
     this.factories.add(CoreAdapters.COLLECTION_FACTORY);
     this.factories.add(CoreAdapters.MAP_FACTORY);
@@ -93,7 +94,12 @@ final class CoreAdapterBuilder {
           return result;
         }
       }
-      throw new IllegalArgumentException("No JsonAdapter for " + type + ". Perhaps needs @Json or @Json.Import?");
+      throw new IllegalArgumentException(
+          "No JsonAdapter for "
+              + type
+              + "\nPossible Causes: \n"
+              + "1. Missing @Json or @Json.Import annotation.\n"
+              + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
     } catch (IllegalArgumentException e) {
       throw lookupChain.exceptionWithLookupStack(e);
     } finally {

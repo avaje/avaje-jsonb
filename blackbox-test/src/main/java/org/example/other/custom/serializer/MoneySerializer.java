@@ -12,6 +12,7 @@ import io.avaje.jsonb.Jsonb;
 @CustomAdapter(global = false)
 public class MoneySerializer implements JsonAdapter<BigDecimal> {
 
+  /** Constructor takes Jsonb, registered via AdapterBuilder */
   public MoneySerializer(Jsonb jsonb) {}
 
   @Override

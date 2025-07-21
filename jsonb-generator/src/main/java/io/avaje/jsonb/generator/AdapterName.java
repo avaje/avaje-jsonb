@@ -8,14 +8,16 @@ final class AdapterName {
   final String adapterPackage;
   final String fullName;
 
-  AdapterName(TypeElement origin) {
-    String originPackage = APContext.elements().getPackageOf(origin).toString();
-    var name = shortName(origin);
+  AdapterName(BeanReader beanReader) {
+    String originPackage = APContext.elements().getPackageOf(beanReader.beanType()).getQualifiedName().toString();
+    var name = shortName(beanReader.beanType());
     shortName = name.substring(0, name.length() - 1);
-    if ("".equals(originPackage)) {
+    if (beanReader.isPkgPrivate()) {
+      this.adapterPackage = originPackage;
+    } else if ("".equals(originPackage)) {
       this.adapterPackage = "jsonb";
     } else {
-      this.adapterPackage = ProcessingContext.isImported(origin) ? originPackage + ".jsonb" : originPackage;
+      this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? originPackage + ".jsonb" : originPackage;
     }
     this.fullName = adapterPackage + "." + shortName + "JsonAdapter";
   }

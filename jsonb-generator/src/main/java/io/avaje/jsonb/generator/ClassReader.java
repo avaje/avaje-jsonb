@@ -14,6 +14,9 @@ import javax.lang.model.element.TypeElement;
 
 final class ClassReader implements BeanReader {
 
+  private static final boolean useInstanceofPattern = jdkVersion() >= 17;
+  private static final boolean nullSwitch = jdkVersion() >= 21 || jdkVersion() >= 17 && previewEnabled();
+
   private final TypeElement beanType;
   private final String shortName;
   private final String type;
@@ -34,20 +37,20 @@ final class ClassReader implements BeanReader {
   private final boolean isRecord;
   private final boolean usesTypeProperty;
   private final boolean useEnum;
-  private static final boolean useInstanceofPattern = jdkVersion() >= 17;
-  private static final boolean nullSwitch = jdkVersion() >= 21 || (jdkVersion() >= 17 && previewEnabled());
   private final Map<String, Integer> frequencyMap = new HashMap<>();
   private final Map<String, Boolean> isCommonFieldMap = new HashMap<>();
   private final boolean optional;
   private final List<TypeSubTypeMeta> subTypes;
+  private final boolean pkgPrivate;
+
   /** An Interface/abstract type with a single implementation */
   private ClassReader implementation;
 
-  ClassReader(TypeElement beanType) {
-    this(beanType, null);
+  ClassReader(TypeElement beanType, String errorContext) {
+    this(beanType, null, errorContext);
   }
 
-  ClassReader(TypeElement beanType, TypeElement mixInElement) {
+  ClassReader(TypeElement beanType, TypeElement mixInElement, String errorContext) {
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
@@ -55,7 +58,7 @@ final class ClassReader implements BeanReader {
     this.namingConvention = ncReader.get();
     this.typeProperty = ncReader.typeProperty();
     this.caseInsensitiveKeys = ncReader.isCaseInsensitiveKeys();
-    this.typeReader = new TypeReader(beanType, mixInElement, namingConvention, typePropertyKey());
+    this.typeReader = new TypeReader(errorContext, beanType, mixInElement, namingConvention, typePropertyKey());
     typeReader.process();
     this.nonAccessibleField = typeReader.nonAccessibleField();
     this.hasSubTypes = typeReader.hasSubTypes();
@@ -66,6 +69,7 @@ final class ClassReader implements BeanReader {
     this.subTypes = typeReader.subTypes();
     this.readOnlyInterface = typeReader.extendsThrowable() || allFields.isEmpty() && subTypes.isEmpty();
     this.methodProperties = typeReader.methodProperties();
+    this.pkgPrivate = typeReader.isPkgPrivate();
 
     subTypes.stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
 
@@ -94,7 +98,7 @@ final class ClassReader implements BeanReader {
    * For an interface type set the single implementation to use for fromJson().
    */
   void setImplementationType(TypeElement implementationType) {
-    this.implementation = new ClassReader(implementationType);
+    this.implementation = new ClassReader(implementationType, "");
   }
 
   @Override
@@ -442,7 +446,7 @@ final class ClassReader implements BeanReader {
   }
 
   private void writeFromJsonImplementation(Append writer, String varName) {
-    final boolean directLoad = (constructor == null && !hasSubTypes && !optional);
+    final boolean directLoad = constructor == null && !hasSubTypes && !optional;
     if (directLoad) {
       // default public constructor
       writer.append("    %s _$%s = new %s();", shortName, varName, shortName).eol();
@@ -480,7 +484,9 @@ final class ClassReader implements BeanReader {
       writer.append("   // unmappedField... ", varName).eol();
       unmappedField.writeFromJsonUnmapped(writer, varName);
     }
-    writer.append("    return _$%s;", varName).eol();
+    if (directLoad) {
+      writer.append("    return _$%s;", varName).eol();
+    }
     writer.append("  }").eol();
   }
 
@@ -489,11 +495,28 @@ final class ClassReader implements BeanReader {
   }
 
   private void writeJsonBuildResult(Append writer, String varName) {
-    writer.append("    // build and return %s", shortName).eol();
-    if (constructor == null) {
-      writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+    var buildFields = allFields.stream()
+      .filter(FieldReader::includeFromJsonBuild)
+      .collect(toList());
+
+    boolean directReturn = buildFields.isEmpty();
+    if (!directReturn) {
+      writer.append("    // build and return %s", shortName).eol();
     } else {
-      writer.append("    %s _$%s = " + constructor.creationString(), shortName, varName);
+      writer.append("    // direct return").eol();
+      writer.append("    return ");
+    }
+    if (constructor == null) {
+      if (directReturn) {
+        writer.append("new %s(", shortName);
+      } else {
+        writer.append("    %s _$%s = new %s(", shortName, varName, shortName);
+      }
+    } else {
+      if (!directReturn) {
+        writer.append("    %s _$%s = ", shortName, varName);
+      }
+      writer.append(constructor.creationString());
       final List<MethodReader.MethodParam> params = constructor.getParams();
       for (int i = 0, size = params.size(); i < size; i++) {
         if (i > 0) {
@@ -516,11 +539,12 @@ final class ClassReader implements BeanReader {
       }
     }
     writer.append(");").eol();
-    for (final FieldReader allField : allFields) {
-      if (allField.includeFromJson()) {
-        frequencyMap.compute(allField.fieldName(), (k, v) -> v == null ? 0 : v + 1);
-        allField.writeFromJsonSetter(writer, varName, "");
-      }
+    for (final FieldReader allField : buildFields) {
+      frequencyMap.compute(allField.fieldName(), (k, v) -> v == null ? 0 : v + 1);
+      allField.writeFromJsonSetter(writer, varName, "");
+    }
+    if (!directReturn) {
+      writer.append("    return _$%s;", varName).eol();
     }
   }
 
@@ -567,7 +591,7 @@ final class ClassReader implements BeanReader {
   }
 
   String constructorParamName(String name) {
-    if ((unmappedField != null) && unmappedField.fieldName().equals(name)) {
+    if (unmappedField != null && unmappedField.fieldName().equals(name)) {
       return "unmapped";
     }
     return "_val$" + name;
@@ -687,5 +711,10 @@ final class ClassReader implements BeanReader {
 
   private String typePropertyKey() {
     return caseInsensitiveKeys ? typeProperty.toLowerCase() : typeProperty;
+  }
+
+  @Override
+  public boolean isPkgPrivate() {
+    return pkgPrivate;
   }
 }

@@ -1,25 +1,38 @@
 package io.avaje.jsonb.core;
 
-import io.avaje.json.JsonAdapter;
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.json.PropertyNames;
-import io.avaje.json.stream.*;
-import io.avaje.jsonb.*;
-import io.avaje.jsonb.AdapterFactory;
-import io.avaje.jsonb.spi.*;
+import static io.avaje.json.stream.BufferRecycleStrategy.HYBRID_POOL;
+import static io.avaje.jsonb.core.Util.canonicalize;
+import static io.avaje.jsonb.core.Util.canonicalizeClass;
+import static io.avaje.jsonb.core.Util.removeSubtypeWildcard;
+import static java.util.Objects.requireNonNull;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static io.avaje.jsonb.core.Util.*;
-import static java.util.Objects.requireNonNull;
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.BufferRecycleStrategy;
+import io.avaje.json.stream.BufferedJsonWriter;
+import io.avaje.json.stream.BytesJsonWriter;
+import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.JsonStream;
+import io.avaje.jsonb.AdapterFactory;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.JsonView;
+import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.spi.GeneratedComponent;
+import io.avaje.jsonb.spi.JsonbComponent;
 
 /**
  * Default implementation of Jsonb.
@@ -38,10 +51,12 @@ final class DJsonb implements Jsonb {
       boolean serializeNulls,
       boolean serializeEmpty,
       boolean failOnUnknown,
+      boolean failOnNullPrimitives,
       boolean mathAsString,
+      boolean calendarAsString,
       BufferRecycleStrategy strategy) {
 
-    this.builder = new CoreAdapterBuilder(this, factories, mathAsString);
+    this.builder = new CoreAdapterBuilder(this, factories, mathAsString, calendarAsString);
     if (adapter != null) {
       this.io = adapter;
     } else {
@@ -53,6 +68,7 @@ final class DJsonb implements Jsonb {
           .serializeNulls(serializeNulls)
           .serializeEmpty(serializeEmpty)
           .failOnUnknown(failOnUnknown)
+          .failOnNullPrimitives(failOnNullPrimitives)
           .bufferRecycling(strategy)
           .build();
       }
@@ -88,6 +104,11 @@ final class DJsonb implements Jsonb {
   @Override
   public void toJson(Object any, JsonWriter jsonWriter) {
     anyType.toJson(any, jsonWriter);
+  }
+
+  @Override
+  public void toJson(Object any, JsonOutput jsonOutput) {
+    anyType.toJson(any, jsonOutput);
   }
 
   @Override
@@ -237,13 +258,18 @@ final class DJsonb implements Jsonb {
    */
   static final class DBuilder implements Jsonb.Builder {
 
+    static final Jsonb DEFAULT = Jsonb.builder().build();
+
     private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;
+    private boolean failOnNullPrimitives;
     private boolean mathTypesAsString;
+    private boolean calendarAsString;
     private boolean serializeNulls;
     private boolean serializeEmpty = true;
     private JsonStream adapter;
-    private BufferRecycleStrategy strategy = BufferRecycleStrategy.HYBRID_POOL;
+    private BufferRecycleStrategy strategy = HYBRID_POOL;
+    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -264,8 +290,20 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
+    public Builder failOnNullPrimitives(boolean failOnNullPrimitives) {
+      this.failOnNullPrimitives = failOnNullPrimitives;
+      return this;
+    }
+
+    @Override
     public Builder mathTypesAsString(boolean mathTypesAsString) {
       this.mathTypesAsString = mathTypesAsString;
+      return this;
+    }
+
+    @Override
+    public Builder calendarAsString(boolean calendarAsString) {
+      this.calendarAsString = calendarAsString;
       return this;
     }
 
@@ -308,7 +346,14 @@ final class DJsonb implements Jsonb {
       return this;
     }
 
+    @Override
+    public Builder classLoader(ClassLoader classLoader) {
+      this.classLoader = classLoader;
+      return this;
+    }
+
     private void registerComponents() {
+      ExtensionLoader.init(classLoader);
       // first register all user defined JsonbComponent
       for (JsonbComponent next : ExtensionLoader.userComponents()) {
         next.register(this);
@@ -319,12 +364,28 @@ final class DJsonb implements Jsonb {
     }
 
     @Override
-    public DJsonb build() {
+    public Jsonb build() {
+      if (!hasCustomizations()) {
+        return DEFAULT;
+      }
       registerComponents();
-      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, mathTypesAsString, strategy);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, mathTypesAsString, calendarAsString, strategy);
     }
 
-    static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
+    private boolean hasCustomizations() {
+      return DEFAULT == null
+        || adapter != null
+        || !factories.isEmpty()
+        || failOnUnknown
+        || failOnNullPrimitives
+        || mathTypesAsString
+        || calendarAsString
+        || serializeNulls
+        || !serializeEmpty
+        || HYBRID_POOL != strategy;
+    }
+
+  static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
       return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter : null;
@@ -333,7 +394,7 @@ final class DJsonb implements Jsonb {
     static <T> AdapterFactory newAdapterFactory(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
       requireNonNull(type);
       requireNonNull(jsonAdapter);
-      return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter.get() : null;
+      return (targetType, jsonb) -> simpleMatch(type, targetType) ? jsonAdapter.get().nullSafe() : null;
     }
 
     static AdapterFactory newAdapterFactory(Type type, AdapterBuilder builder) {
