@@ -57,6 +57,7 @@ class JGenerator implements JsonGenerator {
 
   private final Grisu3.FastDtoaBuilder doubleBuilder = new Grisu3.FastDtoaBuilder();
   private final int largeStringMax;
+  private final int largeAsciiMax;
   private byte[] buffer;
   private JsonOutput target;
   private int lastOp;
@@ -80,6 +81,7 @@ class JGenerator implements JsonGenerator {
     this.buffer = buffer;
     // each char can take up to 6 bytes when Unicode escaped, round down 1/8 number of chars
     this.largeStringMax = buffer.length >> 3;
+    this.largeAsciiMax = buffer.length - 10;
   }
 
   @Override
@@ -360,11 +362,31 @@ class JGenerator implements JsonGenerator {
   @SuppressWarnings("deprecation")
   private void writeAscii(final String value) {
     final int len = value.length();
+    if (len > largeAsciiMax) {
+      writeLargeAscii(value);
+      return;
+    }
     if (position + len >= buffer.length) {
       enlargeOrFlush(position, len);
     }
     value.getBytes(0, len, buffer, position);
     position += len;
+  }
+
+  /** Break a large ascii into segments and flush when necessary */
+  private void writeLargeAscii(String value) {
+    int left = value.length();
+    int offset = 0;
+    while (left > 0) {
+      final int len = Math.min(largeAsciiMax, left);
+      if (position + len >= buffer.length) {
+        enlargeOrFlush(position, 0); // just flush
+      }
+      value.getBytes(offset, offset + len, buffer, position);
+      position += len;
+      offset += len;
+      left -= len;
+    }
   }
 
   private void writeAscii(final byte[] buf) {

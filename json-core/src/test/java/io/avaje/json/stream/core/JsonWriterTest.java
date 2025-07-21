@@ -192,4 +192,29 @@ class JsonWriterTest {
       .describedAs("internal buffer should not grow")
       .isEqualTo(100);
   }
+
+  @Test
+  void largeStringAscii() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(100);
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+
+    JsonWriteAdapter fw = new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    String largeValue = '"' + "_1234567890123456789".repeat(21) + '"';
+
+    fw.beginObject();
+    fw.name("key");
+    fw.rawValue(largeValue);
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), 0, os.toByteArray().length);
+    assertThat(jsonResult).isEqualTo("{\"key\":" + largeValue + "}");
+
+    byte[] effectiveBufferSize = dJsonWriter.ensureCapacity(0);
+    assertThat(effectiveBufferSize.length)
+      .describedAs("internal buffer should not grow")
+      .isEqualTo(100);
+  }
 }
