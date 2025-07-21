@@ -1,20 +1,22 @@
 package io.avaje.jsonb;
 
-import io.avaje.json.JsonAdapter;
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.json.PropertyNames;
-import io.avaje.json.stream.*;
-import io.avaje.jsonb.core.DefaultBootstrap;
-import io.avaje.jsonb.spi.JsonStreamFactory;
-import io.avaje.jsonb.spi.JsonbComponent;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
+
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.BufferRecycleStrategy;
+import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.JsonStream;
+import io.avaje.jsonb.core.DefaultBootstrap;
+import io.avaje.jsonb.spi.JsonStreamFactory;
+import io.avaje.jsonb.spi.JsonbComponent;
 
 /**
  * Provides access to json adapters by type.
@@ -106,6 +108,16 @@ public interface Jsonb {
   }
 
   /**
+   * Get the default Jsonb instance with all generated adapters configured.
+   *
+   * <p>This is a faster alternative to {@code Jsonb.builder().build()} that will return the same
+   * singleton instance.
+   */
+  static Jsonb instance() {
+    return DefaultBootstrap.defaultInstance();
+  }
+
+  /**
    * Return json content for the given object.
    * <p>
    * This is a convenience method for {@code jsonb.type(Object.class).toJson(any) }
@@ -152,6 +164,13 @@ public interface Jsonb {
    * This is a convenience method for {@code jsonb.type(Object.class).toJson(any, writer) }
    */
   void toJson(Object any, JsonWriter jsonWriter);
+
+  /**
+   * Write to the given jsonOutput.
+   * <p>
+   * This is a convenience method for {@code jsonb.type(Object.class).toJson(any, jsonOutput) }
+   */
+  void toJson(Object any, JsonOutput jsonOutput);
 
   /**
    * Return the JsonType used to read and write json for the given class.
@@ -375,9 +394,21 @@ public interface Jsonb {
     Builder failOnUnknown(boolean failOnUnknown);
 
     /**
+     * Set to true to fail on NULL for primitive types. Defaults to false, where
+     * a NULL is allowed and returned as the default value of the primitive (false, 0).
+     */
+    Builder failOnNullPrimitives(boolean failOnNullPrimitives);
+
+    /**
      * Set to true for BigDecimal and BigInteger to serialise as String values rather than number values.
      */
     Builder mathTypesAsString(boolean mathTypesAsString);
+
+    /**
+     * Set to true for Calendar to serialise as String with timezone and false to serialise
+     * as UTC epoch millis. Defaults to false.
+     */
+    Builder calendarAsString(boolean calendarAsString);
 
     /**
      * Determines how byte buffers are recycled
@@ -418,6 +449,13 @@ public interface Jsonb {
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
     Builder add(AdapterFactory factory);
+
+    /**
+     * Set the ClassLoader to use when loading modules.
+     *
+     * @param classLoader The ClassLoader to use
+     */
+    Builder classLoader(ClassLoader classLoader);
 
     /**
      * Build and return the Jsonb instance with all the given adapters and factories registered.

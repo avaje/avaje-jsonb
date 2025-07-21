@@ -14,16 +14,29 @@ import static java.util.stream.StreamSupport.stream;
 final class StreamAdapter<T> implements DJsonClosable<Stream<T>>, JsonAdapter<Stream<T>> {
 
   private final JsonAdapter<T> elementAdapter;
+  private final boolean lineDelimited;
 
-  StreamAdapter(JsonAdapter<T> elementAdapter) {
+  StreamAdapter(JsonAdapter<T> elementAdapter, boolean lineDelimited) {
     this.elementAdapter = elementAdapter;
+    this.lineDelimited = lineDelimited;
   }
 
   @Override
-  public void toJson(JsonWriter writer, Stream<T> value) {
-    writer.beginArray();
-    value.forEach(bean -> elementAdapter.toJson(writer, bean));
-    writer.endArray();
+  public void toJson(JsonWriter writer, Stream<T> stream) {
+    try (stream) {
+      if (lineDelimited) {
+        writer.pretty(false);
+        stream.forEach(bean -> {
+          elementAdapter.toJson(writer, bean);
+          writer.writeNewLine();
+        });
+        writer.writeNewLine();
+      } else {
+        writer.beginArray();
+        stream.forEach(bean -> elementAdapter.toJson(writer, bean));
+        writer.endArray();
+      }
+    }
   }
 
   @Override

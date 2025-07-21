@@ -7,6 +7,12 @@ import java.io.OutputStream;
 /**
  * Output that can be aware of server content chunking.
  * <p>
+ * We can use an implementation of JsonOutput such that it can make use of
+ * the underlying buffer used by avaje-jsonb, using {@link #writeLast(byte[], int, int)}
+ * to know if the content is complete (and typically can be written directly as fixed
+ * content) or if the content is still being written (and potentially written by an
+ * http server as chunked content).
+ * <p>
  * Typically, for HTTP servers that can send output using fixed length or chunked.
  */
 public interface JsonOutput extends Closeable {
@@ -14,6 +20,14 @@ public interface JsonOutput extends Closeable {
   /**
    * Create as a simple wrapper for OutputStream.
    */
+  static JsonOutput ofStream(OutputStream outputStream) {
+    return new DJsonOutput(outputStream);
+  }
+
+  /**
+   * @deprecated migrate to {@link #ofStream(OutputStream)}.
+   */
+  @Deprecated
   static JsonOutput of(OutputStream outputStream) {
     return new DJsonOutput(outputStream);
   }

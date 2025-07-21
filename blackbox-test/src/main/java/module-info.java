@@ -1,3 +1,5 @@
+import io.avaje.jsonb.spi.JsonbExtension;
+
 module blackbox.test {
 
   requires static io.avaje.jsonb;
@@ -5,6 +7,11 @@ module blackbox.test {
   requires java.validation;
   requires io.avaje.json.node;
 
-  provides io.avaje.jsonb.spi.JsonbExtension with org.example.customer.customtype.CustomTypeComponent, org.example.jsonb.GeneratedJsonComponent;
+  provides JsonbExtension
+    with
+      org.example.customer.customtype.CustomTypeComponent,
+      org.example.other.custom.CustomJsonComponent,
+      org.example.jsonb.GeneratedJsonComponent,
+      org.example.pkg_private.PkgPrivateJsonComponent;
 
 }

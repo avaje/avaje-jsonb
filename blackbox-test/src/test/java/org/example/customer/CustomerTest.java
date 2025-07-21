@@ -1,6 +1,7 @@
 package org.example.customer;
 
 import io.avaje.json.*;
+import io.avaje.json.stream.JsonOutput;
 import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
@@ -50,6 +51,17 @@ class CustomerTest {
     var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     jsonb.toJson(customer,  baos);
+    String asString = baos.toString(StandardCharsets.UTF_8);
+    assertThat(asString).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
+  }
+
+  @Test
+  void anyToJsonOutput() {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    JsonOutput jsonOutput = JsonOutput.ofStream(baos);
+
+    jsonb.toJson(customer,  jsonOutput);
     String asString = baos.toString(StandardCharsets.UTF_8);
     assertThat(asString).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
   }

@@ -14,6 +14,7 @@ final class CoreJsonStream implements JsonStream {
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
+  private final boolean failOnNullPrimitives;
   private final BufferRecycler recycle;
 
   /** Create additionally providing the jsonFactory. */
@@ -21,10 +22,12 @@ final class CoreJsonStream implements JsonStream {
       boolean serializeNulls,
       boolean serializeEmpty,
       boolean failOnUnknown,
+      boolean failOnNullPrimitives,
       BufferRecycleStrategy recycle) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
+    this.failOnNullPrimitives = failOnNullPrimitives;
     this.recycle = init2Recycler(recycle);
   }
 
@@ -66,7 +69,7 @@ final class CoreJsonStream implements JsonStream {
   @Override
   public JsonReader reader(byte[] json) {
     JsonParser parser = recycle.parser(json);
-    return new JsonReadAdapter(parser, recycle, failOnUnknown);
+    return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives);
   }
 
   @Override
@@ -77,7 +80,7 @@ final class CoreJsonStream implements JsonStream {
   @Override
   public JsonReader reader(InputStream inputStream) {
     JsonParser parser = recycle.parser(inputStream);
-    return new JsonReadAdapter(parser, recycle, failOnUnknown);
+    return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives);
   }
 
   @Override
@@ -88,7 +91,7 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonWriter writer(OutputStream outputStream) {
-    return writer(JsonOutput.of(outputStream));
+    return writer(JsonOutput.ofStream(outputStream));
   }
 
   @Override

@@ -53,7 +53,7 @@ final class Util {
 
   static String packageOf(String cls) {
     int pos = cls.lastIndexOf('.');
-    return (pos == -1) ? "" : cls.substring(0, pos);
+    return pos == -1 ? "" : cls.substring(0, pos);
   }
 
   static String shortName(String fullType) {
@@ -115,7 +115,7 @@ final class Util {
   /** Return the common parent package. */
   static String commonParent(String currentTop, String aPackage) {
     if (aPackage == null) return currentTop;
-    if (currentTop == null) return packageOf(aPackage);
+    if (currentTop.isBlank()) return packageOf(aPackage);
     if (aPackage.startsWith(currentTop)) {
       return currentTop;
     }

@@ -23,6 +23,24 @@ class StreamBasicTest {
   }
 
   @Test
+  void streamAsLines_toJsonFromJson() {
+    JsonType<Stream<MyBasic>> streamType = type.streamAsLines();
+
+    String asJson = streamType.toJson(basics.stream());
+    String expected = "{\"id\":1,\"name\":\"a\"}\n{\"id\":2,\"name\":\"b\"}\n{\"id\":3,\"name\":\"c\"}\n\n";
+    assertThat(asJson)
+      .describedAs("expect new line delimited json content")
+      .isEqualTo(expected);
+
+    Stream<MyBasic> myBasicStream = streamType.fromJson(expected);
+    List<MyBasic> list = myBasicStream.toList();
+    assertThat(list).describedAs("reads new line delimited").isEqualTo(basics);
+
+    Stream<MyBasic> streamFromArray = streamType.fromJson("[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"},{\"id\":3,\"name\":\"c\"}]");
+    assertThat(streamFromArray.toList()).describedAs("reads array as well").isEqualTo(basics);
+  }
+
+  @Test
   void stream_traditionalArray() {
     String arrayJson = jsonb.toJson(basics);
     StringBuilder sb = new StringBuilder();

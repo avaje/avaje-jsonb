@@ -22,7 +22,7 @@ import java.io.IOException;
  */
 public class JsonIoException extends JsonException {
 
-  static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
   public JsonIoException(IOException cause) {
     super(cause);

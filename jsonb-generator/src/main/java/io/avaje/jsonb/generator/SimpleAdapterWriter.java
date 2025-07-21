@@ -14,16 +14,18 @@ final class SimpleAdapterWriter {
   private final String adapterPackage;
   private final String adapterFullName;
   private final int genericParamsCount;
+  private final String pkgPrivate;
 
   private Append writer;
 
   SimpleAdapterWriter(BeanReader beanReader) {
     this.beanReader = beanReader;
-    final AdapterName adapterName = new AdapterName(beanReader.beanType());
+    final AdapterName adapterName = new AdapterName(beanReader);
     this.adapterShortName = adapterName.shortName();
     this.adapterPackage = adapterName.adapterPackage();
     this.adapterFullName = adapterName.fullName();
     this.genericParamsCount = beanReader.genericTypeParamsCount();
+    this.pkgPrivate = beanReader.isPkgPrivate() ? "" : "public ";
   }
 
   String fullName() {
@@ -59,7 +61,7 @@ final class SimpleAdapterWriter {
       if (nestedIndex != -1) {
         typeName = typeName.substring(nestedIndex + 1);
       }
-      writer.append("  public static final AdapterFactory FACTORY = (type, jsonb) -> {").eol();
+      writer.append("  %sstatic final AdapterFactory FACTORY = (type, jsonb) -> {", pkgPrivate).eol();
       writer.append("    if (Types.isGenericTypeOf(type, %s.class)) {", typeName).eol();
       writer.append("      Type[] args = Types.typeArguments(type);").eol();
       writer.append("      return new %sJsonAdapter(jsonb", adapterShortName);
@@ -74,7 +76,7 @@ final class SimpleAdapterWriter {
   }
 
   private void writeConstructor() {
-    writer.append("  public %sJsonAdapter(Jsonb jsonb", adapterShortName);
+    writer.append("  %s%sJsonAdapter(Jsonb jsonb", pkgPrivate, adapterShortName);
     for (int i = 0; i < genericParamsCount; i++) {
       writer.append(", Type param%d", i);
     }
@@ -87,7 +89,7 @@ final class SimpleAdapterWriter {
       writer.append("  /**").eol();
       writer.append("   * Construct using Object for generic type parameters.").eol();
       writer.append("   */").eol();
-      writer.append("  public %sJsonAdapter(Jsonb jsonb) {", adapterShortName).eol();
+      writer.append("  %s%sJsonAdapter(Jsonb jsonb) {", pkgPrivate, adapterShortName).eol();
       writer.append("    this(jsonb");
       for (int i = 0; i < genericParamsCount; i++) {
         writer.append(", Object.class");
@@ -112,7 +114,7 @@ final class SimpleAdapterWriter {
       writer.append("@SuppressWarnings({\"unchecked\", \"rawtypes\"})").eol();
     }
     writer.append("@Generated(\"io.avaje.jsonb.generator\")").eol();
-    writer.append("public final %sclass %sJsonAdapter implements JsonAdapter<%s>", Util.valhalla(), adapterShortName, beanReader.shortName());
+    writer.append("%sfinal %sclass %sJsonAdapter implements JsonAdapter<%s>", pkgPrivate, Util.valhalla(), adapterShortName, beanReader.shortName());
     if (beanReader.supportsViewBuilder()) {
       writer.append(", ViewBuilderAware ");
     }

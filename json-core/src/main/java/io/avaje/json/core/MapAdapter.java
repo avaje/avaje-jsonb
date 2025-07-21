@@ -30,7 +30,7 @@ import java.util.Map;
 final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
 
   static <V> JsonAdapter<Map<String, V>> create(JsonAdapter<V> valueAdapter) {
-    return new MapAdapter<>(valueAdapter);
+    return new MapAdapter<>(valueAdapter).nullSafe();
   }
 
   private final JsonAdapter<V> valueAdapter;

@@ -8,7 +8,7 @@ import io.avaje.jsonb.*;
 import io.avaje.json.*;
 
 @CustomAdapter
-public class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
+class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
 
   private final JsonAdapter<K> generic1;
   private final JsonAdapter<V> generic2;

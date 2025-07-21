@@ -1,0 +1,23 @@
+package org.example.pkg_private;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
+
+class PackagePrivateTest {
+
+  final JsonType<PackagePrivate> jsonb = Jsonb.builder().build().type(PackagePrivate.class);
+
+  @Test
+  void to_From_Json() {
+    final var bean = new PackagePrivate(5);
+    final var str = jsonb.toJson(bean);
+    assertThat(str).isEqualTo("{\"id\":5}");
+
+    final var from = jsonb.fromJson(str);
+    assertThat(bean).isEqualTo(from);
+  }
+}

@@ -16,13 +16,6 @@ final class ComponentMetaData {
     return allTypes.toString();
   }
 
-  /**
-   * Ensure the component name has been initialised.
-   */
-  void initialiseFullName() {
-    fullName();
-  }
-
   boolean contains(String type) {
     return allTypes.contains(type);
   }
@@ -38,7 +31,7 @@ final class ComponentMetaData {
     factoryTypes.add(fullName);
   }
 
-  public void addWithType(String type) {
+  void addWithType(String type) {
     withTypes.add(type);
   }
 
@@ -46,19 +39,20 @@ final class ComponentMetaData {
     this.fullName = fullName;
   }
 
-  String fullName() {
+  String fullName(boolean pkgPrivate) {
     if (fullName == null) {
-      String topPackage = TopPackage.of(allTypes);
-      if (!topPackage.endsWith(".jsonb")) {
+      var everyType = new ArrayList<>(allTypes);
+      everyType.addAll(factoryTypes);
+      String topPackage = TopPackage.of(everyType);
+      if (!topPackage.endsWith(".jsonb") && !pkgPrivate) {
         topPackage += ".jsonb";
       }
-      fullName = topPackage + ".GeneratedJsonComponent";
+      fullName =
+          pkgPrivate
+              ? topPackage + "." + name(topPackage) + "JsonComponent"
+              : topPackage + ".GeneratedJsonComponent";
     }
     return fullName;
-  }
-
-  String packageName() {
-    return Util.packageOf(fullName());
   }
 
   List<String> all() {
@@ -91,7 +85,39 @@ final class ComponentMetaData {
     return packageImports;
   }
 
-  public boolean isEmpty() {
+  boolean isEmpty() {
     return allTypes.isEmpty() && factoryTypes.isEmpty();
+  }
+
+  static String name(String name) {
+    if (name == null) {
+      return null;
+    }
+    final int pos = name.lastIndexOf('.');
+    if (pos > -1) {
+      name = name.substring(pos + 1);
+    }
+    return camelCase(name).replaceFirst("Jsonb", "Generated");
+  }
+
+  private static String camelCase(String name) {
+    StringBuilder sb = new StringBuilder(name.length());
+    boolean upper = true;
+    for (char aChar : name.toCharArray()) {
+      if (Character.isLetterOrDigit(aChar)) {
+        if (upper) {
+          aChar = Character.toUpperCase(aChar);
+          upper = false;
+        }
+        sb.append(aChar);
+      } else if (toUpperOn(aChar)) {
+        upper = true;
+      }
+    }
+    return sb.toString();
+  }
+
+  private static boolean toUpperOn(char aChar) {
+    return aChar == ' ' || aChar == '-' || aChar == '_';
   }
 }
