@@ -168,6 +168,31 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
+  public void rawChunkStart() {
+    delegate.rawChunkStart();
+  }
+
+  @Override
+  public void rawChunk(char value) {
+    delegate.rawChunk(value);
+  }
+
+  @Override
+  public void rawChunk(String value) {
+    delegate.rawChunk(value);
+  }
+
+  @Override
+  public void rawChunkEncode(String value) {
+    delegate.rawChunkEncode(value);
+  }
+
+  @Override
+  public void rawChunkEnd() {
+    delegate.rawChunkEnd();
+  }
+
+  @Override
   public final void jsonValue(Object value) {
     delegate.jsonValue(value);
   }

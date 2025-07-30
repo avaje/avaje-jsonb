@@ -163,9 +163,14 @@ class JGenerator implements JsonGenerator {
     position = cur;
   }
 
-  /** Break a large string into segments and flush when necessary */
   private void writeLargeString(String text) {
     writeByte(QUOTE);
+    writeStringSegments(text);
+    writeByte(QUOTE);
+  }
+
+  /** Break a large string into segments and flush when necessary */
+  private void writeStringSegments(String text) {
     int left = text.length();
     int offset = 0;
     while (left > 0) {
@@ -177,7 +182,6 @@ class JGenerator implements JsonGenerator {
       offset += len;
       left -= len;
     }
-    writeByte(QUOTE);
   }
 
   private void writeStringEscape(final String str, int i, int cur, final int len) {
@@ -648,6 +652,26 @@ class JGenerator implements JsonGenerator {
   public void writeRaw(String value) {
     prefixValue();
     writeAscii(value);
+  }
+
+  @Override
+  public void startRawChunk() {
+    prefixValue();
+  }
+
+  @Override
+  public void writeRawChunk(String value) {
+    writeAscii(value);
+  }
+
+  @Override
+  public void writeRawChunkEncode(String value) {
+    writeStringSegments(value);
+  }
+
+  @Override
+  public void writeRawChunk(char value) {
+    writeByte((byte) value);
   }
 
   @Override
