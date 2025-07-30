@@ -206,8 +206,67 @@ public interface JsonWriter extends Closeable, Flushable {
 
   /**
    * Write raw JSON content.
+   * <p>
+   * If the raw JSON content is really large, we can instead write it in chunks by instead
+   * using {@link #rawChunkStart()} and {@link #rawChunk(String)} etc.
+   *
+   * @see #rawChunkStart()
    */
   void rawValue(String value);
+
+  /**
+   * Start writing a value as multiple raw chunks of JSON content.
+   * <p>
+   * This is for the case of writing a relatively large amount of raw JSON content
+   * in multiple chunks. For smaller content we can just use {@link #rawValue(String)}
+   * instead.
+   *
+   * <pre>{@code
+   *
+   *  // write valid json value as multiple chunks
+   *  writer.rawChunkStart();
+   *  writer.rawChunk('"');
+   *
+   *  // a chunk that doesn't need any encoding
+   *  writer.rawChunk("ab-1234");
+   *
+   *  // a chunk that needs encoding (e.g. contains newline char etc)
+   *  writer.rawChunkEncode("more\n content");
+   *  ...
+   *  writer.rawChunk('"');
+   *  writer.rawChunkEnd();
+   *
+   * }</pre>
+   */
+  void rawChunkStart();
+
+  /**
+   * Write a character as a chunk of raw JSON content.
+   *
+   * @see #rawChunkStart()
+   */
+  void rawChunk(char value);
+
+  /**
+   * Write a chunk of raw JSON content with the value not needing any encoding.
+   *
+   * @see #rawChunkStart()
+   */
+  void rawChunk(String value);
+
+  /**
+   * Write a chunk of raw JSON content encoding as necessary.
+   *
+   * @see #rawChunkStart()
+   */
+  void rawChunkEncode(String value);
+
+  /**
+   * End writing raw chunks of json content.
+   *
+   * @see #rawChunkStart()
+   */
+  void rawChunkEnd();
 
   /**
    * Write new line characters typically for {@code x-json-stream} content.

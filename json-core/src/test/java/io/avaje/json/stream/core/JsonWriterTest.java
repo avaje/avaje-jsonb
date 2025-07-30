@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
+import java.io.StringWriter;
 
 import io.avaje.json.stream.JsonOutput;
 import io.avaje.json.stream.JsonStream;
@@ -216,5 +217,67 @@ class JsonWriterTest {
     assertThat(effectiveBufferSize.length)
       .describedAs("internal buffer should not grow")
       .isEqualTo(100);
+  }
+
+  @Test
+  void rawValue() {
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+
+    StringWriter writer = new StringWriter();
+    JsonWriter fw = build.writer(writer);
+
+    fw.beginObject();
+    fw.name("key");
+    fw.rawValue("\"abc\"");
+    fw.endObject();
+    fw.close();
+
+    assertThat(writer.toString()).isEqualTo("{\"key\":\"abc\"}");
+  }
+
+  @Test
+  void rawChunk() {
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+
+    StringWriter writer = new StringWriter();
+    JsonWriter fw = build.writer(writer);
+
+    fw.beginObject();
+    fw.name("key");
+    fw.rawChunkStart();
+    fw.rawChunk('"');
+    fw.rawChunk("a");
+    fw.rawChunk("bc");
+    fw.rawChunk('"');
+    fw.rawChunkEnd();
+    fw.name("x");
+    fw.value(1);
+    fw.endObject();
+    fw.close();
+
+    assertThat(writer.toString()).isEqualTo("{\"key\":\"abc\",\"x\":1}");
+  }
+
+  @Test
+  void rawChunkEncode() {
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+
+    StringWriter writer = new StringWriter();
+    JsonWriter fw = build.writer(writer);
+
+    fw.beginObject();
+    fw.name("key");
+    fw.rawChunkStart();
+    fw.rawChunk('"');
+    fw.rawChunkEncode("a\n");
+    fw.rawChunkEncode("b£c");
+    fw.rawChunk('"');
+    fw.rawChunkEnd();
+    fw.name("x");
+    fw.value(1);
+    fw.endObject();
+    fw.close();
+
+    assertThat(writer.toString()).isEqualTo("{\"key\":\"a\\nb£c\",\"x\":1}");
   }
 }
