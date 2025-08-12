@@ -173,10 +173,10 @@ final class GenericType {
   private String asTypeContainer() {
     GenericType param = params.get(0);
     String containerType = topType();
-    if ("java.util.List".equals(containerType)) {
+    if ("java.util.List".equals(containerType) || "java.util.ArrayList".equals(containerType)) {
       return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
     }
-    if ("java.util.Set".equals(containerType)) {
+    if ("java.util.Set".equals(containerType) || "java.util.LinkedHashSet".equals(containerType)) {
       return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
     }
     if ("java.util.stream.Stream".equals(containerType)) {
