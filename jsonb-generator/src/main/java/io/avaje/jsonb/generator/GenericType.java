@@ -167,22 +167,22 @@ final class GenericType {
     if (adapterType != null) {
       return adapterType;
     }
-    return Util.shortName(topType)+".class";
+    return Util.shortName(topType) + ".class";
   }
 
   private String asTypeContainer() {
     GenericType param = params.get(0);
     String containerType = topType();
-    if (isAssignable(containerType, "java.util.List")) {
+    if ("java.util.List".equals(containerType) || "java.util.ArrayList".equals(containerType)) {
       return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
     }
-    if (isAssignable(containerType, "java.util.Set")) {
+    if ("java.util.Set".equals(containerType) || "java.util.LinkedHashSet".equals(containerType)) {
       return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
     }
-    if (isAssignable(containerType, "java.util.stream.Stream")) {
+    if ("java.util.stream.Stream".equals(containerType)) {
       return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
     }
-    if (isAssignable(containerType, "java.util.Optional")) {
+    if ("java.util.Optional".equals(containerType)) {
       return "Types.optionalOf(" + Util.shortName(param.topType()) + ".class)";
     }
     return null;
