@@ -292,7 +292,7 @@ final class ClassReader implements BeanReader {
     }
     writer.append("    this.names = jsonb.properties(");
     if (hasSubTypes) {
-      writer.append("\"").append(typeProperty).append("\", ");
+      writer.append("\"").append(typeProperty).append("\"");
     }
     writer.append(propertyNames());
     writer.append(");").eol();
@@ -311,7 +311,7 @@ final class ClassReader implements BeanReader {
       if (!seen.add(fieldReader.propertyName())) {
         continue;
       }
-      if (i > 0) {
+      if (i > 0 || i == 0 && hasSubTypes) {
         builder.append(", ");
       }
       if (usesTypeProperty && fieldReader.propertyName().equals(typePropertyKey())) {
@@ -326,7 +326,7 @@ final class ClassReader implements BeanReader {
   private String propertyNamesReadOnly() {
     final StringBuilder builder = new StringBuilder();
     for (int i = 0; i < methodProperties.size(); i++) {
-      if (i > 0) {
+      if (i > 0 || i == 0 && hasSubTypes) {
         builder.append(", ");
       }
       builder.append("\"").append(methodProperties.get(i).propertyName()).append("\"");
