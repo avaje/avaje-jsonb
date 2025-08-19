@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -291,47 +292,32 @@ final class ClassReader implements BeanReader {
       }
     }
     writer.append("    this.names = jsonb.properties(");
+    var properties = new LinkedHashSet<String>();
     if (hasSubTypes) {
-      writer.append("\"").append(typeProperty).append("\", ");
+      properties.add('"' + typeProperty + '"');
     }
-    writer.append(propertyNames());
+    properties.addAll(propertyNames());
+    writer.append(String.join(", ", properties));
     writer.append(");").eol();
   }
 
-  private String propertyNames() {
+  private List<String> propertyNames() {
     return readOnlyInterface ? propertyNamesReadOnly() : propertyNamesFields();
   }
 
-  private String propertyNamesFields() {
-    final StringBuilder builder = new StringBuilder();
-    //set to prevent writing same key twice
-    final var seen = new HashSet<String>();
-    for (int i = 0, size = allFields.size(); i < size; i++) {
-      final FieldReader fieldReader = allFields.get(i);
-      if (!seen.add(fieldReader.propertyName())) {
-        continue;
-      }
-      if (i > 0) {
-        builder.append(", ");
-      }
-      if (usesTypeProperty && fieldReader.propertyName().equals(typePropertyKey())) {
-        builder.append(" ");
-        continue;
-      }
-      builder.append("\"").append(fieldReader.propertyName()).append("\"");
-    }
-    return builder.toString().replace(" , ", "");
+  private List<String> propertyNamesFields() {
+    return allFields.stream()
+      .map(FieldReader::propertyName)
+      .map(property -> '"' + property + '"')
+      .filter(property -> !usesTypeProperty || !property.equals(typePropertyKey()))
+      .collect(toList());
   }
 
-  private String propertyNamesReadOnly() {
-    final StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < methodProperties.size(); i++) {
-      if (i > 0) {
-        builder.append(", ");
-      }
-      builder.append("\"").append(methodProperties.get(i).propertyName()).append("\"");
-    }
-    return builder.toString().replace(" , ", "");
+  private List<String> propertyNamesReadOnly() {
+    return methodProperties.stream()
+      .map(MethodProperty::propertyName)
+      .map(property -> '"' + property + '"')
+      .collect(toList());
   }
 
   @Override
