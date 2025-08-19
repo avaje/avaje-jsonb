@@ -1,12 +1,13 @@
-package org.example.customer;
+package org.example.customer.subtype;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EmptySupertypeTest {
   Jsonb jsonb = Jsonb.builder().build();
@@ -56,7 +57,6 @@ class EmptySupertypeTest {
   @Test
   void invalidJsonC() {
     var json = "{\"@type\":\"c\"}";
-    var expected = new EmptySupertype.SubtypeB();
     assertThrows(IllegalStateException.class, () -> type.fromJson(json));
   }
 }

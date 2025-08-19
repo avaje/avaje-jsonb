@@ -1,4 +1,4 @@
-package org.example.customer;
+package org.example.customer.subtype;
 
 import io.avaje.jsonb.Json;
 
