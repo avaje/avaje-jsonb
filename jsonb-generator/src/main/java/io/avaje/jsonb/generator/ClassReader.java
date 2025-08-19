@@ -292,7 +292,7 @@ final class ClassReader implements BeanReader {
     }
     writer.append("    this.names = jsonb.properties(");
     if (hasSubTypes) {
-      writer.append("\"").append(typeProperty).append("\"");
+      writer.append("\"%s\"", typeProperty);
     }
     writer.append(propertyNames());
     writer.append(");").eol();
