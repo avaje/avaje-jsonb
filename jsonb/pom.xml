@@ -11,6 +11,14 @@
   <name>avaje jsonb</name>
   <description>JSON Streaming Generation and data binding library using source code generation</description>
 
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <dependencies>
 
     <dependency>

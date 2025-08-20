@@ -13,6 +13,14 @@
   <name>avaje json core</name>
   <description>Core JSON Streaming and Generation API</description>
 
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <dependencies>
     <dependency>
       <groupId>io.helidon.webserver</groupId>

@@ -11,6 +11,14 @@
   <name>avaje jsonb jackson</name>
   <description>jackson adapter for avaje-jsonb</description>
 
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <dependencies>
 
     <dependency>
