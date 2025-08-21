@@ -213,13 +213,13 @@ final class DJsonb implements Jsonb {
   }
 
   @Override
-  public <T> boolean hasAdapter(Class<T> cls) {
+  public boolean hasAdapter(Class<?> cls) {
     Type cacheKey = canonicalizeClass(requireNonNull(cls));
     return builder.hasAdapter(cacheKey);
   }
 
   @Override
-  public <T> boolean hasAdapter(Type type) {
+  public boolean hasAdapter(Type type) {
     type = removeSubtypeWildcard(canonicalize(requireNonNull(type)));
     return builder.hasAdapter(type);
   }

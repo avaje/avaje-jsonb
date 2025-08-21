@@ -64,14 +64,12 @@ final class CoreAdapterBuilder {
    * Check if an adapter exists or can be created for the given cache key.
    * If an adapter can be created, it will be cached for subsequent use.
    */
-  boolean hasAdapter(Object cacheKey) {
-    // Fast path: check if already cached
+  boolean hasAdapter(Type cacheKey) {
     if (adapterCache.containsKey(cacheKey)) {
       return true;
     }
 
-    // Try to create and cache adapter
-    JsonAdapter<?> adapter = tryCreateAdapter((Type) cacheKey, cacheKey, false);
+    JsonAdapter<?> adapter = lookupAdapter(cacheKey, cacheKey, false);
     return adapter != null;
   }
 
@@ -84,7 +82,7 @@ final class CoreAdapterBuilder {
    * @throws IllegalArgumentException if no adapter found and throwOnFailure is true
    */
   @SuppressWarnings("unchecked")
-  private <T> JsonAdapter<T> tryCreateAdapter(Type type, Object cacheKey, boolean throwOnFailure) {
+  private <T> JsonAdapter<T> lookupAdapter(Type type, Object cacheKey, boolean throwOnFailure) {
     LookupChain lookupChain = lookupChainThreadLocal.get();
     if (lookupChain == null) {
       lookupChain = new LookupChain();
@@ -138,7 +136,7 @@ final class CoreAdapterBuilder {
    * Build given type and annotations.
    */
   <T> JsonAdapter<T> build(Type type, Object cacheKey) {
-    return tryCreateAdapter(type, cacheKey, true);
+    return lookupAdapter(type, cacheKey, true);
   }
 
   /**
