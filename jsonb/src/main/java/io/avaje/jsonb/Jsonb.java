@@ -369,6 +369,22 @@ public interface Jsonb {
   JsonAdapter<String> rawAdapter();
 
   /**
+   * Check if a JsonAdapter exists for the given class without attempting to create one.
+   * 
+   * @param cls The class to check for adapter availability
+   * @return true if an adapter exists or can be created, false otherwise
+   */
+  <T> boolean hasAdapter(Class<T> cls);
+
+  /**
+   * Check if a JsonAdapter exists for the given type without attempting to create one.
+   * 
+   * @param type The type to check for adapter availability  
+   * @return true if an adapter exists or can be created, false otherwise
+   */
+  <T> boolean hasAdapter(Type type);
+
+  /**
    * Build the Jsonb instance adding JsonAdapter, Factory or AdapterBuilder.
    */
   interface Builder {

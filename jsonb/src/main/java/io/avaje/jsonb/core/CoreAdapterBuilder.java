@@ -61,6 +61,25 @@ final class CoreAdapterBuilder {
   }
 
   /**
+   * Check if an adapter exists or can be created for the given cache key.
+   * This performs a lightweight check without creating or caching adapters.
+   */
+  boolean hasAdapter(Object cacheKey) {
+    // Fast path: check if already cached
+    if (adapterCache.containsKey(cacheKey)) {
+      return true;
+    }
+
+    // Check if any factory can create this adapter
+    for (AdapterFactory factory : factories) {
+      if (factory.create((Type) cacheKey, context) == null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Build for the simple non-annotated type case.
    */
   <T> JsonAdapter<T> build(Type type) {

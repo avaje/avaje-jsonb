@@ -212,6 +212,18 @@ final class DJsonb implements Jsonb {
     return RawAdapter.STR;
   }
 
+  @Override
+  public <T> boolean hasAdapter(Class<T> cls) {
+    Type cacheKey = canonicalizeClass(requireNonNull(cls));
+    return builder.hasAdapter(cacheKey);
+  }
+
+  @Override
+  public <T> boolean hasAdapter(Type type) {
+    type = removeSubtypeWildcard(canonicalize(requireNonNull(type)));
+    return builder.hasAdapter(type);
+  }
+
   JsonReader objectReader(Object value) {
     return new ObjectJsonReader(value);
   }
