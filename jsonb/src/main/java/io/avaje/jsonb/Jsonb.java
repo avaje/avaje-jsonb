@@ -235,6 +235,8 @@ public interface Jsonb {
    * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
    * the result are determined dynamically based on the json types being read and the resulting java types
    * are ArrayList, LinkedHashMap, String, boolean, and double.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonType<T> type(Class<T> cls);
 
@@ -279,6 +281,8 @@ public interface Jsonb {
    * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
    * the result are determined dynamically based on the json types being read and the resulting java types
    * are ArrayList, LinkedHashMap, String, boolean, and double.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonType<T> type(Type type);
 
@@ -341,6 +345,8 @@ public interface Jsonb {
    *
    * <p>JsonAdapter is generally used by generated serialization code. Application code should use
    * {@link Jsonb#type(Class)} and {@link JsonType} instead.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonAdapter<T> adapter(Class<T> cls);
 
@@ -349,6 +355,8 @@ public interface Jsonb {
    *
    * <p>JsonAdapter is generally used by generated serialization code. Application code should use
    * {@link Jsonb#type(Type)} and {@link JsonType} instead.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonAdapter<T> adapter(Type type);
 
@@ -367,6 +375,22 @@ public interface Jsonb {
    * Raw JsonAdapter for raw json content.
    */
   JsonAdapter<String> rawAdapter();
+
+  /**
+   * Check if a JsonAdapter exists for the given class.
+   *
+   * @param cls The class to check for adapter availability
+   * @return true if an adapter exists, false otherwise
+   */
+  boolean hasAdapter(Class<?> cls);
+
+  /**
+   * Check if a JsonAdapter exists for the given type.
+   *
+   * @param type The type to check for adapter availability
+   * @return true if an adapter exists, false otherwise
+   */
+  boolean hasAdapter(Type type);
 
   /**
    * Build the Jsonb instance adding JsonAdapter, Factory or AdapterBuilder.
