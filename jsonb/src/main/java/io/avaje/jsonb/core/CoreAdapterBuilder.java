@@ -62,7 +62,7 @@ final class CoreAdapterBuilder {
 
   /**
    * Check if an adapter exists or can be created for the given cache key.
-   * This performs a lightweight check without creating or caching adapters.
+   * If an adapter can be created, it will be cached for subsequent use.
    */
   boolean hasAdapter(Object cacheKey) {
     // Fast path: check if already cached
@@ -70,27 +70,21 @@ final class CoreAdapterBuilder {
       return true;
     }
 
-    // Check if any factory can create this adapter
-    for (AdapterFactory factory : factories) {
-      if (factory.create((Type) cacheKey, context) == null) {
-        return true;
-      }
-    }
-    return false;
+    // Try to create and cache adapter
+    JsonAdapter<?> adapter = tryCreateAdapter((Type) cacheKey, cacheKey, false);
+    return adapter != null;
   }
 
   /**
-   * Build for the simple non-annotated type case.
-   */
-  <T> JsonAdapter<T> build(Type type) {
-    return build(type, type);
-  }
-
-  /**
-   * Build given type and annotations.
+   * Try to create an adapter for the given type, with optional exception handling.
+   *
+   * @param type The type to create an adapter for
+   * @param cacheKey The cache key to use
+   * @return The created adapter, or null if no factory can create it and throwOnFailure is false
+   * @throws IllegalArgumentException if no adapter found and throwOnFailure is true
    */
   @SuppressWarnings("unchecked")
-  <T> JsonAdapter<T> build(Type type, Object cacheKey) {
+  private <T> JsonAdapter<T> tryCreateAdapter(Type type, Object cacheKey, boolean throwOnFailure) {
     LookupChain lookupChain = lookupChainThreadLocal.get();
     if (lookupChain == null) {
       lookupChain = new LookupChain();
@@ -113,17 +107,38 @@ final class CoreAdapterBuilder {
           return result;
         }
       }
-      throw new IllegalArgumentException(
-          "No JsonAdapter for "
-              + type
-              + "\nPossible Causes: \n"
-              + "1. Missing @Json or @Json.Import annotation.\n"
-              + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
+
+      if (throwOnFailure) {
+        throw new IllegalArgumentException(
+            "No JsonAdapter for "
+                + type
+                + "\nPossible Causes: \n"
+                + "1. Missing @Json or @Json.Import annotation.\n"
+                + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
+      }
+      return null;  // No adapter found
     } catch (IllegalArgumentException e) {
-      throw lookupChain.exceptionWithLookupStack(e);
+      if (throwOnFailure) {
+        throw lookupChain.exceptionWithLookupStack(e);
+      }
+      return null;
     } finally {
       lookupChain.pop(success);
     }
+  }
+
+  /**
+   * Build for the simple non-annotated type case.
+   */
+  <T> JsonAdapter<T> build(Type type) {
+    return build(type, type);
+  }
+
+  /**
+   * Build given type and annotations.
+   */
+  <T> JsonAdapter<T> build(Type type, Object cacheKey) {
+    return tryCreateAdapter(type, cacheKey, true);
   }
 
   /**
