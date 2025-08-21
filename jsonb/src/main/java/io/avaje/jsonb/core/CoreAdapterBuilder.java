@@ -68,9 +68,7 @@ final class CoreAdapterBuilder {
     if (adapterCache.containsKey(cacheKey)) {
       return true;
     }
-
-    JsonAdapter<?> adapter = lookupAdapter(cacheKey, cacheKey, false);
-    return adapter != null;
+    return lookupAdapter(cacheKey, cacheKey, false) != null;
   }
 
   /**
@@ -108,11 +106,11 @@ final class CoreAdapterBuilder {
 
       if (throwOnFailure) {
         throw new IllegalArgumentException(
-            "No JsonAdapter for "
-                + type
-                + "\nPossible Causes: \n"
-                + "1. Missing @Json or @Json.Import annotation.\n"
-                + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
+          "No JsonAdapter for "
+            + type
+            + "\nPossible Causes: \n"
+            + "1. Missing @Json or @Json.Import annotation.\n"
+            + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
       }
       return null;  // No adapter found
     } catch (IllegalArgumentException e) {
