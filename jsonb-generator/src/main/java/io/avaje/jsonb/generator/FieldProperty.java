@@ -1,10 +1,11 @@
 package io.avaje.jsonb.generator;
 
-import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.lang.model.type.TypeMirror;
 
 final class FieldProperty {
 
@@ -159,15 +160,18 @@ final class FieldProperty {
     return Util.initLower(genericType.shortName()) + "JsonAdapter";
   }
 
-  String typeParamToObject(String shortType) {
+  String typeParamToObject() {
+    var shortType = genericType.shortType();
     for (final String typeParam : genericTypeParams) {
+      if (shortType.equals(typeParam)) {
+        return "Object";
+      }
       if (shortType.contains("<" + typeParam + ">")) {
         shortType = shortType.replace("<" + typeParam + ">", "<Object>");
       }
     }
     return shortType;
   }
-
 
   boolean typeObjectBooleanWithIsPrefix() {
     return nameHasIsPrefix() && isObjectBoolean();
@@ -182,7 +186,7 @@ final class FieldProperty {
   }
 
   private boolean isBoolean() {
-    return ("boolean".equals(genericType.topType()) || "java.lang.Boolean".equals(genericType.topType()));
+    return "boolean".equals(genericType.topType()) || "java.lang.Boolean".equals(genericType.topType());
   }
 
   private boolean nameHasIsPrefix() {
@@ -279,7 +283,7 @@ final class FieldProperty {
     if (unmapped) {
       return;
     }
-    final String shortType = typeParamToObject(genericType.shortType());
+    final String shortType = typeParamToObject();
     writer.append("    %s _val$%s = %s;", pad(shortType), fieldName + num, defaultValue);
     if (!constructorParam && !optional) {
       writer.append(" boolean _set$%s = false;", fieldName + num);
@@ -288,7 +292,7 @@ final class FieldProperty {
   }
 
   void writeFromJsonVariablesRecord(Append writer, String num) {
-    final String type = genericTypeParameter ? "Object" : genericType.shortType();
+    final String type = typeParamToObject();
     writer.append("    %s _val$%s = %s;", pad(type), fieldName + num, defaultValue).eol();
   }
 
