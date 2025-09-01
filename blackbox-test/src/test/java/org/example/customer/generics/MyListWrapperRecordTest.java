@@ -29,7 +29,8 @@ class MyListWrapperRecordTest {
     assertThat(asJson)
         .isEqualTo("{\"list\":[{\"id\":90,\"street\":\"one\"},{\"id\":91,\"street\":\"two\"}]}");
 
-    var jsonOfParams = jsonb.type(Types.newParameterizedType(MyListWrapper.class, Address.class));
+    var jsonOfParams =
+        jsonb.type(Types.newParameterizedType(MyListWrapperRecord.class, Address.class));
 
     var wrapper = (MyListWrapperRecord<Address>) jsonOfParams.fromJson(asJson);
     assertThat(wrapper.list()).hasSize(2);
