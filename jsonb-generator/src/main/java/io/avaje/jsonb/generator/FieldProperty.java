@@ -162,7 +162,6 @@ final class FieldProperty {
 
   String typeParamToObject() {
     var shortType = genericType.shortType();
-
     for (final String typeParam : genericTypeParams) {
       if (shortType.equals(typeParam)) {
         return "Object";
@@ -173,7 +172,6 @@ final class FieldProperty {
     }
     return shortType;
   }
-
 
   boolean typeObjectBooleanWithIsPrefix() {
     return nameHasIsPrefix() && isObjectBoolean();
