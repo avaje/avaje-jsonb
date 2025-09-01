@@ -160,8 +160,13 @@ final class FieldProperty {
     return Util.initLower(genericType.shortName()) + "JsonAdapter";
   }
 
-  String typeParamToObject(String shortType) {
+  String typeParamToObject() {
+    var shortType = genericType.shortType();
+
     for (final String typeParam : genericTypeParams) {
+      if (shortType.equals(typeParam)) {
+        return "Object";
+      }
       if (shortType.contains("<" + typeParam + ">")) {
         shortType = shortType.replace("<" + typeParam + ">", "<Object>");
       }
@@ -280,7 +285,7 @@ final class FieldProperty {
     if (unmapped) {
       return;
     }
-    final String shortType = typeParamToObject(genericType.shortType());
+    final String shortType = typeParamToObject();
     writer.append("    %s _val$%s = %s;", pad(shortType), fieldName + num, defaultValue);
     if (!constructorParam && !optional) {
       writer.append(" boolean _set$%s = false;", fieldName + num);
@@ -289,7 +294,7 @@ final class FieldProperty {
   }
 
   void writeFromJsonVariablesRecord(Append writer, String num) {
-    final String type = typeParamToObject(genericType.shortType());
+    final String type = typeParamToObject();
     writer.append("    %s _val$%s = %s;", pad(type), fieldName + num, defaultValue).eol();
   }
 
