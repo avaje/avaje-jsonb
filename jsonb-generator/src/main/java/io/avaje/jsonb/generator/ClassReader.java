@@ -360,7 +360,7 @@ final class ClassReader implements BeanReader {
   @Override
   public void writeToJson(Append writer) {
     try {
-      final String varName = Util.initLower(shortName);
+      final String varName = "$" + Util.initLower(shortName);
       writer.eol();
       writer.append("  @Override").eol();
       writer.append("  public void toJson(JsonWriter writer, %s %s) {", shortName, varName).eol();
