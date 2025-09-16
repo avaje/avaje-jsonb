@@ -1,7 +1,5 @@
 package io.avaje.jsonb.generator;
 
-import java.util.Optional;
-
 import javax.lang.model.element.Element;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -21,15 +19,5 @@ public interface CreatorPrism {
 
   static boolean isPresent(Element element) {
     return AvajeCreatorPrism.isPresent(element) || JacksonCreatorPrism.isPresent(element);
-  }
-
-  static CreatorPrism getInstanceOn(Element element) {
-    return getOptionalOn(element).orElse(null);
-  }
-
-  static Optional<CreatorPrism> getOptionalOn(Element element) {
-    return Optional.<CreatorPrism>empty()
-        .or(() -> AvajeCreatorPrism.getOptionalOn(element))
-        .or(() -> JacksonCreatorPrism.getOptionalOn(element));
   }
 }

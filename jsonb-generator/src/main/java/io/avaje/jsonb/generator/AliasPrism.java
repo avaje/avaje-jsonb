@@ -17,13 +17,6 @@ import io.avaje.prism.GeneratePrism;
     superInterfaces = AliasPrism.class)
 public interface AliasPrism {
 
-  static boolean isPresent(Element element) {
-    return AvajeAliasPrism.isPresent(element) || JacksonAliasPrism.isPresent(element);
-  }
-
-  static AliasPrism getInstanceOn(Element element) {
-    return getOptionalOn(element).orElse(null);
-  }
 
   static Optional<AliasPrism> getOptionalOn(Element element) {
     return Optional.<AliasPrism>empty()

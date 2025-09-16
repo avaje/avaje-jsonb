@@ -16,10 +16,6 @@ import io.avaje.prism.GeneratePrism;
     superInterfaces = IgnorePrism.class)
 public interface IgnorePrism {
 
-  static boolean isPresent(Element element) {
-    return AvajeIgnorePrism.isPresent(element) || JacksonIgnorePrism.isPresent(element);
-  }
-
   static IgnorePrism getInstanceOn(Element element) {
     return getOptionalOn(element).orElse(null);
   }
