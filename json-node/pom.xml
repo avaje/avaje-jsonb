@@ -6,12 +6,20 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>3.4</version>
+    <version>3.8-RC1</version>
   </parent>
 
   <artifactId>avaje-json-node</artifactId>
   <name>avaje json node</name>
   <description>JSON Node API for avaje-json</description>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <dependencies>
 
@@ -24,7 +32,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-json-core</artifactId>
-      <version>3.4</version>
+      <version>3.8-RC1</version>
     </dependency>
 
     <dependency>
@@ -37,7 +45,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>junit</artifactId>
-      <version>1.5</version>
+      <version>1.6</version>
       <scope>test</scope>
     </dependency>
 

@@ -4,15 +4,23 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>3.4</version>
+    <version>3.8-RC1</version>
   </parent>
 
   <artifactId>avaje-jsonb-generator</artifactId>
   <name>avaje jsonb generator</name>
   <description>annotation processor generating source code json adapters for avaje-jsonb</description>
   <properties>
-    <avaje.prisms.version>1.42</avaje.prisms.version>
+    <avaje.prisms.version>1.43</avaje.prisms.version>
   </properties>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <dependencies>
 
@@ -20,6 +28,14 @@
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb</artifactId>
       <version>${project.version}</version>
+      <optional>true</optional>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.20</version>
       <optional>true</optional>
       <scope>provided</scope>
     </dependency>
@@ -42,7 +58,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>junit</artifactId>
-      <version>1.5</version>
+      <version>1.6</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

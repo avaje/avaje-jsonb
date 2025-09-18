@@ -113,6 +113,26 @@ interface JsonGenerator extends Closeable, Flushable {
   void writeRaw(String value);
 
   /**
+   * Start writing raw chunks.
+   */
+  void startRawChunk();
+
+  /**
+   * Write a raw chunk single character.
+   */
+  void writeRawChunk(char value);
+
+  /**
+   * Write a raw chunk that does not need encoding.
+   */
+  void writeRawChunk(String value);
+
+  /**
+   * Write a raw chunk encoding as needed.
+   */
+  void writeRawChunkEncode(String value);
+
+  /**
    * Write a new line. This is typically used when support line delimited x-json-stream content.
    */
   void writeNewLine();

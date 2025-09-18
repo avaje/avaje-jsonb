@@ -137,6 +137,8 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private void registerCustomAdapters(Set<? extends Element> elements) {
     for (final var typeElement : ElementFilter.typesIn(elements)) {
+      var pkgPrivate = !typeElement.getModifiers().contains(Modifier.PUBLIC);
+      var meta = pkgPrivate ? pkgPrivateMetaData(typeElement) : metaData;
       final var type = typeElement.getQualifiedName().toString();
       if (isGenericJsonAdapter(typeElement)) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
@@ -146,7 +148,7 @@ public final class JsonbProcessor extends AbstractProcessor {
             x -> {},
             () -> logError(typeElement, "Generic adapters require a public static AdapterFactory FACTORY field"));
 
-        metaData.addFactory(type);
+        meta.addFactory(type);
       } else {
         ElementFilter.constructorsIn(typeElement.getEnclosedElements()).stream()
           .filter(m -> m.getModifiers().contains(Modifier.PUBLIC))
@@ -159,9 +161,19 @@ public final class JsonbProcessor extends AbstractProcessor {
             x -> {},
             () -> logNote(typeElement, "Non-Generic adapters should have a public constructor with a single Jsonb parameter"));
 
-        metaData.add(type);
+        typeElement.getInterfaces().stream()
+            .filter(t -> t.toString().contains("io.avaje.json.JsonAdapter"))
+            .findFirst()
+            .ifPresent(t -> sourceTypes.add(UType.parse(t).param0().fullWithoutAnnotations()));
+
+        meta.add(type);
       }
     }
+  }
+
+  private ComponentMetaData pkgPrivateMetaData(TypeElement typeElement) {
+    var packageName = APContext.elements().getPackageOf(typeElement).getQualifiedName().toString();
+    return privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
   }
 
   private static boolean isGenericJsonAdapter(TypeElement typeElement) {
@@ -222,7 +234,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void cascadeTypesInner() {
-    final ArrayList<BeanReader> copy = new ArrayList<>(allReaders);
+    final var copy = new ArrayList<>(allReaders);
     allReaders.clear();
 
     final Set<String> extraTypes = new TreeSet<>();
@@ -232,22 +244,19 @@ public final class JsonbProcessor extends AbstractProcessor {
     for (final String type : extraTypes) {
       if (!ignoreType(type)) {
         final TypeElement element = typeElement(type);
-        if (element != null && cascadeElement(element)) {
+        if (element != null && element.getKind() != ElementKind.ENUM) {
           writeAdapterForType(element);
         }
       }
     }
   }
 
-  private boolean cascadeElement(TypeElement element) {
-    return element.getKind() != ElementKind.ENUM && !writtenTypes.contains(element.toString());
-  }
-
   private boolean ignoreType(String type) {
     return type.indexOf('.') == -1
-      || type.startsWith("java.")
-      || type.startsWith("javax.")
-      || sourceTypes.contains(type);
+        || type.startsWith("java.")
+        || type.startsWith("javax.")
+        || sourceTypes.contains(type)
+        || writtenTypes.contains(type);
   }
 
   /**
@@ -299,13 +308,13 @@ public final class JsonbProcessor extends AbstractProcessor {
   private void writeComponent(boolean processingOver) {
     if (processingOver) {
       try {
-        if (!metaData.all().isEmpty()) {
+        if (!metaData.isEmpty()) {
           componentWriter.initialise(false);
           componentWriter.write();
         }
 
         for (var meta : privateMetaData.values()) {
-          if (meta.all().isEmpty()) {
+          if (meta.isEmpty()) {
             continue;
           }
           var writer = new SimpleComponentWriter(meta);
@@ -370,9 +379,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     try {
       final SimpleAdapterWriter beanWriter = new SimpleAdapterWriter(beanReader);
       if (beanReader.isPkgPrivate()) {
-        var packageName = APContext.elements().getPackageOf(typeElement).getQualifiedName().toString();
-        var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
-        writeMeta(beanWriter, meta);
+        writeMeta(beanWriter, pkgPrivateMetaData(typeElement));
       } else {
         writeMeta(beanWriter, metaData);
       }

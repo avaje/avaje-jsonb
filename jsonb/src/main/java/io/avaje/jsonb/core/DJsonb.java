@@ -212,6 +212,18 @@ final class DJsonb implements Jsonb {
     return RawAdapter.STR;
   }
 
+  @Override
+  public boolean hasAdapter(Class<?> cls) {
+    Type cacheKey = canonicalizeClass(requireNonNull(cls));
+    return builder.hasAdapter(cacheKey);
+  }
+
+  @Override
+  public boolean hasAdapter(Type type) {
+    type = removeSubtypeWildcard(canonicalize(requireNonNull(type)));
+    return builder.hasAdapter(type);
+  }
+
   JsonReader objectReader(Object value) {
     return new ObjectJsonReader(value);
   }
@@ -258,7 +270,7 @@ final class DJsonb implements Jsonb {
    */
   static final class DBuilder implements Jsonb.Builder {
 
-    private static final Jsonb DEFAULT = Jsonb.builder().build();
+    static final Jsonb DEFAULT = Jsonb.builder().build();
 
     private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;
@@ -269,6 +281,7 @@ final class DJsonb implements Jsonb {
     private boolean serializeEmpty = true;
     private JsonStream adapter;
     private BufferRecycleStrategy strategy = HYBRID_POOL;
+    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     @Override
     public Builder serializeNulls(boolean serializeNulls) {
@@ -345,7 +358,14 @@ final class DJsonb implements Jsonb {
       return this;
     }
 
+    @Override
+    public Builder classLoader(ClassLoader classLoader) {
+      this.classLoader = classLoader;
+      return this;
+    }
+
     private void registerComponents() {
+      ExtensionLoader.init(classLoader);
       // first register all user defined JsonbComponent
       for (JsonbComponent next : ExtensionLoader.userComponents()) {
         next.register(this);

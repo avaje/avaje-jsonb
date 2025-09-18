@@ -34,7 +34,16 @@ class DJsonType<T> implements JsonType<T> {
 
   @Override
   public JsonType<Stream<T>> stream() {
-    return new DJsonStreamType<>(jsonb, Types.newParameterizedType(Stream.class, type), new StreamAdapter<>(adapter));
+    return stream(false);
+  }
+
+  @Override
+  public JsonType<Stream<T>> streamAsLines() {
+    return stream(true);
+  }
+
+  private JsonType<Stream<T>> stream(boolean lineDelimited) {
+    return new DJsonStreamType<>(jsonb, Types.newParameterizedType(Stream.class, type), new StreamAdapter<>(adapter, lineDelimited));
   }
 
   @Override
@@ -125,7 +134,7 @@ class DJsonType<T> implements JsonType<T> {
 
   @Override
   public final Stream<T> stream(JsonReader reader) {
-    return new StreamAdapter<>(adapter).fromJson(reader);
+    return new StreamAdapter<>(adapter, false).fromJson(reader);
   }
 
   @Override

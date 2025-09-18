@@ -13,4 +13,8 @@ public final class DefaultBootstrap {
   public static Jsonb.Builder builder() {
     return new DJsonb.DBuilder();
   }
+
+  public static Jsonb defaultInstance() {
+    return DJsonb.DBuilder.DEFAULT;
+  }
 }

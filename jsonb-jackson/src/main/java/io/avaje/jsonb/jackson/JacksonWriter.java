@@ -380,6 +380,31 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
+  public void rawChunkStart() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void rawChunk(char value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void rawChunk(String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void rawChunkEncode(String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void rawChunkEnd() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void writeNewLine() {
     try {
       generator.writeRaw('\n');

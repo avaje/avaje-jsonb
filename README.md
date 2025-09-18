@@ -95,7 +95,7 @@ For types we cannot annotate with `@Json` we can place `@Json.Import(TypeToimpor
 
 ```java
 // build using defaults
-Jsonb jsonb = Jsonb.builder().build();
+Jsonb jsonb = Jsonb.instance();
 
 JsonType<Customer> customerType = jsonb.type(Customer.class);
 
@@ -116,7 +116,7 @@ to include when serializing to json.
 For example:
 
 ```java
-Jsonb jsonb = Jsonb.builder().build();
+Jsonb jsonb = Jsonb.instance();
 
 JsonType<Customer> customerType = jsonb.type(Customer.class);
 
@@ -226,7 +226,7 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
 
 ## Based on Moshi
 
-`avaje-jsonb` is based on [Moshi](https://github.com/square/moshi) with some changes as summarised below:
+`avaje-jsonb` was based on [Moshi](https://github.com/square/moshi) with some changes as summarised below:
 
 #### Changes from Moshi
 - Generates Java source code (rather than Kotlin)
@@ -245,7 +245,6 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
 - Add `@Json.Import` to generate adapters for types that we can't put the annotation on (types we might not 'own')
 - Add Mixin feature similar to Jackson Mixins
 - Add Types.listOf(), Types.setOf(), Types.mapOf() helper methods
-- Provide an SPI with the view to target other json-p implementations JSONP/Yasson, GSON, etc
 - Adds more common Java types with default built-in support - java.time types, java.util.UUID
 - Adds support for json views
 

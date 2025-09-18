@@ -1,20 +1,22 @@
 package io.avaje.jsonb;
 
-import io.avaje.json.JsonAdapter;
-import io.avaje.json.JsonReader;
-import io.avaje.json.JsonWriter;
-import io.avaje.json.PropertyNames;
-import io.avaje.json.stream.*;
-import io.avaje.jsonb.core.DefaultBootstrap;
-import io.avaje.jsonb.spi.JsonStreamFactory;
-import io.avaje.jsonb.spi.JsonbComponent;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
+
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
+import io.avaje.json.stream.BufferRecycleStrategy;
+import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.JsonStream;
+import io.avaje.jsonb.core.DefaultBootstrap;
+import io.avaje.jsonb.spi.JsonStreamFactory;
+import io.avaje.jsonb.spi.JsonbComponent;
 
 /**
  * Provides access to json adapters by type.
@@ -103,6 +105,16 @@ public interface Jsonb {
    */
   static Builder builder() {
     return DefaultBootstrap.builder();
+  }
+
+  /**
+   * Get the default Jsonb instance with all generated adapters configured.
+   *
+   * <p>This is a faster alternative to {@code Jsonb.builder().build()} that will return the same
+   * singleton instance.
+   */
+  static Jsonb instance() {
+    return DefaultBootstrap.defaultInstance();
   }
 
   /**
@@ -223,6 +235,8 @@ public interface Jsonb {
    * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
    * the result are determined dynamically based on the json types being read and the resulting java types
    * are ArrayList, LinkedHashMap, String, boolean, and double.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonType<T> type(Class<T> cls);
 
@@ -267,6 +281,8 @@ public interface Jsonb {
    * When using <code>Object.class</code> and reading <code>fromJson()</code> then the java types used in
    * the result are determined dynamically based on the json types being read and the resulting java types
    * are ArrayList, LinkedHashMap, String, boolean, and double.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonType<T> type(Type type);
 
@@ -329,6 +345,8 @@ public interface Jsonb {
    *
    * <p>JsonAdapter is generally used by generated serialization code. Application code should use
    * {@link Jsonb#type(Class)} and {@link JsonType} instead.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonAdapter<T> adapter(Class<T> cls);
 
@@ -337,6 +355,8 @@ public interface Jsonb {
    *
    * <p>JsonAdapter is generally used by generated serialization code. Application code should use
    * {@link Jsonb#type(Type)} and {@link JsonType} instead.
+   *
+   * @throws IllegalStateException if an adapter cannot be found
    */
   <T> JsonAdapter<T> adapter(Type type);
 
@@ -355,6 +375,22 @@ public interface Jsonb {
    * Raw JsonAdapter for raw json content.
    */
   JsonAdapter<String> rawAdapter();
+
+  /**
+   * Check if a JsonAdapter exists for the given class.
+   *
+   * @param cls The class to check for adapter availability
+   * @return true if an adapter exists, false otherwise
+   */
+  boolean hasAdapter(Class<?> cls);
+
+  /**
+   * Check if a JsonAdapter exists for the given type.
+   *
+   * @param type The type to check for adapter availability
+   * @return true if an adapter exists, false otherwise
+   */
+  boolean hasAdapter(Type type);
 
   /**
    * Build the Jsonb instance adding JsonAdapter, Factory or AdapterBuilder.
@@ -437,6 +473,13 @@ public interface Jsonb {
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
      */
     Builder add(AdapterFactory factory);
+
+    /**
+     * Set the ClassLoader to use when loading modules.
+     *
+     * @param classLoader The ClassLoader to use
+     */
+    Builder classLoader(ClassLoader classLoader);
 
     /**
      * Build and return the Jsonb instance with all the given adapters and factories registered.

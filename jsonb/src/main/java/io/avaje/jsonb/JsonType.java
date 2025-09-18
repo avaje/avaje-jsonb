@@ -99,6 +99,15 @@ public interface JsonType<T> extends JsonView<T>, JsonMapper.Type<T> {
   JsonType<Stream<T>> stream();
 
   /**
+   * Support a stream of beans writing as new line delimited json (application/x-json-stream).
+   * <p>
+   * This type can read content that is either new lime delimited or in array form.
+   *
+   * @return The stream type for this base JsonType.
+   */
+  JsonType<Stream<T>> streamAsLines();
+
+  /**
    * Return the set type for this JsonType.
    */
   JsonType<Set<T>> set();

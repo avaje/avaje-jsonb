@@ -270,6 +270,32 @@ final class JsonWriteAdapter implements JsonWriter {
   }
 
   @Override
+  public void rawChunkStart() {
+    writeDeferredName();
+    generator.startRawChunk();
+  }
+
+  @Override
+  public void rawChunk(char value) {
+    generator.writeRawChunk(value);
+  }
+
+  @Override
+  public void rawChunk(String value) {
+    generator.writeRawChunk(value);
+  }
+
+  @Override
+  public void rawChunkEncode(String value) {
+    generator.writeRawChunkEncode(value);
+  }
+
+  @Override
+  public void rawChunkEnd() {
+    // do nothing
+  }
+
+  @Override
   public void writeNewLine() {
     generator.writeNewLine();
   }

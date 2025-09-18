@@ -31,7 +31,7 @@ final class ComponentMetaData {
     factoryTypes.add(fullName);
   }
 
-  public void addWithType(String type) {
+  void addWithType(String type) {
     withTypes.add(type);
   }
 
@@ -41,7 +41,9 @@ final class ComponentMetaData {
 
   String fullName(boolean pkgPrivate) {
     if (fullName == null) {
-      String topPackage = TopPackage.of(allTypes);
+      var everyType = new ArrayList<>(allTypes);
+      everyType.addAll(factoryTypes);
+      String topPackage = TopPackage.of(everyType);
       if (!topPackage.endsWith(".jsonb") && !pkgPrivate) {
         topPackage += ".jsonb";
       }
@@ -83,7 +85,7 @@ final class ComponentMetaData {
     return packageImports;
   }
 
-  public boolean isEmpty() {
+  boolean isEmpty() {
     return allTypes.isEmpty() && factoryTypes.isEmpty();
   }
 

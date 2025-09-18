@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
-import io.avaje.jsonb.spi.JsonStreamFactory;
 import io.avaje.jsonb.spi.GeneratedComponent;
+import io.avaje.jsonb.spi.JsonStreamFactory;
 import io.avaje.jsonb.spi.JsonbComponent;
 import io.avaje.jsonb.spi.JsonbExtension;
 
@@ -17,8 +17,8 @@ final class ExtensionLoader {
   private static final List<JsonbComponent> userComponents = new ArrayList<>();
   private static Optional<JsonStreamFactory> adapterFactory = Optional.empty();
 
-  static {
-    for (var spi : ServiceLoader.load(JsonbExtension.class)) {
+  static void init(ClassLoader classLoader) {
+    for (var spi : ServiceLoader.load(JsonbExtension.class, classLoader)) {
       if (spi instanceof GeneratedComponent) {
         generatedComponents.add((GeneratedComponent) spi);
       } else if (spi instanceof JsonbComponent) {

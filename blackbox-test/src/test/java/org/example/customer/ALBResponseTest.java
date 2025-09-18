@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ALBResponseTest {
 
-  private final Jsonb jsonb = Jsonb.builder().build();
+  private final Jsonb jsonb = Jsonb.instance();
 
   @Test
   void toJson() {

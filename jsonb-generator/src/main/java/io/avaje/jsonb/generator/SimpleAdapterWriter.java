@@ -100,9 +100,9 @@ final class SimpleAdapterWriter {
   }
 
   private void writeToFromJson() {
-    beanReader.writeViewSupport(writer);
     beanReader.writeToJson(writer);
     beanReader.writeFromJson(writer);
+    beanReader.writeViewSupport(writer);
   }
 
   private void writeClassEnd() {

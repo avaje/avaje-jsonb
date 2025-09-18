@@ -10,6 +10,7 @@ module blackbox.test {
   provides JsonbExtension
     with
       org.example.customer.customtype.CustomTypeComponent,
+      org.example.other.custom.CustomJsonComponent,
       org.example.jsonb.GeneratedJsonComponent,
       org.example.pkg_private.PkgPrivateJsonComponent;
 
