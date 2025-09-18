@@ -6,10 +6,7 @@ import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.Jsonb;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 final class CoreAdapters {
 
