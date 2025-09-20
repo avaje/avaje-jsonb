@@ -15,6 +15,6 @@ import javax.lang.model.element.Element;
     name = "JacksonValuePrism",
     superInterfaces = ValuePrism.class)
 public interface ValuePrism {
-  String AVAJE_JSON_VALUE = "io.avaje.jsonb.Json.Value";
-  String JACKSON_JSON_VALUE = "com.fasterxml.jackson.annotation.JsonValue";
+  String AVAJE_JSON_VALUE = AvajeValuePrism.PRISM_TYPE;
+  String JACKSON_JSON_VALUE = JacksonValuePrism.PRISM_TYPE;
 }
