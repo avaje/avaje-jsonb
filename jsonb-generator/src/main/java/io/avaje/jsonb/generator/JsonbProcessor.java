@@ -7,6 +7,7 @@ import static io.avaje.jsonb.generator.APContext.typeElement;
 import static io.avaje.jsonb.generator.Constants.*;
 import static io.avaje.jsonb.generator.ProcessingContext.addImportedPrism;
 import static io.avaje.jsonb.generator.ProcessingContext.createMetaInfWriterFor;
+import static io.avaje.jsonb.generator.ValuePrism.*;
 import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
@@ -52,7 +53,10 @@ import io.avaje.prism.GenerateUtils;
   JSON_IMPORT,
   JSON_IMPORT_LIST,
   JSON_MIXIN,
-  JSON_VALUE,
+
+  AVAJE_JSON_VALUE,
+  JACKSON_JSON_VALUE,
+
   "io.avaje.spi.ServiceProvider"
 })
 public final class JsonbProcessor extends AbstractProcessor {
@@ -113,7 +117,10 @@ public final class JsonbProcessor extends AbstractProcessor {
     }
     APContext.setProjectModuleElement(annotations, round);
     readModule();
-    getElements(round, JSON_VALUE).ifPresent(this::writeValueAdapters);
+
+    getElements(round, AVAJE_JSON_VALUE).ifPresent(this::writeValueAdapters);
+    getElements(round, JACKSON_JSON_VALUE).ifPresent(this::writeValueAdapters);
+
     getElements(round, JSON).ifPresent(this::writeAdapters);
     getElements(round, JSON_MIXIN).ifPresent(this::writeAdaptersForMixInTypes);
     getElements(round, JSON_IMPORT_LIST).ifPresent(this::writeAdaptersForImportedList);

@@ -15,8 +15,6 @@ import javax.lang.model.element.Element;
     name = "JacksonValuePrism",
     superInterfaces = ValuePrism.class)
 public interface ValuePrism {
-
-  static boolean isPresent(Element element) {
-    return AvajeValuePrism.isPresent(element) || JacksonValuePrism.isPresent(element);
-  }
+  String AVAJE_JSON_VALUE = "io.avaje.jsonb.Json.Value";
+  String JACKSON_JSON_VALUE = "com.fasterxml.jackson.annotation.JsonValue";
 }
