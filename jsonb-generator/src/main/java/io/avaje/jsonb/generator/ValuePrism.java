@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.avaje.jsonb.Json;
 import io.avaje.prism.GeneratePrism;
 
-import javax.lang.model.element.Element;
-
 @GeneratePrism(
     value = Json.Value.class,
     name = "AvajeValuePrism",
