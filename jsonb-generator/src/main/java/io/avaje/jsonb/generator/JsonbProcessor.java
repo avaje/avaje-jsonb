@@ -53,10 +53,7 @@ import io.avaje.prism.GenerateUtils;
   JSON_IMPORT,
   JSON_IMPORT_LIST,
   JSON_MIXIN,
-
-  AVAJE_JSON_VALUE,
-  JACKSON_JSON_VALUE,
-
+  ValuePrism.PRISM_TYPE,
   "io.avaje.spi.ServiceProvider"
 })
 public final class JsonbProcessor extends AbstractProcessor {
@@ -118,9 +115,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     APContext.setProjectModuleElement(annotations, round);
     readModule();
 
-    getElements(round, AVAJE_JSON_VALUE).ifPresent(this::writeValueAdapters);
-    getElements(round, JACKSON_JSON_VALUE).ifPresent(this::writeValueAdapters);
-
+    getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
     getElements(round, JSON).ifPresent(this::writeAdapters);
     getElements(round, JSON_MIXIN).ifPresent(this::writeAdaptersForMixInTypes);
     getElements(round, JSON_IMPORT_LIST).ifPresent(this::writeAdaptersForImportedList);
