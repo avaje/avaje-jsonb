@@ -3,7 +3,6 @@
 @GeneratePrism(io.avaje.jsonb.Json.Import.class)
 @GeneratePrism(io.avaje.jsonb.Json.Import.Imports.class)
 @GeneratePrism(io.avaje.jsonb.Json.MixIn.class)
-@GeneratePrism(io.avaje.jsonb.Json.Raw.class)
 @GeneratePrism(io.avaje.jsonb.Json.SubTypes.class)
 @GeneratePrism(io.avaje.jsonb.Json.SubType.class)
 @GeneratePrism(io.avaje.jsonb.Json.Unmapped.class)
