@@ -234,7 +234,7 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
 - Add fromObject() as a "covert from object" feature like Jackson ObjectMapper
 - Add naming convention support
 - Add `@Json.Import` to generate adapters for types that we can't put the annotation on (types we might not 'own')
-- Add support for generating adapters with annotations from Jackson, GSON and Jakarta
+- Add support for generating adapters (for `@Json.Import`ed types) with annotations from Jackson, GSON and Jakarta
 - Add Mixin feature similar to Jackson Mixins
 - Add Types.listOf(), Types.setOf(), Types.mapOf() helper methods
 - Adds more common Java types with default built-in support - java.time types, java.util.UUID
