@@ -13,6 +13,7 @@ class PropsTest {
 
   Jsonb jsonb = Jsonb.builder().build();
   JsonType<Props> jsonType = jsonb.type(Props.class);
+  JsonType<PropsSub> jsonTypeSub = jsonb.type(PropsSub.class);
 
   @Test
   void toJson_fromJson() {
@@ -24,6 +25,19 @@ class PropsTest {
 
     String asJson = jsonType.toJson(props);
     Props fromJson = jsonType.fromJson(asJson);
+
+    assertThat(fromJson.props()).containsEntry("hi", "hey");
+  }
+
+  @Test
+  void toJson_fromJson_subclass() {
+    MyProperties properties = new MyProperties();
+
+    properties.setProperty("hi", "hey");
+    PropsSub props = new PropsSub(properties);
+
+    String asJson = jsonTypeSub.toJson(props);
+    PropsSub fromJson = jsonTypeSub.fromJson(asJson);
 
     assertThat(fromJson.props()).containsEntry("hi", "hey");
   }
