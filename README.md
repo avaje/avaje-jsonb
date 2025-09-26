@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/avaje/avaje-jsonb/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/1074074312421683250?color=%237289da&label=discord)](https://discord.gg/Qcqf9R27BR)
 
-# [Avaje-JsonB](https://avaje.io/jsonb/)
+# [avaje-jsonb](https://avaje.io/jsonb/)
 
 Fast, reflection-free Json binding via apt source code generation. A light (~200kb + generated code) source code generation style alternative to Jackson's ObjectMapper or Gson. (code generation vs reflection)
 
@@ -31,7 +31,6 @@ Built-in support for reading and writing Java’s core data types:
  * Enums
  * Other miscellaneous types (UUID, URL, URI)
 
-
 # Quick Start
 
 ## Step 1 - Add dependencies
@@ -41,18 +40,10 @@ Built-in support for reading and writing Java’s core data types:
   <artifactId>avaje-jsonb</artifactId>
   <version>${avaje-jsonb-version}</version>
 </dependency>
-<!-- if using spring web, add the below to use jsonb for http messaging -->
-<dependency>
-  <groupId>io.avaje</groupId>
-  <artifactId>avaje-jsonb-spring-starter</artifactId>
-  <version>${avaje-jsonb-version}</version>
-</dependency>
 ```
 
 And add avaje-jsonb-generator as an annotation processor.
 ```xml
-
-<!-- Annotation processors -->
 <dependency>
   <groupId>io.avaje</groupId>
   <artifactId>avaje-jsonb-generator</artifactId>
@@ -102,7 +93,7 @@ JsonType<Customer> customerType = jsonb.type(Customer.class);
 Customer customer = ...;
 
 // serialize to json
-String asJson =  customerType.toJson(customer);
+String asJson = customerType.toJson(customer);
 
 // deserialize from json
 Customer customer = customerType.fromJson(asJson);
@@ -122,14 +113,14 @@ JsonType<Customer> customerType = jsonb.type(Customer.class);
 
 // only including the id and name
 JsonView<Customer> idAndNameView = customerType.view("(id, name)");
-String asJson =  idAndNameView.toJson(customer);
+String asJson = idAndNameView.toJson(customer);
 
 
 JsonView<Customer> myView =
   customerType.view("(id, name, billingAddress(*), contacts(lastName, email))");
 
 // serialise to json the above specified properties only
-String asJson =  myView.toJson(customer);
+String asJson = myView.toJson(customer);
 ```
 
 ### Generated Code
@@ -230,8 +221,8 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
 
 #### Changes from Moshi
 - Generates Java source code (rather than Kotlin)
-- uses custom parser inspired by dsl-json (with option of using jackson-core `JsonParser` and `JsonGenerator` as parsers)
-- Has no fallback to reflection - jsonb is code generation or bust.`
+- Uses custom parser inspired by `dsl-json` (with option of using `jackson-core`'s `JsonParser` and `JsonGenerator` as parsers)
+- Has no fallback to reflection - jsonb is code generation or bust.
 - JsonReader - Make JsonReader an interface, default implementation using `Jsonb JsonReadAdapter`
 - JsonWriter - Make JsonWriter an interface, default implementation using `Jsonb JsonWriteAdapter`
 - JsonAdapter -> Make JsonAdapter an interface.
@@ -243,10 +234,36 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
 - Add fromObject() as a "covert from object" feature like Jackson ObjectMapper
 - Add naming convention support
 - Add `@Json.Import` to generate adapters for types that we can't put the annotation on (types we might not 'own')
+- Add support for generating adapters (for `@Json.Import`ed types) with annotations from Jackson, GSON and Jakarta
 - Add Mixin feature similar to Jackson Mixins
 - Add Types.listOf(), Types.setOf(), Types.mapOf() helper methods
 - Adds more common Java types with default built-in support - java.time types, java.util.UUID
 - Adds support for json views
+
+## Optional extensions
+
+### Optional support for Jackson, GSON and Jakarta annotations
+When using `@Json.Import` for types we "don't own", we provide basic support for annotations from other popular libraries.\
+Simply add either `jackson-annotations`, `gson` or `jakarta.json.bind-api`, and use `@Json.Import` to generate an adapter.
+
+| Avaje Jsonb      | Jackson         | Gson                           | Jakarta JSON-B        |
+|------------------|-----------------|--------------------------------|-----------------------|
+| `@Json.Alias`    | `@JsonAlias`    | `@SerializedName(alternate=…)` | —                     |
+| `@Json.Creator`  | `@JsonCreator`  | —                              | `@JsonbCreator`       |
+| `@Json.Ignore`   | `@JsonIgnore`   | `@Expose(serialize = false)`   | `@JsonbTransient`     |
+| `@Json.Property` | `@JsonProperty` | `@SerializedName`              | `@JsonbProperty`      |
+| `@Json.Raw`      | `@JsonRawValue` | —                              | —                     |
+| `@Json.Value`    | —               | —                              | —                     |
+
+### Optional support for Spring Web
+When using Spring Web, you can use the following dependency to use avaje-jsonb for HTTP serialization:
+```xml
+<dependency>
+  <groupId>io.avaje</groupId>
+  <artifactId>avaje-jsonb-spring-starter</artifactId>
+  <version>${avaje-jsonb-version}</version>
+</dependency>
+```
 
 ## Related works
 - [moshi](https://github.com/square/moshi), [reddit - why use moshi over gson](https://www.reddit.com/r/androiddev/comments/684flw/why_use_moshi_over_gson/)
