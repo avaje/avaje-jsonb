@@ -115,12 +115,12 @@ public final class JsonbProcessor extends AbstractProcessor {
     APContext.setProjectModuleElement(annotations, round);
     readModule();
 
+    getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
     getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
     getElements(round, JSON).ifPresent(this::writeAdapters);
     getElements(round, JSON_MIXIN).ifPresent(this::writeAdaptersForMixInTypes);
     getElements(round, JSON_IMPORT_LIST).ifPresent(this::writeAdaptersForImportedList);
     getElements(round, JSON_IMPORT).ifPresent(this::writeAdaptersForImported);
-    getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
     getElements(round, "io.avaje.spi.ServiceProvider").ifPresent(this::registerSPI);
 
     metaData.fullName(false);
@@ -139,6 +139,7 @@ public final class JsonbProcessor extends AbstractProcessor {
       var pkgPrivate = !typeElement.getModifiers().contains(Modifier.PUBLIC);
       var meta = pkgPrivate ? pkgPrivateMetaData(typeElement) : metaData;
       final var type = typeElement.getQualifiedName().toString();
+      writtenTypes.add(type);
       if (isGenericJsonAdapter(typeElement)) {
         ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
           .filter(isStaticFactory())
