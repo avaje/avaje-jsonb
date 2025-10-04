@@ -23,6 +23,7 @@ final class ProcessingContext {
 
   private static final class Ctx {
     private final Map<String, JsonPrism> importedJsonMap = new HashMap<>();
+    private final Set<String> cascadeSet = new HashSet<>();
     private final Map<String, List<SubTypePrism>> importedSubtypeMap = new HashMap<>();
     private final Set<String> services = new TreeSet<>();
     private final boolean injectPresent;
@@ -138,5 +139,17 @@ final class ProcessingContext {
       // not a critical error
     }
     return services;
+  }
+
+  public static void cascadedType(String type) {
+    CTX.get().cascadeSet.add(type);
+  }
+
+  public static boolean isCascadeType(TypeElement type) {
+    return isCascadeType(type.getQualifiedName().toString());
+  }
+
+  public static boolean isCascadeType(String type) {
+    return CTX.get().cascadeSet.contains(type);
   }
 }

@@ -246,6 +246,7 @@ public final class JsonbProcessor extends AbstractProcessor {
         if (element != null
             && element.getKind() != ElementKind.ENUM
             && !JsonPrism.isPresent(element)) {
+          ProcessingContext.cascadedType(type);
           writeAdapterForType(element);
         }
       }
@@ -371,10 +372,10 @@ public final class JsonbProcessor extends AbstractProcessor {
     }
     beanReader.read();
     if (beanReader.nonAccessibleField()) {
-      if (beanReader.hasJsonAnnotation()) {
+      if (beanReader.hasJsonAnnotation() && !ProcessingContext.isCascadeType(typeElement)) {
         logError("Error JsonAdapter due to nonAccessibleField for %s ", beanReader);
       }
-      logNote("Skipped writing JsonAdapter for %s due to non accessible fields", beanReader);
+      logNote(typeElement, "Skipped writing JsonAdapter for %s due to non accessible fields", beanReader);
       return;
     }
     try {

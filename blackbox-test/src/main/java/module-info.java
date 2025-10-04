@@ -7,6 +7,8 @@ module blackbox.test {
   requires java.validation;
   requires io.avaje.json.node;
 
+  exports org.example.customer.cascade;
+
   provides JsonbExtension
     with
       org.example.customer.customtype.CustomTypeComponent,

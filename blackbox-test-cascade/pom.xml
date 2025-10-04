@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.avaje</groupId>
+    <artifactId>avaje-jsonb-parent</artifactId>
+    <version>3.8-RC1</version>
+  </parent>
+  <artifactId>blackbox-test-cascade</artifactId>
+
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <maven.compiler.release>21</maven.compiler.release>
+  </properties>
+
+  <dependencies>
+
+    <!-- for testing fields with third party annotations -->
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>2.0.1.Final</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>blackbox-test</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsonb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsonb-generator</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    
+    <!-- test dependencies -->
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>junit</artifactId>
+      <version>1.6</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
