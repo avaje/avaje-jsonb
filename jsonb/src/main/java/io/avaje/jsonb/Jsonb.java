@@ -441,9 +441,9 @@ public interface Jsonb {
 
     /**
      * Explicitly set the adapter to use.
-     * <p>
-     * When not set the JsonStreamAdapter is service loaded using {@link JsonStreamFactory}
-     * with a fallback default of using the built-in implementation.
+     *
+     * <p>When not set, the JsonStream is service loaded using {@link JsonStreamFactory} with a
+     * fallback default of using the built-in implementation.
      *
      * @param streamAdapter The underlying adapter to use when generating and parsing
      */
