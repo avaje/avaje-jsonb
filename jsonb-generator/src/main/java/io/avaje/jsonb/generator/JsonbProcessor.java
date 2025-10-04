@@ -243,7 +243,9 @@ public final class JsonbProcessor extends AbstractProcessor {
     for (final String type : extraTypes) {
       if (!ignoreType(type)) {
         final TypeElement element = typeElement(type);
-        if (element != null && element.getKind() != ElementKind.ENUM) {
+        if (element != null
+            && element.getKind() != ElementKind.ENUM
+            && !JsonPrism.isPresent(element)) {
           writeAdapterForType(element);
         }
       }
