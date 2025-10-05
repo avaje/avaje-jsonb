@@ -1,8 +1,10 @@
-package org.example.cascade;
+package org.cascade.example;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.cascade.example.OtherJarJsonbCascade;
+import org.cascade.example.UnCascadable;
 import org.junit.jupiter.api.Test;
 
 import io.avaje.jsonb.Jsonb;

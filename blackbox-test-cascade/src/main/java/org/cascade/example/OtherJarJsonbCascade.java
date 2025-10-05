@@ -1,4 +1,4 @@
-package org.example.cascade;
+package org.cascade.example;
 
 import org.example.customer.cascade.MCTop;
 
