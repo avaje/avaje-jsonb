@@ -124,12 +124,34 @@ final class ProcessingContext {
   static Set<String> readExistingMetaInfServices() {
     var services = CTX.get().services;
     try (final var file =
-           APContext.filer()
-             .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
-             .toUri()
-             .toURL()
-             .openStream();
-         final var buffer = new BufferedReader(new InputStreamReader(file));) {
+            APContext.filer()
+                .getResource(StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
+                .toUri()
+                .toURL()
+                .openStream();
+        final var buffer = new BufferedReader(new InputStreamReader(file)); ) {
+
+      String line;
+      while ((line = buffer.readLine()) != null) {
+        line.replaceAll("\\s", "").replace(",", "\n").lines().forEach(services::add);
+      }
+      return services;
+    } catch (Exception e) {
+      // not a critical error
+    }
+
+    try (final var file =
+            URI.create(
+                    APContext.filer()
+                        .getResource(
+                            StandardLocation.CLASS_OUTPUT, "", Constants.META_INF_COMPONENT)
+                        .toUri()
+                        .toString()
+                        .replaceFirst("/classes/java/test", "/classes/java/main")
+                        .replaceFirst("/test-classes", "/classes"))
+                .toURL()
+                .openStream();
+        final var buffer = new BufferedReader(new InputStreamReader(file)); ) {
 
       String line;
       while ((line = buffer.readLine()) != null) {

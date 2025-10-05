@@ -13,6 +13,8 @@ final class ComponentReader {
 
   private final ComponentMetaData componentMetaData;
   private final Map<String, ComponentMetaData> privateMetaData;
+  private static final TypeMirror generatedComponentType =
+      APContext.typeElement("io.avaje.jsonb.spi.GeneratedComponent").asType();
 
   ComponentReader(ComponentMetaData metaData, Map<String, ComponentMetaData> privateMetaData) {
     this.componentMetaData = metaData;
@@ -58,7 +60,8 @@ final class ComponentReader {
   }
 
   private static boolean isGeneratedComponent(TypeElement moduleType) {
-    return moduleType != null && "io.avaje.jsonb.spi.GeneratedComponent".equals(moduleType.getSuperclass().toString());
+    return moduleType != null
+        && APContext.types().isSubtype(moduleType.asType(), generatedComponentType);
   }
 
   /** Read the existing JsonAdapters from the MetaData annotation of the generated component. */
