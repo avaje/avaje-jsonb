@@ -40,19 +40,20 @@ final class ComponentReader {
   }
 
   private static boolean hasPublicComponents(TypeElement moduleType) {
-    return MetaDataPrism.getInstanceOn(moduleType).value().stream()
-      .map(APContext::asTypeElement)
-      .findFirst()
-      .map(ComponentReader::hasPublicModifier)
-      .orElse(hasPublicJsonFactory(moduleType));
+    return moduleType != null
+        && MetaDataPrism.getInstanceOn(moduleType).value().stream()
+            .map(APContext::asTypeElement)
+            .findFirst()
+            .map(ComponentReader::hasPublicModifier)
+            .orElseGet(() -> hasPublicJsonFactory(moduleType));
   }
 
   private static Boolean hasPublicJsonFactory(TypeElement moduleType) {
     return JsonFactoryPrism.getInstanceOn(moduleType).value().stream()
-      .map(APContext::asTypeElement)
-      .findFirst()
-      .map(ComponentReader::hasPublicModifier)
-      .orElse(false);
+        .map(APContext::asTypeElement)
+        .findFirst()
+        .map(ComponentReader::hasPublicModifier)
+        .orElse(false);
   }
 
   private static boolean hasPublicModifier(TypeElement a) {
