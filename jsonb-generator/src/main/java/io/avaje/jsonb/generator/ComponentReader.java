@@ -13,11 +13,13 @@ import javax.lang.model.type.TypeMirror;
 
 final class ComponentReader {
 
-  private final ComponentMetaData componentMetaData;
-  private final Map<String, ComponentMetaData> privateMetaData;
   private static final TypeMirror generatedComponentType =
       APContext.typeElement("io.avaje.jsonb.spi.GeneratedComponent").asType();
   private static final boolean isTestCompilation = APContext.isTestCompilation();
+
+  private final ComponentMetaData componentMetaData;
+  private final Map<String, ComponentMetaData> privateMetaData;
+
   ComponentReader(ComponentMetaData metaData, Map<String, ComponentMetaData> privateMetaData) {
     this.componentMetaData = metaData;
     this.privateMetaData = privateMetaData;
@@ -29,7 +31,6 @@ final class ComponentReader {
         ProcessingContext.addJsonSpi(fqn);
       }
       final TypeElement moduleType = typeElement(fqn);
-
       if (isGeneratedComponent(moduleType)
           && (!isTestCompilation || fqn.endsWith("TestJsonComponent"))) {
         if (hasPublicComponents(moduleType)) {
@@ -37,8 +38,7 @@ final class ComponentReader {
           readMetaData(moduleType, componentMetaData);
         } else {
           // non-public adapters grouped by packageName
-          var packageName =
-              APContext.elements().getPackageOf(moduleType).getQualifiedName().toString();
+          var packageName = APContext.elements().getPackageOf(moduleType).getQualifiedName().toString();
           var meta = privateMetaData.computeIfAbsent(packageName, k -> new ComponentMetaData());
           readMetaData(moduleType, meta);
         }
@@ -48,19 +48,19 @@ final class ComponentReader {
 
   private static boolean hasPublicComponents(TypeElement moduleType) {
     return MetaDataPrism.getInstanceOn(moduleType).value().stream()
-        .map(APContext::asTypeElement)
-        .findFirst()
-        .map(ComponentReader::hasPublicModifier)
-        .or(() -> hasPublicJsonFactory(moduleType))
-        .orElse(false);
+      .map(APContext::asTypeElement)
+      .findFirst()
+      .map(ComponentReader::hasPublicModifier)
+      .or(() -> hasPublicJsonFactory(moduleType))
+      .orElse(false);
   }
 
   private static Optional<Boolean> hasPublicJsonFactory(TypeElement moduleType) {
     return JsonFactoryPrism.getOptionalOn(moduleType).map(JsonFactoryPrism::value).stream()
-        .flatMap(List::stream)
-        .map(APContext::asTypeElement)
-        .findFirst()
-        .map(ComponentReader::hasPublicModifier);
+      .flatMap(List::stream)
+      .map(APContext::asTypeElement)
+      .findFirst()
+      .map(ComponentReader::hasPublicModifier);
   }
 
   private static boolean hasPublicModifier(TypeElement a) {
@@ -69,7 +69,7 @@ final class ComponentReader {
 
   private static boolean isGeneratedComponent(TypeElement moduleType) {
     return moduleType != null
-        && APContext.types().isSubtype(moduleType.asType(), generatedComponentType);
+      && APContext.types().isSubtype(moduleType.asType(), generatedComponentType);
   }
 
   /** Read the existing JsonAdapters from the MetaData annotation of the generated component. */

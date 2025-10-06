@@ -57,6 +57,7 @@ import io.avaje.prism.GenerateUtils;
   "io.avaje.spi.ServiceProvider"
 })
 public final class JsonbProcessor extends AbstractProcessor {
+
   private final Set<String> writtenTypes = new HashSet<>();
   private final Map<String, ComponentMetaData> privateMetaData = new HashMap<>();
   private final ComponentMetaData metaData = new ComponentMetaData();
