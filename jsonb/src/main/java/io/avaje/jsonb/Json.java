@@ -7,6 +7,7 @@ import static java.lang.annotation.ElementType.MODULE;
 import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import java.lang.annotation.Repeatable;
@@ -36,7 +37,7 @@ import io.avaje.jsonb.Json.Import.Imports;
  * }</pre>
  */
 @Target(TYPE)
-@Retention(SOURCE)
+@Retention(CLASS)
 public @interface Json {
 
   /**

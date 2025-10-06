@@ -2,7 +2,12 @@ package io.avaje.jsonb.generator;
 
 import static java.util.function.Predicate.not;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 final class ComponentMetaData {
 
@@ -44,13 +49,16 @@ final class ComponentMetaData {
       var everyType = new ArrayList<>(allTypes);
       everyType.addAll(factoryTypes);
       String topPackage = TopPackage.of(everyType);
-      if (!topPackage.endsWith(".jsonb") && !pkgPrivate) {
+      if (!pkgPrivate && !topPackage.endsWith(".jsonb")) {
         topPackage += ".jsonb";
       }
-      fullName =
-          pkgPrivate
-              ? topPackage + "." + name(topPackage) + "JsonComponent"
-              : topPackage + ".GeneratedJsonComponent";
+      if (pkgPrivate) {
+        fullName = topPackage + "." + name(topPackage) + "JsonComponent";
+      } else if (APContext.isTestCompilation()) {
+        fullName = topPackage + ".TestJsonComponent";
+      } else {
+        fullName = topPackage + ".GeneratedJsonComponent";
+      }
     }
     return fullName;
   }

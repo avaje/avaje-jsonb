@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import static io.avaje.jsonb.generator.APContext.asTypeElement;
 import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.logNote;
+import static io.avaje.jsonb.generator.APContext.logWarn;
 import static io.avaje.jsonb.generator.APContext.typeElement;
 import static io.avaje.jsonb.generator.ProcessingContext.importedJson;
 import static java.util.stream.Collectors.toSet;
@@ -355,8 +356,12 @@ final class TypeReader {
     if (hasNoSetter(field)) {
       if (isCollectionType(field.type())) {
         field.setUseGetterAddAll();
+      } else if (ProcessingContext.isCascadeType(baseType)) {
+        nonAccessibleField = true;
+        logWarn(field.element(), errorContext + baseType + ", non public field %s with no matching setter or constructor?", field.fieldName());
+
       } else {
-        logError(errorContext + baseType + ", non public field " + field.fieldName() + " with no matching setter or constructor?");
+        logError(field.element(), errorContext + baseType + ", non public field %s with no matching setter or constructor?", field.fieldName());
       }
     }
   }

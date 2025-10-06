@@ -50,6 +50,7 @@
       </activation>
       <modules>
         <module>blackbox-test</module>
+        <module>blackbox-test-cascade</module>
       </modules>
     </profile>
   </profiles>
