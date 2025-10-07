@@ -368,12 +368,7 @@ final class TypeReader {
               field.fieldName());
         }
       } else {
-        logError(
-            field.element(),
-            errorContext
-                + baseType
-                + ", non public field %s with no matching setter or constructor?",
-            field.fieldName());
+        logError(field.element(), errorContext + baseType + ", non public field %s with no matching setter or constructor?", field.fieldName());
       }
     }
   }
