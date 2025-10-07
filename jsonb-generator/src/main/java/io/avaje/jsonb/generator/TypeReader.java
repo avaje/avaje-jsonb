@@ -359,7 +359,7 @@ final class TypeReader {
       } else if (ProcessingContext.isCascadeType(baseType)) {
         nonAccessibleField = true;
         var module = APContext.getProjectModuleElement();
-        if (!module.isUnnamed() && module.equals(APContext.elements().getModuleOf(baseType))) {
+        if (!module.equals(APContext.elements().getModuleOf(baseType))) {
           logWarn(
               field.element(),
               "%s%s, non public field %s with no matching setter or constructor?",
