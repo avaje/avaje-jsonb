@@ -57,7 +57,7 @@ final class SimpleAdapterWriter {
   private void writeFactory() {
     if (genericParamsCount > 0) {
       String typeName = adapterShortName;
-      final int nestedIndex = adapterShortName.indexOf("$");
+      final int nestedIndex = adapterShortName.lastIndexOf("$");
       if (nestedIndex != -1) {
         typeName = typeName.substring(nestedIndex + 1);
       }
