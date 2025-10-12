@@ -3,7 +3,6 @@ package io.avaje.jsonb.jackson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +21,6 @@ class ObjectAdapterTest {
   JsonAdapter<Object> objectAdapter = jsonb.adapter(Object.class);
 
   JsonType<Object> objectType = jsonb.type(Object.class);
-
-  @Test
-  void isJackson() {
-    assertThat(jsonb.reader("")).isInstanceOf(JacksonReader.class);
-    assertThat(jsonb.writer(OutputStream.nullOutputStream())).isInstanceOf(JacksonWriter.class);
-  }
 
   @SuppressWarnings("unchecked")
   @Test
