@@ -162,9 +162,21 @@ final class TypeReader {
       for (var param : constructor.getParams()) {
         var name = param.name();
         var element = param.element();
-        var matchingField = localFields.stream()
-          .filter(f -> f.propertyName().equals(name) || f.fieldName().equals(name))
-          .findFirst();
+        var aliases =
+            AliasPrism.getOptionalOn(element).map(AliasPrism::value).stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toSet());
+
+        var matchingField =
+            localFields.stream()
+                .filter(
+                    f ->
+                        f.propertyName().equals(name)
+                            || f.fieldName().equals(name)
+                            || f.aliases().contains(name)
+                            || aliases.contains(f.propertyName())
+                            || aliases.contains(f.fieldName()))
+                .findFirst();
         matchingField.ifPresentOrElse(f -> f.readParam(element), () -> readField(element, localFields));
       }
     }

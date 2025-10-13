@@ -238,13 +238,17 @@ final class FieldReader {
     if (unmapped) {
       return;
     }
+    var keys = new HashSet<String>();
     aliases.addAll(moreAlias);
+    keys.addAll(aliases);
     for (final String alias : aliases) {
       final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
       writer.append("        case \"%s\":", propertyKey).eol();
     }
     final String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
-    writer.append("        case \"%s\": ", propertyKey).eol();
+    if (!keys.contains(propertyName)) {
+      writer.append("        case \"%s\": ", propertyKey).eol();
+	}
     if (!deserialize) {
       writer.append("          reader.skipValue();");
     } else {

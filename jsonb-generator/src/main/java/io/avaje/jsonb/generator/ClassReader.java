@@ -13,6 +13,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 
+import io.avaje.jsonb.generator.MethodReader.MethodParam;
+
 final class ClassReader implements BeanReader {
 
   private static final boolean useInstanceofPattern = jdkVersion() >= 17;
@@ -509,14 +511,26 @@ final class ClassReader implements BeanReader {
           writer.append(", ");
         }
 
-        final var paramName = params.get(i).name();
+        MethodParam methodParam = params.get(i);
+        final var paramName = methodParam.name();
+
+        var aliases =
+                AliasPrism.getOptionalOn(methodParam.element()).map(AliasPrism::value).stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.toSet());
         var name =
-          allFields.stream()
-            .filter(FieldReader::isConstructorParam)
-            .filter(f -> f.propertyName().equals(paramName) || f.fieldName().equals(paramName))
-            .map(FieldReader::fieldName)
-            .findFirst()
-            .orElse(paramName);
+            allFields.stream()
+                .filter(FieldReader::isConstructorParam)
+                .filter(
+                    f ->
+                        f.propertyName().equals(paramName)
+                            || f.fieldName().equals(paramName)
+                            || f.aliases().contains(paramName)
+                            || aliases.contains(f.propertyName())
+                            || aliases.contains(f.fieldName()))
+                .map(FieldReader::fieldName)
+                .findFirst()
+                .orElse(paramName);
 
         // append increasing numbers to constructor params sharing names with other subtypes
         final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
