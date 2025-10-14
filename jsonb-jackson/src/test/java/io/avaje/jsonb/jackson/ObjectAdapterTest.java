@@ -1,21 +1,22 @@
 package io.avaje.jsonb.jackson;
 
-import io.avaje.json.JsonAdapter;
-import io.avaje.json.JsonWriter;
-import io.avaje.jsonb.JsonType;
-import io.avaje.jsonb.Jsonb;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonWriter;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
 
 class ObjectAdapterTest {
 
-  Jsonb jsonb = Jsonb.builder().adapter(new JacksonAdapter()).build();
+  Jsonb jsonb = Jsonb.instance();
 
   JsonAdapter<Object> objectAdapter = jsonb.adapter(Object.class);
 

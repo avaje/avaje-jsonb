@@ -1,15 +1,19 @@
 package io.avaje.jsonb.jackson;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.SerializableString;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import io.avaje.jsonb.Jsonb;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.OutputStream;
+
 import org.example.Address;
 import org.example.MyComponent;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+
+import io.avaje.jsonb.Jsonb;
 
 class JacksonAdapterTest {
 
@@ -21,6 +25,13 @@ class JacksonAdapterTest {
 
   public static final JsonFactory HUMAN_READABLE_JSON_FACTORY = JSON_FACTORY.copy()
     .setCharacterEscapes(new HumanReadableCharacterEscapes());
+
+  @Test
+  void isJackson() {
+    var jsonb = Jsonb.instance();
+    assertThat(jsonb.reader("")).isInstanceOf(JacksonReader.class);
+    assertThat(jsonb.writer(OutputStream.nullOutputStream())).isInstanceOf(JacksonWriter.class);
+  }
 
   @Test
   void custom_JsonFactory() {

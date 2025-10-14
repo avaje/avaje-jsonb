@@ -34,6 +34,13 @@
 
     <dependency>
       <groupId>io.avaje</groupId>
+      <artifactId>avaje-spi-service</artifactId>
+      <version>${spi.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.avaje</groupId>
       <artifactId>junit</artifactId>
       <version>1.6</version>
       <scope>test</scope>
