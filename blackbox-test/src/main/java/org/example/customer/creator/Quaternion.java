@@ -1,11 +1,10 @@
-package io.avaje.jsonb.generator.models.valid.creator;
+package org.example.customer.creator;
 
 import io.avaje.jsonb.Json;
 import io.avaje.jsonb.Json.Alias;
 import io.avaje.jsonb.Json.Creator;
 import io.avaje.jsonb.Json.Property;
 
-// test Creater and Property interaction
 @Json
 public class Quaternion {
 

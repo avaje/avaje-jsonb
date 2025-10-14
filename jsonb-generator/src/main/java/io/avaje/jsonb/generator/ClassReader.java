@@ -513,24 +513,14 @@ final class ClassReader implements BeanReader {
 
         MethodParam methodParam = params.get(i);
         final var paramName = methodParam.name();
-
-        var aliases =
-                AliasPrism.getOptionalOn(methodParam.element()).map(AliasPrism::value).stream()
-                    .flatMap(List::stream)
-                    .collect(Collectors.toSet());
+        final var aliases = aliasesForParam(methodParam);
         var name =
-            allFields.stream()
-                .filter(FieldReader::isConstructorParam)
-                .filter(
-                    f ->
-                        f.propertyName().equals(paramName)
-                            || f.fieldName().equals(paramName)
-                            || f.aliases().contains(paramName)
-                            || aliases.contains(f.propertyName())
-                            || aliases.contains(f.fieldName()))
-                .map(FieldReader::fieldName)
-                .findFirst()
-                .orElse(paramName);
+          allFields.stream()
+            .filter(FieldReader::isConstructorParam)
+            .filter(field -> isMatchParam(field, paramName, aliases))
+            .map(FieldReader::fieldName)
+            .findFirst()
+            .orElse(paramName);
 
         // append increasing numbers to constructor params sharing names with other subtypes
         final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
@@ -546,6 +536,20 @@ final class ClassReader implements BeanReader {
     if (!directReturn) {
       writer.append("    return _$%s;", varName).eol();
     }
+  }
+
+  private static boolean isMatchParam(FieldReader field, String paramName, Set<String> aliases) {
+    return field.propertyName().equals(paramName)
+      || field.fieldName().equals(paramName)
+      || field.aliases().contains(paramName)
+      || aliases.contains(field.propertyName())
+      || aliases.contains(field.fieldName());
+  }
+
+  private static Set<String> aliasesForParam(MethodParam methodParam) {
+    return AliasPrism.getOptionalOn(methodParam.element()).map(AliasPrism::value).stream()
+      .flatMap(List::stream)
+      .collect(Collectors.toSet());
   }
 
   private void writeFromJsonWithSubTypes(Append writer) {
