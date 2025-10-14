@@ -244,7 +244,9 @@ final class FieldReader {
       writer.append("        case \"%s\":", propertyKey).eol();
     }
     final String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
-    writer.append("        case \"%s\": ", propertyKey).eol();
+    if (!aliases.contains(propertyName)) {
+      writer.append("        case \"%s\": ", propertyKey).eol();
+    }
     if (!deserialize) {
       writer.append("          reader.skipValue();");
     } else {
