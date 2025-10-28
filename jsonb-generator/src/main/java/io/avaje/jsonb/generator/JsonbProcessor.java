@@ -4,10 +4,12 @@ import static io.avaje.jsonb.generator.APContext.asTypeElement;
 import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.logNote;
 import static io.avaje.jsonb.generator.APContext.typeElement;
-import static io.avaje.jsonb.generator.Constants.*;
+import static io.avaje.jsonb.generator.Constants.JSON;
+import static io.avaje.jsonb.generator.Constants.JSON_IMPORT;
+import static io.avaje.jsonb.generator.Constants.JSON_IMPORT_LIST;
+import static io.avaje.jsonb.generator.Constants.JSON_MIXIN;
 import static io.avaje.jsonb.generator.ProcessingContext.addImportedPrism;
 import static io.avaje.jsonb.generator.ProcessingContext.createMetaInfWriterFor;
-import static io.avaje.jsonb.generator.ValuePrism.*;
 import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
@@ -115,8 +117,6 @@ public final class JsonbProcessor extends AbstractProcessor {
     }
     APContext.setProjectModuleElement(annotations, round);
     readModule();
-
-    getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
     getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
     getElements(round, JSON).ifPresent(this::writeAdapters);
     getElements(round, JSON_MIXIN).ifPresent(this::writeAdaptersForMixInTypes);
@@ -126,6 +126,8 @@ public final class JsonbProcessor extends AbstractProcessor {
 
     metaData.fullName(false);
     cascadeTypes();
+    getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
+
     writeComponent(round.processingOver());
     return false;
   }
