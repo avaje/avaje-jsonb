@@ -123,11 +123,10 @@ public final class JsonbProcessor extends AbstractProcessor {
     getElements(round, JSON_IMPORT_LIST).ifPresent(this::writeAdaptersForImportedList);
     getElements(round, JSON_IMPORT).ifPresent(this::writeAdaptersForImported);
     getElements(round, "io.avaje.spi.ServiceProvider").ifPresent(this::registerSPI);
+    getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
 
     metaData.fullName(false);
     cascadeTypes();
-    getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
-
     writeComponent(round.processingOver());
     return false;
   }
