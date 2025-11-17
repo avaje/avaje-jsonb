@@ -9,14 +9,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.*;
 
 final class CoreViewBuilder implements ViewBuilder {
 
-  private final MethodHandles.Lookup lookup = MethodHandles.lookup();
   private final Deque<Items> stack = new ArrayDeque<>();
   private final ViewDsl viewDsl;
   private final Names names;
@@ -36,7 +34,7 @@ final class CoreViewBuilder implements ViewBuilder {
   @Override
   public MethodHandle method(Class<?> cls, String methodName, Class<?> returnType) {
     try {
-      return lookup.findVirtual(cls, methodName, MethodType.methodType(returnType));
+      return ExtensionLoader.lookupLookup(cls).findVirtual(cls, methodName, MethodType.methodType(returnType));
     } catch (Exception e) {
       throw new JsonException(e);
     }
@@ -46,7 +44,7 @@ final class CoreViewBuilder implements ViewBuilder {
   public MethodHandle field(Class<?> cls, String name) {
     try {
       Field field = cls.getDeclaredField(name);
-      return lookup.unreflectGetter(field);
+      return ExtensionLoader.lookupLookup(cls).unreflectGetter(field);
     } catch (Exception e) {
       throw new JsonException(e);
     }
