@@ -3,7 +3,6 @@ package io.avaje.jsonb.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import static io.avaje.jsonb.generator.APContext.*;
 
 /**
  * A type with generic parameters and potentially nested.
@@ -106,12 +105,17 @@ final class GenericType {
 
   void writeType(String prefix, StringBuilder sb) {
     String main = Util.shortName(trimExtends());
-    sb.append(prefix).append(main).append(".class");
+    sb.append(prefix);
     final int paramCount = params.size();
     if (paramCount > 0) {
+      sb.append("Types.newParameterizedType(");
+    }
+    sb.append(main).append(".class");
+    if (paramCount > 0) {
       for (GenericType param : params) {
-        param.writeType(",", sb);
+        param.writeType(", ", sb);
       }
+      sb.append(")");
     }
   }
 
@@ -137,7 +141,7 @@ final class GenericType {
   }
 
   String topType() {
-    return (mainType != null) ? mainType : raw;
+    return mainType != null ? mainType : raw;
   }
 
   void setMainType(String mainType) {
@@ -157,8 +161,8 @@ final class GenericType {
       if (result != null) return result;
     }
     StringBuilder sb = new StringBuilder();
-    writeType("Types.newParameterizedType(", sb);
-    return sb.append(")").toString();
+    writeType("", sb);
+    return sb.toString();
   }
 
   private String asTypeBasic() {
@@ -173,17 +177,21 @@ final class GenericType {
   private String asTypeContainer() {
     GenericType param = params.get(0);
     String containerType = topType();
-    if ("java.util.List".equals(containerType) || "java.util.ArrayList".equals(containerType)) {
-      return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
-    }
-    if ("java.util.Set".equals(containerType) || "java.util.LinkedHashSet".equals(containerType)) {
-      return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
-    }
-    if ("java.util.stream.Stream".equals(containerType)) {
-      return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
-    }
-    if ("java.util.Optional".equals(containerType)) {
-      return "Types.optionalOf(" + Util.shortName(param.topType()) + ".class)";
+    if (containerType != null) {
+      switch (containerType) {
+        case "java.util.List":
+        case "java.util.ArrayList":
+          return "Types.listOf(" + Util.shortName(param.topType()) + ".class)";
+        case "java.util.Set":
+        case "java.util.LinkedHashSet":
+          return "Types.setOf(" + Util.shortName(param.topType()) + ".class)";
+        case "java.util.stream.Stream":
+          return "Types.streamOf(" + Util.shortName(param.topType()) + ".class)";
+        case "java.util.Optional":
+          return "Types.optionalOf(" + Util.shortName(param.topType()) + ".class)";
+        default:
+          break;
+      }
     }
     return null;
   }
