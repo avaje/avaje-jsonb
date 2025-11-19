@@ -3,7 +3,7 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>3.9-SNAPSHOT</version>
+    <version>3.9-RC1</version>
   </parent>
   <artifactId>blackbox-test-cascade</artifactId>
 
