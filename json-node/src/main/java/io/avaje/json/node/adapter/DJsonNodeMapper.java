@@ -22,15 +22,15 @@ final class DJsonNodeMapper implements JsonNodeMapper {
   static final NumberAdapter NUMBER_ADAPTER = new NumberAdapter();
 
   private final JsonStream jsonStream;
-  private final NodeAdapter nodeAdapter;
-  private final ObjectAdapter objectAdapter;
-  private final ArrayAdapter arrayAdapter;
+  private final JsonAdapter<JsonNode> nodeAdapter;
+  private final JsonAdapter<JsonObject> objectAdapter;
+  private final JsonAdapter<JsonArray> arrayAdapter;
 
   DJsonNodeMapper(JsonStream jsonStream, NodeAdapter nodeAdapter, ObjectAdapter objectAdapter, ArrayAdapter arrayAdapter) {
     this.jsonStream = jsonStream;
-    this.nodeAdapter = nodeAdapter;
-    this.objectAdapter = objectAdapter;
-    this.arrayAdapter = arrayAdapter;
+    this.nodeAdapter = nodeAdapter.nullSafe();
+    this.objectAdapter = objectAdapter.nullSafe();
+    this.arrayAdapter = arrayAdapter.nullSafe();
   }
 
   @Override
