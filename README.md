@@ -215,7 +215,7 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
 }
 ```
 
-## Based on Moshi
+## Inspired by Moshi
 
 `avaje-jsonb` was based on [Moshi](https://github.com/square/moshi) with some changes as summarised below:
 
@@ -264,10 +264,4 @@ When using Spring Web, you can use the following dependency to use avaje-jsonb f
   <version>${avaje-jsonb-version}</version>
 </dependency>
 ```
-
-## Related works
-- [moshi](https://github.com/square/moshi), [reddit - why use moshi over gson](https://www.reddit.com/r/androiddev/comments/684flw/why_use_moshi_over_gson/)
-- [dsl-json](https://github.com/ngs-doo/dsl-json)
-- [jackson core](https://github.com/FasterXML/jackson-core)
-- [jackson databind](https://github.com/FasterXML/jackson-databind)
 
