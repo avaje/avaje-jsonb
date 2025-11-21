@@ -110,7 +110,10 @@ final class CoreAdapterBuilder {
             + type
             + "\nPossible Causes: \n"
             + "1. Missing @Json or @Json.Import annotation.\n"
-            + "2. The avaje-jsonb-generator dependency was not available during compilation\n");
+            + "2. The avaje-jsonb-generator dependency was not available during compilation" 
+            + (Runtime.version().feature() >= 23
+                  ? " or -proc full was not enabled in maven compiler\n"
+                  : "\n"));
       }
       return null;  // No adapter found
     } catch (IllegalArgumentException e) {
