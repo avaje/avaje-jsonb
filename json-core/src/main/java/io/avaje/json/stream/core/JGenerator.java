@@ -64,6 +64,8 @@ class JGenerator implements JsonGenerator {
   private int position;
   private boolean pretty;
   private int depth;
+  private int arrayDepth;
+  private int objectDepth;
   private final Deque<JsonNames> nameStack = new ArrayDeque<>();
   private JsonNames currentNames;
   private boolean allNames;
@@ -484,7 +486,7 @@ class JGenerator implements JsonGenerator {
     if (lastOp == OP_END) {
       writeByte(COMMA);
     }
-    if (pretty && (depth > 1)) {
+    if (pretty && depth > 1 && objectDepth <= arrayDepth) {
       prettyIndent();
     }
     lastOp = OP_END;
@@ -496,11 +498,15 @@ class JGenerator implements JsonGenerator {
   }
 
   private void writeStartObject() {
-    if (pretty) {
-      depth++;
-    }
     if (lastOp == OP_END) {
       writeByte(COMMA);
+    }
+    if (pretty) {
+      if (arrayDepth > 0 && arrayDepth >= objectDepth) {
+        prettyIndent();
+      }
+      depth++;
+      objectDepth++;
     }
     writeByte(OBJECT_START);
     lastOp = OP_START;
@@ -531,6 +537,7 @@ class JGenerator implements JsonGenerator {
     }
     if (pretty) {
       depth--;
+      objectDepth--;
       prettyIndent();
     }
     writeByte(OBJECT_END);
@@ -543,6 +550,7 @@ class JGenerator implements JsonGenerator {
     lastOp = OP_START;
     if (pretty) {
       depth++;
+      arrayDepth++;
     }
   }
 
@@ -550,6 +558,7 @@ class JGenerator implements JsonGenerator {
   public void endArray() {
     if (pretty) {
       depth--;
+      arrayDepth--;
       prettyIndent();
     }
     writeByte(ARRAY_END);
