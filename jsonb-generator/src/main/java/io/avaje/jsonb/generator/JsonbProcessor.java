@@ -70,6 +70,9 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
+  private boolean finished;
+  private boolean generateComponent;
+  private int rounds;
 
   @Override
   public SourceVersion getSupportedSourceVersion() {
@@ -112,7 +115,8 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
-    if (round.errorRaised()) {
+    generateComponent = rounds++ > 0;
+    if (finished || round.errorRaised()) {
       return false;
     }
     APContext.setProjectModuleElement(annotations, round);
@@ -127,12 +131,14 @@ public final class JsonbProcessor extends AbstractProcessor {
 
     metaData.fullName(false);
     cascadeTypes();
-    writeComponent(round.processingOver());
+    writeComponent(generateComponent);
     return false;
   }
 
   // Optional because annotations are not guaranteed to exist
   private Optional<? extends Set<? extends Element>> getElements(RoundEnvironment round, String name) {
+	var op=  Optional.ofNullable(typeElement(name)).map(round::getElementsAnnotatedWith).filter(n->!n.isEmpty());
+	generateComponent = generateComponent && op.isEmpty();
     return Optional.ofNullable(typeElement(name)).map(round::getElementsAnnotatedWith);
   }
 
@@ -245,6 +251,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     }
     for (final String type : extraTypes) {
       if (!ignoreType(type)) {
+        generateComponent = false;
         final TypeElement element = typeElement(type);
         if (element != null
             && element.getKind() != ElementKind.ENUM
@@ -312,6 +319,7 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private void writeComponent(boolean processingOver) {
     if (processingOver) {
+      this.finished = true;
       try {
         if (!metaData.isEmpty()) {
           componentWriter.initialise(false);
