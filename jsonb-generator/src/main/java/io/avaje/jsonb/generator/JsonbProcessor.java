@@ -70,7 +70,6 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
-  private boolean finished;
   private boolean generateComponent;
   private int rounds;
 
@@ -115,10 +114,10 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
-    generateComponent = rounds++ > 0;
-    if (finished || round.errorRaised()) {
+    if (generateComponent || round.errorRaised()) {
       return false;
     }
+    generateComponent = rounds++ > 0;
     APContext.setProjectModuleElement(annotations, round);
     readModule();
     getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
@@ -323,7 +322,6 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private void writeComponent(boolean processingOver) {
     if (processingOver) {
-      this.finished = true;
       try {
         if (!metaData.isEmpty()) {
           componentWriter.initialise(false);
