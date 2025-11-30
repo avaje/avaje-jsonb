@@ -70,6 +70,8 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
+  private boolean generateComponent;
+  private int rounds;
 
   @Override
   public SourceVersion getSupportedSourceVersion() {
@@ -112,9 +114,10 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
-    if (round.errorRaised()) {
+    if (generateComponent || round.errorRaised()) {
       return false;
     }
+    generateComponent = rounds++ > 0;
     APContext.setProjectModuleElement(annotations, round);
     readModule();
     getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
@@ -127,13 +130,19 @@ public final class JsonbProcessor extends AbstractProcessor {
 
     metaData.fullName(false);
     cascadeTypes();
-    writeComponent(round.processingOver());
+    writeComponent(generateComponent);
     return false;
   }
 
   // Optional because annotations are not guaranteed to exist
   private Optional<? extends Set<? extends Element>> getElements(RoundEnvironment round, String name) {
-    return Optional.ofNullable(typeElement(name)).map(round::getElementsAnnotatedWith);
+    var op =
+      Optional.ofNullable(typeElement(name))
+        .map(round::getElementsAnnotatedWith)
+        .filter(n -> !n.isEmpty());
+    // skip generateComponent if anything needs processing in this round
+    generateComponent = generateComponent && op.isEmpty();
+    return op;
   }
 
   private void registerCustomAdapters(Set<? extends Element> elements) {
@@ -245,6 +254,8 @@ public final class JsonbProcessor extends AbstractProcessor {
     }
     for (final String type : extraTypes) {
       if (!ignoreType(type)) {
+        // skip generateComponent for this round due to cascade
+        generateComponent = false;
         final TypeElement element = typeElement(type);
         if (element != null
             && element.getKind() != ElementKind.ENUM
