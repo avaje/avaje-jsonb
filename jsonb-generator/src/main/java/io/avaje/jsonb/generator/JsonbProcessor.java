@@ -43,12 +43,10 @@ import javax.lang.model.util.ElementFilter;
 import javax.tools.FileObject;
 
 import io.avaje.prism.GenerateAPContext;
-import io.avaje.prism.GenerateModuleInfoReader;
 import io.avaje.prism.GenerateUtils;
 
 @GenerateUtils
 @GenerateAPContext
-@GenerateModuleInfoReader
 @SupportedAnnotationTypes({
   CustomAdapterPrism.PRISM_TYPE,
   JSON,
@@ -115,6 +113,10 @@ public final class JsonbProcessor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     if (generateComponent || round.errorRaised()) {
+      if (round.processingOver()) {
+        ProcessingContext.validateModule();
+        ProcessingContext.clear();
+      }
       return false;
     }
     generateComponent = rounds++ > 0;
@@ -338,11 +340,8 @@ public final class JsonbProcessor extends AbstractProcessor {
           writer.write();
         }
         writeMetaInf();
-        ProcessingContext.validateModule();
       } catch (final IOException e) {
         logError("Error writing component", e);
-      } finally {
-        ProcessingContext.clear();
       }
     }
   }

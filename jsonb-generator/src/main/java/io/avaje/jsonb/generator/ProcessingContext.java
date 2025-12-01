@@ -1,12 +1,10 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.APContext.filer;
-import static io.avaje.jsonb.generator.APContext.getModuleInfoReader;
 import static io.avaje.jsonb.generator.APContext.getProjectModuleElement;
 import static io.avaje.jsonb.generator.APContext.jdkVersion;
 import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.logWarn;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -86,31 +84,31 @@ final class ProcessingContext {
 
   static void validateModule() {
     var module = getProjectModuleElement();
-    if (module != null && !module.isUnnamed()) {
-      var injectPresent = CTX.get().injectPresent;
 
-      try (var reader = getModuleInfoReader()) {
-        var moduleInfo = new ModuleInfoReader(module, reader);
+    var injectPresent = CTX.get().injectPresent;
 
-        moduleInfo.validateServices("io.avaje.jsonb.spi.JsonbExtension", CTX.get().services);
+    APContext.moduleInfoReader()
+        .ifPresent(
+            moduleInfo -> {
+              moduleInfo.validateServices("io.avaje.jsonb.spi.JsonbExtension", CTX.get().services);
 
-        boolean noInjectPlugin =
-          injectPresent && !moduleInfo.containsOnModulePath("io.avaje.jsonb.plugin");
+              boolean noInjectPlugin =
+                  injectPresent && !moduleInfo.containsOnModulePath("io.avaje.jsonb.plugin");
 
-        var buildPluginAvailable = buildPluginAvailable();
+              var buildPluginAvailable = buildPluginAvailable();
 
-        final var noDirectJsonb =
-          moduleInfo.requires().stream()
-            .noneMatch(r -> r.getDependency().getQualifiedName().contentEquals("io.avaje.jsonb"));
+              final var noDirectJsonb =
+                  moduleInfo.requires().stream()
+                      .noneMatch(
+                          r ->
+                              r.getDependency().getQualifiedName().contentEquals("io.avaje.jsonb"));
 
-        if (noInjectPlugin && (!buildPluginAvailable || noDirectJsonb)) {
-          logWarn(module, "`requires io.avaje.jsonb.plugin` must be explicitly added or else avaje-inject may fail to detect and wire the default Jsonb instance");
-        }
-
-      } catch (Exception e) {
-        // can't read module
-      }
-    }
+              if (noInjectPlugin && (!buildPluginAvailable || noDirectJsonb)) {
+                logWarn(
+                    module,
+                    "`requires io.avaje.jsonb.plugin` must be explicitly added or else avaje-inject may fail to detect and wire the default Jsonb instance");
+              }
+            });
   }
 
   static void addJsonSpi(String spi) {
