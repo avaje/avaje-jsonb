@@ -145,4 +145,14 @@ class JsonArrayTest {
     assertThat(plain.get(1)).isEqualTo(Map.of("b", 42));
   }
 
+  @Test
+  void toJson_nested_array() {
+    JsonArray top = JsonArray.create()
+      .add(JsonArray.create().add("a"))
+      .add(JsonArray.create().add("b"));
+
+    String asJson = mapper.toJson(top);
+    assertThat(asJson).isEqualTo("[[\"a\"],[\"b\"]]");
+  }
+
 }

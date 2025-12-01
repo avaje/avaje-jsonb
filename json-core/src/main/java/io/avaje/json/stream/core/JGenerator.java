@@ -546,6 +546,9 @@ class JGenerator implements JsonGenerator {
 
   @Override
   public void startArray() {
+    if (lastOp == OP_END) {
+      writeByte(COMMA);
+    }
     writeByte(ARRAY_START);
     lastOp = OP_START;
     if (pretty) {
