@@ -53,12 +53,9 @@ final class ComponentMetaData {
           !topPackage.contains(".")
               && APContext.getProjectModuleElement().isUnnamed()
               && APContext.elements().getPackageElement(topPackage) == null;
-      if (!defaultPackage && !pkgPrivate && !topPackage.endsWith(".jsonb") && topPackage.contains(".")) {
+      if (!defaultPackage && !pkgPrivate && !topPackage.endsWith(".jsonb")) {
         topPackage += ".jsonb";
       }
-      if(!defaultPackage && !topPackage.contains(".")) {
-		topPackage += "jsonb";
-	  }
 
       if (defaultPackage) {
         fullName = "GeneratedJsonComponent";
