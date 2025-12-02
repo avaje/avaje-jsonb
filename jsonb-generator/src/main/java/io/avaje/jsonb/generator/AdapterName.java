@@ -12,14 +12,15 @@ final class AdapterName {
     String originPackage = APContext.elements().getPackageOf(beanReader.beanType()).getQualifiedName().toString();
     var name = shortName(beanReader.beanType());
     shortName = name.substring(0, name.length() - 1);
-    if (beanReader.isPkgPrivate()) {
+    if (beanReader.isPkgPrivate() || "".equals(originPackage)) {
       this.adapterPackage = originPackage;
-    } else if ("".equals(originPackage)) {
-      this.adapterPackage = "jsonb";
     } else {
       this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? originPackage + ".jsonb" : originPackage;
     }
-    this.fullName = adapterPackage + "." + shortName + "JsonAdapter";
+    this.fullName =
+        adapterPackage.isBlank()
+            ? shortName + "JsonAdapter"
+            : adapterPackage + "." + shortName + "JsonAdapter";
   }
 
   private String shortName(TypeElement origin) {

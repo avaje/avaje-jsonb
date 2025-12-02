@@ -49,10 +49,20 @@ final class ComponentMetaData {
       var everyType = new ArrayList<>(allTypes);
       everyType.addAll(factoryTypes);
       String topPackage = TopPackage.of(everyType);
-      if (!pkgPrivate && !topPackage.endsWith(".jsonb")) {
+      var defaultPackage =
+          !topPackage.contains(".")
+              && APContext.getProjectModuleElement().isUnnamed()
+              && APContext.elements().getPackageElement(topPackage) == null;
+      if (!defaultPackage && !pkgPrivate && !topPackage.endsWith(".jsonb") && topPackage.contains(".")) {
         topPackage += ".jsonb";
       }
-      if (pkgPrivate) {
+      if(!defaultPackage && !topPackage.contains(".")) {
+		topPackage += "jsonb";
+	  }
+
+      if (defaultPackage) {
+        fullName = "GeneratedJsonComponent";
+      } else if (pkgPrivate) {
         fullName = topPackage + "." + name(topPackage) + "JsonComponent";
       } else if (APContext.isTestCompilation()) {
         fullName = topPackage + ".TestJsonComponent";

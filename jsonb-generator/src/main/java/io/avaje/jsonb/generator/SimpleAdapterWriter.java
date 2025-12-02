@@ -130,6 +130,8 @@ final class SimpleAdapterWriter {
   }
 
   private void writePackage() {
-    writer.append("package %s;", adapterPackage).eol().eol();
+    if (!adapterPackage.isBlank()) {
+      writer.append("package %s;", adapterPackage).eol().eol();
+    }
   }
 }

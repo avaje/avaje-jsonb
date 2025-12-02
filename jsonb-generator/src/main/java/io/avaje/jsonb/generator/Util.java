@@ -30,7 +30,7 @@ final class Util {
   }
 
   private static boolean importDifferentPackage(String type, String packageName) {
-    return type.replace(packageName + '.', "").indexOf('.') > 0;
+    return packageName.isBlank() || type.replace(packageName + '.', "").indexOf('.') > 0;
   }
 
   private static boolean importJavaLangSubpackage(String type) {
@@ -109,27 +109,6 @@ final class Util {
     }
     final var result = input.substring(0, pos) + input.substring(currentIndex + 1);
     return cutAnnotations(result);
-  }
-
-  /** Return the common parent package. */
-  static String commonParent(String currentTop, String aPackage) {
-    if (aPackage == null) return currentTop;
-    if (currentTop.isBlank()) return packageOf(aPackage);
-    if (aPackage.startsWith(currentTop)) {
-      return currentTop;
-    }
-    int next;
-    do {
-      next = currentTop.lastIndexOf('.');
-      if (next > -1) {
-        currentTop = currentTop.substring(0, next);
-        if (aPackage.startsWith(currentTop)) {
-          return currentTop;
-        }
-      }
-    } while (next > -1);
-
-    return currentTop;
   }
 
   static String initCap(String input) {
