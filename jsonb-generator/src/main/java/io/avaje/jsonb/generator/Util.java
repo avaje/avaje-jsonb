@@ -50,11 +50,6 @@ final class Util {
     return type.replaceAll("[^\\n\\r\\t $*_;\\w.]", "");
   }
 
-  static String packageOf(String cls) {
-    int pos = cls.lastIndexOf('.');
-    return pos == -1 ? "" : cls.substring(0, pos);
-  }
-
   static String shortName(String fullType) {
     int p = fullType.lastIndexOf('.');
     if (p == -1) {

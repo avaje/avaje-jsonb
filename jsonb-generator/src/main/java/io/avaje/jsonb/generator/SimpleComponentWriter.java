@@ -26,7 +26,7 @@ final class SimpleComponentWriter {
 
   void initialise(boolean pkgPrivate) throws IOException {
     fullName = metaData.fullName(pkgPrivate);
-    packageName = Util.packageOf(fullName);
+    packageName = "GeneratedJsonComponent".equals(fullName) ? "" : ProcessorUtils.packageOf(fullName);
     if (fileObject == null) {
       fileObject = createSourceFile(fullName);
     }
