@@ -18,9 +18,9 @@ final class AdapterName {
       this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? originPackage + ".jsonb" : originPackage;
     }
     this.fullName =
-        adapterPackage.isBlank()
-            ? shortName + "JsonAdapter"
-            : adapterPackage + "." + shortName + "JsonAdapter";
+      adapterPackage.isBlank()
+        ? shortName + "JsonAdapter"
+        : adapterPackage + "." + shortName + "JsonAdapter";
   }
 
   private String shortName(TypeElement origin) {
