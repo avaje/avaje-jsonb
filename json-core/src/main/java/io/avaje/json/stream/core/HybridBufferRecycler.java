@@ -5,10 +5,7 @@ import io.avaje.json.stream.core.Recyclers.ThreadLocalPool;
 
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.function.Predicate;
 
 /**
  * This is a custom implementation of the Jackson's RecyclerPool intended to work equally well with
@@ -37,10 +34,9 @@ final class HybridBufferRecycler implements BufferRecycler {
 
   private static final HybridBufferRecycler INSTANCE = new HybridBufferRecycler();
 
-  private static final Predicate<Thread> isVirtual = VirtualPredicate.findIsVirtualPredicate();
-
   private static final BufferRecycler NATIVE_RECYCLER = ThreadLocalPool.shared();
   private static final BufferRecycler VIRTUAL_RECYCLER = StripedLockFreePool.shared();
+  private static final boolean VT_ENABLED = Runtime.version().feature() >= 21;
 
   private HybridBufferRecycler() {
   }
@@ -51,21 +47,21 @@ final class HybridBufferRecycler implements BufferRecycler {
 
   @Override
   public JsonGenerator generator(JsonOutput target) {
-    return isVirtual.test(Thread.currentThread())
+    return VT_ENABLED && ThreadFunctions.isVirtual()
       ? VIRTUAL_RECYCLER.generator(target)
       : NATIVE_RECYCLER.generator(target);
   }
 
   @Override
   public JsonParser parser(byte[] bytes) {
-    return isVirtual.test(Thread.currentThread())
+    return VT_ENABLED && ThreadFunctions.isVirtual()
       ? VIRTUAL_RECYCLER.parser(bytes)
       : NATIVE_RECYCLER.parser(bytes);
   }
 
   @Override
   public JsonParser parser(InputStream in) {
-    return isVirtual.test(Thread.currentThread())
+    return VT_ENABLED && ThreadFunctions.isVirtual()
       ? VIRTUAL_RECYCLER.parser(in)
       : NATIVE_RECYCLER.parser(in);
   }
@@ -131,9 +127,8 @@ final class HybridBufferRecycler implements BufferRecycler {
         if (generatorStacks.compareAndSet(index, currentHead, currentHead.next)) {
           currentHead.next = null;
           return currentHead.value.prepare(target);
-        } else {
-          currentHead = generatorStacks.get(index);
         }
+        currentHead = generatorStacks.get(index);
       }
     }
 
@@ -149,9 +144,8 @@ final class HybridBufferRecycler implements BufferRecycler {
         if (parserStacks.compareAndSet(index, currentHead, currentHead.next)) {
           currentHead.next = null;
           return currentHead.value;
-        } else {
-          currentHead = parserStacks.get(index);
         }
+        currentHead = parserStacks.get(index);
       }
     }
 
@@ -166,9 +160,8 @@ final class HybridBufferRecycler implements BufferRecycler {
         if (generatorStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {
           newHead.next = next;
           return;
-        } else {
-          next = generatorStacks.get(vThreadBufferRecycler.slot);
         }
+        next = generatorStacks.get(vThreadBufferRecycler.slot);
       }
     }
 
@@ -183,9 +176,8 @@ final class HybridBufferRecycler implements BufferRecycler {
         if (parserStacks.compareAndSet(vThreadBufferRecycler.slot, next, newHead)) {
           newHead.next = next;
           return;
-        } else {
-          next = parserStacks.get(vThreadBufferRecycler.slot);
         }
+        next = parserStacks.get(vThreadBufferRecycler.slot);
       }
     }
 
@@ -236,35 +228,6 @@ final class HybridBufferRecycler implements BufferRecycler {
     }
   }
 
-  private static final class VirtualPredicate {
-    private static final MethodHandle virtualMh = findVirtualMH();
-
-    private static MethodHandle findVirtualMH() {
-      try {
-        return MethodHandles.publicLookup()
-          .findVirtual(Thread.class, "isVirtual", MethodType.methodType(boolean.class));
-      } catch (Exception e) {
-        return null;
-      }
-    }
-
-    private static Predicate<Thread> findIsVirtualPredicate() {
-      return virtualMh == null ? VirtualPredicate::notVirtual : VirtualPredicate::isVirtual;
-    }
-
-    private static boolean isVirtual(Thread thread) {
-      try {
-        return (boolean) virtualMh.invokeExact(thread);
-      } catch (Throwable e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    private static boolean notVirtual(Thread thread) {
-      return false;
-    }
-  }
-
   private static final class XorShiftThreadProbe {
 
     private final int mask;
@@ -282,7 +245,7 @@ final class HybridBufferRecycler implements BufferRecycler {
       // 0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875…
       // (sqrt(5)-1)/2
       // multiplied by 2^32, which has the best possible scattering properties.
-      int probe = (int) ((Thread.currentThread().getId() * 0x9e3779b9) & Integer.MAX_VALUE);
+      int probe = (int) ((ThreadFunctions.getId() * 0x9e3779b9) & Integer.MAX_VALUE);
       // xorshift
       probe ^= probe << 13;
       probe ^= probe >>> 17;
