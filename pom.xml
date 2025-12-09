@@ -24,7 +24,7 @@
   <properties>
     <surefire.useModulePath>false</surefire.useModulePath>
     <nexus.staging.autoReleaseAfterClose>true</nexus.staging.autoReleaseAfterClose>
-    <spi.version>2.14-RC1</spi.version>
+    <spi.version>2.14</spi.version>
     <project.build.outputTimestamp>2025-12-04T15:21:14Z</project.build.outputTimestamp>
   </properties>
 
