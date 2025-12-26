@@ -31,7 +31,7 @@ class CustomerTest {
     var customer =
         jsonb.type(Customer.class).fromJson(getClass().getResourceAsStream("/graphme.json"));
     var graphme = customer.name();
-    System.err.println("graphme:" + graphme);
+    System.err.println(String.format("{\"name\":\"%s\"}", graphme));
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     jsonb.toJson(customer,  baos);
     String asString = baos.toString();
