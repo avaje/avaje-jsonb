@@ -187,19 +187,14 @@ class JGenerator implements JsonGenerator {
 
   private void writeStringEscape(final String str, int i, int cur, final int len) {
     final byte[] _result = this.buffer;
-
-    // Remove i++ from loop header to manually control index advancement
-    while (i < len) {
+    for (; i < len; i++) {
       final char c = str.charAt(i);
-
       if (c == '"') {
         _result[cur++] = ESCAPE;
         _result[cur++] = QUOTE;
-        i++;
       } else if (c == '\\') {
         _result[cur++] = ESCAPE;
         _result[cur++] = ESCAPE;
-        i++;
       } else if (c < 32) {
         switch (c) {
           case 8:
@@ -340,53 +335,32 @@ class JGenerator implements JsonGenerator {
             cur += 6;
             break;
         }
-        i++;
       } else if (c < 0x007F) {
         _result[cur++] = (byte) c;
-        i++;
-      }
-      // Check for unpaired surrogates first
-      else if (Character.isHighSurrogate(c)) {
-        // for large strings check if there is a next char for those surrogates just over the
-        // boundary
-        if (i + 1 < len || str.indexOf(i + 1) != -1) {
-          final char next = str.charAt(i + 1);
-          if (!Character.isLowSurrogate(next)) {
-            throw new JsonIoException(
-                "Unknown unicode codepoint in string! " + Integer.toHexString(c));
-          }
-          // Valid surrogate pair
-          final int cp = Character.toCodePoint(c, next);
-          i += 2;
-
-          // 4-byte UTF-8 for supplementary characters
-          _result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
-          _result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
-          _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
-        } else {
-          // High surrogate at end of string - replace with replacement character
-          _result[cur++] = (byte) 0xEF;
-          _result[cur++] = (byte) 0xBF;
-          _result[cur++] = (byte) 0xBD;
+      } else {
+        final int cp = Character.codePointAt(str, i);
+        if (Character.isSupplementaryCodePoint(cp)) {
           i++;
         }
-      } else if (Character.isLowSurrogate(c)) {
-        throw new JsonIoException("Unknown unicode codepoint in string! " + Integer.toHexString(c));
-      } else {
-        // Regular BMP character (not a surrogate)
-        final int cp = c;
-        i++;
-
         if (cp == 0x007F) {
           _result[cur++] = (byte) cp;
         } else {
           if (cp <= 0x7FF) {
-            // 2-byte UTF-8
             _result[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
           } else {
-            // 3-byte UTF-8
-            _result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
+            if (cp < 0xD800 || (cp > 0xDFFF && cp <= 0xFFFF)) {
+              _result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
+            } else if (cp >= 0x10000 && cp <= 0x10FFFF) {
+              _result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
+              _result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+            } else if (Character.isLowSurrogate(c)
+                && cur > 0
+                && Character.isHighSurrogate(str.charAt(i - 1))) {
+              continue;
+            } else {
+              throw new JsonIoException(
+                  "Unknown unicode codepoint in string! " + Integer.toHexString(cp));
+            }
             _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
           }
           _result[cur++] = (byte) (0x80 | (cp & 0x3F));
