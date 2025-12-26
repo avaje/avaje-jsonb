@@ -28,13 +28,15 @@ class CustomerTest {
 
   @Test
   void anyToJsonGrapheMe() {
-    var graphme = "👨‍👩‍👧‍👦/̶̢̧̠̩̠̠̪̜͚͙̏͗̏̇̑̈͛͘ͅc👨‍👩‍👧‍👦;";
-    var customer = jsonb.type(Customer.class).fromJson(String.format("{\"name\":\"%s\"}", graphme));
-
-    assertThat(customer.name()).isEqualTo(graphme);
-    String asJson = jsonb.toJson(customer);
-    System.out.println(asJson);
-    assertThat(asJson).isEqualTo(String.format("{\"name\":\"%s\"}", graphme));
+    var customer =
+        jsonb.type(Customer.class).fromJson(getClass().getResourceAsStream("/graphme.json"));
+    var graphme = customer.name();
+    System.err.println("graphme:" + graphme);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    jsonb.toJson(customer,  baos);
+    String asString = baos.toString();
+    System.err.println(asString);
+    assertThat(asString).isEqualTo(String.format("{\"name\":\"%s\"}", graphme));
   }
 
   @Test
