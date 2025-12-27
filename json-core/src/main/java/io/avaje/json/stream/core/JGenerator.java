@@ -278,7 +278,8 @@ class JGenerator implements JsonGenerator {
           // Skip low surrogate, already handled as part of surrogate pair
         } else {
           throw new JsonIoException(
-              "Invalid unicode codepoint in string! " + Integer.toHexString(cp));
+              String.format(
+                  "Invalid unicode codepoint %s at index %s", Integer.toHexString(cp), i));
         }
         i++;
       }
