@@ -55,6 +55,20 @@ class JGenerator implements JsonGenerator {
   private static final int OP_FIELD = 3;
   private static final int OP_END = 4;
 
+  private static final byte[] ESCAPE_CODES = new byte[128];
+  private static final byte[] HEX_DIGITS = "0123456789ABCDEF".getBytes();
+
+  static {
+    for (int i = 0; i < 32; i++) ESCAPE_CODES[i] = -1; // needs escaping
+    ESCAPE_CODES['\b'] = 'b';
+    ESCAPE_CODES['\t'] = 't';
+    ESCAPE_CODES['\n'] = 'n';
+    ESCAPE_CODES['\f'] = 'f';
+    ESCAPE_CODES['\r'] = 'r';
+    ESCAPE_CODES['"'] = '"';
+    ESCAPE_CODES['\\'] = '\\';
+  }
+
   private final Grisu3.FastDtoaBuilder doubleBuilder = new Grisu3.FastDtoaBuilder();
   private final int largeStringMax;
   private final int largeAsciiMax;
@@ -185,186 +199,88 @@ class JGenerator implements JsonGenerator {
     }
   }
 
+
   private void writeStringEscape(final String str, int i, int cur, final int len) {
     final byte[] _result = this.buffer;
-    for (; i < len; i++) {
+
+    while (i < len) {
       final char c = str.charAt(i);
-      if (c == '"') {
-        _result[cur++] = ESCAPE;
-        _result[cur++] = QUOTE;
-      } else if (c == '\\') {
-        _result[cur++] = ESCAPE;
-        _result[cur++] = ESCAPE;
-      } else if (c < 32) {
-        switch (c) {
-          case 8:
-            _result[cur++] = ESCAPE;
-            _result[cur++] = 'b';
-            break;
-          case 9:
-            _result[cur++] = ESCAPE;
-            _result[cur++] = 't';
-            break;
-          case 10:
-            _result[cur++] = ESCAPE;
-            _result[cur++] = 'n';
-            break;
-          case 12:
-            _result[cur++] = ESCAPE;
-            _result[cur++] = 'f';
-            break;
-          case 13:
-            _result[cur++] = ESCAPE;
-            _result[cur++] = 'r';
-            break;
-          default:
-            _result[cur] = ESCAPE;
-            _result[cur + 1] = 'u';
-            _result[cur + 2] = '0';
-            _result[cur + 3] = '0';
-            switch (c) {
-              case 0:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '0';
-                break;
-              case 1:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '1';
-                break;
-              case 2:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '2';
-                break;
-              case 3:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '3';
-                break;
-              case 4:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '4';
-                break;
-              case 5:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '5';
-                break;
-              case 6:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '6';
-                break;
-              case 7:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = '7';
-                break;
-              case 11:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = 'B';
-                break;
-              case 14:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = 'E';
-                break;
-              case 15:
-                _result[cur + 4] = '0';
-                _result[cur + 5] = 'F';
-                break;
-              case 16:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '0';
-                break;
-              case 17:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '1';
-                break;
-              case 18:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '2';
-                break;
-              case 19:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '3';
-                break;
-              case 20:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '4';
-                break;
-              case 21:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '5';
-                break;
-              case 22:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '6';
-                break;
-              case 23:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '7';
-                break;
-              case 24:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '8';
-                break;
-              case 25:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = '9';
-                break;
-              case 26:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = 'A';
-                break;
-              case 27:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = 'B';
-                break;
-              case 28:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = 'C';
-                break;
-              case 29:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = 'D';
-                break;
-              case 30:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = 'E';
-                break;
-              default:
-                _result[cur + 4] = '1';
-                _result[cur + 5] = 'F';
-                break;
-            }
-            cur += 6;
-            break;
-        }
-      } else if (c < 0x007F) {
-        _result[cur++] = (byte) c;
-      } else {
-        final int cp = Character.codePointAt(str, i);
-        if (Character.isSupplementaryCodePoint(cp)) {
+
+      // ASCII 32-126 except " and \
+      if (c >= 32 && c < 127) {
+        final byte escCode = ESCAPE_CODES[c];
+        if (escCode == 0) {
+          _result[cur++] = (byte) c;
           i++;
+          continue;
         }
-        if (cp == 0x007F) {
-          _result[cur++] = (byte) cp;
+        if (escCode > 0) {
+          _result[cur++] = ESCAPE;
+          _result[cur++] = escCode;
+          i++;
+          continue;
+        }
+      }
+
+      // Control characters
+      if (c < 32) {
+        final byte escCode = ESCAPE_CODES[c];
+        if (escCode > 0) {
+          _result[cur++] = ESCAPE;
+          _result[cur++] = escCode;
         } else {
-          if (cp <= 0x7FF) {
-            _result[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
-          } else {
-            if (cp < 0xD800 || (cp > 0xDFFF && cp <= 0xFFFF)) {
-              _result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
-            } else if (cp >= 0x10000 && cp <= 0x10FFFF) {
-              _result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
-              _result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
-            } else if (Character.isLowSurrogate(c)
-                && cur > 0
-                && Character.isHighSurrogate(str.charAt(i - 1))) {
-              continue;
-            } else {
-              throw new JsonIoException(
-                  "Unknown unicode codepoint in string! " + Integer.toHexString(cp));
-            }
-            _result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-          }
-          _result[cur++] = (byte) (0x80 | (cp & 0x3F));
+          // Unicode escape for rare control chars
+          _result[cur] = ESCAPE;
+          _result[cur + 1] = 'u';
+          _result[cur + 2] = '0';
+          _result[cur + 3] = '0';
+          _result[cur + 4] = HEX_DIGITS[c >> 4];
+          _result[cur + 5] = HEX_DIGITS[c & 0x0F];
+          cur += 6;
         }
+        i++;
+        continue;
+      }
+
+      // DEL character
+      if (c == 0x7F) {
+        _result[cur++] = 0x7F;
+        i++;
+        continue;
+      }
+
+      // Multi-byte UTF-8
+      final int cp = Character.codePointAt(str, i);
+
+      if (Character.isSupplementaryCodePoint(cp)) {
+        // 4-byte UTF-8 (U+10000 to U+10FFFF)
+        _result[cur] = (byte) (0xF0 | (cp >> 18));
+        _result[cur + 1] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+        _result[cur + 2] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+        _result[cur + 3] = (byte) (0x80 | (cp & 0x3F));
+        cur += 4;
+        i += 2; // Skip both surrogate pair chars
+      } else {
+        if (cp <= 0x7FF) {
+          // 2-byte UTF-8 (U+0080 to U+07FF)
+          _result[cur] = (byte) (0xC0 | (cp >> 6));
+          _result[cur + 1] = (byte) (0x80 | (cp & 0x3F));
+          cur += 2;
+        } else if (cp < 0xD800 || cp > 0xDFFF && cp <= 0xFFFF) {
+          // 3-byte UTF-8 (U+0800 to U+FFFF, excluding surrogates)
+          _result[cur] = (byte) (0xE0 | (cp >> 12));
+          _result[cur + 1] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+          _result[cur + 2] = (byte) (0x80 | (cp & 0x3F));
+          cur += 3;
+        } else if (Character.isLowSurrogate(c)
+            && i > 0
+            && Character.isHighSurrogate(str.charAt(i - 1))) {
+          // Skip low surrogate, already handled as part of surrogate pair
+        } else {
+          throw new JsonIoException(
+              "Invalid unicode codepoint in string! " + Integer.toHexString(cp));
+        }
+        i++;
       }
     }
     position = cur;
