@@ -27,6 +27,19 @@ class CustomerTest {
   }
 
   @Test
+  void anyToJsonGrapheMe() {
+    var customer =
+        jsonb.type(Customer.class).fromJson(getClass().getResourceAsStream("/graphme.json"));
+    var graphme = customer.name();
+    System.err.println(String.format("{\"name\":\"%s\"}", graphme));
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    jsonb.toJson(customer,  baos);
+    String asString = baos.toString();
+    System.err.println(asString);
+    assertThat(asString).isEqualTo(String.format("{\"name\":\"%s\"}", graphme));
+  }
+
+  @Test
   void anyToJsonPretty() {
     final var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
     final String asJson = jsonb.toJsonPretty(customer).replace("\" : ", "\": ");

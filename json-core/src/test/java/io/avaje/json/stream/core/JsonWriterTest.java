@@ -5,12 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
-import io.avaje.json.stream.JsonOutput;
-import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
 import io.avaje.json.JsonWriter;
+import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.JsonStream;
 import io.avaje.json.stream.core.HybridBufferRecycler.StripedLockFreePool;
 import io.avaje.json.stream.core.Recyclers.ThreadLocalPool;
 
@@ -279,5 +280,195 @@ class JsonWriterTest {
     fw.close();
 
     assertThat(writer.toString()).isEqualTo("{\"key\":\"a\\nb£c\",\"x\":1}");
+  }
+
+  @Test
+  void testAllUnicodeCharacters() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(8192); // Larger buffer for Unicode
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+    JsonWriteAdapter fw =
+        new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    // Test all valid Unicode code points (0x0000 to 0x10FFFF)
+    // Excluding surrogate pairs (0xD800 to 0xDFFF)
+    fw.beginObject();
+    fw.name("unicode_test");
+    fw.beginArray();
+
+    // Basic Multilingual Plane (BMP): 0x0000 to 0xFFFF
+    for (int codePoint = 0; codePoint <= 0xFFFF; codePoint++) {
+      // Skip surrogate pair range
+      if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
+        continue;
+      }
+      fw.value(new String(Character.toChars(codePoint)));
+    }
+
+    // Supplementary planes: 0x10000 to 0x10FFFF
+    for (int codePoint = 0x10000; codePoint <= 0x10FFFF; codePoint++) {
+      if (Character.isValidCodePoint(codePoint)) {
+        fw.value(new String(Character.toChars(codePoint)));
+      }
+    }
+
+    fw.endArray();
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), StandardCharsets.UTF_8);
+    assertThat(jsonResult).isNotEmpty();
+    assertThat(jsonResult).startsWith("{\"unicode_test\":[");
+    assertThat(jsonResult).endsWith("]}");
+  }
+
+  @Test
+  void testUnicodeByPlane() {
+    // Test specific Unicode planes separately for better debugging
+    testUnicodePlane("Basic Latin", 0x0000, 0x007F);
+    testUnicodePlane("Latin-1 Supplement", 0x0080, 0x00FF);
+    testUnicodePlane("Greek and Coptic", 0x0370, 0x03FF);
+    testUnicodePlane("Cyrillic", 0x0400, 0x04FF);
+    testUnicodePlane("Hebrew", 0x0590, 0x05FF);
+    testUnicodePlane("Arabic", 0x0600, 0x06FF);
+    testUnicodePlane("CJK Unified Ideographs", 0x4E00, 0x4EFF); // Subset
+    testUnicodePlane("Emoji", 0x1F600, 0x1F64F);
+  }
+
+  private void testUnicodePlane(String planeName, int start, int end) {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(4096);
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+    JsonWriteAdapter fw =
+        new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    fw.beginObject();
+    fw.name(planeName);
+
+    StringBuilder sb = new StringBuilder();
+    for (int codePoint = start; codePoint <= end; codePoint++) {
+      if (Character.isValidCodePoint(codePoint) && ((codePoint < 0xD800) || (codePoint > 0xDFFF))) {
+        sb.appendCodePoint(codePoint);
+      }
+    }
+
+    fw.value(sb.toString());
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), StandardCharsets.UTF_8);
+    assertThat(jsonResult).contains(planeName);
+  }
+
+  @Test
+  void testSpecialUnicodeCharacters() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(1024);
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+    JsonWriteAdapter fw =
+        new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    fw.beginObject();
+
+    // Zero-width characters
+    fw.name("zero_width");
+    fw.value("\u200B\u200C\u200D\uFEFF");
+
+    // Right-to-left marks
+    fw.name("rtl_marks");
+    fw.value("\u200E\u200F");
+
+    // Combining characters
+    fw.name("combining");
+    fw.value("e\u0301"); // é composed
+
+    // Emoji with modifiers
+    fw.name("emoji");
+    fw.value("👋🏽"); // Waving hand with skin tone
+
+    // Multi-byte characters
+    fw.name("multibyte");
+    fw.value("𝕳𝖊𝖑𝖑𝖔"); // Mathematical bold characters
+
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), StandardCharsets.UTF_8);
+    assertThat(jsonResult)
+        .isEqualTo(
+            "{\"zero_width\":\"​‌‍﻿\",\"rtl_marks\":\"‎‏\",\"combining\":\"é\",\"emoji\":\"👋🏽\",\"multibyte\":\"𝕳𝖊𝖑𝖑𝖔\"}");
+  }
+
+  @Test
+  void testAsciiCharacters() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(100);
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+    JsonWriteAdapter fw =
+        new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < 127; i++) {
+      sb.append((char) i);
+    }
+    String largeValue = sb.toString();
+
+    fw.beginObject();
+    fw.name("key");
+    fw.value(largeValue);
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), 0, os.toByteArray().length);
+    assertThat(jsonResult)
+        .isEqualTo(
+            "{\"key\":\"\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007\\b\\t\\n\\u000B\\f\\r\\u000E\\u000F\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017\\u0018\\u0019\\u001A\\u001B\\u001C\\u001D\\u001E\\u001F !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"}");
+
+    byte[] effectiveBufferSize = dJsonWriter.ensureCapacity(0);
+    assertThat(effectiveBufferSize.length)
+        .describedAs("internal buffer should not grow")
+        .isEqualTo(100);
+  }
+
+  @Test
+  void testEmojiGraphemeClusters() {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    JGenerator dJsonWriter = new JGenerator(4096);
+    dJsonWriter.prepare(JsonOutput.ofStream(os));
+    JsonWriteAdapter fw =
+        new JsonWriteAdapter(dJsonWriter, HybridBufferRecycler.shared(), true, true);
+
+    fw.beginObject();
+    fw.name("emoji_clusters");
+    fw.beginArray();
+
+    // Single emoji (1 code point, 1 grapheme)
+    fw.value("😀");
+
+    // Emoji with skin tone modifier (2 code points, 1 grapheme)
+    fw.value("👋🏽");
+    fw.value("👨🏿");
+
+    // Emoji ZWJ sequences (multiple code points, 1 grapheme)
+    fw.value("👨‍👩‍👧‍👦");
+    fw.value("👨‍💻");
+    fw.value("👩‍🔬");
+
+    // Regional indicator sequences (flags, 2 code points, 1 grapheme)
+    fw.value("🇺🇸");
+    fw.value("🇬🇧");
+    fw.value("🇯🇵");
+
+    // Emoji with variation selectors
+    fw.value("❤️");
+
+    fw.endArray();
+    fw.endObject();
+    fw.close();
+
+    String jsonResult = new String(os.toByteArray(), StandardCharsets.UTF_8);
+    assertThat(jsonResult)
+        .isEqualTo(
+            "{\"emoji_clusters\":[\"😀\",\"👋🏽\",\"👨🏿\",\"👨‍👩‍👧‍👦\",\"👨‍💻\",\"👩‍🔬\",\"🇺🇸\",\"🇬🇧\",\"🇯🇵\",\"❤️\"]}");
   }
 }
