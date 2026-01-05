@@ -50,7 +50,8 @@ final class ComponentMetaData {
       everyType.addAll(factoryTypes);
       String topPackage = TopPackage.of(everyType);
       var defaultPackage =
-        !topPackage.contains(".")
+        topPackage == null
+          || !topPackage.contains(".")
           && APContext.getProjectModuleElement().isUnnamed()
           && APContext.elements().getPackageElement(topPackage) == null;
       if (!defaultPackage && !pkgPrivate && !topPackage.endsWith(".jsonb")) {
