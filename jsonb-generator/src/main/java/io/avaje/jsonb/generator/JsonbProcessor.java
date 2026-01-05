@@ -122,11 +122,11 @@ public final class JsonbProcessor extends AbstractProcessor {
     generateComponent = rounds++ > 0;
     APContext.setProjectModuleElement(annotations, round);
     readModule();
-    getElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
-    getElements(round, JSON).ifPresent(this::writeAdapters);
-    getElements(round, JSON_MIXIN).ifPresent(this::writeAdaptersForMixInTypes);
-    getElements(round, JSON_IMPORT_LIST).ifPresent(this::writeAdaptersForImportedList);
-    getElements(round, JSON_IMPORT).ifPresent(this::writeAdaptersForImported);
+    getJsonElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
+    getJsonElements(round, JSON).ifPresent(this::writeAdapters);
+    getJsonElements(round, JSON_MIXIN).ifPresent(this::writeAdaptersForMixInTypes);
+    getJsonElements(round, JSON_IMPORT_LIST).ifPresent(this::writeAdaptersForImportedList);
+    getJsonElements(round, JSON_IMPORT).ifPresent(this::writeAdaptersForImported);
     getElements(round, "io.avaje.spi.ServiceProvider").ifPresent(this::registerSPI);
     getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
 
@@ -138,6 +138,13 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   // Optional because annotations are not guaranteed to exist
   private Optional<? extends Set<? extends Element>> getElements(RoundEnvironment round, String name) {
+    return Optional.ofNullable(typeElement(name))
+      .map(round::getElementsAnnotatedWith)
+      .filter(n -> !n.isEmpty());
+  }
+
+  // Optional because annotations are not guaranteed to exist
+  private Optional<? extends Set<? extends Element>> getJsonElements(RoundEnvironment round, String name) {
     var op =
       Optional.ofNullable(typeElement(name))
         .map(round::getElementsAnnotatedWith)
