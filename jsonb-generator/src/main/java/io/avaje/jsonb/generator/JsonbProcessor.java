@@ -137,11 +137,10 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   // Optional because annotations are not guaranteed to exist
-  private Optional<? extends Set<? extends Element>> getElements(
-      RoundEnvironment round, String name) {
+  private Optional<? extends Set<? extends Element>> getElements(RoundEnvironment round, String name) {
     return Optional.ofNullable(typeElement(name))
-        .map(round::getElementsAnnotatedWith)
-        .filter(n -> !n.isEmpty());
+      .map(round::getElementsAnnotatedWith)
+      .filter(n -> !n.isEmpty());
   }
 
   // Optional because annotations are not guaranteed to exist
