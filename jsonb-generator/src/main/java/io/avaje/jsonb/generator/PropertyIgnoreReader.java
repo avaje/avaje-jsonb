@@ -19,13 +19,13 @@ final class PropertyIgnoreReader {
 
     var isField = element instanceof VariableElement;
     boolean propertyMethodOverride =
-        isField
-            && ElementFilter.methodsIn(enclosingElements).stream()
-                .filter(PropertyPrism::isPresent)
-                .filter(isNotRecordAccessor)
-                .map(PropertyPrism::getInstanceOn)
-                .map(PropertyPrism::value)
-                .anyMatch(propertyName::equals);
+      isField
+        && ElementFilter.methodsIn(enclosingElements).stream()
+        .filter(PropertyPrism::isPresent)
+        .filter(isNotRecordAccessor)
+        .map(PropertyPrism::getInstanceOn)
+        .map(PropertyPrism::value)
+        .anyMatch(propertyName::equals);
 
     ignoreSerialize = propertyMethodOverride;
 
