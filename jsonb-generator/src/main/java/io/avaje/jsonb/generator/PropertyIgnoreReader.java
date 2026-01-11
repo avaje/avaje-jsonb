@@ -17,8 +17,9 @@ final class PropertyIgnoreReader {
   PropertyIgnoreReader(Element element, String propertyName) {
     final var enclosingElements = element.getEnclosingElement().getEnclosedElements();
 
+    var isField = element instanceof VariableElement;
     boolean propertyMethodOverride =
-      element instanceof VariableElement
+      isField
         && ElementFilter.methodsIn(enclosingElements).stream()
         .filter(PropertyPrism::isPresent)
         .filter(isNotRecordAccessor)
@@ -27,6 +28,14 @@ final class PropertyIgnoreReader {
         .anyMatch(propertyName::equals);
 
     ignoreSerialize = propertyMethodOverride;
+
+    if (isField
+        && element.getSimpleName().toString().startsWith("_$")
+        && element.getEnclosingElement().getAnnotationMirrors().stream()
+            .anyMatch(a -> "Entity".equals(UType.parse(a.getAnnotationType()).shortType()))) {
+      ignoreSerialize = true;
+      ignoreDeserialize = true;
+    }
 
     final IgnorePrism ignored = IgnorePrism.getInstanceOn(element);
     if (ignored != null) {
