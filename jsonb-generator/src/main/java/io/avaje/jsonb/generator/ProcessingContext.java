@@ -70,9 +70,9 @@ final class ProcessingContext {
     if (element instanceof ModuleElement) {
       pkg = element.getEnclosedElements().get(0).getSimpleName().toString();
     } else if (element instanceof PackageElement) {
-      pkg = element.getSimpleName().toString();
+      pkg = ((PackageElement) element).getQualifiedName().toString();
     } else {
-      pkg = APContext.elements().getPackageOf(element).getSimpleName().toString();
+      pkg = APContext.elements().getPackageOf(element).getQualifiedName().toString();
     }
     CTX.get().importedJsonPkg.put(type, pkg);
   }
