@@ -280,6 +280,7 @@ public final class JsonbProcessor extends AbstractProcessor {
     return type.indexOf('.') == -1
         || type.startsWith("java.")
         || type.startsWith("javax.")
+        || "io.avaje.json.node.JsonNode".equals(type)
         || sourceTypes.contains(type)
         || writtenTypes.contains(type);
   }
@@ -300,7 +301,7 @@ public final class JsonbProcessor extends AbstractProcessor {
 
   private void writeAdaptersForImportedList(Set<? extends Element> imported) {
     imported.stream()
-      .flatMap(e -> ImportsPrism.getInstanceOn(e).value().stream())
+      .flatMap(e -> ImportsPrism.getInstanceOn(e).value().stream().peek(p -> addImportedPrism(p, e)))
       .forEach(this::addImported);
   }
 
