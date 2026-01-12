@@ -43,15 +43,16 @@ final class FieldProperty {
   }
 
   FieldProperty(
-      Element element, TypeMirror asType,
+      Element element,
+      TypeMirror asType,
       boolean raw,
       boolean unmapped,
       List<String> genericTypeParams,
       boolean publicField,
       String fieldName,
       Optional<TypeMirror> customSerializer) {
-	    this.element = element;
-	    this.raw = raw;
+    this.element = element;
+    this.raw = raw;
     this.unmapped = unmapped;
     this.publicField = publicField;
     this.fieldName = fieldName;
