@@ -293,6 +293,7 @@ public final class JsonbProcessor extends AbstractProcessor {
       final String importType = mirror.toString();
       final TypeElement element = asTypeElement(mirror);
       mixInImports.add(importType);
+      ProcessingContext.addJsonImportPkg(mirror.toString(), element);
       writeAdapterForMixInType(element, typeElement(mixin.asType().toString()));
     }
   }

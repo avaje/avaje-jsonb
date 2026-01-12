@@ -58,14 +58,15 @@ final class FieldReader {
     final var customSerializer = SerializerPrism.getOptionalOn(element).map(SerializerPrism::value);
     this.hasCustomSerializer = customSerializer.isPresent();
     this.property =
-      new FieldProperty(
-        type,
-        raw,
-        unmapped,
-        genericTypeParams,
-        publicField,
-        fieldName,
-        customSerializer);
+        new FieldProperty(
+            element,
+            type,
+            raw,
+            unmapped,
+            genericTypeParams,
+            publicField,
+            fieldName,
+            customSerializer);
     this.propertyName = PropertyPrism.getOptionalOn(element)
       .map(PropertyPrism::value)
       .map(Util::escapeQuotes)
