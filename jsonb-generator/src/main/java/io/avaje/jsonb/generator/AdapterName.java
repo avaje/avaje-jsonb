@@ -15,7 +15,7 @@ final class AdapterName {
     if (beanReader.isPkgPrivate() || "".equals(originPackage)) {
       this.adapterPackage = originPackage;
     } else {
-      this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? originPackage + ".jsonb" : originPackage;
+      this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? ProcessingContext.importedPkg(beanReader.beanType()) : originPackage;
     }
     this.fullName =
       adapterPackage.isBlank()
