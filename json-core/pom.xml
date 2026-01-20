@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.avaje</groupId>
     <artifactId>avaje-jsonb-parent</artifactId>
-    <version>3.10-RC2</version>
+    <version>3.10-RC3</version>
   </parent>
 
   <artifactId>avaje-json-core</artifactId>
