@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 
 final class FieldProperty {
 
+  private Element element;
   private final boolean raw;
   private final boolean unmapped;
   private final String rawType;
@@ -30,7 +32,7 @@ final class FieldProperty {
   private final Optional<String> customSerializer;
 
   FieldProperty(MethodReader methodReader) {
-    this(
+    this(methodReader.element(),
       methodReader.returnType(),
       false,
       false,
@@ -41,6 +43,7 @@ final class FieldProperty {
   }
 
   FieldProperty(
+      Element element,
       TypeMirror asType,
       boolean raw,
       boolean unmapped,
@@ -48,6 +51,7 @@ final class FieldProperty {
       boolean publicField,
       String fieldName,
       Optional<TypeMirror> customSerializer) {
+    this.element = element;
     this.raw = raw;
     this.unmapped = unmapped;
     this.publicField = publicField;
@@ -208,11 +212,15 @@ final class FieldProperty {
       final String topType = genericType.topType();
       if ("java.util.List".equals(topType) || "java.util.Set".equals(topType)) {
         types.add(genericType.firstParamType());
+        ProcessingContext.addJsonImportPkg(genericType.firstParamType(), element);
       } else if ("java.util.Map".equals(topType)) {
         types.add(genericType.firstParamType());
         types.add(genericType.secondParamType());
+        ProcessingContext.addJsonImportPkg(genericType.firstParamType(), element);
+        ProcessingContext.addJsonImportPkg(genericType.secondParamType(), element);
       } else if (!GenericType.isGeneric(rawType)) {
         types.add(topType);
+        ProcessingContext.addJsonImportPkg(topType, element);
       }
     }
   }
