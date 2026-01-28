@@ -1,10 +1,14 @@
 package io.avaje.json.node;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import io.avaje.json.node.adapter.JsonNodeComponent;
+import io.avaje.jsonb.Jsonb;
+import io.avaje.jsonb.Jsonb.Builder;
 
 class JsonDoubleTest {
 
@@ -21,6 +25,16 @@ class JsonDoubleTest {
     assertThat(jsonDouble).isEqualTo(JsonDouble.of(42.3));
     assertThat(jsonDouble).isNotEqualTo(JsonDouble.of(42.2));
     assertThat(jsonDouble).isNotEqualTo(JsonBoolean.of(false));
+  }
+
+  @Test
+  void big() {
+    Builder serializeEmpty = Jsonb.builder().serializeNulls(true).serializeEmpty(true);
+
+    new JsonNodeComponent().register(serializeEmpty);
+    assertThat(3751242155626800.5)
+        .isEqualTo(
+            serializeEmpty.build().type(JsonNode.class).fromJson("3751242155626800.5").toPlain());
   }
 
   @Test
@@ -46,5 +60,4 @@ class JsonDoubleTest {
     assertThat(jsonDouble.numberValue()).isEqualTo(42.3D);
     assertThat(jsonDouble.decimalValue()).isEqualByComparingTo(new BigDecimal("42.3"));
   }
-
 }
