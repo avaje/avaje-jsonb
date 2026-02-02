@@ -344,7 +344,23 @@ final class NumberParser {
         return doubleExponent(reader, value, i - decPos, 0, buf, start, end, offset, i);
       }
       if (reader.doublePrecision == JParser.DoublePrecision.HIGH) {
-        return parseDoubleGeneric(reader.prepareBuffer(start + offset, end - start - offset), end - start - offset, reader, false);
+        return parseDoubleGeneric(
+            reader.prepareBuffer(start + offset, end - start - offset),
+            end - start - offset,
+            reader,
+            false);
+      }
+
+      final long bits = Double.doubleToRawLongBits(value / preciseDividor);
+      final int exp = (int) (bits >> 52) - 1022;
+
+      // fall back to the generic parser if not within valid bounds
+      if (exp < 0 || exp >= ERROR.length) {
+        return parseDoubleGeneric(
+            reader.prepareBuffer(start + offset, end - start - offset),
+            end - start - offset,
+            reader,
+            false);
       }
       int decimals = 0;
       final int decLimit = Math.min(start + offset + 18, end);
@@ -355,13 +371,14 @@ final class NumberParser {
         final int ind = ch - 48;
         if (ind < 0 || ind > 9) {
           if (reader.allWhitespace(i, end)) {
-            return approximateDouble(decimals, value / preciseDividor, i - remPos - decOffset);
+            return approximateDouble(decimals, exp, value / preciseDividor, i - remPos - decOffset);
           }
           numberException(reader, start, end, "Unknown digit", (char) buf[i]);
         }
         decimals = (decimals << 3) + (decimals << 1) + ind;
       }
-      final double number = approximateDouble(decimals, value / preciseDividor, i - remPos - decOffset);
+      final double number =
+          approximateDouble(decimals, exp, value / preciseDividor, i - remPos - decOffset);
       while (i < end && ch >= '0' && ch <= '9') {
         ch = buf[i++];
       }
@@ -380,9 +397,8 @@ final class NumberParser {
     return value;
   }
 
-  private static double approximateDouble(final int decimals, final double precise, final int digits) {
+  private static double approximateDouble(final int decimals, final int exp, final double precise, final int digits) {
     final long bits = Double.doubleToRawLongBits(precise);
-    final int exp = (int) (bits >> 52) - 1022;
     final int missing = (decimals * SCALE_10[digits + 1] + ERROR[exp]) / DIFF[exp];
     return Double.longBitsToDouble(bits + missing);
   }
