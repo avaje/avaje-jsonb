@@ -1,3 +1,4 @@
+![Supported JVM Versions](https://img.shields.io/badge/JVM-11+-brightgreen.svg?&logo=openjdk)
 [![Build](https://github.com/avaje/avaje-jsonb/actions/workflows/build.yml/badge.svg)](https://github.com/avaje/avaje-jsonb/actions/workflows/build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.avaje/avaje-jsonb.svg?label=Maven%20Central)](https://mvnrepository.com/artifact/io.avaje/avaje-jsonb)
 [![javadoc](https://javadoc.io/badge2/io.avaje/avaje-jsonb/javadoc.svg?&color=purple)](https://javadoc.io/doc/io.avaje/avaje-jsonb)
