@@ -12,8 +12,6 @@ import java.net.URI;
 import java.util.*;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ModuleElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -24,7 +22,6 @@ final class ProcessingContext {
 
   private static final class Ctx {
     private final Map<String, JsonPrism> importedJsonMap = new HashMap<>();
-    private final Map<String, String> importedJsonPkg = new HashMap<>();
     private final Set<String> cascadeSet = new HashSet<>();
     private final Map<String, List<SubTypePrism>> importedSubtypeMap = new HashMap<>();
     private final Set<String> services = new TreeSet<>();
@@ -61,20 +58,7 @@ final class ProcessingContext {
       final var type = m.toString();
       json.put(type, prism.jsonSettings());
       subtypes.put(type, prism.subtypes());
-      addJsonImportPkg(type, element);
     });
-  }
-
-  static void addJsonImportPkg(String type, Element element) {
-    final String pkg;
-    if (element instanceof ModuleElement) {
-      pkg = element.getEnclosedElements().get(0).getSimpleName().toString();
-    } else if (element instanceof PackageElement) {
-      pkg = ((PackageElement) element).getQualifiedName().toString();
-    } else {
-      pkg = APContext.elements().getPackageOf(element).getQualifiedName().toString();
-    }
-    CTX.get().importedJsonPkg.put(type, pkg);
   }
 
   static Optional<JsonPrism> importedJson(TypeElement type) {
@@ -87,7 +71,8 @@ final class ProcessingContext {
   }
 
   static String importedPkg(TypeElement element) {
-    return CTX.get().importedJsonPkg.get(element.getQualifiedName().toString());
+    return APContext.getProjectModuleElement().getEnclosedElements().get(0).getSimpleName()
+        + ".jsonb";
   }
 
   static List<SubTypePrism> importedSubtypes(TypeElement type) {
