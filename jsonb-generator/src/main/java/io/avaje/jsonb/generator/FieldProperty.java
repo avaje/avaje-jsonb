@@ -212,15 +212,11 @@ final class FieldProperty {
       final String topType = genericType.topType();
       if ("java.util.List".equals(topType) || "java.util.Set".equals(topType)) {
         types.add(genericType.firstParamType());
-        ProcessingContext.addJsonImportPkg(genericType.firstParamType(), element);
       } else if ("java.util.Map".equals(topType)) {
         types.add(genericType.firstParamType());
         types.add(genericType.secondParamType());
-        ProcessingContext.addJsonImportPkg(genericType.firstParamType(), element);
-        ProcessingContext.addJsonImportPkg(genericType.secondParamType(), element);
       } else if (!GenericType.isGeneric(rawType)) {
         types.add(topType);
-        ProcessingContext.addJsonImportPkg(topType, element);
       }
     }
   }
