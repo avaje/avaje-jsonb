@@ -1,9 +1,17 @@
 package io.avaje.jsonb.generator;
 
+import java.util.Optional;
+
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 final class AdapterName {
-
+  static final String IMPORTED_PKG =
+      Optional.ofNullable(APContext.getProjectModuleElement())
+              .map(Element::getEnclosedElements)
+              .map(l -> l.get(0).getSimpleName().toString())
+              .orElse("unknown")
+          + ".jsonb";
   final String shortName;
   final String adapterPackage;
   final String fullName;
@@ -15,7 +23,7 @@ final class AdapterName {
     if (beanReader.isPkgPrivate() || "".equals(originPackage)) {
       this.adapterPackage = originPackage;
     } else {
-      this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? ProcessingContext.importedPkg(beanReader.beanType()) : originPackage;
+      this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? IMPORTED_PKG : originPackage;
     }
     this.fullName =
       adapterPackage.isBlank()
