@@ -6,13 +6,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 final class AdapterName {
-  static final String IMPORTED_PKG =
-      Optional.ofNullable(APContext.getProjectModuleElement())
-              .filter(m -> !m.isUnnamed())
-              .map(Element::getEnclosedElements)
-              .map(l -> l.get(0).getSimpleName().toString())
-              .orElse("unknown")
-          + ".jsonb";
   final String shortName;
   final String adapterPackage;
   final String fullName;
@@ -24,12 +17,21 @@ final class AdapterName {
     if (beanReader.isPkgPrivate() || "".equals(originPackage)) {
       this.adapterPackage = originPackage;
     } else {
-      this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? IMPORTED_PKG : originPackage;
+      this.adapterPackage = ProcessingContext.isImported(beanReader.beanType()) ? importedPkg(originPackage) : originPackage;
     }
     this.fullName =
       adapterPackage.isBlank()
         ? shortName + "JsonAdapter"
         : adapterPackage + "." + shortName + "JsonAdapter";
+  }
+
+  private String importedPkg(String originPackage) {
+    return Optional.ofNullable(APContext.getProjectModuleElement())
+            .filter(m -> !m.isUnnamed())
+            .map(Element::getEnclosedElements)
+            .map(l -> l.get(0).getSimpleName().toString())
+            .orElse(originPackage)
+        + ".jsonb";
   }
 
   private String shortName(TypeElement origin) {
