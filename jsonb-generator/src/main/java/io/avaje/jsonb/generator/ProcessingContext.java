@@ -70,11 +70,6 @@ final class ProcessingContext {
     return !APContext.elements().getModuleOf(element).getQualifiedName().contentEquals(moduleName);
   }
 
-  static String importedPkg(TypeElement element) {
-    return APContext.getProjectModuleElement().getEnclosedElements().get(0).getSimpleName()
-        + ".jsonb";
-  }
-
   static List<SubTypePrism> importedSubtypes(TypeElement type) {
     return CTX.get().importedSubtypeMap.getOrDefault(type.asType().toString(), List.of());
   }
