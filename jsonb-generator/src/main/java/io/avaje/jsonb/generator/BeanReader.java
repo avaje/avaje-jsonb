@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import java.util.Optional;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -46,5 +47,9 @@ interface BeanReader {
 
   default boolean hasJsonAnnotation() {
     return false;
+  }
+
+  default Optional<String> adapterPackage() {
+    return Optional.empty();
   }
 }

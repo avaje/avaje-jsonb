@@ -94,6 +94,11 @@ public @interface Json {
     Class<?> implementation() default Void.class;
 
     /**
+     * Override the default location for generating Json Adapters
+     */
+    String destinationPackage() default "";
+
+    /**
      * The list of types to Import for Jsonb.
      */
     @Retention(SOURCE)
@@ -299,6 +304,11 @@ public @interface Json {
   @interface MixIn {
     /** The concrete type to mix. */
     Class<?> value();
+
+    /**
+     * Override the default location for generating Json Adapters
+     */
+    String destinationPackage() default "";
   }
 
   /**
