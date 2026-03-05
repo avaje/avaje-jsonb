@@ -261,7 +261,7 @@ public final class JsonbProcessor extends AbstractProcessor {
       final Set<String> currExtraTypes = new TreeSet<>();
       reader.cascadeTypes(currExtraTypes);
       for (final String type : currExtraTypes) {
-        if(!ignoreType(type)) {
+        if (!ignoreType(type)) {
           // skip generateComponent for this round due to cascade
           generateComponent = false;
           final TypeElement element = typeElement(type);
