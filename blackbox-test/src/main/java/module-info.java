@@ -8,6 +8,7 @@ module blackbox.test {
   requires io.avaje.json.node;
 
   exports org.example.customer.cascade;
+  exports org.example.imported;
 
   provides JsonbExtension
     with

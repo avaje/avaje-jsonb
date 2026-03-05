@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
@@ -45,15 +46,21 @@ final class ClassReader implements BeanReader {
   private final boolean optional;
   private final List<TypeSubTypeMeta> subTypes;
   private final boolean pkgPrivate;
+  private final Optional<String> adapterPackage;
 
   /** An Interface/abstract type with a single implementation */
   private ClassReader implementation;
 
   ClassReader(TypeElement beanType, String errorContext) {
-    this(beanType, null, errorContext);
+    this(beanType, null, errorContext, Optional.empty());
   }
 
-  ClassReader(TypeElement beanType, TypeElement mixInElement, String errorContext) {
+  ClassReader(TypeElement beanType, String errorContext, Optional<String> adapterPackage) {
+    this(beanType, null, errorContext, adapterPackage);
+  }
+
+  ClassReader(TypeElement beanType, TypeElement mixInElement, String errorContext, Optional<String> adapterPackage) {
+    this.adapterPackage = adapterPackage.filter(Predicate.not(String::isBlank));
     this.beanType = beanType;
     this.type = beanType.getQualifiedName().toString();
     this.shortName = shortName(beanType);
@@ -144,6 +151,11 @@ final class ClassReader implements BeanReader {
   }
 
   @Override
+  public Optional<String> adapterPackage() {
+    return adapterPackage;
+  }
+
+  @Override
   public void read() {
     Optional.ofNullable(constructor)
       .ifPresent(c -> {
@@ -175,9 +187,7 @@ final class ClassReader implements BeanReader {
     if (!hasSubTypes) {
       importTypes.add(Constants.METHODHANDLE);
     }
-    if (!ProcessingContext.isImported(beanType)) {
-      importTypes.add(type);
-    }
+    importTypes.add(type);
     for (final FieldReader allField : allFields) {
       allField.addImports(importTypes);
     }
