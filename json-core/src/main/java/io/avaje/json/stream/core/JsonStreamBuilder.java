@@ -13,6 +13,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   private boolean serializeEmpty;
   private boolean failOnUnknown;
   private boolean failOnNullPrimitives;
+  private int maxNumberDigits = 100;
 
   /**
    * Set to true to serialize nulls. Defaults to false.
@@ -56,11 +57,17 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
     return this;
   }
 
+  @Override
+  public JsonStreamBuilder maxNumberDigits(int maxNumberDigits) {
+    this.maxNumberDigits = maxNumberDigits;
+    return this;
+  }
+
   /**
    * Build and return the JsonStream.
    */
   @Override
   public JsonStream build() {
-    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strategy);
+    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strategy, maxNumberDigits);
   }
 }

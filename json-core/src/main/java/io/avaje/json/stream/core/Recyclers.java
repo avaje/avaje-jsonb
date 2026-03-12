@@ -20,6 +20,10 @@ final class Recyclers {
   }
 
   private static JParser createParser() {
+    return createParser(100);
+  }
+
+  static JParser createParser(int maxNumberDigits) {
     final char[] ch = new char[PARSER_CHAR_BUFFER_SIZE];
     final byte[] by = new byte[PARSER_BUFFER_SIZE];
     return new JParser(
@@ -29,7 +33,7 @@ final class Recyclers {
         JParser.ErrorInfo.MINIMAL,
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
-        100,
+        maxNumberDigits,
         50_000);
   }
 

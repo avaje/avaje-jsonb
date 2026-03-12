@@ -167,7 +167,9 @@ final class JsonReadAdapter implements JsonReader {
   @Override
   public void close() {
     reader.close();
-    recycler.recycle(reader);
+    if (recycler != null) {
+      recycler.recycle(reader);
+    }
   }
 
   @Override

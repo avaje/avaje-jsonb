@@ -94,6 +94,14 @@ public interface JsonStream {
     /** Determines how byte buffers are recycled */
     Builder bufferRecycling(BufferRecycleStrategy strategy);
 
+    /**
+     * Set the maximum number of digits allowed when parsing numbers.
+     * <p>
+     * Defaults to 100. Increase this limit when parsing numbers with
+     * very high precision that exceed the default limit.
+     */
+    Builder maxNumberDigits(int maxNumberDigits);
+
     /** Build and return the JsonStream. */
     JsonStream build();
   }
