@@ -11,14 +11,11 @@ import java.nio.charset.StandardCharsets;
 /** Default implementation of JsonStreamAdapter provided with Jsonb. */
 final class CoreJsonStream implements JsonStream {
 
-  private static final int DEFAULT_MAX_NUMBER_DIGITS = 100;
-
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
   private final boolean failOnNullPrimitives;
   private final BufferRecycler recycle;
-  private final int maxNumberDigits;
 
   /** Create additionally providing the jsonFactory. */
   CoreJsonStream(
@@ -27,22 +24,11 @@ final class CoreJsonStream implements JsonStream {
       boolean failOnUnknown,
       boolean failOnNullPrimitives,
       BufferRecycleStrategy recycle) {
-    this(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, recycle, DEFAULT_MAX_NUMBER_DIGITS);
-  }
-
-  CoreJsonStream(
-      boolean serializeNulls,
-      boolean serializeEmpty,
-      boolean failOnUnknown,
-      boolean failOnNullPrimitives,
-      BufferRecycleStrategy recycle,
-      int maxNumberDigits) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.failOnNullPrimitives = failOnNullPrimitives;
     this.recycle = init2Recycler(recycle);
-    this.maxNumberDigits = maxNumberDigits;
   }
 
   private static BufferRecycler init2Recycler(BufferRecycleStrategy recycle) {
@@ -51,8 +37,7 @@ final class CoreJsonStream implements JsonStream {
       case LOCK_FREE: return BufferRecycler.lockFreePool();
       case THREAD_LOCAL: return BufferRecycler.threadLocalPool();
       case HYBRID_POOL: return BufferRecycler.hybrid();
-      default:
-        throw new IllegalStateException();
+      default: throw new IllegalStateException();
     }
   }
 
@@ -82,10 +67,6 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonReader reader(byte[] json) {
-    if (maxNumberDigits != DEFAULT_MAX_NUMBER_DIGITS) {
-      JsonParser parser = Recyclers.createParser(maxNumberDigits).process(json, json.length);
-      return new JsonReadAdapter(parser, null, failOnUnknown, failOnNullPrimitives);
-    }
     JsonParser parser = recycle.parser(json);
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives);
   }
@@ -97,10 +78,6 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonReader reader(InputStream inputStream) {
-    if (maxNumberDigits != DEFAULT_MAX_NUMBER_DIGITS) {
-      JsonParser parser = Recyclers.createParser(maxNumberDigits).process(inputStream);
-      return new JsonReadAdapter(parser, null, failOnUnknown, failOnNullPrimitives);
-    }
     JsonParser parser = recycle.parser(inputStream);
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives);
   }

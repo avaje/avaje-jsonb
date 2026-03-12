@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
-import io.avaje.json.stream.JsonStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NodeMapperTest {
@@ -94,11 +92,10 @@ class NodeMapperTest {
 
   @Test
   void fromJson_largeDecimal_withExtendedDigitLimit() {
-    // default limit is 100 digits; use maxNumberDigits(200) to allow the large decimal
-    JsonStream jsonStream = JsonStream.builder().maxNumberDigits(200).build();
-    JsonNode result = JsonNodeMapper.builder().jsonStream(jsonStream).build()
+    // surefire sets jsonb.maxNumberDigits=200, so the large number parses cleanly
+    JsonNode result = JsonNodeMapper.builder().build()
       .fromJson("1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001");
-    // default NumberAdapter reads as double — precision beyond double is lost,
+    // NumberAdapter reads as double — precision beyond double is lost,
     // 1.000...001 becomes 1.0 which is integral, so returns JsonLong(1)
     assertThat(result).isInstanceOf(JsonLong.class);
     assertThat(((JsonLong) result).longValue()).isEqualTo(1L);
