@@ -37,8 +37,7 @@ final class CoreJsonStream implements JsonStream {
       case LOCK_FREE: return BufferRecycler.lockFreePool();
       case THREAD_LOCAL: return BufferRecycler.threadLocalPool();
       case HYBRID_POOL: return BufferRecycler.hybrid();
-      default:
-        throw new IllegalStateException();
+      default: throw new IllegalStateException();
     }
   }
 

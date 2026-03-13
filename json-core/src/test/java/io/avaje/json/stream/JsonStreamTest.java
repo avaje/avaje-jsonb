@@ -59,4 +59,14 @@ class JsonStreamTest {
 
   }
 
+  static final String LARGE_NUMBER = "1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001";
+
+  @Test
+  void maxNumberDigits_systemProperty() {
+    // surefire sets jsonb.maxNumberDigits=200, so the large number parses cleanly
+    try (JsonReader reader = stream.reader(LARGE_NUMBER)) {
+      assertThat(reader.readDouble()).isEqualTo(1.0);
+    }
+  }
+
 }

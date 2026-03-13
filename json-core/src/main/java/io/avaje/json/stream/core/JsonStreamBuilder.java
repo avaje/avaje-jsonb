@@ -13,7 +13,6 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   private boolean serializeEmpty;
   private boolean failOnUnknown;
   private boolean failOnNullPrimitives;
-
   /**
    * Set to true to serialize nulls. Defaults to false.
    */
