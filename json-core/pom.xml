@@ -66,7 +66,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <jsonb.maxNumberDigits>200</jsonb.maxNumberDigits>
+            <jsonb.parserMaxNumberDigits>200</jsonb.parserMaxNumberDigits>
           </systemPropertyVariables>
         </configuration>
       </plugin>
