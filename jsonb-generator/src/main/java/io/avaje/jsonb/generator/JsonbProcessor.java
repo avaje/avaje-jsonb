@@ -257,20 +257,20 @@ public final class JsonbProcessor extends AbstractProcessor {
     final var copy = new ArrayList<>(allReaders);
     allReaders.clear();
 
-    final Set<String> extraTypes = new TreeSet<>();
     for (final BeanReader reader : copy) {
-      reader.cascadeTypes(extraTypes);
-    }
-    for (final String type : extraTypes) {
-      if (!ignoreType(type)) {
-        // skip generateComponent for this round due to cascade
-        generateComponent = false;
-        final TypeElement element = typeElement(type);
-        if (element != null
+      final Set<String> currExtraTypes = new TreeSet<>();
+      reader.cascadeTypes(currExtraTypes);
+      for (final String type : currExtraTypes) {
+        if (!ignoreType(type)) {
+          // skip generateComponent for this round due to cascade
+          generateComponent = false;
+          final TypeElement element = typeElement(type);
+          if (element != null
             && element.getKind() != ElementKind.ENUM
             && !JsonPrism.isPresent(element)) {
-          ProcessingContext.cascadedType(type);
-          writeAdapterForType(element);
+            ProcessingContext.cascadedType(type);
+            writeAdapterForType(element, reader.adapterPackage());
+          }
         }
       }
     }
@@ -290,11 +290,12 @@ public final class JsonbProcessor extends AbstractProcessor {
    */
   private void writeAdaptersForMixInTypes(Set<? extends Element> mixInElements) {
     for (final Element mixin : mixInElements) {
-      final TypeMirror mirror = MixInPrism.getInstanceOn(mixin).value();
+      final MixInPrism prism = MixInPrism.getInstanceOn(mixin);
+      final TypeMirror mirror = prism.value();
       final String importType = mirror.toString();
       final TypeElement element = asTypeElement(mirror);
       mixInImports.add(importType);
-      writeAdapterForMixInType(element, typeElement(mixin.asType().toString()));
+      writeAdapterForMixInType(element, typeElement(mixin.asType().toString()), prism.destinationPackage());
     }
   }
 
@@ -319,7 +320,7 @@ public final class JsonbProcessor extends AbstractProcessor {
       if (mixInImports.contains(importType.toString())) {
         continue;
       }
-      writeAdapterForImportedType(asTypeElement(importType), implementationType(importPrism));
+      writeAdapterForImportedType(asTypeElement(importType), implementationType(importPrism), importPrism.destinationPackage());
     }
   }
 
@@ -374,16 +375,23 @@ public final class JsonbProcessor extends AbstractProcessor {
     writeAdapter(typeElement, new ClassReader(typeElement, ""));
   }
 
-  private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType) {
-    final ClassReader beanReader = new ClassReader(importedType, "@Json.Import of ");
+  private void writeAdapterForType(TypeElement typeElement, Optional<String> adapterPackage) {
+    if (valueElements.contains(typeElement.toString())) {
+      return;
+    }
+    writeAdapter(typeElement, new ClassReader(typeElement, "", adapterPackage));
+  }
+
+  private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType, String adapterPackage) {
+    final ClassReader beanReader = new ClassReader(importedType, "@Json.Import of ", Optional.ofNullable(adapterPackage));
     if (implementationType != null) {
       beanReader.setImplementationType(implementationType);
     }
     writeAdapter(importedType, beanReader);
   }
 
-  private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin) {
-    final ClassReader beanReader = new ClassReader(typeElement, mixin, "@Json.Mixin of ");
+  private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin, String adapterPackage) {
+    final ClassReader beanReader = new ClassReader(typeElement, mixin, "@Json.Mixin of ", Optional.ofNullable(adapterPackage));
     writeAdapter(typeElement, beanReader);
   }
 
