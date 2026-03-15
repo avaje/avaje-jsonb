@@ -90,4 +90,15 @@ class NodeMapperTest {
     assertThat(jsonArray.toString()).isEqualTo("[a, b, c]");
   }
 
+  @Test
+  void fromJson_largeDecimal_withExtendedDigitLimit() {
+    // surefire sets jsonb.maxNumberDigits=200, so the large number parses cleanly
+    JsonNode result = JsonNodeMapper.builder().build()
+      .fromJson("1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001");
+    // NumberAdapter reads as double — precision beyond double is lost,
+    // 1.000...001 becomes 1.0 which is integral, so returns JsonLong(1)
+    assertThat(result).isInstanceOf(JsonLong.class);
+    assertThat(((JsonLong) result).longValue()).isEqualTo(1L);
+  }
+
 }

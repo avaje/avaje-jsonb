@@ -14,12 +14,13 @@ final class Recyclers {
   static final int GENERATOR_BUFFER_SIZE = Integer.getInteger("jsonb.generatorBufferSize", 4096);
   static final int PARSER_BUFFER_SIZE = Integer.getInteger("jsonb.parserBufferSize", 4096);
   static final int PARSER_CHAR_BUFFER_SIZE = Integer.getInteger("jsonb.parserCharBufferSize", 4096);
+  static final int PARSER_MAX_NUMBER_DIGITS = Integer.getInteger("jsonb.parserMaxNumberDigits", 100);
 
   private static JGenerator createGenerator() {
     return new JGenerator(GENERATOR_BUFFER_SIZE);
   }
 
-  private static JParser createParser() {
+  static JParser createParser() {
     final char[] ch = new char[PARSER_CHAR_BUFFER_SIZE];
     final byte[] by = new byte[PARSER_BUFFER_SIZE];
     return new JParser(
@@ -29,7 +30,7 @@ final class Recyclers {
         JParser.ErrorInfo.MINIMAL,
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
-        100,
+        PARSER_MAX_NUMBER_DIGITS,
         50_000);
   }
 

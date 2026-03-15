@@ -38,8 +38,7 @@ final class HybridBufferRecycler implements BufferRecycler {
   private static final BufferRecycler VIRTUAL_RECYCLER = StripedLockFreePool.shared();
   private static final boolean VT_ENABLED = Runtime.version().feature() >= 21;
 
-  private HybridBufferRecycler() {
-  }
+  private HybridBufferRecycler() {}
 
   static HybridBufferRecycler shared() {
     return INSTANCE;
@@ -96,7 +95,6 @@ final class HybridBufferRecycler implements BufferRecycler {
       final int size = roundToPowerOfTwo(stripesCount);
       this.generatorStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
       this.parserStacks = new AtomicReferenceArray<>(size * CACHE_LINE_PADDING);
-
       int mask = (size - 1) << CACHE_LINE_SHIFT;
       this.threadProbe = new XorShiftThreadProbe(mask);
     }
@@ -222,7 +220,7 @@ final class HybridBufferRecycler implements BufferRecycler {
         JParser.ErrorInfo.MINIMAL,
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
-        100,
+        Recyclers.PARSER_MAX_NUMBER_DIGITS,
         50_000);
       this.slot = slot;
     }
