@@ -39,6 +39,10 @@ class JGenerator implements JsonGenerator {
   private static final byte[] TRUE = "true".getBytes(StandardCharsets.UTF_8);
   private static final byte[] FALSE = "false".getBytes(StandardCharsets.UTF_8);
   private static final byte[] INDENT = "  ".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] DOUBLE_ZERO = "0.0".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] DOUBLE_POSITIVE_INF = "\"Infinity\"".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] DOUBLE_NEGATIVE_INF = "\"-Infinity\"".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] DOUBLE_NAN = "\"NaN\"".getBytes(StandardCharsets.UTF_8);
 
   private static final byte OBJECT_START = '{';
   private static final byte OBJECT_END = '}';
@@ -169,7 +173,7 @@ class JGenerator implements JsonGenerator {
     int cur = position;
     for (;i < end; i++) {
       final char c = value.charAt(i);
-      if ((c <= 31) || (c == '"') || (c == '\\') || (c >= 126)){
+      if ((c <= 31) || (c == '"') || (c == '\\') || (c > 126)){
         writeStringEscape(value, i, cur, end);
         return;
       }
@@ -337,13 +341,13 @@ class JGenerator implements JsonGenerator {
 
   void writeDouble(final double value) {
     if (value == Double.POSITIVE_INFINITY) {
-      writeAscii("\"Infinity\"");
+      writeAscii(DOUBLE_POSITIVE_INF);
     } else if (value == Double.NEGATIVE_INFINITY) {
-      writeAscii("\"-Infinity\"");
+      writeAscii(DOUBLE_NEGATIVE_INF);
     } else if (value != value) {
-      writeAscii("\"NaN\"");
+      writeAscii(DOUBLE_NAN);
     } else if (value == 0.0) {
-      writeAscii("0.0");
+      writeAscii(DOUBLE_ZERO);
     } else if (Grisu3.tryConvert(value, doubleBuilder)) {
       if (position + 24 >= buffer.length) {
         enlargeOrFlush(position, 24);
