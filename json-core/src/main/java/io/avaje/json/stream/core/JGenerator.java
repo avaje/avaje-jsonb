@@ -173,7 +173,7 @@ class JGenerator implements JsonGenerator {
     int cur = position;
     for (;i < end; i++) {
       final char c = value.charAt(i);
-      if ((c <= 31) || (c == '"') || (c == '\\') || (c >= 126)){
+      if ((c <= 31) || (c == '"') || (c == '\\') || (c > 126)){
         writeStringEscape(value, i, cur, end);
         return;
       }
