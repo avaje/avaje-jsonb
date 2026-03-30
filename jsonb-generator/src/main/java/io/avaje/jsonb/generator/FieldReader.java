@@ -3,6 +3,7 @@ package io.avaje.jsonb.generator;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
 import java.util.*;
 
@@ -32,11 +33,23 @@ final class FieldReader {
       List<String> genericTypeParams,
       Integer frequency) {
 
-    this(element, namingConvention, subType, genericTypeParams, frequency, false);
+    this(element, null, namingConvention, subType, genericTypeParams, frequency, false);
   }
 
   FieldReader(
       Element element,
+      NamingConvention namingConvention,
+      TypeSubTypeMeta subType,
+      List<String> genericTypeParams,
+      Integer frequency,
+      boolean jsonCreatorPresent) {
+
+    this(element, null, namingConvention, subType, genericTypeParams, frequency, jsonCreatorPresent);
+  }
+
+  FieldReader(
+      Element element,
+      TypeMirror resolvedType,
       NamingConvention namingConvention,
       TypeSubTypeMeta subType,
       List<String> genericTypeParams,
@@ -53,7 +66,8 @@ final class FieldReader {
 
     final var fieldName = element.getSimpleName().toString();
     final var publicField = !isMethod && !isParam && Util.isPublic(element);
-    final var type = isMethod ? ((ExecutableElement) element).getReturnType() : element.asType();
+    final var type = isMethod ? ((ExecutableElement) element).getReturnType()
+        : (resolvedType != null ? resolvedType : element.asType());
 
     final var customSerializer = SerializerPrism.getOptionalOn(element).map(SerializerPrism::value);
     this.hasCustomSerializer = customSerializer.isPresent();
