@@ -739,10 +739,10 @@ final class TypeReader {
   }
 
   private String initPropertyName(String name, FieldProperty property) {
-    if (property.typeBooleanWithIsPrefix()){
+    if (property.typeBooleanWithIsPrefix()) {
       return Util.initLower(name.substring(2));
     }
-    if (name.length() > 3 && name.startsWith("get") && Character.isUpperCase(name.charAt(3))){
+    if (name.length() > 3 && name.startsWith("get") && Character.isUpperCase(name.charAt(3))) {
       return Util.initLower(name.substring(3));
     }
     return name;
