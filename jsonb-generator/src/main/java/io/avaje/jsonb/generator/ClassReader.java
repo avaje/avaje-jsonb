@@ -524,18 +524,22 @@ final class ClassReader implements BeanReader {
         MethodParam methodParam = params.get(i);
         final var paramName = methodParam.name();
         final var aliases = aliasesForParam(methodParam);
-        var name =
+        var matchingField =
           allFields.stream()
             .filter(FieldReader::isConstructorParam)
             .filter(field -> isMatchParam(field, paramName, aliases))
-            .map(FieldReader::fieldName)
             .findFirst()
-            .orElse(paramName);
+            .orElse(null);
 
-        // append increasing numbers to constructor params sharing names with other subtypes
-        final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
-        // assuming name matches field here?
-        writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
+        if (matchingField != null && !matchingField.includeFromJson()) {
+          writer.append(defaultValueForType(matchingField.type().toString()));
+        } else {
+          var name = matchingField == null ? paramName : matchingField.fieldName();
+          // append increasing numbers to constructor params sharing names with other subtypes
+          final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
+          // assuming name matches field here?
+          writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
+        }
       }
     }
     writer.append(");").eol();
@@ -545,6 +549,25 @@ final class ClassReader implements BeanReader {
     }
     if (!directReturn) {
       writer.append("    return _$%s;", varName).eol();
+    }
+  }
+
+  private static String defaultValueForType(String rawType) {
+    switch (rawType) {
+      case "boolean": {
+        return "false";
+      }
+      case "short": {
+        return "(short)0";
+      }
+      case "int":
+      case "long":
+      case "double":
+      case "float": {
+        return "0";
+      }
+      default:
+        return "null";
     }
   }
 
