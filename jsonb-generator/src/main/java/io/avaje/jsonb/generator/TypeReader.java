@@ -27,6 +27,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
@@ -142,6 +143,10 @@ final class TypeReader {
   }
 
   void read(TypeElement type) {
+    read(type, null);
+  }
+
+  private void read(TypeElement type, DeclaredType superContext) {
     final List<FieldReader> localFields = new ArrayList<>();
 
     for (Element element : type.getEnclosedElements()) {
@@ -150,7 +155,7 @@ final class TypeReader {
           readConstructor(element, type);
           break;
         case FIELD:
-          readField(element, localFields);
+          readField(element, localFields, superContext);
           break;
         case METHOD:
           readMethod(element, localFields);
@@ -208,6 +213,10 @@ final class TypeReader {
   }
 
   private void readField(Element element, List<FieldReader> localFields) {
+    readField(element, localFields, null);
+  }
+
+  private void readField(Element element, List<FieldReader> localFields, DeclaredType superContext) {
     final Element mixInField = mixInFields.get(element.getSimpleName().toString());
     if (mixInField != null && APContext.types().isSameType(mixInField.asType(), element.asType())) {
       var mixinModifiers = new HashSet<>(mixInField.getModifiers());
@@ -230,15 +239,33 @@ final class TypeReader {
     }
     if (includeField(element)) {
       final var frequency = frequency(element.getSimpleName().toString());
+      final TypeMirror resolvedType = resolveFieldType(element, superContext);
       localFields.add(
-        new FieldReader(
-          element,
-          namingConvention,
-          currentSubType,
-          genericTypeParams,
-          frequency,
-          hasJsonCreator));
+          new FieldReader(
+              element,
+              resolvedType,
+              namingConvention,
+              currentSubType,
+              genericTypeParams,
+              frequency,
+              hasJsonCreator));
     }
+  }
+
+  private static TypeMirror resolveFieldType(Element element, DeclaredType superContext) {
+    if (superContext == null) return null;
+    try {
+      return APContext.types().asMemberOf(superContext, element);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  private static DeclaredType toDeclaredType(TypeMirror mirror) {
+    if (mirror instanceof DeclaredType) {
+      return (DeclaredType) mirror;
+    }
+    return null;
   }
 
   /**
@@ -595,7 +622,7 @@ final class TypeReader {
     }
     TypeElement superElement = superOf(baseType);
     if (superElement != null) {
-      addSuperType(superElement);
+      addSuperType(superElement, toDeclaredType(baseType.getSuperclass()));
     }
     readSubTypes();
     processCompleted();
@@ -665,13 +692,20 @@ final class TypeReader {
   }
 
   private void addSuperType(TypeElement element) {
+    addSuperType(element, null);
+  }
+
+  private void addSuperType(TypeElement element, DeclaredType concreteType) {
     String type = element.getQualifiedName().toString();
     if (!JAVA_LANG_OBJECT.equals(type) && !GenericType.isGeneric(type)) {
       if (JAVA_LANG_THROWABLE.equals(type)) {
         extendsThrowable = true;
       }
-      read(element);
-      addSuperType(superOf(element));
+      read(element, concreteType);
+      TypeElement nextSuper = superOf(element);
+      if (nextSuper != null) {
+        addSuperType(nextSuper, toDeclaredType(element.getSuperclass()));
+      }
     }
   }
 
@@ -707,11 +741,11 @@ final class TypeReader {
   private String initPropertyName(String name, FieldProperty property) {
     if (property.typeBooleanWithIsPrefix()) {
       return Util.initLower(name.substring(2));
-    } else if (name.length() > 3 && name.startsWith("get") && Character.isUpperCase(name.charAt(3))) {
-      return Util.initLower(name.substring(3));
-    } else {
-      return name;
     }
+    if (name.length() > 3 && name.startsWith("get") && Character.isUpperCase(name.charAt(3))) {
+      return Util.initLower(name.substring(3));
+    }
+    return name;
   }
 
   boolean extendsThrowable() {
