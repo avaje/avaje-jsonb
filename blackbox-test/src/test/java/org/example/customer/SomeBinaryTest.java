@@ -30,6 +30,18 @@ class SomeBinaryTest {
     assertThat(fromJson.content()).isEqualTo(bean.content());
   }
 
+  @Test
+  void toJsonFromJson_emptyByteArray() {
+    SomeBinary bean = new SomeBinary(1, new byte[0]);
+
+    JsonType<SomeBinary> type = jsonb.type(SomeBinary.class);
+    String json = type.toJson(bean);
+    assertThat(json).isEqualTo("{\"id\":1,\"content\":\"\"}");
+
+    SomeBinary fromJson = type.fromJson(json);
+    assertThat(fromJson.content()).isEmpty();
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   void jsonValue() {
