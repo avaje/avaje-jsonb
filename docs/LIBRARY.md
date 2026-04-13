@@ -49,7 +49,7 @@ Avaje Jsonb is one of the fastest Java JSON libraries with compile-time generate
 | `@Json.Ignore` | Exclude field from JSON | `@Json.Ignore\nprivate String password;` |
 | `@Json.Alias` | Alternative property name | `@Json.Alias("firstName")\nprivate String first;` |
 | `@Json.Raw` | Preserve JSON as string | `@Json.Raw\nprivate String metadata;` |
-| `@Json.SubTypes` | Handle polymorphic types | `@Json.SubTypes({...})\npublic abstract class Animal {}` |
+| `@Json.SubType` | Handle polymorphic types | `@Json.SubType(type = Dog.class)\npublic abstract class Animal {}` |
 | `@Json.Import` | Import types that can't be annotated | `@Json.Import(ThirdPartyClass.class)` |
 
 ### Main API Classes
@@ -147,29 +147,33 @@ annotationProcessor 'io.avaje:avaje-jsonb-generator:3.13'
 
 ```java
 import io.avaje.jsonb.Json;
+import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 
 @Json
-public class User {
+class User {
   public int id;
   public String name;
   public String email;
 }
 
-public static void main(String[] args) {
-  Jsonb jsonb = Jsonb.instance();
+public class Main {
+  public static void main(String[] args) {
+    Jsonb jsonb = Jsonb.instance();
+    JsonType<User> userType = jsonb.type(User.class);
 
-  // Serialize
-  User user = new User();
-  user.id = 1;
-  user.name = "John";
-  user.email = "john@example.com";
-  String json = jsonb.toJson(user);
-  System.out.println(json);
+    // Serialize
+    User user = new User();
+    user.id = 1;
+    user.name = "John";
+    user.email = "john@example.com";
+    String json = userType.toJson(user);
+    System.out.println(json);
 
-  // Deserialize
-  User parsed = jsonb.fromJson(json, User.class);
-  System.out.println(parsed.name); // John
+    // Deserialize
+    User parsed = userType.fromJson(json);
+    System.out.println(parsed.name); // John
+  }
 }
 ```
 
@@ -192,6 +196,10 @@ public static void main(String[] args) {
 ### Basic Serialization
 
 ```java
+import io.avaje.jsonb.Json;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
+
 @Json
 public class User {
   public int id;
@@ -200,15 +208,16 @@ public class User {
 }
 
 Jsonb jsonb = Jsonb.instance();
+JsonType<User> userType = jsonb.type(User.class);
 
 // Serialize
 User user = new User();
 user.id = 1;
 user.name = "John";
-String json = jsonb.toJson(user);
+String json = userType.toJson(user);
 
 // Deserialize
-User parsed = jsonb.fromJson(json, User.class);
+User parsed = userType.fromJson(json);
 ```
 
 ### Property Name Mapping
@@ -233,10 +242,13 @@ public class Person {
 ### Polymorphic Types
 
 ```java
-@Json.SubTypes({
-  @Json.SubTypes.Type(value = Dog.class, name = "dog"),
-  @Json.SubTypes.Type(value = Cat.class, name = "cat")
-})
+import io.avaje.jsonb.Json;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
+
+@Json(typeProperty = "type")
+@Json.SubType(type = Dog.class, name = "dog")
+@Json.SubType(type = Cat.class, name = "cat")
 public abstract class Animal {
   public String name;
 }
@@ -251,7 +263,11 @@ public class Cat extends Animal {
   public String color;
 }
 
-// JSON will include "type": "dog" or "type": "cat"
+Jsonb jsonb = Jsonb.instance();
+JsonType<Animal> animalType = jsonb.type(Animal.class);
+
+Animal animal = animalType.fromJson("{\"type\":\"dog\",\"name\":\"Fido\",\"breed\":\"Labrador\"}");
+String json = animalType.toJson(animal);
 ```
 
 ### Custom Adapters
@@ -335,12 +351,13 @@ public class UserController {
 @Test
 void testUserSerialization() {
   Jsonb jsonb = Jsonb.instance();
+  JsonType<User> userType = jsonb.type(User.class);
 
   User user = new User();
   user.id = 1;
   user.name = "John";
 
-  String json = jsonb.toJson(user);
+  String json = userType.toJson(user);
 
   assertTrue(json.contains("\"id\":1"));
   assertTrue(json.contains("\"name\":\"John\""));
@@ -349,9 +366,10 @@ void testUserSerialization() {
 @Test
 void testUserDeserialization() {
   Jsonb jsonb = Jsonb.instance();
+  JsonType<User> userType = jsonb.type(User.class);
   String json = "{\"id\":1,\"name\":\"John\",\"email\":\"john@example.com\"}";
 
-  User user = jsonb.fromJson(json, User.class);
+  User user = userType.fromJson(json);
 
   assertEquals(1, user.id);
   assertEquals("John", user.name);
@@ -375,11 +393,12 @@ void testUserDeserialization() {
 Jsonb is configured through `Jsonb.builder()`:
 
 ```java
-Jsonb jsonb = Jsonb.builder()
-  .pretty()              // Pretty-print JSON
+Jsonb configured = Jsonb.builder()
+  .serializeNulls(true)
+  .failOnUnknown(true)
   .build();
 
-// Or use singleton
+// Or use singleton defaults
 Jsonb jsonb = Jsonb.instance();
 ```
 
@@ -405,7 +424,7 @@ Jsonb jsonb = Jsonb.instance();
 
 **Symptom**: `JsonMappingException` for polymorphic types
 
-**Solution**: Ensure all subtypes are marked with `@Json.SubTypes` on base class.
+**Solution**: Ensure all subtypes are marked with one or more `@Json.SubType` annotations on the base type.
 
 **See**: [guides/troubleshooting.md](guides/troubleshooting.md#polymorphic-types)
 
