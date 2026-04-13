@@ -218,13 +218,13 @@ User parsed = jsonb.fromJson(json, User.class);
 public class Person {
   @Json.Property("user_name")
   public String name;
-  
+
   @Json.Property("email_address")
   public String email;
-  
+
   @Json.Ignore
   public String password;
-  
+
   @Json.Alias("firstName")  // accepts both "firstName" and "first_name"
   public String first;
 }
@@ -276,19 +276,22 @@ public class MyCustomAdapter<T> implements JsonAdapter<T> {
 ```java
 Jsonb jsonb = Jsonb.instance();
 
+JsonType<User> userType = jsonb.type(User.class);
+
 // Read streaming
-try (JsonReader reader = jsonb.reader(inputStream)) {
-  while (reader.hasMore()) {
-    User user = reader.readObject(User.class);
-    processUser(user);
+try (JsonReader reader = jsonb.reader(arrayJson)) {
+  try (Stream<User> asStream = userType.stream(reader)) {
+    asStream.forEach(sb::append);
   }
 }
 
 // Write streaming
 try (JsonWriter writer = jsonb.writer(outputStream)) {
+  writer.beginArray();
   for (User user : users) {
-    writer.writeObject(user);
+    userType.toJson(user, writer);
   }
+  writer.endArray();
 }
 ```
 
@@ -323,25 +326,6 @@ public class UserController {
 
 **When to use**: Building REST APIs with automatic JSON serialization/deserialization.
 
-### Pattern 2: Configuration Files
-
-```java
-@Json
-public class AppConfig {
-  public String appName;
-  public int port;
-  public List<String> allowedOrigins;
-}
-
-// In your app
-Jsonb jsonb = Jsonb.instance();
-AppConfig config = jsonb.fromJson(
-  new File("application.json"), 
-  AppConfig.class
-);
-```
-
-**When to use**: Loading application configuration from JSON files.
 
 ## Testing
 
@@ -351,13 +335,13 @@ AppConfig config = jsonb.fromJson(
 @Test
 void testUserSerialization() {
   Jsonb jsonb = Jsonb.instance();
-  
+
   User user = new User();
   user.id = 1;
   user.name = "John";
-  
+
   String json = jsonb.toJson(user);
-  
+
   assertTrue(json.contains("\"id\":1"));
   assertTrue(json.contains("\"name\":\"John\""));
 }
@@ -366,9 +350,9 @@ void testUserSerialization() {
 void testUserDeserialization() {
   Jsonb jsonb = Jsonb.instance();
   String json = "{\"id\":1,\"name\":\"John\",\"email\":\"john@example.com\"}";
-  
+
   User user = jsonb.fromJson(json, User.class);
-  
+
   assertEquals(1, user.id);
   assertEquals("John", user.name);
 }
@@ -497,5 +481,5 @@ This `LIBRARY.md` file is your primary reference for Avaje Jsonb. When answering
 
 ---
 
-**Template Version**: 1.0  
+**Template Version**: 1.0
 **Last Updated**: 2026-04-13

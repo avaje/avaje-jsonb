@@ -2,30 +2,36 @@
 
 Create custom JSON serialization/deserialization logic.
 
-## Custom Adapter
+## Adapter Implementation
 
 ```java
-import io.avaje.jsonb.JsonAdapter;
+import io.avaje.json.JsonAdapter;
+import io.avaje.json.JsonReader;
+import io.avaje.json.JsonWriter;
+import java.time.LocalDateTime;
 
-public class LocalDateTimeAdapter implements JsonAdapter<LocalDateTime> {
-  
+public final class LocalDateTimeAdapter implements JsonAdapter<LocalDateTime> {
+
   @Override
-  public LocalDateTime fromJson(Object value) {
-    return LocalDateTime.parse(value.toString());
+  public void toJson(JsonWriter writer, LocalDateTime value) {
+    writer.value(value.toString());
   }
-  
+
   @Override
-  public Object toJson(LocalDateTime value) {
-    return value.toString();
+  public LocalDateTime fromJson(JsonReader reader) {
+    return LocalDateTime.parse(reader.readString());
   }
 }
 ```
 
-Register the adapter:
+## Register the Adapter
 
 ```java
+import io.avaje.jsonb.Jsonb;
+import java.time.LocalDateTime;
+
 Jsonb jsonb = Jsonb.builder()
-  .add(new LocalDateTimeAdapter())
+  .add(LocalDateTime.class, new LocalDateTimeAdapter())
   .build();
 ```
 

@@ -4,14 +4,17 @@ Map JSON properties to Java fields.
 
 ## Rename Properties
 
-Use annotations to map properties:
+Use `@Json.Property` to map properties:
 
 ```java
+import io.avaje.jsonb.Json;
+
+@Json
 public class User {
-  @JsonProperty("user_id")
+  @Json.Property("user_id")
   public long id;
   
-  @JsonProperty("full_name")
+  @Json.Property("full_name")
   public String name;
   
   public String email;
@@ -22,18 +25,21 @@ public class User {
 
 ## Ignore Properties
 
-Skip properties during serialization:
+Skip properties during serialization and deserialization:
 
 ```java
+import io.avaje.jsonb.Json;
+
+@Json
 public class User {
   public long id;
   public String name;
   
-  @JsonIgnore
+  @Json.Ignore
   public String password;
 }
 
-// JSON: {"id":1,"name":"John"} (password not included)
+// JSON: {"id":1,"name":"John"} (password excluded)
 ```
 
 ## Next Steps

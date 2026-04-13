@@ -4,31 +4,40 @@ Handle polymorphic JSON with inheritance.
 
 ## Type Discriminator
 
-Use a discriminator field to identify the actual type:
+Use `@Json.SubType` on the base type to declare concrete subtypes:
 
 ```java
+import io.avaje.jsonb.Json;
+
+@Json(typeProperty = "type")
+@Json.SubType(type = Dog.class, name = "dog")
+@Json.SubType(type = Cat.class, name = "cat")
 public abstract class Animal {
-  @JsonProperty("@type")
-  public String type;
+  public String name;
 }
 
+@Json
 public class Dog extends Animal {
   public String breed;
 }
 
+@Json
 public class Cat extends Animal {
   public String color;
 }
 ```
 
-Configure the mapper:
+Serialize and deserialize via the base type:
 
 ```java
-Jsonb jsonb = Jsonb.builder()
-  .polymorphic(Animal.class, "type")
-  .add("dog", Dog.class)
-  .add("cat", Cat.class)
-  .build();
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
+
+Jsonb jsonb = Jsonb.instance();
+JsonType<Animal> animalType = jsonb.type(Animal.class);
+
+Animal dog = animalType.fromJson("{\"type\":\"dog\",\"name\":\"Fido\",\"breed\":\"Labrador\"}");
+String json = animalType.toJson(dog);
 ```
 
 ## Next Steps
