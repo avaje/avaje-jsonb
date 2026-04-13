@@ -177,15 +177,15 @@ public static void main(String[] args) {
 
 | Task | Difficulty | Guide |
 |------|-----------|-------|
-| Generate JSON adapters | Beginner | [docs/guides/getting-started.md](../guides/getting-started.md) |
-| Serialize/deserialize objects | Beginner | [docs/guides/basic-usage.md](../guides/basic-usage.md) |
-| Map property names | Beginner | [docs/guides/property-mapping.md](../guides/property-mapping.md) |
-| Handle polymorphic JSON | Intermediate | [docs/guides/polymorphic-types.md](../guides/polymorphic-types.md) |
-| Write custom adapters | Intermediate | [docs/guides/custom-adapters.md](../guides/custom-adapters.md) |
-| Stream large JSON | Advanced | [docs/guides/streaming.md](../guides/streaming.md) |
-| Build native images | Advanced | [docs/guides/native-image.md](../guides/native-image.md) |
+| Generate JSON adapters | Beginner | [guides/getting-started.md](guides/getting-started.md) |
+| Serialize/deserialize objects | Beginner | [guides/basic-usage.md](guides/basic-usage.md) |
+| Map property names | Beginner | [guides/property-mapping.md](guides/property-mapping.md) |
+| Handle polymorphic JSON | Intermediate | [guides/polymorphic-types.md](guides/polymorphic-types.md) |
+| Write custom adapters | Intermediate | [guides/custom-adapters.md](guides/custom-adapters.md) |
+| Stream large JSON | Advanced | [guides/streaming.md](guides/streaming.md) |
+| Build native images | Advanced | [guides/native-image.md](guides/native-image.md) |
 
-**Full Guides Index**: See [docs/guides/README.md](../guides/README.md)
+**Full Guides Index**: See [guides/README.md](guides/README.md)
 
 ## API Quick Reference
 
@@ -374,7 +374,7 @@ void testUserDeserialization() {
 }
 ```
 
-**See**: [docs/guides/testing.md](../guides/testing.md)
+**See**: [guides/testing.md](guides/testing.md)
 
 ## Performance Characteristics
 
@@ -407,7 +407,7 @@ Jsonb jsonb = Jsonb.instance();
 
 **Solution**: Ensure class is annotated with `@Json` and annotation processor is configured in build.
 
-**See**: [docs/guides/troubleshooting.md](../guides/troubleshooting.md#adapter-not-generated)
+**See**: [guides/troubleshooting.md](guides/troubleshooting.md#adapter-not-generated)
 
 ### Issue: Property Not Serialized
 
@@ -415,7 +415,7 @@ Jsonb jsonb = Jsonb.instance();
 
 **Solution**: Check if property is marked with `@Json.Ignore`. Ensure getter/setter exists or field is public.
 
-**See**: [docs/guides/troubleshooting.md](../guides/troubleshooting.md#property-missing)
+**See**: [guides/troubleshooting.md](guides/troubleshooting.md#property-missing)
 
 ### Issue: Polymorphic Type Not Recognized
 
@@ -423,7 +423,7 @@ Jsonb jsonb = Jsonb.instance();
 
 **Solution**: Ensure all subtypes are marked with `@Json.SubTypes` on base class.
 
-**See**: [docs/guides/troubleshooting.md](../guides/troubleshooting.md#polymorphic-types)
+**See**: [guides/troubleshooting.md](guides/troubleshooting.md#polymorphic-types)
 
 ## GraalVM Native Image
 
@@ -439,7 +439,7 @@ Jsonb jsonb = Jsonb.instance();
 mvn clean package -Pnative
 ```
 
-**See**: [docs/guides/native-image.md](../guides/native-image.md)
+**See**: [guides/native-image.md](guides/native-image.md)
 
 ## Design Philosophy
 
