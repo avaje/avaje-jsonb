@@ -30,7 +30,7 @@ final class ExtensionLoader {
         LOOKUP_MAP.computeIfAbsent(gen.getClass().getModule().getName(), k -> gen.lookup());
       } else if (spi instanceof JsonbComponent) {
         userComponents.add((JsonbComponent) spi);
-      } else if (spi instanceof JsonStreamFactory) {
+      } else if (spi instanceof JsonStreamFactory && !Boolean.getBoolean("jsonb.disableAdapterSpi")) {
         adapterFactory = Optional.of((JsonStreamFactory) spi);
       }
     }
