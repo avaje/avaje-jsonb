@@ -49,6 +49,8 @@ final class TypeReader {
   private final Map<String, MethodReader> maybeGetterMethods = new LinkedHashMap<>();
   private final Map<String, MethodReader> allGetterMethods = new LinkedHashMap<>();
   private final Map<String, MethodReader> allSetterMethods = new LinkedHashMap<>();
+  private final Map<String, MethodReader> unmappedSetterMethods = new LinkedHashMap<>();
+  private final Map<String, String> propertySetterMethods = new LinkedHashMap<>();
 
   private final TypeSubTypeReader subTypes;
   private final TypeElement baseType;
@@ -318,6 +320,14 @@ final class TypeReader {
       final String methodKey = methodElement.getSimpleName().toString();
       MethodReader methodReader = new MethodReader(methodElement).read();
       if (parameters.size() == 1) {
+        var param = (VariableElement) parameters.get(0);
+        if (UnmappedPrism.isPresent(methodElement) || UnmappedPrism.isPresent(param)) {
+          unmappedSetterMethods.put(methodKey, methodReader);
+        }
+        PropertyPrism.getOptionalOn(methodElement)
+          .map(PropertyPrism::value)
+          .map(Util::escapeQuotes)
+          .ifPresent(propName -> propertySetterMethods.put(methodKey, propName));
         maybeSetterMethods.putIfAbsent(methodKey, methodReader);
         allSetterMethods.put(methodKey.toLowerCase(), methodReader);
       } else if (parameters.isEmpty()) {
@@ -328,15 +338,11 @@ final class TypeReader {
         }
       }
     }
-    // for getter/accessor methods only, not setters
+    // for getter/accessor methods only (setter case handled via propertySetterMethods)
     PropertyPrism.getOptionalOn(methodElement)
       .filter(p -> !hasRecordPropertyAnnotation(methodElement))
+      .filter(p -> methodElement.getParameters().isEmpty())
       .ifPresent(propertyPrism -> {
-        if (!methodElement.getParameters().isEmpty()) {
-          logError(errorContext + baseType + ", @Json.Property can only be placed on Getter Methods, but on %s", methodElement);
-          return;
-        }
-
         // getter property as simulated read-only field with getter method
         final var frequency = frequency(propertyPrism.value());
         final var reader = new FieldReader(element, namingConvention, currentSubType, genericTypeParams, frequency);
@@ -477,11 +483,95 @@ final class TypeReader {
     return maybeSetterMethods.get(name);
   }
 
+  private void upgradeFieldsWithUnmappedSetters() {
+    if (unmappedSetterMethods.isEmpty()) return;
+    for (FieldReader field : allFields) {
+      if (!field.isUnmapped() && field.setter() != null) {
+        var matched = unmappedSetterMethods.remove(field.setter().getName());
+        if (matched != null) {
+          field.setAsUnmapped();
+        }
+      }
+    }
+  }
+
+  private void upgradeFieldsWithPropertySetters() {
+    if (propertySetterMethods.isEmpty()) return;
+    for (FieldReader field : allFields) {
+      if (field.setter() != null) {
+        var propName = propertySetterMethods.remove(field.setter().getName());
+        if (propName != null) {
+          field.overridePropertyName(propName);
+        }
+      }
+    }
+  }
+
+  private void createOrphanUnmappedSetterFields() {
+    for (MethodReader setter : unmappedSetterMethods.values()) {
+      var setterElement = setter.element();
+      var param = (VariableElement) setterElement.getParameters().get(0);
+      final var frequency = frequency(param.getSimpleName().toString());
+      FieldReader unmappedReader =
+          new FieldReader(
+              param,
+              null,
+              namingConvention,
+              currentSubType,
+              genericTypeParams,
+              frequency,
+              hasJsonCreator);
+      unmappedReader.setAsUnmapped();
+      unmappedReader.setOrphanUnmappedSetter();
+      unmappedReader.setterMethod(setter);
+      allFields.add(unmappedReader);
+      allFieldMap.put(
+          unmappedReader.fieldName() + unmappedReader.adapterShortType(), unmappedReader);
+    }
+    unmappedSetterMethods.clear();
+    // Orphan property-setter: setter with @Json.Property but no matching backing field
+    for (Map.Entry<String, String> entry : propertySetterMethods.entrySet()) {
+      var setter = maybeSetterMethods.get(entry.getKey());
+      if (setter == null) continue;
+      var setterElement = setter.element();
+      var param = (VariableElement) setterElement.getParameters().get(0);
+      final var frequency = frequency(entry.getValue());
+      FieldReader orphanReader =
+          new FieldReader(
+              param,
+              null,
+              namingConvention,
+              currentSubType,
+              genericTypeParams,
+              frequency,
+              hasJsonCreator);
+      orphanReader.overridePropertyName(entry.getValue());
+      orphanReader.setterMethod(setter);
+      allFields.add(orphanReader);
+      allFieldMap.put(orphanReader.fieldName() + orphanReader.adapterShortType(), orphanReader);
+    }
+    propertySetterMethods.clear();
+  }
+
   private void matchFieldsToGetter() {
     for (FieldReader field : allFields) {
       if (field.includeToJson()) {
         matchFieldToGetter(field);
+      } else if (field.isOrphanUnmappedSetter()) {
+        // Orphan unmapped setter (no backing field): try to find a getter for round-trip serialization
+        tryMatchUnmappedGetter(field);
       }
+    }
+  }
+
+  private void tryMatchUnmappedGetter(FieldReader field) {
+    var fieldName = field.fieldName();
+    var propName = field.propertyName();
+    if (matchGetter(fieldName, field, false)
+        || matchGetter(fieldName, field, true)
+        || matchGetter(propName, field, false)
+        || matchGetter(propName, field, true)) {
+      field.enableSerialize();
     }
   }
 
@@ -665,6 +755,9 @@ final class TypeReader {
       }
     }
     matchFieldsToSetterOrConstructor();
+    upgradeFieldsWithUnmappedSetters();
+    upgradeFieldsWithPropertySetters();
+    createOrphanUnmappedSetterFields();
     matchFieldsToGetter();
     if (extendsThrowable || allFields.isEmpty() && subTypes.subTypes().isEmpty()) {
       initReadOnlyMethods();

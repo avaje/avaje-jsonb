@@ -13,10 +13,10 @@ final class FieldReader {
 
   private final Element element;
   private final FieldProperty property;
-  private final String propertyName;
-  private final boolean serialize;
+  private String propertyName;
+  private boolean serialize;
   private boolean deserialize;
-  private final boolean unmapped;
+  private boolean unmapped;
   private final boolean raw;
   private final boolean hasCustomSerializer;
 
@@ -25,6 +25,7 @@ final class FieldReader {
   private final String num;
   private boolean isCreatorParam;
   private boolean useGetterAddAll;
+  private boolean orphanUnmappedSetter;
 
   FieldReader(
       Element element,
@@ -135,6 +136,27 @@ final class FieldReader {
 
   boolean isUnmapped() {
     return unmapped;
+  }
+
+  void enableSerialize() {
+    this.serialize = true;
+  }
+
+  void setAsUnmapped() {
+    this.unmapped = true;
+    this.property.setAsUnmapped();
+  }
+
+  void overridePropertyName(String name) {
+    this.propertyName = name;
+  }
+
+  void setOrphanUnmappedSetter() {
+    this.orphanUnmappedSetter = true;
+  }
+
+  boolean isOrphanUnmappedSetter() {
+    return orphanUnmappedSetter;
   }
 
   boolean include() {

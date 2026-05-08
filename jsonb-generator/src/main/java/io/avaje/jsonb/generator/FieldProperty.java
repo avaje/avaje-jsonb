@@ -10,18 +10,17 @@ import javax.lang.model.type.TypeMirror;
 
 final class FieldProperty {
 
-  private Element element;
   private final boolean raw;
-  private final boolean unmapped;
+  private boolean unmapped;
   private final String rawType;
   private final boolean publicField;
   private final String fieldName;
   private final List<String> genericTypeParams;
 
-  private final GenericType genericType;
-  private final String adapterFieldName;
-  private final String adapterShortType;
-  private final String defaultValue;
+  private GenericType genericType;
+  private String adapterFieldName;
+  private String adapterShortType;
+  private String defaultValue;
   private final boolean optional;
   private boolean genericTypeParameter;
   private int genericTypeParamPosition;
@@ -51,7 +50,6 @@ final class FieldProperty {
       boolean publicField,
       String fieldName,
       Optional<TypeMirror> customSerializer) {
-    this.element = element;
     this.raw = raw;
     this.unmapped = unmapped;
     this.publicField = publicField;
@@ -97,6 +95,20 @@ final class FieldProperty {
 
   void setConstructorParam() {
     constructorParam = true;
+  }
+
+  void setAsUnmapped() {
+    this.unmapped = true;
+    if (unmappedJsonObject()) {
+      this.genericType = GenericType.parse("io.avaje.json.node.JsonNode");
+      this.adapterShortType = "JsonAdapter<JsonNode>";
+      this.adapterFieldName = "jsonNodeAdapter";
+    } else {
+      this.genericType = GenericType.parse("java.lang.Object");
+      this.adapterShortType = "JsonAdapter<Object>";
+      this.adapterFieldName = "objectJsonAdapter";
+    }
+    this.defaultValue = "null";
   }
 
   void setPosition(int pos) {
