@@ -4,9 +4,9 @@ import io.avaje.jsonb.Json;
 
 @Json
 public enum EnumWithAlias {
-  @Json.Alias({"kAlternateName", "kOldName"})
-  kNewName,
-  kOther;
+  @Json.Alias({"Jane", "Juliet"})
+  RYU,
+  YUTA;
 
   @Json.Value
   @Override

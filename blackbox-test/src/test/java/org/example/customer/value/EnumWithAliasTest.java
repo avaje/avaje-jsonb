@@ -17,24 +17,24 @@ class EnumWithAliasTest {
 
   @Test
   void primaryName_roundTrip() {
-    var bean = new Wrapper(EnumWithAlias.kNewName);
+    var bean = new Wrapper(EnumWithAlias.RYU);
     var json = type.toJson(bean);
-    assertThat(json).isEqualTo("{\"value\":\"kNewName\"}");
+    assertThat(json).isEqualTo("{\"value\":\"RYU\"}");
     assertThat(type.fromJson(json)).isEqualTo(bean);
   }
 
   @Test
   void alias_deserializes_to_primary() {
-    assertThat(type.fromJson("{\"value\":\"kAlternateName\"}").value())
-        .isEqualTo(EnumWithAlias.kNewName);
-    assertThat(type.fromJson("{\"value\":\"kOldName\"}").value()).isEqualTo(EnumWithAlias.kNewName);
+    assertThat(type.fromJson("{\"value\":\"Jane\"}").value())
+        .isEqualTo(EnumWithAlias.RYU);
+    assertThat(type.fromJson("{\"value\":\"Juliet\"}").value()).isEqualTo(EnumWithAlias.RYU);
   }
 
   @Test
   void other_constant_unaffected() {
-    var bean = new Wrapper(EnumWithAlias.kOther);
+    var bean = new Wrapper(EnumWithAlias.YUTA);
     var json = type.toJson(bean);
-    assertThat(json).isEqualTo("{\"value\":\"kOther\"}");
+    assertThat(json).isEqualTo("{\"value\":\"YUTA\"}");
     assertThat(type.fromJson(json)).isEqualTo(bean);
   }
 }
