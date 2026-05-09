@@ -671,22 +671,27 @@ final class TypeReader {
     }
   }
 
-  /**
-   * Set the index position of the fields (for PropertyNames).
-   */
+  /** Set the index position of the fields (for PropertyNames). */
   private void setFieldPositions() {
     final int offset = subTypes.hasSubTypes() ? 1 : 0;
-    //skip position if property == a type property
-    final var fields = allFields.stream()
-      .filter(f -> !f.propertyName().equals(typePropertyKey))
-      .collect(Collectors.toList());
+    // skip position if property == a type property
+    final var fields =
+        allFields.stream()
+            .filter(f -> !f.propertyName().equals(typePropertyKey))
+            .collect(Collectors.toList());
 
-    for (int pos = 0, size = fields.size(); pos < size; pos++) {
-      final var field = fields.get(pos);
-      if (pos > 0 && fields.get(pos - 1).propertyName().equals(field.propertyName())) {
-        field.position(pos - 1);
+    final Map<String, Integer> seenPositions = new LinkedHashMap<>();
+    int nextPos = 0;
+    for (final var field : fields) {
+      final String propName = field.propertyName();
+      final Integer existingPos = seenPositions.get(propName);
+      if (existingPos != null) {
+        field.position(existingPos);
       } else {
-        field.position(pos + offset);
+        final int pos = nextPos + offset;
+        field.position(pos);
+        seenPositions.put(propName, pos);
+        nextPos++;
       }
     }
   }
