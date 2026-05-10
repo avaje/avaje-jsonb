@@ -1,5 +1,8 @@
 package io.avaje.jsonb.generator;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -21,6 +24,7 @@ final class ValueReader implements BeanReader {
   private final GenericType genericType;
   private final String adapterShortType;
   private final boolean isEnum;
+  private final Map<String, List<String>> enumAliases = new LinkedHashMap<>();
   private final ExecutableElement constructor;
   private final boolean pkgPrivate;
 
@@ -28,6 +32,18 @@ final class ValueReader implements BeanReader {
     this.method = e;
     this.element = beanType;
     this.isEnum = beanType.getKind() == ElementKind.ENUM;
+    if (isEnum) {
+      beanType.getEnclosedElements().stream()
+        .filter(enc -> enc.getKind() == ElementKind.ENUM_CONSTANT)
+        .forEach(enumConst ->
+          AliasPrism.getOptionalOn(enumConst)
+            .ifPresent(prism -> {
+              var aliases = Util.escapeQuotes(prism.value());
+              if (!aliases.isEmpty()) {
+                enumAliases.put(enumConst.getSimpleName().toString(), aliases);
+              }
+            }));
+    }
     final TypeMirror returnType = e.getReturnType();
     this.returnTypeStr = PrimitiveUtil.wrap(Util.shortType(returnType.toString()));
     this.type = Util.trimAnnotations(returnType.toString());
@@ -129,6 +145,11 @@ final class ValueReader implements BeanReader {
       writer.append("        if (toEnum.containsKey(val)) throw new IllegalArgumentException(\"Duplicate value \" + val + \" from enum method %s. @Json.Value methods must return unique values\");",method.getSimpleName()).eol();
       writer.append("        toEnum.put(val, enumConst);").eol();
       writer.append("      }").eol();
+      for (var entry : enumAliases.entrySet()) {
+        for (var alias : entry.getValue()) {
+          writer.append("      toEnum.put(\"%s\", %s.%s);", alias, shortName, entry.getKey()).eol();
+        }
+      }
       writer.append("    }").eol();
     }
   }
