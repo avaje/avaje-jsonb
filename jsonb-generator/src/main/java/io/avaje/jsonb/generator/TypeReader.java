@@ -675,10 +675,9 @@ final class TypeReader {
   private void setFieldPositions() {
     final int offset = subTypes.hasSubTypes() ? 1 : 0;
     // skip position if property == a type property
-    final var fields =
-        allFields.stream()
-            .filter(f -> !f.propertyName().equals(typePropertyKey))
-            .collect(Collectors.toList());
+    final var fields = allFields.stream()
+      .filter(f -> !f.propertyName().equals(typePropertyKey))
+      .collect(Collectors.toList());
 
     final Map<String, Integer> seenPositions = new LinkedHashMap<>();
     int nextPos = 0;
