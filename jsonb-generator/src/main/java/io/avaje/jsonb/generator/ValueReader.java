@@ -34,17 +34,15 @@ final class ValueReader implements BeanReader {
     this.isEnum = beanType.getKind() == ElementKind.ENUM;
     if (isEnum) {
       beanType.getEnclosedElements().stream()
-          .filter(enc -> enc.getKind() == ElementKind.ENUM_CONSTANT)
-          .forEach(
-              enumConst ->
-                  AliasPrism.getOptionalOn(enumConst)
-                      .ifPresent(
-                          prism -> {
-                            var aliases = Util.escapeQuotes(prism.value());
-                            if (!aliases.isEmpty()) {
-                              enumAliases.put(enumConst.getSimpleName().toString(), aliases);
-                            }
-                          }));
+        .filter(enc -> enc.getKind() == ElementKind.ENUM_CONSTANT)
+        .forEach(enumConst ->
+          AliasPrism.getOptionalOn(enumConst)
+            .ifPresent(prism -> {
+              var aliases = Util.escapeQuotes(prism.value());
+              if (!aliases.isEmpty()) {
+                enumAliases.put(enumConst.getSimpleName().toString(), aliases);
+              }
+            }));
     }
     final TypeMirror returnType = e.getReturnType();
     this.returnTypeStr = PrimitiveUtil.wrap(Util.shortType(returnType.toString()));

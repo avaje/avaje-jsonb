@@ -25,8 +25,7 @@ class EnumWithAliasTest {
 
   @Test
   void alias_deserializes_to_primary() {
-    assertThat(type.fromJson("{\"value\":\"Jane\"}").value())
-        .isEqualTo(EnumWithAlias.RYU);
+    assertThat(type.fromJson("{\"value\":\"Jane\"}").value()).isEqualTo(EnumWithAlias.RYU);
     assertThat(type.fromJson("{\"value\":\"Juliet\"}").value()).isEqualTo(EnumWithAlias.RYU);
   }
 
