@@ -154,7 +154,7 @@ final class FieldReader {
   }
 
   boolean includeToJson(String type) {
-    return serialize && (type == null || subTypes.containsKey(type));
+    return serialize && (type == null || subTypes.isEmpty() || subTypes.containsKey(type));
   }
 
   void addSubType(TypeSubTypeMeta currentSubType) {
