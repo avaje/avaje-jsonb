@@ -16,12 +16,12 @@ class InheritanceSplitPropertyTest {
     InheritanceSplitProperty.NestedTest nested = new InheritanceSplitProperty.NestedTest(42);
     String asJson = type.toJson(nested);
     assertThat(asJson)
-        .isEqualTo("{\"@type\":\"InheritanceSplitPropertyTest.NestedTest\",\"value\":42}");
+        .isEqualTo("{\"@type\":\"InheritanceSplitProperty.NestedTest\",\"value\":42}");
   }
 
   @Test
   void fromJson() {
-    String json = "{\"@type\":\"InheritanceSplitPropertyTest.NestedTest\",\"value\":42}";
+    String json = "{\"@type\":\"InheritanceSplitProperty.NestedTest\",\"value\":42}";
     InheritanceSplitProperty result = type.fromJson(json);
     assertThat(result).isInstanceOf(InheritanceSplitProperty.NestedTest.class);
     assertThat(result.value()).isEqualTo(42);
