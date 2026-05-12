@@ -217,6 +217,10 @@ final class FieldReader {
     property.setConstructorParam();
   }
 
+  void enableDeserialize() {
+    this.deserialize = true;
+  }
+
   boolean isPublicField() {
     return property.isPublicField();
   }

@@ -192,6 +192,9 @@ final class TypeReader {
           allFieldMap.put(localField.fieldName() + localField.adapterShortType(), localField);
         } else {
           commonField.addSubType(currentSubType);
+          if (localField.includeFromJson() && !commonField.includeFromJson()) {
+            commonField.enableDeserialize();
+          }
         }
         if (commonField == null && currentSubType != null) {
           localField.setSubTypeField();
@@ -406,6 +409,8 @@ final class TypeReader {
     if (hasNoSetter(field)) {
       if (isCollectionType(field.type())) {
         field.setUseGetterAddAll();
+      } else if (hasSubTypes() && isSubTypeConstructorParam(field)) {
+        field.setConstructorParam();
       } else if (ProcessingContext.isCascadeType(baseType)) {
         nonAccessibleField = true;
         var module = APContext.getProjectModuleElement();
@@ -421,6 +426,13 @@ final class TypeReader {
         logError(field.element(), errorContext + baseType + ", non public field %s with no matching setter or constructor?", field.fieldName());
       }
     }
+  }
+
+  private boolean isSubTypeConstructorParam(FieldReader field) {
+    final String name = field.fieldName();
+    final String propName = field.propertyName();
+    return subTypes.subTypes().stream()
+        .anyMatch(st -> st.hasConstructorParam(name) || st.hasConstructorParam(propName));
   }
 
   private boolean isCollectionType(GenericType genericType) {
