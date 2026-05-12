@@ -56,6 +56,12 @@ final class TypeSubTypeMeta {
     publicConstructors.add(methodReader);
   }
 
+  boolean hasConstructorParam(String fieldName) {
+    return publicConstructors.stream()
+      .flatMap(c -> c.getParams().stream())
+      .anyMatch(p -> p.name().equals(fieldName));
+  }
+
   void writeFromJsonBuild(Append writer, String varName, SubTypeRequest req) {
     if (req.useSwitch()) {
       if (req.useEnum()) {
