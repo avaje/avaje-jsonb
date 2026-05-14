@@ -542,11 +542,21 @@ final class TypeReader {
     }
     unmappedSetterMethods.clear();
     // Orphan property-setter: setter with @Json.Property but no matching backing field
+    final var existingFieldNames = hasJsonCreator
+        ? allFields.stream().map(FieldReader::fieldName).collect(toSet())
+        : Set.of();
     for (Map.Entry<String, String> entry : propertySetterMethods.entrySet()) {
       var setter = maybeSetterMethods.get(entry.getKey());
       if (setter == null) continue;
       var setterElement = setter.element();
       var param = (VariableElement) setterElement.getParameters().get(0);
+      final var paramName = param.getSimpleName().toString();
+      if (existingFieldNames.contains(paramName)) {
+        logError(setterElement,
+            "@Json.Property setter parameter name '%s' conflicts with an existing field or constructor parameter name. Rename the setter parameter to avoid a variable name collision in generated code.",
+            paramName);
+        continue;
+      }
       final var frequency = frequency(entry.getValue());
       FieldReader orphanReader =
           new FieldReader(
