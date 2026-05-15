@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +52,7 @@ final class TypeReader {
   private final Map<String, MethodReader> allSetterMethods = new LinkedHashMap<>();
   private final Map<String, MethodReader> unmappedSetterMethods = new LinkedHashMap<>();
   private final Map<String, String> propertySetterMethods = new LinkedHashMap<>();
+  private final Map<String, Set<TypeSubTypeMeta>> setterSubTypes = new LinkedHashMap<>();
 
   private final TypeSubTypeReader subTypes;
   private final TypeElement baseType;
@@ -333,6 +335,7 @@ final class TypeReader {
           .ifPresent(propName -> propertySetterMethods.put(methodKey, propName));
         maybeSetterMethods.putIfAbsent(methodKey, methodReader);
         allSetterMethods.put(methodKey.toLowerCase(), methodReader);
+        setterSubTypes.computeIfAbsent(methodKey, k -> new LinkedHashSet<>()).add(currentSubType);
       } else if (parameters.isEmpty()) {
         TypeMirror returnType = methodElement.getReturnType();
         if (!"void".equals(returnType.toString())) {
@@ -524,18 +527,24 @@ final class TypeReader {
       var setterElement = setter.element();
       var param = (VariableElement) setterElement.getParameters().get(0);
       final var frequency = frequency(param.getSimpleName().toString());
+      final var methodKey = setterElement.getSimpleName().toString();
+      final var subtypesForSetter = setterSubTypes.getOrDefault(methodKey, Set.of());
+      final var firstSubType = subtypesForSetter.stream().filter(st -> st != null).findFirst().orElse(null);
       FieldReader unmappedReader =
           new FieldReader(
               param,
               null,
               namingConvention,
-              currentSubType,
+              firstSubType,
               genericTypeParams,
               frequency,
               hasJsonCreator);
       unmappedReader.setAsUnmapped();
       unmappedReader.setOrphanUnmappedSetter();
       unmappedReader.setterMethod(setter);
+      for (TypeSubTypeMeta subType : subtypesForSetter) {
+        unmappedReader.addSubType(subType);
+      }
       allFields.add(unmappedReader);
       allFieldMap.put(
           unmappedReader.fieldName() + unmappedReader.adapterShortType(), unmappedReader);
@@ -558,21 +567,27 @@ final class TypeReader {
         continue;
       }
       final var frequency = frequency(entry.getValue());
+      final var subtypesForSetter = setterSubTypes.getOrDefault(entry.getKey(), Set.of());
+      final var firstSubType = subtypesForSetter.stream().filter(st -> st != null).findFirst().orElse(null);
       FieldReader orphanReader =
           new FieldReader(
               param,
               null,
               namingConvention,
-              currentSubType,
+              firstSubType,
               genericTypeParams,
               frequency,
               hasJsonCreator);
       orphanReader.overridePropertyName(entry.getValue());
       orphanReader.setterMethod(setter);
+      for (TypeSubTypeMeta subType : subtypesForSetter) {
+        orphanReader.addSubType(subType);
+      }
       allFields.add(orphanReader);
       allFieldMap.put(orphanReader.fieldName() + orphanReader.adapterShortType(), orphanReader);
     }
     propertySetterMethods.clear();
+    setterSubTypes.clear();
   }
 
   private void matchFieldsToGetter() {
