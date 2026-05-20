@@ -254,6 +254,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void cascadeTypes() {
+    ExternalModules.readAdaptedTypes();
     while (!allReaders.isEmpty()) {
       cascadeTypesInner();
     }
@@ -288,7 +289,8 @@ public final class JsonbProcessor extends AbstractProcessor {
         || type.startsWith("javax.")
         || "io.avaje.json.node.JsonNode".equals(type)
         || sourceTypes.contains(type)
-        || writtenTypes.contains(type);
+        || writtenTypes.contains(type)
+        || ExternalModules.contains(type);
   }
 
   /**
