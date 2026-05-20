@@ -48,6 +48,7 @@ import io.avaje.prism.GenerateUtils;
 @GenerateUtils
 @GenerateAPContext
 @SupportedAnnotationTypes({
+  AdaptedTypesPrism.PRISM_TYPE,
   CustomAdapterPrism.PRISM_TYPE,
   JSON,
   JSON_IMPORT,
@@ -131,6 +132,11 @@ public final class JsonbProcessor extends AbstractProcessor {
     getElements(round, CustomAdapterPrism.PRISM_TYPE).ifPresent(this::registerCustomAdapters);
 
     metaData.fullName(false);
+    getElements(round, AdaptedTypesPrism.PRISM_TYPE).stream()
+        .flatMap(Set::stream)
+        .map(AdaptedTypesPrism::getInstanceOn)
+        .flatMap(a -> a.value().stream().map(Object::toString))
+        .forEach(sourceTypes::add);
     cascadeTypes();
     writeComponent(generateComponent);
     return false;
