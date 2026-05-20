@@ -1,3 +1,6 @@
+
+
+//@AdaptedTypes(CustomClass.class)
 module blackbox.test.cascade {
 
   requires static io.avaje.jsonb;

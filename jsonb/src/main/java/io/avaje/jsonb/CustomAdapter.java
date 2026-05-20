@@ -1,8 +1,8 @@
 package io.avaje.jsonb;
 
-import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -57,7 +57,7 @@ import java.lang.annotation.Target;
  *
  * }</pre>
  */
-@Target(TYPE)
+@Target(ElementType.TYPE)
 @Retention(SOURCE)
 public @interface CustomAdapter {
 
@@ -66,4 +66,13 @@ public @interface CustomAdapter {
    * to use the adapter is via the {@link Json.Serializer} annotation
    */
   boolean global() default true;
+
+  /**
+   * This annotation can be used to specify types that are already adapted by external libraries,
+   * disabling cascade adapter generation for the provided types.
+   */
+  @Target({ElementType.TYPE, ElementType.MODULE, ElementType.PACKAGE})
+  public @interface AdaptedTypes {
+    Class<?>[] value();
+  }
 }
