@@ -1,5 +1,6 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.stream.JsonStream;
 import io.avaje.json.stream.core.Recyclers.ThreadLocalPool;
@@ -64,6 +65,42 @@ class JsonReadAdapterTest {
     assertTrue(reader.hasNextField());
     assertEquals("notes", reader.nextField());
     assertEquals("fooFooFoo", reader.readString());
+  }
+
+  @Test
+  void readString_millionChars_withLargeLimit() {
+    char[] ch = new char[4096];
+    byte[] by = new byte[4096];
+    JParser jr = new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 2_000_000);
+
+    String bigVal = "a".repeat(1_000_000);
+    byte[] bytes = ("{\"content\":\"" + bigVal + "\"}").getBytes(StandardCharsets.UTF_8);
+    jr.process(bytes, bytes.length);
+
+    JsonReadAdapter reader = new JsonReadAdapter(jr, ThreadLocalPool.shared(), true, true);
+    reader.beginObject();
+    assertTrue(reader.hasNextField());
+    assertEquals("content", reader.nextField());
+    assertEquals(bigVal, reader.readString());
+    reader.close();
+  }
+
+  @Test
+  void readString_millionChars_defaultLimit_throws() {
+    char[] ch = new char[4096];
+    byte[] by = new byte[4096];
+    JParser jr = new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
+
+    String bigVal = "a".repeat(1_000_000);
+    byte[] bytes = ("{\"content\":\"" + bigVal + "\"}").getBytes(StandardCharsets.UTF_8);
+    jr.process(bytes, bytes.length);
+
+    JsonReadAdapter reader = new JsonReadAdapter(jr, ThreadLocalPool.shared(), true, true);
+    reader.beginObject();
+    assertTrue(reader.hasNextField());
+    assertEquals("content", reader.nextField());
+    assertThrows(JsonDataException.class, reader::readString);
+    reader.close();
   }
 
   @Test
