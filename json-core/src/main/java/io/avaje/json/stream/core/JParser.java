@@ -928,7 +928,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean isNullValue() {
-    if (last == 'n') {
+    if (currentToken() == 'n') {
       if (currentIndex + 2 < length
         && buffer[currentIndex] == 'u'
         && buffer[currentIndex + 1] == 'l'

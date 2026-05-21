@@ -102,6 +102,32 @@ class JParserTest {
     parser.nextToken();
   }
 
+  @Test
+  void isNullValue_topLevel_null() {
+    JParser parser = newParser(1000);
+    byte[] bytes = "null".getBytes(StandardCharsets.UTF_8);
+    parser.process(bytes, bytes.length);
+    assertThat(parser.isNullValue()).isTrue();
+  }
+
+  @Test
+  void isNullValue_topLevel_string() {
+    JParser parser = newParser(1000);
+    byte[] bytes = "\"hi\"".getBytes(StandardCharsets.UTF_8);
+    parser.process(bytes, bytes.length);
+    assertThat(parser.isNullValue()).isFalse();
+    assertThat(parser.readString()).isEqualTo("hi");
+  }
+
+  @Test
+  void isNullValue_topLevel_int() {
+    JParser parser = newParser(1000);
+    byte[] bytes = "42".getBytes(StandardCharsets.UTF_8);
+    parser.process(bytes, bytes.length);
+    assertThat(parser.isNullValue()).isFalse();
+    assertThat(parser.readInt()).isEqualTo(42);
+  }
+
   private JParser newParser(int len) {
     final char[] tmp = new char[len];
     final byte[] buffer = new byte[len];

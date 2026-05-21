@@ -68,6 +68,32 @@ class JsonReadAdapterTest {
   }
 
   @Test
+  void isNullValue_topLevel_null() {
+    JsonStream adapter = JsonStream.builder().build();
+    try (JsonReader reader = adapter.reader("null")) {
+      assertTrue(reader.isNullValue());
+    }
+  }
+
+  @Test
+  void isNullValue_topLevel_string() {
+    JsonStream adapter = JsonStream.builder().build();
+    try (JsonReader reader = adapter.reader("\"hi\"")) {
+      assertFalse(reader.isNullValue());
+      assertEquals("hi", reader.readString());
+    }
+  }
+
+  @Test
+  void isNullValue_topLevel_int() {
+    JsonStream adapter = JsonStream.builder().build();
+    try (JsonReader reader = adapter.reader("42")) {
+      assertFalse(reader.isNullValue());
+      assertEquals(42, reader.readInt());
+    }
+  }
+
+  @Test
   void readString_millionChars_withLargeLimit() {
     char[] ch = new char[4096];
     byte[] by = new byte[4096];
