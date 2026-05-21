@@ -167,15 +167,17 @@ class DJsonType<T> implements JsonType<T> {
   public T fromJson(Reader content) {
     try (JsonReader reader = jsonb.reader(content)) {
       return adapter.fromJson(reader);
+    } finally {
+      close(content);
     }
-    close(content);
   }
 
   @Override
   public T fromJson(InputStream inputStream) {
     try (JsonReader reader = jsonb.reader(inputStream)) {
       return adapter.fromJson(reader);
+    } finally {
+      close(inputStream);
     }
-    close(inputStream);
   }
 }
