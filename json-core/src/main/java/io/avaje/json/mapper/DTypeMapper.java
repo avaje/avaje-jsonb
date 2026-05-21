@@ -58,16 +58,18 @@ final class DTypeMapper<T> implements JsonMapper.Type<T> {
   public T fromJson(Reader content) {
     try (JsonReader reader = jsonStream.reader(content)) {
       return adapter.fromJson(reader);
-    } 
-    close(content);
+    } finally {
+      close(content);
+    }
   }
 
   @Override
   public T fromJson(InputStream content) {
     try (JsonReader reader = jsonStream.reader(content)) {
       return adapter.fromJson(reader);
-    } 
-    close(content);
+    } finally {
+      close(content);
+    }
   }
 
   @Override
