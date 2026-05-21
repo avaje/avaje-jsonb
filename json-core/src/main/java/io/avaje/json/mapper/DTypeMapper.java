@@ -58,14 +58,16 @@ final class DTypeMapper<T> implements JsonMapper.Type<T> {
   public T fromJson(Reader content) {
     try (JsonReader reader = jsonStream.reader(content)) {
       return adapter.fromJson(reader);
-    }
+    } 
+    close(content);
   }
 
   @Override
   public T fromJson(InputStream content) {
     try (JsonReader reader = jsonStream.reader(content)) {
       return adapter.fromJson(reader);
-    }
+    } 
+    close(content);
   }
 
   @Override
@@ -108,6 +110,7 @@ final class DTypeMapper<T> implements JsonMapper.Type<T> {
     try (JsonWriter jsonWriter = jsonStream.writer(writer)) {
       toJson(value, jsonWriter);
     }
+    close(writer);
   }
 
   @Override
@@ -115,15 +118,13 @@ final class DTypeMapper<T> implements JsonMapper.Type<T> {
     try (JsonWriter writer = jsonStream.writer(outputStream)) {
       toJson(value, writer);
     }
-    close(outputStream);
   }
 
-  private void close(Closeable outputStream) {
+  private void close(Closeable closeable) {
     try {
-      outputStream.close();
+      closeable.close();
     } catch (IOException e) {
       throw new UncheckedIOException("Error closing stream", e);
     }
   }
-
 }

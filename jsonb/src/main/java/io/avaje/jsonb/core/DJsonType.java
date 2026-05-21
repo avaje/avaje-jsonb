@@ -168,6 +168,7 @@ class DJsonType<T> implements JsonType<T> {
     try (JsonReader reader = jsonb.reader(content)) {
       return adapter.fromJson(reader);
     }
+    close(content);
   }
 
   @Override
@@ -175,5 +176,6 @@ class DJsonType<T> implements JsonType<T> {
     try (JsonReader reader = jsonb.reader(inputStream)) {
       return adapter.fromJson(reader);
     }
+    close(inputStream);
   }
 }
