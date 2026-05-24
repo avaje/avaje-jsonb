@@ -928,7 +928,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean isNullValue() {
-    if (last == 'n') {
+    if (currentToken() == 'n') {
       if (currentIndex + 2 < length
         && buffer[currentIndex] == 'u'
         && buffer[currentIndex + 1] == 'l'
@@ -946,7 +946,7 @@ class JParser implements JsonParser {
    * Checks if 'true' value is at current position.
    */
   private boolean wasTrue() {
-    if (last == 't') {
+    if (currentToken() == 't') {
       if (currentIndex + 2 < length
         && buffer[currentIndex] == 'r'
         && buffer[currentIndex + 1] == 'u'
@@ -964,7 +964,7 @@ class JParser implements JsonParser {
    * Checks if 'false' value is at current position.
    */
   private boolean wasFalse() {
-    if (last == 'f') {
+    if (currentToken() == 'f') {
       if (currentIndex + 3 < length
         && buffer[currentIndex] == 'a'
         && buffer[currentIndex + 1] == 'l'
