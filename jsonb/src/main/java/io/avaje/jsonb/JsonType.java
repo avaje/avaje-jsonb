@@ -3,8 +3,12 @@ package io.avaje.jsonb;
 import io.avaje.json.JsonReader;
 import io.avaje.json.mapper.JsonMapper;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +22,7 @@ import java.util.stream.Stream;
  *
  * <h4>fromJson</h4>
  * <p>
- * Read json content from: String, byte[], Reader, InputStream, JsonReader
+ * Read json content from: String, byte[], Reader, InputStream, File, JsonReader
  * </p>
  * <pre>{@code
  *
@@ -30,7 +34,7 @@ import java.util.stream.Stream;
  *
  * <h4>toJson</h4>
  * <p>
- * Write json content to: String, byte[], Writer, OutputStream, JsonWriter
+ * Write json content to: String, byte[], Writer, OutputStream, File, JsonWriter
  * </p>
  * <pre>{@code
  *
@@ -58,7 +62,7 @@ public interface JsonType<T> extends JsonView<T>, JsonMapper.Type<T> {
    *   // include billAddress which is a nested type
    *   (id, name, billingAddress(street, suburb))
    *
-   *   // include billAddress with all it's properties
+   *   // include billAddress with all its properties
    *   (id, name, billingAddress(*))
    *
    *   (id, name, billingAddress(street, suburb), shippingAddress(*), contacts(email,lastName, firstName))
@@ -101,7 +105,7 @@ public interface JsonType<T> extends JsonView<T>, JsonMapper.Type<T> {
   /**
    * Support a stream of beans writing as new line delimited json (application/x-json-stream).
    * <p>
-   * This type can read content that is either new lime delimited or in array form.
+   * This type can read content that is either newline delimited or in array form.
    *
    * @return The stream type for this base JsonType.
    */
@@ -123,29 +127,40 @@ public interface JsonType<T> extends JsonView<T>, JsonMapper.Type<T> {
   JsonType<Optional<T>> optional();
 
   /**
-   * Read the return the value from the reader.
+   * Read and return the value from the reader.
    */
   T fromJson(JsonReader reader);
 
   /**
-   * Read the return the value from the json content.
+   * Read and return the value from the json content.
    */
   T fromJson(String content);
 
   /**
-   * Read the return the value from the json content.
+   * Read and return the value from the json content.
    */
   T fromJson(byte[] content);
 
   /**
-   * Read the return the value from the reader.
+   * Read and return the value from the reader.
    */
   T fromJson(Reader reader);
 
   /**
-   * Read the return the value from the inputStream.
+   * Read and return the value from the inputStream.
    */
   T fromJson(InputStream inputStream);
+
+  /**
+   * Read and return the value from the file.
+   */
+  default T fromJson(File file) {
+    try (InputStream inputStream = new FileInputStream(file)) {
+      return fromJson(inputStream);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
 
   /**
    * Convert from 'object form' expecting {@code Map<String,Object>} for

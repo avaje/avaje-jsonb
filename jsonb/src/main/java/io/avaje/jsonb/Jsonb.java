@@ -1,5 +1,6 @@
 package io.avaje.jsonb;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -157,6 +158,15 @@ public interface Jsonb {
    * This is a convenience method for {@code jsonb.type(Object.class).toJsonBytes(any, outputStream) }
    */
   void toJson(Object any, OutputStream outputStream);
+
+  /**
+   * Write to the given file.
+   * <p>
+   * This is a convenience method for {@code jsonb.type(Object.class).toJson(any, file) }
+   */
+  default void toJson(Object any, File file) {
+    type(Object.class).toJson(any, file);
+  }
 
   /**
    * Write to the given writer.

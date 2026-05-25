@@ -6,6 +6,7 @@ import io.avaje.jsonb.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -66,6 +67,21 @@ class CustomerTest {
     jsonb.toJson(customer,  baos);
     String asString = baos.toString(StandardCharsets.UTF_8);
     assertThat(asString).isEqualTo("{\"id\":42,\"name\":\"rob\",\"status\":\"ACTIVE\"}");
+  }
+
+  @Test
+  void anyToFile() throws Exception {
+    var customer = new Customer().id(42L).name("rob").status(Customer.Status.ACTIVE);
+    File file = File.createTempFile("customer", ".json");
+    try {
+      jsonb.toJson(customer, file);
+      Customer fromFile = jsonb.type(Customer.class).fromJson(file);
+      assertThat(fromFile.id()).isEqualTo(42L);
+      assertThat(fromFile.name()).isEqualTo("rob");
+      assertThat(fromFile.status()).isEqualTo(Customer.Status.ACTIVE);
+    } finally {
+      file.delete();
+    }
   }
 
   @Test
@@ -134,6 +150,23 @@ class CustomerTest {
     customer.contacts().add(new Contact(UUID.randomUUID(), "fo", "nar"));
     customer.contacts().add(new Contact(UUID.randomUUID(), "ba", "zar"));
     return customer;
+  }
+
+  @Test
+  void toJson_file() throws Exception {
+    Customer customer = customer();
+    JsonType<Customer> customerType = jsonb.type(Customer.class);
+    File file = File.createTempFile("customer", ".json");
+    try {
+      customerType.toJson(customer, file);
+      Customer fromFile = customerType.fromJson(file);
+      assertThat(fromFile.id()).isEqualTo(customer.id());
+      assertThat(fromFile.name()).isEqualTo(customer.name());
+      assertThat(fromFile.status()).isEqualTo(customer.status());
+      assertThat(fromFile.whenCreated()).isEqualTo(customer.whenCreated());
+    } finally {
+      file.delete();
+    }
   }
 
   @Test

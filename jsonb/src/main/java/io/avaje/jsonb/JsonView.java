@@ -3,7 +3,11 @@ package io.avaje.jsonb;
 import io.avaje.json.stream.JsonOutput;
 import io.avaje.json.JsonWriter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 
 /**
@@ -61,6 +65,17 @@ public interface JsonView<T> {
    * Write to the given outputStream.
    */
   void toJson(T value, OutputStream outputStream);
+
+  /**
+   * Write to the given file.
+   */
+  default void toJson(T value, File file) {
+    try (FileOutputStream outputStream = new FileOutputStream(file)) {
+      toJson(value, outputStream);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
 
   /**
    * Write to the given output.
