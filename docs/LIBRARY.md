@@ -303,7 +303,7 @@ try (JsonReader reader = jsonb.reader(arrayJson)) {
 
 // Write streaming
 try (JsonWriter writer = jsonb.writer(outputStream)) {
-  writer.beginArray();
+  writer.beginArray(users.length);
   for (User user : users) {
     userType.toJson(user, writer);
   }

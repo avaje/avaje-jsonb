@@ -31,7 +31,7 @@ class CustomEntryJsonAdapter<K, V> implements JsonAdapter<Entry<K, V>> {
   @Override
   public void toJson(JsonWriter writer, Entry<K, V> value) {
 
-    writer.beginObject(names);
+    writer.beginObject(names, 2);
     writer.name(0);
     generic1.toJson(writer, value.getKey());
     writer.name(1);

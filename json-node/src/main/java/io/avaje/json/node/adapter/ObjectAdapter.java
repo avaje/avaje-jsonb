@@ -23,7 +23,7 @@ final class ObjectAdapter implements JsonAdapter<JsonObject> {
 
   @Override
   public void toJson(JsonWriter writer, JsonObject value) {
-    writer.beginObject();
+    writer.beginObject(value.size());
     for (var entry : value.elements().entrySet()) {
       if (entry.getKey() == null) {
         throw new JsonDataException("Map key is null at " + writer.path());
