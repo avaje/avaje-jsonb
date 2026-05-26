@@ -3,12 +3,12 @@ package io.avaje.jsonb;
 import io.avaje.json.JsonReader;
 import io.avaje.json.mapper.JsonMapper;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  *
  * <h4>fromJson</h4>
  * <p>
- * Read json content from: String, byte[], Reader, InputStream, File, JsonReader
+ * Read json content from: String, byte[], Reader, InputStream, Path, JsonReader
  * </p>
  * <pre>{@code
  *
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  *
  * <h4>toJson</h4>
  * <p>
- * Write json content to: String, byte[], Writer, OutputStream, File, JsonWriter
+ * Write json content to: String, byte[], Writer, OutputStream, Path, JsonWriter
  * </p>
  * <pre>{@code
  *
@@ -152,10 +152,10 @@ public interface JsonType<T> extends JsonView<T>, JsonMapper.Type<T> {
   T fromJson(InputStream inputStream);
 
   /**
-   * Read and return the value from the file.
+   * Read and return the value from the path.
    */
-  default T fromJson(File file) {
-    try (InputStream inputStream = new FileInputStream(file)) {
+  default T fromJson(Path path) {
+    try (InputStream inputStream = Files.newInputStream(path)) {
       return fromJson(inputStream);
     } catch (IOException e) {
       throw new UncheckedIOException(e);

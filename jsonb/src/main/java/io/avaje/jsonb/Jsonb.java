@@ -1,11 +1,11 @@
 package io.avaje.jsonb;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.function.Supplier;
 
 import io.avaje.json.JsonAdapter;
@@ -160,12 +160,12 @@ public interface Jsonb {
   void toJson(Object any, OutputStream outputStream);
 
   /**
-   * Write to the given file.
+   * Write to the given path.
    * <p>
-   * This is a convenience method for {@code jsonb.type(Object.class).toJson(any, file) }
+   * This is a convenience method for {@code jsonb.type(Object.class).toJson(any, path) }
    */
-  default void toJson(Object any, File file) {
-    type(Object.class).toJson(any, file);
+  default void toJson(Object any, Path path) {
+    type(Object.class).toJson(any, path);
   }
 
   /**

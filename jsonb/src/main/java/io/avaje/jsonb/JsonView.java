@@ -3,12 +3,12 @@ package io.avaje.jsonb;
 import io.avaje.json.stream.JsonOutput;
 import io.avaje.json.JsonWriter;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Represents a subset of properties that can be written as json.
@@ -67,10 +67,10 @@ public interface JsonView<T> {
   void toJson(T value, OutputStream outputStream);
 
   /**
-   * Write to the given file.
+   * Write to the given path.
    */
-  default void toJson(T value, File file) {
-    try (FileOutputStream outputStream = new FileOutputStream(file)) {
+  default void toJson(T value, Path path) {
+    try (OutputStream outputStream = Files.newOutputStream(path)) {
       toJson(value, outputStream);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
