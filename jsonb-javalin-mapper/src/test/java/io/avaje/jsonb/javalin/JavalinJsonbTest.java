@@ -102,7 +102,7 @@ public class JavalinJsonbTest {
   @DisplayName("JavalinJsonb properly handles json stream")
   void stream() {
     Javalin app = appWithJsonb().start(0);
-    app.unsafe.routes.get("/", context -> context.jsonStream(Stream.of("1")));
+    app.unsafe.routes.get("/", context -> context.jsonStream(new String[] {"1"}));
     assertThat(getBody(app, "/")).isEqualTo("[\"1\"]");
     app.stop();
   }
