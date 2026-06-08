@@ -266,3 +266,19 @@ When using Spring Web, you can use the following dependency to use avaje-jsonb f
 </dependency>
 ```
 
+### Optional support for Javalin
+When using Javalin, you can use the following dependency to use avaje-jsonb for HTTP serialization:
+```xml
+<dependency>
+  <groupId>io.avaje</groupId>
+  <artifactId>avaje-jsonb-javalin-mapper</artifactId>
+  <version>${avaje-jsonb-version}</version>
+</dependency>
+```
+
+An instance of `JavalinJsonb` will need passed to the Javalin configuration to enable the integration.
+```java
+Javalin app = Javalin.create(config -> {
+  config.jsonMapper(new JavalinJsonb());
+});
+```
