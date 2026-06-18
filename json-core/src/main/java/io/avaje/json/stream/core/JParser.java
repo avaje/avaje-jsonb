@@ -21,13 +21,6 @@ import java.util.Formatter;
  */
 class JParser implements JsonParser {
 
-  enum ErrorInfo {
-    WITH_STACK_TRACE,
-    DESCRIPTION_AND_POSITION,
-    DESCRIPTION_ONLY,
-    MINIMAL
-  }
-
   enum DoublePrecision {
     EXACT(0),
     HIGH(1),
@@ -89,7 +82,6 @@ class JParser implements JsonParser {
   private final ArrayDeque<JsonNames> nameStack = new ArrayDeque<>();
   private JsonNames currentNames;
 
-  final ErrorInfo errorInfo;
   final DoublePrecision doublePrecision;
   final int doubleLengthLimit;
   final UnknownNumberParsing unknownNumbers;
@@ -100,7 +92,6 @@ class JParser implements JsonParser {
     final char[] tmp,
     final byte[] buffer,
     final int length,
-    final ErrorInfo errorInfo,
     final DoublePrecision doublePrecision,
     final UnknownNumberParsing unknownNumbers,
     final int maxNumberDigits,
@@ -110,7 +101,6 @@ class JParser implements JsonParser {
     this.length = length;
     this.bufferLenWithExtraSpace = buffer.length - 38; // maximum padding is for uuid
     this.chars = tmp;
-    this.errorInfo = errorInfo;
     this.doublePrecision = doublePrecision;
     this.unknownNumbers = unknownNumbers;
     this.maxNumberDigits = maxNumberDigits;
@@ -1073,7 +1063,6 @@ class JParser implements JsonParser {
     error.append(description);
     error.append(", instead found '");
     error.append((char) last).append("'");
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(formatErrorMessage(), false);
     error.append(" ");
     positionDescription(0, error);
     return new JsonDataException(errorMessage());
@@ -1084,9 +1073,6 @@ class JParser implements JsonParser {
   }
 
   final JsonDataException newParseErrorAt(final String description, final int offset) {
-    if (errorInfo == ErrorInfo.MINIMAL || errorInfo == ErrorInfo.DESCRIPTION_ONLY) {
-      return new JsonDataException(description);
-    }
     error.setLength(0);
     error.append(description);
     error.append(" ");
@@ -1096,7 +1082,6 @@ class JParser implements JsonParser {
 
   final JsonDataException newParseErrorAt(final String description, final int offset, final Exception cause) {
     if (cause == null) throw new IllegalArgumentException("cause can't be null");
-    if (errorInfo == ErrorInfo.MINIMAL) return new JsonDataException(description, cause);
     error.setLength(0);
     final String msg = cause.getMessage();
     if (msg != null && msg.length() > 0) {
@@ -1107,17 +1092,14 @@ class JParser implements JsonParser {
       error.append(" ");
     }
     error.append(description);
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return new JsonDataException(formatErrorMessage(), cause);
     error.append(" ");
     positionDescription(offset, error);
     return new JsonDataException(errorMessage());
   }
 
   final JsonDataException newParseErrorFormat(final String description, final int offset, final String extraFormat, Object... args) {
-    if (errorInfo == ErrorInfo.MINIMAL) return new JsonDataException(description);
     error.setLength(0);
     errorFormatter.format(extraFormat, args);
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(formatErrorMessage(), false);
     error.append(" ");
     positionDescription(offset, error);
     return new JsonDataException(errorMessage());
@@ -1128,14 +1110,12 @@ class JParser implements JsonParser {
   }
 
   final JsonDataException newParseErrorWith(String description, int offset, String extra, Object extraArgument, String extraSuffix) {
-    if (errorInfo == ErrorInfo.MINIMAL) return new JsonDataException(description);
     error.setLength(0);
     error.append(extra);
     if (extraArgument != null) {
       error.append(": '").append(extraArgument).append("'");
     }
     error.append(extraSuffix);
-    //if (errorInfo == ErrorInfo.DESCRIPTION_ONLY) return ParsingException.create(formatErrorMessage(), false);
     error.append(" ");
     positionDescription(offset, error);
     return new JsonDataException(errorMessage());

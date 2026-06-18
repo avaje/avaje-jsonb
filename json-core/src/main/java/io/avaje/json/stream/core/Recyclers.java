@@ -28,7 +28,6 @@ final class Recyclers {
         ch,
         by,
         0,
-        JParser.ErrorInfo.MINIMAL,
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
         PARSER_MAX_NUMBER_DIGITS,
