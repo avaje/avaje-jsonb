@@ -187,6 +187,7 @@ public class Main {
 | Handle polymorphic JSON | Intermediate | [guides/polymorphic-types.md](guides/polymorphic-types.md) |
 | Write custom adapters | Intermediate | [guides/custom-adapters.md](guides/custom-adapters.md) |
 | Stream large JSON | Advanced | [guides/streaming.md](guides/streaming.md) |
+| Tune buffer sizes / parser limits | Advanced | [guides/configuration.md](guides/configuration.md) |
 | Build native images | Advanced | [guides/native-image.md](guides/native-image.md) |
 
 **Full Guides Index**: See [guides/README.md](guides/README.md)
@@ -390,7 +391,9 @@ void testUserDeserialization() {
 
 ## Configuration
 
-Jsonb is configured through `Jsonb.builder()`:
+### Jsonb Builder
+
+Runtime behaviour is configured through `Jsonb.builder()`:
 
 ```java
 Jsonb configured = Jsonb.builder()
@@ -401,6 +404,26 @@ Jsonb configured = Jsonb.builder()
 // Or use singleton defaults
 Jsonb jsonb = Jsonb.instance();
 ```
+
+### Parser & Generator Tuning
+
+Buffer sizes and parsing limits are set via system properties or environment
+variables at startup — no code changes required. Environment variables are
+particularly useful for GraalVM native images where `JAVA_TOOL_OPTIONS` is not
+supported.
+
+| Setting | ENV Var | Default |
+|---------|---------|---------|
+| Generator write buffer | `JSONB_GENERATOR_BUFFER_SIZE` | `4096` |
+| Parser byte buffer | `JSONB_PARSER_BUFFER_SIZE` | `4096` |
+| Parser char buffer | `JSONB_PARSER_CHAR_BUFFER_SIZE` | `4096` |
+| Max number digits | `JSONB_PARSER_MAX_NUMBER_DIGITS` | `309` |
+| Max string buffer | `JSONB_PARSER_MAX_STRING_BUFFER` | `50000` |
+
+Each ENV var has a matching system property (e.g. `-Djsonb.parserMaxStringBuffer=100000`).
+System property takes priority over ENV var.
+
+**See**: [guides/configuration.md](guides/configuration.md)
 
 ## Troubleshooting
 
@@ -435,6 +458,7 @@ Jsonb jsonb = Jsonb.instance();
 - ✅ No reflection used in core library
 - ✅ Minimal native image size overhead (~200KB)
 - ✅ Instant startup, full performance
+- ✅ Runtime tuning via ENV vars (e.g. `JSONB_PARSER_MAX_STRING_BUFFER`) — `JAVA_TOOL_OPTIONS` is not supported in native images so ENV vars are the recommended approach
 
 ### Native Compilation
 
@@ -442,7 +466,7 @@ Jsonb jsonb = Jsonb.instance();
 mvn clean package -Pnative
 ```
 
-**See**: [guides/native-image.md](guides/native-image.md)
+**See**: [guides/native-image.md](guides/native-image.md), [guides/configuration.md](guides/configuration.md)
 
 ## Design Philosophy
 
