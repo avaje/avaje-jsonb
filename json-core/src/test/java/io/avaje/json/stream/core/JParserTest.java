@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JParserTest {
 
-  final JParser.ErrorInfo errorInfo = JParser.ErrorInfo.MINIMAL;
   final JParser.DoublePrecision doublePrecision = JParser.DoublePrecision.HIGH;
   final JParser.UnknownNumberParsing unknownNumbers = JParser.UnknownNumberParsing.BIGDECIMAL;
   final int maxNumberDigits = 100;
@@ -131,6 +130,6 @@ class JParserTest {
   private JParser newParser(int len) {
     final char[] tmp = new char[len];
     final byte[] buffer = new byte[len];
-    return new JParser(tmp, buffer, buffer.length, errorInfo, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer);
+    return new JParser(tmp, buffer, buffer.length, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer);
   }
 }

@@ -21,7 +21,7 @@ class JsonReadAdapterTest {
   void via_jreader() {
     char[] ch = new char[1000];
     byte[] by = new byte[1000];
-    JParser jr = new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
+    JParser jr = new JParser(ch, by, 0, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
 
     byte[] bytes = jsonStringInput.getBytes(StandardCharsets.UTF_8);
     jr.process(bytes, bytes.length);
@@ -97,7 +97,7 @@ class JsonReadAdapterTest {
   void readString_millionChars_withLargeLimit() {
     char[] ch = new char[4096];
     byte[] by = new byte[4096];
-    JParser jr = new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 2_000_000);
+    JParser jr = new JParser(ch, by, 0, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 2_000_000);
 
     String bigVal = "a".repeat(1_000_000);
     byte[] bytes = ("{\"content\":\"" + bigVal + "\"}").getBytes(StandardCharsets.UTF_8);
@@ -115,7 +115,7 @@ class JsonReadAdapterTest {
   void readString_millionChars_defaultLimit_throws() {
     char[] ch = new char[4096];
     byte[] by = new byte[4096];
-    JParser jr = new JParser(ch, by, 0, JParser.ErrorInfo.MINIMAL, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
+    JParser jr = new JParser(ch, by, 0, JParser.DoublePrecision.DEFAULT, JParser.UnknownNumberParsing.BIGDECIMAL, 100, 50_000);
 
     String bigVal = "a".repeat(1_000_000);
     byte[] bytes = ("{\"content\":\"" + bigVal + "\"}").getBytes(StandardCharsets.UTF_8);
