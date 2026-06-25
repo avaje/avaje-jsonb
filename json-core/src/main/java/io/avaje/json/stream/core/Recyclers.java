@@ -11,11 +11,19 @@ final class Recyclers {
 
   private Recyclers() {}
 
-  static final int GENERATOR_BUFFER_SIZE = Integer.getInteger("jsonb.generatorBufferSize", 4096);
-  static final int PARSER_BUFFER_SIZE = Integer.getInteger("jsonb.parserBufferSize", 4096);
-  static final int PARSER_CHAR_BUFFER_SIZE = Integer.getInteger("jsonb.parserCharBufferSize", 4096);
-  static final int PARSER_MAX_NUMBER_DIGITS = Integer.getInteger("jsonb.parserMaxNumberDigits", 309);
-  static final int PARSER_MAX_STRING_BUFFER = Integer.getInteger("jsonb.parserMaxStringBuffer", 50_000);
+  static final int GENERATOR_BUFFER_SIZE = intSetting("jsonb.generatorBufferSize", "JSONB_GENERATOR_BUFFER_SIZE", 4096);
+  static final int PARSER_BUFFER_SIZE = intSetting("jsonb.parserBufferSize", "JSONB_PARSER_BUFFER_SIZE", 4096);
+  static final int PARSER_CHAR_BUFFER_SIZE = intSetting("jsonb.parserCharBufferSize", "JSONB_PARSER_CHAR_BUFFER_SIZE", 4096);
+  static final int PARSER_MAX_NUMBER_DIGITS = intSetting("jsonb.parserMaxNumberDigits", "JSONB_PARSER_MAX_NUMBER_DIGITS", 309);
+  static final int PARSER_MAX_STRING_BUFFER = intSetting("jsonb.parserMaxStringBuffer", "JSONB_PARSER_MAX_STRING_BUFFER", 50_000);
+
+  static int intSetting(String sysProp, String envVar, int defaultValue) {
+    String val = System.getProperty(sysProp);
+    if (val != null) return Integer.parseInt(val);
+    val = System.getenv(envVar);
+    if (val != null) return Integer.parseInt(val);
+    return defaultValue;
+  }
 
   private static JGenerator createGenerator() {
     return new JGenerator(GENERATOR_BUFFER_SIZE);
