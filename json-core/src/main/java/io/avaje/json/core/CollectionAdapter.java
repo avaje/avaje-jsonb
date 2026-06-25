@@ -91,7 +91,7 @@ abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuil
       writer.emptyArray();
       return;
     }
-    writer.beginArray();
+    writer.beginArray(value.size());
     for (T element : value) {
       elementAdapter.toJson(writer, element);
     }

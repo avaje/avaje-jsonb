@@ -376,10 +376,10 @@ final class ClassReader implements BeanReader {
       writer.eol();
       writer.append("  @Override").eol();
       writer.append("  public void toJson(JsonWriter writer, %s %s) {", shortName, varName).eol();
-      writer.append("    writer.beginObject(names);").eol();
       if (hasSubTypes) {
         writeToJsonForSubtypes(writer, varName);
       } else {
+        writer.append("    writer.beginObject(names, %d);", allFields.size()).eol();
         writeToJsonForType(writer, varName, "    ", null);
       }
       writer.append("    writer.endObject();").eol();
@@ -403,6 +403,13 @@ final class ClassReader implements BeanReader {
           writer.append("    %s (%s instanceof %s) {", elseIf, varName, subTypeShort).eol();
           writer.append("      %s sub = (%s) %s;", subTypeShort, subTypeShort, varName).eol();
         }
+        writer.append(
+          "    writer.beginObject(names, %d);",
+          1 + allFields.stream()
+            .map(field -> field.subTypes())
+            .filter(subTypes -> subTypes.isEmpty() || subTypes.containsKey(type))
+            .count()
+        ).eol();
         writer.append("      writer.name(0);").eol();
         writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
         writeToJsonForType(writer, "sub", "      ", subType);

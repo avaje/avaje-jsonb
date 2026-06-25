@@ -41,7 +41,7 @@ final class MapAdapter<V> implements JsonAdapter<Map<String, V>> {
 
   @Override
   public void toJson(JsonWriter writer, Map<String, V> map) {
-    writer.beginObject();
+    writer.beginObject(map.size());
     for (var entry : map.entrySet()) {
       if (entry.getKey() == null) {
         throw new JsonDataException("Map key is null at " + writer.path());

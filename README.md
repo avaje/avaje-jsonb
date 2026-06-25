@@ -174,8 +174,7 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
 
   @Override
   public void toJson(JsonWriter writer, Address address) {
-    writer.beginObject(names);
-    writer.names(names);
+    writer.beginObject(names, 3);
     writer.name(0);
     stringJsonAdapter.toJson(writer, address.getStreet());
     writer.name(1);
