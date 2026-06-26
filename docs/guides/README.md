@@ -14,3 +14,4 @@ Step-by-step guides for avaje-jsonb JSON library.
 - [Polymorphic Types](polymorphic-types.md) - Handle polymorphic JSON
 - [File Chaining](file-chaining.md) - Chain JSON operations
 - [Testing](testing.md) - Test JSON serialization
+- [Configuration & Tuning](configuration.md) - Buffer sizes, parser limits, ENV vars
