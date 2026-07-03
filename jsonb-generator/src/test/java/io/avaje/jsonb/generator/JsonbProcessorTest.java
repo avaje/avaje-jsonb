@@ -62,7 +62,11 @@ class JsonbProcessorTest {
             new PrintWriter(System.out),
             null,
             null,
-            List.of("--release=" + Integer.getInteger("java.specification.version")),
+            List.of(
+              "--release=" + Integer.getInteger("java.specification.version"),
+              "-s",
+              "target/generated-test-sources/test-annotations"
+            ),
             null,
             files);
     task.setProcessors(List.of(new JsonbProcessor()));
@@ -83,7 +87,11 @@ class JsonbProcessorTest {
             new PrintWriter(System.out),
             null,
             null,
-            List.of("--release=" + Integer.getInteger("java.specification.version")),
+            List.of(
+              "--release=" + Integer.getInteger("java.specification.version"),
+              "-s",
+              "target/generated-test-sources/test-annotations"
+            ),
             null,
             files);
     task.setProcessors(List.of(new JsonbProcessor()));
