@@ -380,11 +380,19 @@ public final class JsonbProcessor extends AbstractProcessor {
     if (valueElements.contains(typeElement.toString())) {
       return;
     }
+    if (typeElement.getKind() == ElementKind.ENUM) {
+      logNote(typeElement, "Ignoring @Json on enum %s, built in enum support is used instead. Add @Json.Value if custom serialization is required.", typeElement.getSimpleName());
+      return;
+    }
     writeAdapter(typeElement, new ClassReader(typeElement, ""));
   }
 
   private void writeAdapterForType(TypeElement typeElement, Optional<String> adapterPackage) {
     if (valueElements.contains(typeElement.toString())) {
+      return;
+    }
+    if (typeElement.getKind() == ElementKind.ENUM) {
+      logNote(typeElement, "Ignoring @Json on enum %s, built in enum support is used instead. Add @Json.Value if custom serialization is required.", typeElement.getSimpleName());
       return;
     }
     writeAdapter(typeElement, new ClassReader(typeElement, "", adapterPackage));
