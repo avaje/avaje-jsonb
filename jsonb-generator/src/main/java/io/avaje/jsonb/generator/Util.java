@@ -59,6 +59,30 @@ final class Util {
     }
   }
 
+  /** Returns the type identifier up to and including the first class */
+  static String baseType(String fullType) {
+    final int p = fullType.lastIndexOf('.');
+    if (p == -1 || fullType.startsWith("java")) {
+      return fullType;
+    } else {
+      var result = "";
+      for (final String part : fullType.split("\\.")) {
+        result += (result.isEmpty() ? "" : ".") + part;
+        char firstChar = part.charAt(0);
+        if (Character.isUpperCase(firstChar)
+            || (!Character.isAlphabetic(firstChar) && Character.isJavaIdentifierStart(firstChar))) {
+          break;
+        }
+      }
+      // when in doubt, do the basic thing
+      if (result.isBlank()) {
+        return fullType;
+      }
+      return result;
+    }
+  }
+
+  /** Returns the type identifier starting from the first class */
   static String shortType(String fullType) {
     final int p = fullType.lastIndexOf('.');
     if (p == -1) {

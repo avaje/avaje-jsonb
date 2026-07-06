@@ -81,7 +81,7 @@ final class ClassReader implements BeanReader {
     this.methodProperties = typeReader.methodProperties();
     this.pkgPrivate = typeReader.isPkgPrivate();
 
-    subTypes.stream().map(TypeSubTypeMeta::type).forEach(importTypes::add);
+    subTypes.stream().map(TypeSubTypeMeta::baseType).forEach(importTypes::add);
 
     final var userTypeField = allFields.stream().filter(f -> f.propertyName().equals(typePropertyKey())).findAny();
     this.usesTypeProperty = userTypeField.isPresent();

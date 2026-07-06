@@ -13,6 +13,7 @@ final class TypeSubTypeMeta {
 
   private final String type;
   private String name;
+  private final String baseType;
   private final String shortType;
   private TypeElement typeElement;
   private boolean defaultPublicConstructor;
@@ -27,6 +28,7 @@ final class TypeSubTypeMeta {
   TypeSubTypeMeta(SubTypePrism prism) {
     type = prism.type().toString();
     name = Util.escapeQuotes(prism.name());
+    baseType = Util.baseType(type);
     shortType = Util.shortType(type);
   }
 
@@ -36,6 +38,10 @@ final class TypeSubTypeMeta {
 
   TypeElement element() {
     return typeElement;
+  }
+
+  String baseType() {
+    return baseType;
   }
 
   String type() {
@@ -105,7 +111,6 @@ final class TypeSubTypeMeta {
   private boolean isIncludeSetter(FieldReader field) {
     return field.includeFromJson() && !constructorFieldNames.contains(field.fieldName()) && field.includeForType(this);
   }
-
 
   private void writeFromJsonConstructor(Append writer, String varName, SubTypeRequest req) {
     writer.append("      %s _$%s = new %s(", shortType, varName, shortType);
