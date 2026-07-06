@@ -5,12 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -22,50 +17,50 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class JsonbProcessorTest {
 
-  @AfterEach
-  void deleteGeneratedFiles() throws IOException {
-    try {
-      Paths.get("io.avaje.jsonb.Jsonb$GeneratedComponent").toAbsolutePath().toFile().delete();
-      Files.walk(Paths.get("io").toAbsolutePath())
-          .sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .forEach(File::delete);
-    } catch (final Exception e) {
-    }
+  Iterable<JavaFileObject> walkSourceFiles(File source) throws IOException {
+    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    final StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, null);
+
+    manager.setLocation(StandardLocation.SOURCE_PATH, List.of(source));
+
+    final Set<Kind> fileKinds = Set.of(Kind.SOURCE);
+
+    return manager.list(StandardLocation.SOURCE_PATH, "", fileKinds, true);
+  }
+
+  CompilationTask generationTask(Iterable<JavaFileObject> files) {
+    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+    final CompilationTask task = compiler.getTask(
+        new PrintWriter(System.out),
+        null,
+        null,
+        List.of(
+            "--release=" + Integer.getInteger("java.specification.version"),
+            "-s",
+            "target/generated-test-sources/test-annotations"),
+        null,
+        files);
+    task.setProcessors(List.of(new JsonbProcessor()));
+
+    return task;
   }
 
   @Test
   void testGeneration() throws Exception {
-    final String source =
+    final File validSource =
         Paths.get("src/test/java/io/avaje/jsonb/generator/models/valid")
             .toAbsolutePath()
-            .toString();
+            .toFile();
 
-    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    final StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, null);
+    final Iterable<JavaFileObject> files = walkSourceFiles(validSource);
 
-    manager.setLocation(StandardLocation.SOURCE_PATH, List.of(new File(source)));
-
-    final Set<Kind> fileKinds = Set.of(Kind.SOURCE);
-
-    final Iterable<JavaFileObject> files =
-        manager.list(StandardLocation.SOURCE_PATH, "", fileKinds, true);
-
-    final CompilationTask task =
-        compiler.getTask(
-            new PrintWriter(System.out),
-            null,
-            null,
-            List.of("--release=" + Integer.getInteger("java.specification.version")),
-            null,
-            files);
-    task.setProcessors(List.of(new JsonbProcessor()));
+    final CompilationTask task = generationTask(files);
 
     assertThat(task.call()).isTrue();
   }
@@ -73,48 +68,17 @@ class JsonbProcessorTest {
   @Disabled
   @Test
   void testImportFail() throws Exception {
-
-    final Iterable<JavaFileObject> files = getInvalidSourceFile("InvalidImport");
-
-    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-
-    final CompilationTask task =
-        compiler.getTask(
-            new PrintWriter(System.out),
-            null,
-            null,
-            List.of("--release=" + Integer.getInteger("java.specification.version")),
-            null,
-            files);
-    task.setProcessors(List.of(new JsonbProcessor()));
-
-    assertThat(task.call()).isFalse();
-    Files.walk(Paths.get("java").toAbsolutePath())
-        .sorted(Comparator.reverseOrder())
-        .map(Path::toFile)
-        .forEach(File::delete);
-  }
-
-  private Iterable<JavaFileObject> getInvalidSourceFile(String name) throws Exception {
-    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    final StandardJavaFileManager files = compiler.getStandardFileManager(null, null, null);
-
-    files.setLocation(
-        StandardLocation.SOURCE_PATH,
-        List.of(
-            new File(
-                Paths.get("src/test/java/io/avaje/jsonb/generator/models/invalid")
+    final File invalidSource = Paths.get("src/test/java/io/avaje/jsonb/generator/models/invalid")
                     .toAbsolutePath()
-                    .toString())));
+                    .toFile();
 
-    final Set<Kind> fileKinds = Set.of(Kind.SOURCE);
-    final Iterable<JavaFileObject> jfos =
-        files.list(StandardLocation.SOURCE_PATH, "", fileKinds, true);
+    final Iterable<JavaFileObject> files = walkSourceFiles(invalidSource);
 
-    for (final JavaFileObject jfo : jfos) {
-      if (jfo.getName().contains(name)) return Set.of(jfo);
+    // Check each invalid file individually since they are fail-fast.
+    for (var file : files) {
+      final CompilationTask task = generationTask(List.of(file));
+
+      assertThat(task.call()).isFalse();
     }
-
-    return null;
   }
 }
