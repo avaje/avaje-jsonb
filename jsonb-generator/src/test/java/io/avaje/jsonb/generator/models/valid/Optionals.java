@@ -16,6 +16,8 @@ public class Optionals {
   OptionalLong longOp;
   String stringyString;
 
+  public Optional<String> publicOp = Optional.empty();
+
   public Optional<String> getOp() {
     return op;
   }

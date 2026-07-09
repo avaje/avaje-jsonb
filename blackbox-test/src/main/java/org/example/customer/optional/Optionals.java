@@ -16,6 +16,8 @@ public class Optionals {
   OptionalDouble doubleOp = OptionalDouble.empty();
   OptionalLong longOp = OptionalLong.empty();
 
+  public Optional<String> publicOp = Optional.empty();
+
   public Optional<String> getStringyString() {
     return stringyString;
   }
@@ -66,7 +68,7 @@ public class Optionals {
 
   @Override
   public int hashCode() {
-    return Objects.hash(doubleOp, intOp, longOp, stringyString);
+    return Objects.hash(doubleOp, intOp, longOp, stringyString, publicOp);
   }
 
   @Override
@@ -77,6 +79,7 @@ public class Optionals {
     return Objects.equals(doubleOp, other.doubleOp)
         && Objects.equals(intOp, other.intOp)
         && Objects.equals(longOp, other.longOp)
-        && Objects.equals(stringyString, other.stringyString);
+        && Objects.equals(stringyString, other.stringyString)
+        && Objects.equals(publicOp, other.publicOp);
   }
 }
