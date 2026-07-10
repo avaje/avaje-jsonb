@@ -344,6 +344,8 @@ final class FieldProperty {
       writer.append("%s    _$%s.%s(_val$%s);", prefix, varName, setter.getName(), fieldName + num).eol();
     } else if (setter != null) {
       writer.append("%s    if (_set$%s) _$%s.%s(_val$%s);", prefix, fieldName + num, varName, setter.getName(), fieldName + num).eol();
+    } else if (publicField && optional) {
+      writer.append("%s    _$%s.%s = _val$%s;", prefix, varName, fieldName, fieldName + num).eol();
     } else if (publicField) {
       writer.append("%s    if (_set$%s) _$%s.%s = _val$%s;", prefix, fieldName + num, varName, fieldName, fieldName + num).eol();
     }

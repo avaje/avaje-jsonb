@@ -2,6 +2,9 @@ package org.example.customer.optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+import java.util.OptionalInt;
+
 import org.junit.jupiter.api.Test;
 
 import io.avaje.jsonb.Jsonb;
@@ -52,6 +55,7 @@ class OptionalsTest {
     optionals.setIntOp(21);
     optionals.setDoubleOp(6.9);
     optionals.setLongOp(420);
+    optionals.publicOp = Optional.empty();
     return optionals;
   }
 
