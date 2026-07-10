@@ -41,7 +41,7 @@ final class TypeReader {
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
   private static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
   private static final Set<String> THROWABLE_INCLUDES = Set.of("getMessage", "getCause", "getStackTrace", "getSuppressed");
-  private static final Set<String> THROWABLE_FIELDS = Set.of("detailMessage", "suppressedExceptions", "stackTrace");
+  private static final Set<String> THROWABLE_FIELDS = Set.of("detailMessage", "cause", "suppressedExceptions", "stackTrace");
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
