@@ -1,6 +1,7 @@
 package io.avaje.jsonb.generator;
 
 import static io.avaje.jsonb.generator.APContext.jdkVersion;
+import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.previewEnabled;
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 import static java.util.stream.Collectors.toList;
@@ -73,6 +74,7 @@ final class ClassReader implements BeanReader {
     this.nonAccessibleField = typeReader.nonAccessibleField();
     this.hasSubTypes = typeReader.hasSubTypes();
     this.allFields = typeReader.allFields();
+    resolveAdapterNameCollisions();
     this.constructor = typeReader.constructor();
     this.optional = typeReader.hasOptional();
     this.isRecord = isRecord(beanType);
@@ -92,6 +94,29 @@ final class ClassReader implements BeanReader {
         .map(APContext::typeElement)
         .filter(e -> e.getKind() == ElementKind.ENUM)
         .isPresent();
+  }
+
+  private void resolveAdapterNameCollisions() {
+    final Map<String, FieldReader> firstSeen = new HashMap<>();
+    final Map<String, Integer> suffixCounter = new HashMap<>();
+    for (final FieldReader field : allFields) {
+      if (field.isRaw() || field.isUnmapped() || field.hasCustomSerializer()) {
+        continue;
+      }
+      final String key = field.adapterFieldName();
+      final FieldReader existing = firstSeen.putIfAbsent(key, field);
+      if (existing != null && !existing.fullType().equals(field.fullType())) {
+        if (!field.canUseQualifiedType()) {
+          logError(field.element(), "%s, field '%s' has a type whose simple name collides with "
+              + "another subtype's field of the same name, and cannot be automatically "
+              + "disambiguated because it is a generic/parameterized type. Rename one of the "
+              + "colliding types to avoid ambiguous generated code.", type, field.fieldName());
+          continue;
+        }
+        final int suffix = suffixCounter.merge(key, 1, Integer::sum) + 1;
+        field.useQualifiedType(String.valueOf(suffix));
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -248,7 +273,7 @@ final class ClassReader implements BeanReader {
     final Set<String> uniqueTypes = new HashSet<>();
     if (hasSubTypes) {
       writer.append("  private final JsonAdapter<String> stringJsonAdapter;").eol();
-      uniqueTypes.add("String");
+      uniqueTypes.add("stringJsonAdapter");
     }
     for (final FieldReader allField : allFields) {
       if (includeField(allField, uniqueTypes)) {
@@ -271,8 +296,7 @@ final class ClassReader implements BeanReader {
   }
 
   private static boolean includeFieldUniqueType(FieldReader allField, Set<String> uniqueTypes) {
-    return allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterFieldName())
-      || !allField.hasCustomSerializer() && uniqueTypes.add(allField.adapterShortType());
+    return uniqueTypes.add(allField.adapterFieldName());
   }
 
   @Override
@@ -284,7 +308,7 @@ final class ClassReader implements BeanReader {
     final Set<String> uniqueTypes = new HashSet<>();
     if (hasSubTypes) {
       writer.append("    this.stringJsonAdapter = jsonb.adapter(String.class);").eol();
-      uniqueTypes.add("String");
+      uniqueTypes.add("stringJsonAdapter");
     }
     for (final FieldReader allField : allFields) {
       if (includeField(allField, uniqueTypes)) {
@@ -292,7 +316,7 @@ final class ClassReader implements BeanReader {
           final var isCommonDiffType =
             allFields.stream()
               .filter(s -> s.fieldName().equals(allField.fieldName()))
-              .anyMatch(f -> !allField.adapterShortType().equals(f.adapterShortType()));
+              .anyMatch(f -> !allField.fullType().equals(f.fullType()));
           isCommonFieldMap.put(allField.fieldName(), isCommonDiffType);
         }
         allField.writeConstructor(writer);
@@ -533,12 +557,13 @@ final class ClassReader implements BeanReader {
 
         if (matchingField != null && !matchingField.includeFromJson()) {
           writer.append(defaultValueForType(matchingField.type().toString()));
-        } else {
-          var name = matchingField == null ? paramName : matchingField.fieldName();
+        } else if (matchingField != null) {
+          var name = matchingField.fieldName();
           // append increasing numbers to constructor params sharing names with other subtypes
           final var frequency = frequencyMap.compute(name, (k, v) -> v == null ? 0 : v + 1);
-          // assuming name matches field here?
           writer.append(constructorParamName(name + (frequency == 0 ? "" : frequency.toString())));
+        } else {
+          writer.append(defaultValueForType(methodParam.type()));
         }
       }
     }
@@ -552,7 +577,7 @@ final class ClassReader implements BeanReader {
     }
   }
 
-  private static String defaultValueForType(String rawType) {
+  static String defaultValueForType(String rawType) {
     switch (rawType) {
       case "boolean": {
         return "false";
@@ -583,6 +608,15 @@ final class ClassReader implements BeanReader {
     return AliasPrism.getOptionalOn(methodParam.element()).map(AliasPrism::value).stream()
       .flatMap(List::stream)
       .collect(Collectors.toSet());
+  }
+
+  FieldReader matchingConstructorField(MethodParam methodParam, TypeSubTypeMeta subType) {
+    final var aliases = aliasesForParam(methodParam);
+    return allFields.stream()
+      .filter(field -> subType == null || field.includeForType(subType))
+      .filter(field -> isMatchParam(field, methodParam.name(), aliases))
+      .findFirst()
+      .orElse(null);
   }
 
   private void writeFromJsonWithSubTypes(Append writer) {

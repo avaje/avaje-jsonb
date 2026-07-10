@@ -122,15 +122,19 @@ final class TypeSubTypeMeta {
           writer.append(", ");
         }
         final var param = params.get(i);
-        final String paramName = param.name();
-        constructorFieldNames.add(paramName);
-        var constructParamName = req.beanReader().constructorParamName(paramName);
-        if (constructParamName.startsWith("_val$") && req.isCommonField(paramName)) {
-          final var frequencySuffix = req.frequencySuffix(constructParamName);
-          constructParamName = constructParamName + frequencySuffix;
+        final var matchingField = req.beanReader().matchingConstructorField(param, this);
+        if (matchingField == null) {
+          writer.append(ClassReader.defaultValueForType(param.type()));
+        } else {
+          final String fieldName = matchingField.fieldName();
+          constructorFieldNames.add(fieldName);
+          var constructParamName = req.beanReader().constructorParamName(fieldName);
+          if (constructParamName.startsWith("_val$") && req.isCommonField(fieldName)) {
+            final var frequencySuffix = req.frequencySuffix(constructParamName);
+            constructParamName = constructParamName + frequencySuffix;
+          }
+          writer.append(constructParamName);
         }
-
-        writer.append(constructParamName); // assuming name matches field here?
       }
     }
     writer.append(");").eol();

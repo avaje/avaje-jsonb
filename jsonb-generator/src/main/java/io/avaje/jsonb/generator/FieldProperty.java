@@ -20,6 +20,7 @@ final class FieldProperty {
   private GenericType genericType;
   private String adapterFieldName;
   private String adapterShortType;
+  private boolean useQualifiedType;
   private String defaultValue;
   private final boolean optional;
   private boolean genericTypeParameter;
@@ -151,6 +152,16 @@ final class FieldProperty {
     return genericType;
   }
 
+  boolean canUseQualifiedType() {
+    return !raw && !unmapped && !GenericType.isGeneric(rawType);
+  }
+
+  void useQualifiedType(String suffix) {
+    this.useQualifiedType = true;
+    this.adapterShortType = "JsonAdapter<" + rawType + ">";
+    this.adapterFieldName = adapterFieldName + suffix;
+  }
+
   String shortType() {
     return genericType.shortType();
   }
@@ -177,6 +188,9 @@ final class FieldProperty {
   }
 
   String typeParamToObject() {
+    if (useQualifiedType) {
+      return rawType;
+    }
     var shortType = genericType.shortType();
     for (final String typeParam : genericTypeParams) {
       if (shortType.equals(typeParam)) {
@@ -214,7 +228,7 @@ final class FieldProperty {
     if (unmapped && unmappedJsonObject()) {
       importTypes.add("io.avaje.json.node.JsonNode");
     }
-    if (!raw) {
+    if (!raw && !useQualifiedType) {
       genericType.addImports(importTypes);
     }
   }
@@ -248,6 +262,9 @@ final class FieldProperty {
   }
 
   private String asTypeDeclaration() {
+    if (useQualifiedType) {
+      return rawType + ".class";
+    }
     final String asType = genericType.asTypeDeclaration().replace("? extends ", "");
     if (genericTypeParameter) {
       return genericTypeReplacement(asType, "param" + genericTypeParamPosition);
