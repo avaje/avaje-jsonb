@@ -41,7 +41,7 @@ final class TypeReader {
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
   private static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
   private static final Set<String> THROWABLE_INCLUDES = Set.of("getMessage", "getCause", "getStackTrace", "getSuppressed");
-  private static final Set<String> THROWABLE_FIELDS = Set.of("detailMessage", "suppressedExceptions", "stackTrace");
+  private static final Set<String> THROWABLE_FIELDS = Set.of("detailMessage", "cause", "suppressedExceptions", "stackTrace");
 
   private final List<MethodReader> publicConstructors = new ArrayList<>();
   private final List<FieldReader> allFields = new ArrayList<>();
@@ -184,14 +184,14 @@ final class TypeReader {
     if (currentSubType == null && type != baseType) {
       allFields.addAll(0, localFields);
       for (final FieldReader localField : localFields) {
-        allFieldMap.put(localField.fieldName() + localField.adapterShortType(), localField);
+        allFieldMap.put(localField.fieldName() + localField.fullType(), localField);
       }
     } else {
       for (final FieldReader localField : localFields) {
-        final FieldReader commonField = allFieldMap.get(localField.fieldName() + localField.adapterShortType());
+        final FieldReader commonField = allFieldMap.get(localField.fieldName() + localField.fullType());
         if (commonField == null) {
           allFields.add(localField);
-          allFieldMap.put(localField.fieldName() + localField.adapterShortType(), localField);
+          allFieldMap.put(localField.fieldName() + localField.fullType(), localField);
         } else {
           commonField.addSubType(currentSubType);
           if (localField.includeFromJson() && !commonField.includeFromJson()) {
@@ -547,7 +547,7 @@ final class TypeReader {
       }
       allFields.add(unmappedReader);
       allFieldMap.put(
-          unmappedReader.fieldName() + unmappedReader.adapterShortType(), unmappedReader);
+          unmappedReader.fieldName() + unmappedReader.fullType(), unmappedReader);
     }
     unmappedSetterMethods.clear();
     // Orphan property-setter: setter with @Json.Property but no matching backing field
@@ -584,7 +584,7 @@ final class TypeReader {
         orphanReader.addSubType(subType);
       }
       allFields.add(orphanReader);
-      allFieldMap.put(orphanReader.fieldName() + orphanReader.adapterShortType(), orphanReader);
+      allFieldMap.put(orphanReader.fieldName() + orphanReader.fullType(), orphanReader);
     }
     propertySetterMethods.clear();
     setterSubTypes.clear();

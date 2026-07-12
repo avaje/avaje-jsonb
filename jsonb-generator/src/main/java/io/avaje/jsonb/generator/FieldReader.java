@@ -255,6 +255,18 @@ final class FieldReader {
     return property.shortType();
   }
 
+  String fullType() {
+    return type().toString();
+  }
+
+  boolean canUseQualifiedType() {
+    return property.canUseQualifiedType();
+  }
+
+  void useQualifiedType(String suffix) {
+    property.useQualifiedType(suffix);
+  }
+
   void writeField(Append writer) {
     property.writeField(writer);
   }
