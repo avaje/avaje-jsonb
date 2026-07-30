@@ -31,6 +31,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -57,7 +58,10 @@ import io.avaje.prism.GenerateUtils;
   ValuePrism.PRISM_TYPE,
   "io.avaje.spi.ServiceProvider"
 })
+@SupportedOptions("jsonb.generateComponentFirstRound")
 public final class JsonbProcessor extends AbstractProcessor {
+
+  private static final String GENERATE_FIRST_ROUND = "jsonb.generateComponentFirstRound";
 
   private final Set<String> writtenTypes = new HashSet<>();
   private final Map<String, ComponentMetaData> privateMetaData = new HashMap<>();
@@ -70,6 +74,7 @@ public final class JsonbProcessor extends AbstractProcessor {
   private SimpleComponentWriter componentWriter;
   private boolean readModuleInfo;
   private boolean generateComponent;
+  private boolean generateFirstRound;
   private int rounds;
 
   @Override
@@ -82,6 +87,8 @@ public final class JsonbProcessor extends AbstractProcessor {
     super.init(processingEnv);
     ProcessingContext.init(processingEnv);
     this.componentWriter = new SimpleComponentWriter(metaData);
+    this.generateFirstRound =
+      APContext.getOption(GENERATE_FIRST_ROUND).map(Boolean::parseBoolean).orElse(false);
     // write a note in target so that other apts can know inject is running
     try {
       var file = APContext.getBuildResource("avaje-processors.txt");
@@ -120,7 +127,7 @@ public final class JsonbProcessor extends AbstractProcessor {
       }
       return false;
     }
-    generateComponent = rounds++ > 0;
+    generateComponent = generateFirstRound || rounds++ > 0;
     APContext.setProjectModuleElement(annotations, round);
     readModule();
     getJsonElements(round, ValuePrism.PRISM_TYPE).ifPresent(this::writeValueAdapters);
