@@ -282,7 +282,7 @@ final class CoreViewBuilder implements ViewBuilder {
     @Override
     public void write(JsonWriter writer, Object object) {
       try {
-        writer.beginObject();
+        writer.beginObject(elements.length);
         for (final Element element : elements) {
           element.write(writer, object);
         }
@@ -309,7 +309,7 @@ final class CoreViewBuilder implements ViewBuilder {
     public void write(JsonWriter writer, Object object) {
       try {
         writer.name(namePosition);
-        writer.beginObject();
+        writer.beginObject(elements.length);
         final Object nested = methodHandle.invoke(object);
         for (final Element element : elements) {
           element.write(writer, nested);
@@ -336,7 +336,7 @@ final class CoreViewBuilder implements ViewBuilder {
       if (collection.isEmpty()) {
         writer.emptyArray();
       } else {
-        writer.beginArray();
+        writer.beginArray(collection.size());
         for (final Object value : collection) {
           child.toJson(value, writer);
         }
@@ -366,7 +366,7 @@ final class CoreViewBuilder implements ViewBuilder {
         if (collection.isEmpty()) {
           writer.emptyArray();
         } else {
-          writer.beginArray();
+          writer.beginArray(collection.size());
           for (final Object value : collection) {
             child.toJson(value, writer);
           }

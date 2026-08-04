@@ -25,7 +25,7 @@ public class WrapMapJsonAdapter implements JsonAdapter<WrapMap> {
 
   @Override
   public void toJson(JsonWriter writer, WrapMap wrapMap) {
-    writer.beginObject();
+    writer.beginObject(wrapMap.size());
     wrapMap.forEach(
         (key, value) -> {
           writer.name(key);

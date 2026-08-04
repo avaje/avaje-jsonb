@@ -110,6 +110,14 @@ public interface JsonWriter extends Closeable, Flushable {
   void beginArray();
 
   /**
+   * Write array begin with a predetermined length.
+   * @param length Number of elements the array contains.
+   */
+  default void beginArray(int length) {
+    beginArray();
+  }
+
+  /**
    * Write array end.
    */
   void endArray();
@@ -125,9 +133,29 @@ public interface JsonWriter extends Closeable, Flushable {
   void beginObject();
 
   /**
-   * Write object being and use the already encoded property names.
+   * Write object begin with a predetermined size.
+   * @param size Number of fields this object contains.
    */
-  void beginObject(PropertyNames names);
+  default void beginObject(int size) {
+    beginObject();
+  }
+
+  /**
+   * Write object begin and use the already encoded property names.
+   * @param names Pre-encoded property names.
+   */
+  default void beginObject(PropertyNames names) {
+    beginObject();
+  }
+
+  /**
+   * Write object begin with a predetermined size and use the already encoded property names.
+   * @param names Pre-encoded property names.
+   * @param size  Number of fields this object contains.
+   */
+  default void beginObject(PropertyNames names, int size) {
+    beginObject(names);
+  }
 
   /**
    * Write object end.

@@ -27,9 +27,7 @@ public class MyCustomWideAdapter implements JsonAdapter<WideNamesRecord> {
 
   @Override
   public void toJson(JsonWriter writer, WideNamesRecord myRecord) {
-    writer.beginObject();
-    //writer.names(names);
-    //writer.name(0);
+    writer.beginObject(5);
     writer.name("firstNameProperty1");
     stringJsonAdapter.toJson(writer, myRecord.firstNameProperty1());
     writer.name("lastNameProperty2");
