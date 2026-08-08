@@ -3,8 +3,8 @@ package org.example.customer.optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
-import java.util.OptionalInt;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 import io.avaje.jsonb.Jsonb;
@@ -15,6 +15,7 @@ class OptionalsTest {
       "{\"stringyString\":\"StringyMcStringFace\",\"intOp\":21,\"doubleOp\":6.9,\"longOp\":420}";
 
   Jsonb jsonb = Jsonb.builder().serializeEmpty(false).build();
+  Jsonb jsonbNull = Jsonb.builder().serializeNulls(true).build();
 
   @Test
   void anyToJson() {
@@ -25,12 +26,24 @@ class OptionalsTest {
   }
 
   @Test
-  void nullJson() {
+  void emptyJson() {
     final var optionals = new Optionals();
 
     final var optionalsType = jsonb.type(Optionals.class);
     final String asJson = optionalsType.toJson(optionals);
     assertThat(asJson).isEqualTo("{}");
+
+    final Optionals from2 = optionalsType.fromJson(asJson);
+    assertThat(from2).isEqualTo(optionals);
+  }
+
+  @Test
+  void nullJson() {
+    final var optionals = new Optionals();
+
+    final var optionalsType = jsonbNull.type(Optionals.class);
+    final String asJson = optionalsType.toJson(optionals);
+    assertThat(asJson).isEqualTo("{\"stringyString\":null,\"intOp\":null,\"doubleOp\":null,\"longOp\":null,\"publicOp\":null}");
 
     final Optionals from2 = optionalsType.fromJson(asJson);
     assertThat(from2).isEqualTo(optionals);
@@ -48,7 +61,7 @@ class OptionalsTest {
     assertThat(from2).isEqualTo(optionals);
   }
 
-  private Optionals optionals() {
+  private @NonNull Optionals optionals() {
     final var optionals = new Optionals();
 
     optionals.setStringyString("StringyMcStringFace");
