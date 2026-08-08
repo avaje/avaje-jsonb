@@ -21,13 +21,13 @@ final class OptionalAdapters {
   static final AdapterFactory FACTORY = (type, jsonb) -> {
     if (Types.isGenericTypeOf(type, Optional.class)) {
       final Type[] args = Types.typeArguments(type);
-      return new OptionalAdapter<>(jsonb, args[0]).nullSafe();
+      return new OptionalAdapter<>(jsonb, args[0]);
     } else if (type == OptionalInt.class) {
-      return new OptionalIntAdapter().nullSafe();
+      return new OptionalIntAdapter();
     } else if (type == OptionalDouble.class) {
-      return new OptionalDoubleAdapter().nullSafe();
+      return new OptionalDoubleAdapter();
     } else if (type == OptionalLong.class) {
-      return new OptionalLongAdapter().nullSafe();
+      return new OptionalLongAdapter();
     }
     return null;
   };
@@ -37,7 +37,8 @@ final class OptionalAdapters {
     private final JsonAdapter<T> delegate;
 
     OptionalAdapter(Jsonb jsonb, Type param0) {
-      this.delegate = jsonb.adapter(param0);
+      JsonAdapter<T> base = jsonb.adapter(param0);
+      this.delegate = base.nullSafe();
     }
 
     @Override
@@ -69,7 +70,11 @@ final class OptionalAdapters {
   static final class OptionalIntAdapter implements JsonAdapter<OptionalInt> {
     @Override
     public OptionalInt fromJson(JsonReader reader) {
-      return OptionalInt.of(reader.readInt());
+      if (reader.isNullValue()) {
+        return OptionalInt.empty();
+      } else {
+        return OptionalInt.of(reader.readInt());
+      }
     }
 
     @Override
@@ -86,7 +91,11 @@ final class OptionalAdapters {
   static final class OptionalDoubleAdapter implements JsonAdapter<OptionalDouble> {
     @Override
     public OptionalDouble fromJson(JsonReader reader) {
-      return OptionalDouble.of(reader.readDouble());
+      if (reader.isNullValue()) {
+        return OptionalDouble.empty();
+      } else {
+        return OptionalDouble.of(reader.readDouble());
+      }
     }
 
     @Override
@@ -103,7 +112,11 @@ final class OptionalAdapters {
   static final class OptionalLongAdapter implements JsonAdapter<OptionalLong> {
     @Override
     public OptionalLong fromJson(JsonReader reader) {
-      return OptionalLong.of(reader.readLong());
+      if (reader.isNullValue()) {
+        return OptionalLong.empty();
+      } else {
+        return OptionalLong.of(reader.readLong());
+      }
     }
 
     @Override

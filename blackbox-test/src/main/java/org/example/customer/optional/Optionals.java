@@ -82,4 +82,19 @@ public class Optionals {
         && Objects.equals(stringyString, other.stringyString)
         && Objects.equals(publicOp, other.publicOp);
   }
+
+  @Override
+  public String toString() {
+    return "Optionals[doubleOp="
+        + doubleOp
+        + ", intOp="
+        + intOp
+        + ", longOp="
+        + longOp
+        + ", stringyString="
+        + stringyString
+        + ", publicOp="
+        + publicOp
+        + "]";
+  }
 }
