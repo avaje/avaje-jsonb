@@ -37,8 +37,7 @@ final class OptionalAdapters {
     private final JsonAdapter<T> delegate;
 
     OptionalAdapter(Jsonb jsonb, Type param0) {
-      JsonAdapter<T> base = jsonb.adapter(param0);
-      this.delegate = base.nullSafe();
+      this.delegate = jsonb.adapter(param0);
     }
 
     @Override
