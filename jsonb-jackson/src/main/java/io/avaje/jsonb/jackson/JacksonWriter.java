@@ -18,6 +18,7 @@ final class JacksonWriter implements JsonWriter {
   private final JsonGenerator generator;
   private boolean serializeEmpty;
   private boolean serializeNulls;
+  private boolean forceNext;
   private String deferredName;
   private final ArrayDeque<JacksonNames> nameStack = new ArrayDeque<>();
   private JacksonNames currentNames;
@@ -88,6 +89,11 @@ final class JacksonWriter implements JsonWriter {
   @Override
   public void serializeEmpty(boolean serializeEmpty) {
     this.serializeEmpty = serializeEmpty;
+  }
+
+  @Override
+  public void forceSerialize() {
+    this.forceNext = true;
   }
 
   @Override
@@ -177,11 +183,12 @@ final class JacksonWriter implements JsonWriter {
       generator.writeFieldName(deferredName);
       deferredName = null;
     }
+    forceNext = false;
   }
 
   @Override
   public void emptyArray() {
-    if (serializeEmpty) {
+    if (serializeEmpty || forceNext) {
       try {
         writeDeferredName();
         generator.writeStartArray();
@@ -199,7 +206,7 @@ final class JacksonWriter implements JsonWriter {
   @Override
   public void nullValue() {
     try {
-      if (serializeNulls) {
+      if (serializeNulls || forceNext) {
         writeDeferredName();
         generator.writeNull();
       } else if (namePos >= 0) {

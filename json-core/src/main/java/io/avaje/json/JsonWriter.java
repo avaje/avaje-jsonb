@@ -70,6 +70,11 @@ public interface JsonWriter extends Closeable, Flushable {
   boolean serializeEmpty();
 
   /**
+   * Forces serialization of the next value, regardless of it being null or empty
+   */
+  void forceSerialize();
+
+  /**
    * Set tp true to output json in pretty format.
    */
   void pretty(boolean pretty);

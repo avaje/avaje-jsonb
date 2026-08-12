@@ -43,6 +43,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
+  public final void forceSerialize() {
+    delegate.forceSerialize();
+  }
+
+  @Override
   public final void pretty(boolean pretty) {
     delegate.pretty(pretty);
   }

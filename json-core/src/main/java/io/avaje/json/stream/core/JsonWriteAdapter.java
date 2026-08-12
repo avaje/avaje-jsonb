@@ -15,6 +15,7 @@ final class JsonWriteAdapter implements JsonWriter {
   private final BufferRecycler recycler;
   private boolean serializeEmpty;
   private boolean serializeNulls;
+  private boolean forceNext;
   private String deferredName;
   private int namePos = -1;
 
@@ -69,6 +70,11 @@ final class JsonWriteAdapter implements JsonWriter {
   @Override
   public void serializeEmpty(boolean serializeEmpty) {
     this.serializeEmpty = serializeEmpty;
+  }
+
+  @Override
+  public void forceSerialize() {
+    this.forceNext = true;
   }
 
   @Override
@@ -127,11 +133,12 @@ final class JsonWriteAdapter implements JsonWriter {
       generator.writeName(deferredName);
       deferredName = null;
     }
+    forceNext = false;
   }
 
   @Override
   public void emptyArray() {
-    if (serializeEmpty) {
+    if (serializeEmpty || forceNext) {
       writeDeferredName();
       generator.startArray();
       generator.endArray();
@@ -144,7 +151,7 @@ final class JsonWriteAdapter implements JsonWriter {
 
   @Override
   public void nullValue() {
-    if (serializeNulls) {
+    if (serializeNulls || forceNext) {
       writeDeferredName();
       generator.writeNull();
     } else if (namePos >= 0) {
