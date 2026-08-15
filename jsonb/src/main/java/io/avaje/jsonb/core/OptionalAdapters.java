@@ -42,7 +42,11 @@ final class OptionalAdapters {
 
     @Override
     public void toJson(JsonWriter writer, Optional<T> value) {
-      delegate.toJson(writer, value.orElse(null));
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        delegate.toJson(writer, value.orElse(null));
+      }
     }
 
     @Override
@@ -78,7 +82,11 @@ final class OptionalAdapters {
 
     @Override
     public void toJson(JsonWriter writer, OptionalInt value) {
-      value.ifPresentOrElse(writer::value, writer::nullValue);
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        value.ifPresentOrElse(writer::value, writer::nullValue);
+      }
     }
 
     @Override
@@ -99,7 +107,11 @@ final class OptionalAdapters {
 
     @Override
     public void toJson(JsonWriter writer, OptionalDouble value) {
-      value.ifPresentOrElse(writer::value, writer::nullValue);
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        value.ifPresentOrElse(writer::value, writer::nullValue);
+      }
     }
 
     @Override
@@ -120,7 +132,11 @@ final class OptionalAdapters {
 
     @Override
     public void toJson(JsonWriter writer, OptionalLong value) {
-      value.ifPresentOrElse(writer::value, writer::nullValue);
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        value.ifPresentOrElse(writer::value, writer::nullValue);
+      }
     }
 
     @Override
