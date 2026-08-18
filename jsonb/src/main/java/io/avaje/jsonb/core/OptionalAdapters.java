@@ -21,13 +21,13 @@ final class OptionalAdapters {
   static final AdapterFactory FACTORY = (type, jsonb) -> {
     if (Types.isGenericTypeOf(type, Optional.class)) {
       final Type[] args = Types.typeArguments(type);
-      return new OptionalAdapter<>(jsonb, args[0]).nullSafe();
+      return new OptionalAdapter<>(jsonb, args[0]);
     } else if (type == OptionalInt.class) {
-      return new OptionalIntAdapter().nullSafe();
+      return new OptionalIntAdapter();
     } else if (type == OptionalDouble.class) {
-      return new OptionalDoubleAdapter().nullSafe();
+      return new OptionalDoubleAdapter();
     } else if (type == OptionalLong.class) {
-      return new OptionalLongAdapter().nullSafe();
+      return new OptionalLongAdapter();
     }
     return null;
   };
@@ -42,7 +42,11 @@ final class OptionalAdapters {
 
     @Override
     public void toJson(JsonWriter writer, Optional<T> value) {
-      delegate.toJson(writer, value.orElse(null));
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        delegate.toJson(writer, value.orElse(null));
+      }
     }
 
     @Override
@@ -69,12 +73,20 @@ final class OptionalAdapters {
   static final class OptionalIntAdapter implements JsonAdapter<OptionalInt> {
     @Override
     public OptionalInt fromJson(JsonReader reader) {
-      return OptionalInt.of(reader.readInt());
+      if (reader.isNullValue()) {
+        return OptionalInt.empty();
+      } else {
+        return OptionalInt.of(reader.readInt());
+      }
     }
 
     @Override
     public void toJson(JsonWriter writer, OptionalInt value) {
-      value.ifPresentOrElse(writer::value, writer::nullValue);
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        value.ifPresentOrElse(writer::value, writer::nullValue);
+      }
     }
 
     @Override
@@ -86,12 +98,20 @@ final class OptionalAdapters {
   static final class OptionalDoubleAdapter implements JsonAdapter<OptionalDouble> {
     @Override
     public OptionalDouble fromJson(JsonReader reader) {
-      return OptionalDouble.of(reader.readDouble());
+      if (reader.isNullValue()) {
+        return OptionalDouble.empty();
+      } else {
+        return OptionalDouble.of(reader.readDouble());
+      }
     }
 
     @Override
     public void toJson(JsonWriter writer, OptionalDouble value) {
-      value.ifPresentOrElse(writer::value, writer::nullValue);
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        value.ifPresentOrElse(writer::value, writer::nullValue);
+      }
     }
 
     @Override
@@ -103,12 +123,20 @@ final class OptionalAdapters {
   static final class OptionalLongAdapter implements JsonAdapter<OptionalLong> {
     @Override
     public OptionalLong fromJson(JsonReader reader) {
-      return OptionalLong.of(reader.readLong());
+      if (reader.isNullValue()) {
+        return OptionalLong.empty();
+      } else {
+        return OptionalLong.of(reader.readLong());
+      }
     }
 
     @Override
     public void toJson(JsonWriter writer, OptionalLong value) {
-      value.ifPresentOrElse(writer::value, writer::nullValue);
+      if (value == null) {
+        writer.nullValue();
+      } else {
+        value.ifPresentOrElse(writer::value, writer::nullValue);
+      }
     }
 
     @Override
