@@ -34,7 +34,7 @@ final class ArrayAdapter implements JsonAdapter<JsonArray> {
       writer.emptyArray();
       return;
     }
-    writer.beginArray();
+    writer.beginArray(value.size());
     for (JsonNode element : value.elements()) {
       elementAdapter.toJson(writer, element);
     }

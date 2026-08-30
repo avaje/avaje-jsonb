@@ -21,7 +21,7 @@ public class CustomClassJsonAdapter implements JsonAdapter<CustomClass> {
   @Override
   public void toJson(JsonWriter writer, CustomClass value) {
 
-    writer.beginObject(names);
+    writer.beginObject(names, 1);
     writer.name(0);
     stringJsonAdapter.toJson(writer, value.body());
     writer.endObject();

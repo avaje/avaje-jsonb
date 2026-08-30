@@ -48,7 +48,7 @@ public final class MyBasicJsonAdapter implements ViewBuilderAware, JsonAdapter<S
 
   @Override
   public void toJson(JsonWriter writer, StreamBasicTest.MyBasic myBasic) {
-    writer.beginObject(names);
+    writer.beginObject(names, 2);
     writer.name(0);
     pintJsonAdapter.toJson(writer, myBasic.id);
     writer.name(1);

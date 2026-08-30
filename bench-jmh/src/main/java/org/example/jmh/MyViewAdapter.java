@@ -58,7 +58,7 @@ public class MyViewAdapter implements JsonAdapter<SomePropertyData>, ViewBuilder
 
   @Override
   public void toJson(JsonWriter writer, SomePropertyData somePropertyData) {
-    writer.beginObject();
+    writer.beginObject(10);
     writer.name("firstNameProperty1");
     stringJsonAdapter.toJson(writer, somePropertyData.getProp1());
     writer.name("lastNameProperty2");

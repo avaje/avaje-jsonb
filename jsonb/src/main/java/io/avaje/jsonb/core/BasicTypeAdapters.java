@@ -218,7 +218,7 @@ final class BasicTypeAdapters {
         int end = Math.min(MAX_STACK, stackTrace.length);
         List<StackTraceElement> stackTraceElements = Arrays.asList(stackTrace).subList(0, end);
         writer.name("stackTrace");
-        writer.beginArray();
+        writer.beginArray(stackTraceElements.size());
         for (StackTraceElement element : stackTraceElements) {
           stackTraceElementAdapter.toJson(writer, element);
         }
@@ -233,7 +233,7 @@ final class BasicTypeAdapters {
       final Throwable[] suppressed = value.getSuppressed();
       if (suppressed != null && suppressed.length > 0) {
         writer.name("suppressed");
-        writer.beginArray();
+        writer.beginArray(suppressed.length);
         for (Throwable sup : suppressed) {
           toJson(writer, sup);
         }
@@ -360,7 +360,7 @@ final class BasicTypeAdapters {
     public void toJson(JsonWriter writer, Object value) {
       final Class<?> valueClass = value.getClass();
       if (valueClass == Object.class) {
-        writer.beginObject();
+        writer.beginObject(0);
         writer.endObject();
       } else if (value instanceof Optional) {
         final var op = (Optional<Object>) value;

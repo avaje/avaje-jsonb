@@ -62,7 +62,7 @@ final class ArrayAdapter implements JsonAdapter<Object> {
 
   @Override
   public void toJson(JsonWriter writer, Object value) {
-    writer.beginArray();
+    writer.beginArray(Array.getLength(value));
     for (int i = 0, size = Array.getLength(value); i < size; i++) {
       elementAdapter.toJson(writer, Array.get(value, i));
     }

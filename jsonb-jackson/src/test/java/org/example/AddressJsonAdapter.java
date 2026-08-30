@@ -41,7 +41,7 @@ public class AddressJsonAdapter implements ViewBuilderAware, JsonAdapter<Address
 
   @Override
   public void toJson(JsonWriter writer, Address address) {
-    writer.beginObject(names);
+    writer.beginObject(names, 3);
     writer.name(0);
     stringAdapter.toJson(writer, address.street());
     writer.name(1);

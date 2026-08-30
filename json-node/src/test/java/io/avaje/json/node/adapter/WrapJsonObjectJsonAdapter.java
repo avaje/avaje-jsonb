@@ -29,7 +29,7 @@ public final class WrapJsonObjectJsonAdapter implements JsonAdapter<WrapJsonObje
 
   @Override
   public void toJson(JsonWriter writer, WrapJsonObject _wrapJsonObject) {
-    writer.beginObject(names);
+    writer.beginObject(names, 1);
     writer.name(0);
     jsonObjectJsonAdapter.toJson(writer, _wrapJsonObject.json);
     writer.endObject();
