@@ -183,6 +183,34 @@ class JsonObjectTest {
   }
 
   @Test
+  void copy_withNullValues() {
+    JsonObject source = JsonObject.create()
+      .add("value", (JsonNode) null)
+      .add("nested", JsonObject.create().add("value", (JsonNode) null));
+
+    JsonObject copy = source.copy();
+
+    assertThat(copy.elements()).containsKeys("value", "nested");
+    assertThat(copy.elements().get("value")).isNull();
+    assertThat(copy.get("nested").find("value")).isNull();
+    assertThat(copy).isEqualTo(source);
+  }
+
+  @Test
+  void unmodifiable_withNullValues() {
+    JsonNode source = JsonNodeMapper.builder().build()
+      .fromJson("{\"value\":null,\"nested\":{\"value\":null}}");
+
+    JsonObject unmodifiable = ((JsonObject) source).unmodifiable();
+
+    assertThat(unmodifiable.elements()).containsKeys("value", "nested");
+    assertThat(unmodifiable.elements().get("value")).isNull();
+    assertThat(unmodifiable.get("nested").find("value")).isNull();
+    assertThatThrownBy(() -> unmodifiable.add("canMutate", true))
+      .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
   void toPlain() {
     final var source = JsonObject.create()
       .add("name", "foo")
