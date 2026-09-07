@@ -75,18 +75,26 @@ public final class JsonObject implements JsonNode {
   public JsonObject unmodifiable() {
     final var mapCopy = new LinkedHashMap<String, JsonNode>();
     for (Map.Entry<String, JsonNode> entry : children.entrySet()) {
-      mapCopy.put(entry.getKey(), entry.getValue().unmodifiable());
+      mapCopy.put(entry.getKey(), _unmodifiable(entry.getValue()));
     }
     return JsonObject.of(mapCopy);
+  }
+
+  private static JsonNode _unmodifiable(JsonNode value) {
+    return value == null ? null : value.unmodifiable();
   }
 
   @Override
   public JsonObject copy() {
     final var mapCopy = new LinkedHashMap<String, JsonNode>();
     for (Map.Entry<String, JsonNode> entry : children.entrySet()) {
-      mapCopy.put(entry.getKey(), entry.getValue().copy());
+      mapCopy.put(entry.getKey(), _copy(entry.getValue()));
     }
     return new JsonObject(mapCopy);
+  }
+
+  private static JsonNode _copy(JsonNode value) {
+    return value == null ? null : value.copy();
   }
 
   @Override
