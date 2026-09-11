@@ -29,15 +29,31 @@ final class ComponentMetaData {
     Optional.ofNullable(APContext.typeElement(type))
       .flatMap(CustomAdapterPrism::getOptionalOn)
       .filter(not(CustomAdapterPrism::global))
-      .ifPresentOrElse(p -> withTypes.add(type), () -> allTypes.add(type));
+      .ifPresentOrElse(p -> addWithType(type), () -> addUnique(allTypes, type));
   }
 
   void addFactory(String fullName) {
-    factoryTypes.add(fullName);
+    addUnique(factoryTypes, fullName);
   }
 
   void addWithType(String type) {
-    withTypes.add(type);
+    addUnique(withTypes, type);
+  }
+
+  /**
+   * Add the adapter/factory only if not already present. Nested class names are recovered from
+   * the previous component's MetaData annotation with dots (eg {@code a.b.C.DJsonAdapter}) while
+   * freshly generated ones use the dollar form (eg {@code a.b.C$DJsonAdapter}), so compare with
+   * the dollar normalised away.
+   */
+  private static void addUnique(List<String> list, String type) {
+    final String normalized = type.replace('$', '.');
+    for (final String existing : list) {
+      if (existing.replace('$', '.').equals(normalized)) {
+        return;
+      }
+    }
+    list.add(type);
   }
 
   void setFullName(String fullName) {
