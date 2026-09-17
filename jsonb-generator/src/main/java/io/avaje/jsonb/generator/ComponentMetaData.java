@@ -2,42 +2,51 @@ package io.avaje.jsonb.generator;
 
 import static java.util.function.Predicate.not;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 final class ComponentMetaData {
 
-  private final List<String> allTypes = new ArrayList<>();
-  private final List<String> factoryTypes = new ArrayList<>();
-  private final List<String> withTypes = new ArrayList<>();
+  private final Map<String, String> allTypes = new LinkedHashMap<>();
+  private final Map<String, String> factoryTypes = new LinkedHashMap<>();
+  private final Map<String, String> withTypes = new LinkedHashMap<>();
   private String fullName;
 
   @Override
   public String toString() {
-    return allTypes.toString();
+    return allTypes.values().toString();
   }
 
   boolean contains(String type) {
-    return allTypes.contains(type);
+    return allTypes.containsValue(type);
   }
 
   void add(String type) {
     Optional.ofNullable(APContext.typeElement(type))
       .flatMap(CustomAdapterPrism::getOptionalOn)
       .filter(not(CustomAdapterPrism::global))
-      .ifPresentOrElse(p -> withTypes.add(type), () -> allTypes.add(type));
+      .ifPresentOrElse(p -> addWithType(type), () -> addUnique(allTypes, type));
   }
 
   void addFactory(String fullName) {
-    factoryTypes.add(fullName);
+    addUnique(factoryTypes, fullName);
   }
 
   void addWithType(String type) {
-    withTypes.add(type);
+    addUnique(withTypes, type);
+  }
+
+  /**
+   * Add the adapter/factory only if not already present. Nested class names are recovered from
+   * the previous component's MetaData annotation with dots (eg {@code a.b.C.DJsonAdapter}) while
+   * freshly generated ones use the dollar form (eg {@code a.b.C$DJsonAdapter}), so compare with
+   * the dollar normalised away.
+   */
+  private static void addUnique(Map<String, String> typesByNormalizedName, String type) {
+    typesByNormalizedName.putIfAbsent(normalize(type), type);
+  }
+
+  private static String normalize(String type) {
+    return type.replace('$', '.');
   }
 
   void setFullName(String fullName) {
@@ -46,8 +55,8 @@ final class ComponentMetaData {
 
   String fullName(boolean pkgPrivate) {
     if (fullName == null) {
-      var everyType = new ArrayList<>(allTypes);
-      everyType.addAll(factoryTypes);
+      var everyType = new ArrayList<>(allTypes.values());
+      everyType.addAll(factoryTypes.values());
       String topPackage = TopPackage.of(everyType);
       var defaultPackage =
         topPackage == null
@@ -72,15 +81,15 @@ final class ComponentMetaData {
   }
 
   List<String> all() {
-    return allTypes;
+    return List.copyOf(allTypes.values());
   }
 
   List<String> allFactories() {
-    return factoryTypes;
+    return List.copyOf(factoryTypes.values());
   }
 
   List<String> withTypes() {
-    return withTypes;
+    return List.copyOf(withTypes.values());
   }
 
   /**
@@ -88,7 +97,7 @@ final class ComponentMetaData {
    */
   Collection<String> allImports() {
     Set<String> packageImports = new TreeSet<>();
-    for (String adapterFullName : allTypes) {
+    for (String adapterFullName : allTypes.values()) {
       packageImports.add(adapterFullName);
 
       final String className = Util.baseTypeOfAdapter(adapterFullName);
@@ -96,8 +105,8 @@ final class ComponentMetaData {
       packageImports.add($index != -1 ? className.substring(0, $index) : className);
     }
 
-    packageImports.addAll(factoryTypes);
-    packageImports.addAll(withTypes);
+    packageImports.addAll(factoryTypes.values());
+    packageImports.addAll(withTypes.values());
     return packageImports;
   }
 
