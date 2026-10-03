@@ -724,6 +724,8 @@ class JParser implements JsonParser {
   }
 
   private int lastNameLen;
+  /** True when the last parsed field name (streaming cross-buffer path) contained a JSON escape. */
+  private boolean lastNameEscaped;
 
   private int calcHashAndCopyName(int hash, int ci) {
     int soFar = ci - tokenStart;
@@ -731,14 +733,20 @@ class JParser implements JsonParser {
     while (chars.length < soFar) {
       chars = Arrays.copyOf(chars, chars.length * 2);
     }
+    lastNameEscaped = false;
     int i = 0;
     for (; i < soFar; i++) {
-      chars[i] = (char) buffer[i + tokenStart];
+      final byte raw = buffer[i + tokenStart];
+      if (raw == '\\') {
+        lastNameEscaped = true;
+      }
+      chars[i] = (char) raw;
     }
     currentIndex = ci;
     do {
       byte b = read();
       if (b == '\\') {
+        lastNameEscaped = true;
         b = read();
       } else if (b == '"') {
         nameEnd = -1;
@@ -761,6 +769,53 @@ class JParser implements JsonParser {
       return new String(chars, 0, lastNameLen);
     }
     return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Confirm that the just-parsed field name actually equals the name registered for the
+   * matched hash. The hash lookup alone can return a name for a different (colliding) key, so
+   * the key is compared byte-for-byte before the match is accepted.
+   *
+   * <p>In-buffer, the literal quoted key bytes are compared with the name's canonical
+   * quoted+escaped form, so a colliding key (e.g. {@code "6ktbvb"} for {@code admin}) or an
+   * escaped key that only collides via the hash (e.g. {@code "\n"} for {@code n}) is rejected,
+   * while the exact key that avaje itself writes (including names needing escaping) still
+   * matches on the fast path.
+   *
+   * @param hash the matched name hash
+   * @return true only when the parsed key is the registered name
+   */
+  private boolean nameMatches(final int hash) {
+    if (stream != null && nameEnd == -1) {
+      // streaming, name copied across a buffer boundary into chars[0..lastNameLen)
+      final byte[] rawName = currentNames.rawName(hash);
+      if (rawName == null || lastNameEscaped || lastNameLen != rawName.length) {
+        // an escaped key crossing the buffer cannot be confirmed here - treat as unknown
+        return false;
+      }
+      for (int i = 0; i < lastNameLen; i++) {
+        if ((chars[i] & 0xff) != (rawName[i] & 0xff)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    // name available in-buffer as the literal quoted key bytes buffer[tokenStart-1 .. nameEnd)
+    final byte[] quoted = currentNames.quotedName(hash);
+    if (quoted == null) {
+      return false;
+    }
+    final int from = tokenStart - 1;
+    final int len = nameEnd - from;
+    if (len != quoted.length) {
+      return false;
+    }
+    for (int i = 0; i < len; i++) {
+      if (buffer[from + i] != quoted[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private byte skipString() {
@@ -893,6 +948,10 @@ class JParser implements JsonParser {
     if (currentNames != null) {
       final int hash = calcHash();
       String key = currentNames.lookup(hash);
+      if (key != null && !nameMatches(hash)) {
+        // hash matched but the actual key differs (hash collision) - treat as unknown
+        key = null;
+      }
       if (key == null) {
         key = lastFieldName();
       }
