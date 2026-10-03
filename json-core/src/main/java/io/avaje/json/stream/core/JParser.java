@@ -123,12 +123,14 @@ class JParser implements JsonParser {
     length = 0;
     readLimit = 0;
     nameStack.clear();
+    currentNames = null;
     stream = null;
   }
 
   @Override
   public final JParser process(final InputStream newStream) {
     nameStack.clear();
+    currentNames = null;
     currentPosition = 0;
     currentIndex = 0;
     stream = newStream;
@@ -151,6 +153,7 @@ class JParser implements JsonParser {
       throw new IllegalArgumentException("length can't be longer than buffer.length");
     }
     nameStack.clear();
+    currentNames = null;
     currentIndex = 0;
     length = newLength;
     stream = null;

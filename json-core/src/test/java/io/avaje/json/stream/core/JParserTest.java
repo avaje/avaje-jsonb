@@ -2,10 +2,13 @@ package io.avaje.json.stream.core;
 
 import org.junit.jupiter.api.Test;
 
+import io.avaje.json.JsonEofException;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JParserTest {
 
@@ -125,6 +128,32 @@ class JParserTest {
     parser.process(bytes, bytes.length);
     assertThat(parser.isNullValue()).isFalse();
     assertThat(parser.readInt()).isEqualTo(42);
+  }
+
+  @Test
+  void process_afterReadFailedInsideObjectWithNames_keysAreDecoded() {
+    JParser parser = newParser(1000);
+    JsonReadAdapter reader = new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
+
+    byte[] failing = "{\"m\":{\"a\":1".getBytes(StandardCharsets.UTF_8);
+    parser.process(failing, failing.length);
+    reader.beginObject(JsonNames.of("m", "after"));
+    assertThat(reader.hasNextField()).isTrue();
+    assertThat(reader.nextField()).isEqualTo("m");
+    reader.beginObject();
+    assertThat(reader.hasNextField()).isTrue();
+    assertThat(reader.nextField()).isEqualTo("a");
+    assertThat(reader.readInt()).isEqualTo(1);
+    assertThatThrownBy(reader::hasNextField).isInstanceOf(JsonEofException.class);
+
+    byte[] content = "{\"b\\\"c\":1}".getBytes(StandardCharsets.UTF_8);
+    parser.process(content, content.length);
+    reader.beginObject();
+    assertThat(reader.hasNextField()).isTrue();
+    assertThat(reader.nextField()).isEqualTo("b\"c");
+    assertThat(reader.readInt()).isEqualTo(1);
+    assertThat(reader.hasNextField()).isFalse();
+    reader.endObject();
   }
 
   private JParser newParser(int len) {
