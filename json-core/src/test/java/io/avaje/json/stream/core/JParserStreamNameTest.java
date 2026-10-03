@@ -47,4 +47,36 @@ class JParserStreamNameTest {
       reader.endObject();
     }
   }
+
+  @Test
+  void nextField_objectInsideObjectWithNames_escapedNameCrossesBufferEnd() {
+    String[] decoded = {"b\"c", "x\ny", "café"};
+    String[] raw = {"b\\\"c", "x\\ny", "caf\\u00e9"};
+    for (int pad = 0; pad < 150; pad++) {
+      String padKey = "p".repeat(pad);
+      String content = "{\"m\":{\"" + padKey + "\":0,\"" + raw[0] + "\":1,\"" + raw[1] + "\":2,\"" + raw[2] + "\":3},\"after\":4}";
+
+      JParser parser = new JParser(new char[100], new byte[100], 100, JParser.DoublePrecision.HIGH,
+        JParser.UnknownNumberParsing.BIGDECIMAL, 100, 1000);
+      parser.process(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+      JsonReadAdapter reader = new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
+
+      reader.beginObject(names);
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("m");
+      reader.beginObject();
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo(padKey);
+      reader.readInt();
+      for (int i = 0; i < decoded.length; i++) {
+        assertThat(reader.hasNextField()).isTrue();
+        // decoded when the name crosses the end of the buffer, otherwise as written until
+        // names inside the buffer are decoded too
+        assertThat(reader.nextField()).as("pad %d", pad).isIn(decoded[i], raw[i]);
+        reader.readInt();
+      }
+      assertThat(reader.hasNextField()).isFalse();
+      reader.endObject();
+    }
+  }
 }
