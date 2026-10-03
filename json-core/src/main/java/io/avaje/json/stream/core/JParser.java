@@ -760,6 +760,14 @@ class JParser implements JsonParser {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
     }
+    for (int i = tokenStart; i < nameEnd - 1; i++) {
+      if (buffer[i] == '\\') {
+        // the name is still in the buffer, read it again to decode its escape sequences
+        currentIndex = tokenStart;
+        final int len = parseString();
+        return new String(chars, 0, len);
+      }
+    }
     return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
   }
 
