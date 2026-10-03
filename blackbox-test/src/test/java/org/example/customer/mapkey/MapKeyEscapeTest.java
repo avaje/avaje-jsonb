@@ -10,6 +10,7 @@ import io.avaje.jsonb.Json;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
+import org.example.customer.unmapped.UnmappedOne;
 
 public class MapKeyEscapeTest {
 
@@ -39,5 +40,12 @@ public class MapKeyEscapeTest {
     JsonType<MapHolder> type = jsonb.type(MapHolder.class);
     MapHolder holder = new MapHolder(Map.of("b\"c", 1, "d\\e", 2, "x\ny", 3), "x");
     assertThat(type.fromJson(type.toJson(holder))).isEqualTo(holder);
+  }
+
+  @Test
+  void fromJson_escapedUnknownPropertyName_unmapped() {
+    UnmappedOne bean = jsonb.type(UnmappedOne.class).fromJson("{\"id\":1,\"b\\\"c\":\"x\",\"name\":\"n\"}");
+    assertThat(bean.unmapped()).containsOnlyKeys("b\"c");
+    assertThat(bean.name()).isEqualTo("n");
   }
 }
