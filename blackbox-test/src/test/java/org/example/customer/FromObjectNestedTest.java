@@ -34,6 +34,24 @@ public class FromObjectNestedTest {
   }
 
   @Test
+  void listOfLists_emptyInnerList_fromObject() {
+    JsonType<List<List<Integer>>> type = jsonb.type(Types.listOf(Types.listOf(Integer.class)));
+
+    List<List<Integer>> value = List.of(List.of(1), List.of(), List.of(2));
+    assertThat(type.fromObject(value)).isEqualTo(value);
+  }
+
+  @Test
+  void mapOfMaps_emptyInnerMap_fromObject() {
+    JsonType<Map<String, Map<String, Integer>>> type = jsonb.type(Types.mapOf(Types.mapOf(Integer.class)));
+
+    Map<String, Map<String, Integer>> value = new LinkedHashMap<>();
+    value.put("a", Map.of());
+    value.put("b", Map.of("x", 1));
+    assertThat(type.fromObject(value)).isEqualTo(value);
+  }
+
+  @Test
   void mapOfMaps_fromObject() {
     JsonType<Map<String, Map<String, Integer>>> type = jsonb.type(Types.mapOf(Types.mapOf(Integer.class)));
 
