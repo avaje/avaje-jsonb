@@ -5,6 +5,7 @@ import io.avaje.json.PropertyNames;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,6 +19,8 @@ final class ObjectJsonReader implements JsonReader {
   private Object currentValue;
   private Iterator<?> collectionIterator;
   private Iterator<Map.Entry<String, Object>> mapIterator;
+  private final ArrayDeque<Iterator<?>> collectionStack = new ArrayDeque<>();
+  private final ArrayDeque<Iterator<Map.Entry<String, Object>>> mapStack = new ArrayDeque<>();
 
   ObjectJsonReader(Object source) {
     this.source = source;
@@ -46,12 +49,15 @@ final class ObjectJsonReader implements JsonReader {
 
   @Override
   public void beginArray() {
+    if (collectionIterator != null) {
+      collectionStack.addFirst(collectionIterator);
+    }
     collectionIterator = ((Collection<?>) currentValue).iterator();
   }
 
   @Override
   public void endArray() {
-    // do nothing (could maintain the current location for better errors?)
+    collectionIterator = collectionStack.pollFirst();
   }
 
   @Override
@@ -67,6 +73,9 @@ final class ObjectJsonReader implements JsonReader {
   @Override
   public void beginObject() {
     Map<String, Object> map = (Map<String, Object>) currentValue;
+    if (mapIterator != null) {
+      mapStack.addFirst(mapIterator);
+    }
     mapIterator = map.entrySet().iterator();
   }
 
@@ -77,7 +86,7 @@ final class ObjectJsonReader implements JsonReader {
 
   @Override
   public void endObject() {
-    // do nothing (could maintain the current location for better errors?)
+    mapIterator = mapStack.pollFirst();
   }
 
   @Override

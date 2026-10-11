@@ -2,14 +2,18 @@ package io.avaje.json.stream.core;
 
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
+import io.avaje.json.PropertyNames;
 import io.avaje.json.stream.JsonStream;
 import io.avaje.json.stream.core.Recyclers.ThreadLocalPool;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -153,5 +157,44 @@ class JsonReadAdapterTest {
       assertEquals("notes", reader.nextField());
       assertEquals("end", reader.readString());
     }
+  }
+
+  @Test
+  void nextField_escapedKeys_objectInsideObjectWithNames() {
+    String input = "{\"m\":{\"b\\\"c\":1,\"d\\\\e\":2,\"x\\ny\":3,\"caf\\u00e9\":4,\"\\/p\":5},\"un\\\"known\":0,\"after\":6}";
+
+    JsonStream adapter = JsonStream.builder().build();
+    PropertyNames names = adapter.properties("m", "after");
+    try (JsonReader reader = adapter.reader(input)) {
+      readEscapedKeysWithAsserts(reader, names);
+    }
+    try (JsonReader reader = adapter.reader(input.getBytes(StandardCharsets.UTF_8))) {
+      readEscapedKeysWithAsserts(reader, names);
+    }
+    try (JsonReader reader = adapter.reader(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)))) {
+      readEscapedKeysWithAsserts(reader, names);
+    }
+  }
+
+  private void readEscapedKeysWithAsserts(JsonReader reader, PropertyNames names) {
+    reader.beginObject(names);
+    assertTrue(reader.hasNextField());
+    assertEquals("m", reader.nextField());
+    reader.beginObject();
+    List<String> keys = new ArrayList<>();
+    while (reader.hasNextField()) {
+      keys.add(reader.nextField());
+      reader.readInt();
+    }
+    reader.endObject();
+    assertEquals(List.of("b\"c", "d\\e", "x\ny", "caf\u00e9", "/p"), keys);
+    assertTrue(reader.hasNextField());
+    assertEquals("un\"known", reader.nextField());
+    assertEquals(0, reader.readInt());
+    assertTrue(reader.hasNextField());
+    assertEquals("after", reader.nextField());
+    assertEquals(6, reader.readInt());
+    assertFalse(reader.hasNextField());
+    reader.endObject();
   }
 }
