@@ -691,7 +691,7 @@ class JParser implements JsonParser {
         byte b = buffer[ci];
         if (b == '\\') {
           if (ci == readLimit - 1) {
-            return calcHashAndCopyName(hash, ci);
+            return calcHashAndCopyName();
           }
           b = buffer[++ci];
         } else if (b == '"') {
@@ -702,7 +702,7 @@ class JParser implements JsonParser {
         hash *= 0x1000193;
       }
       if (ci >= readLimit) {
-        return calcHashAndCopyName(hash, ci);
+        return calcHashAndCopyName();
       }
       nameEnd = currentIndex = ci + 1;
     } else {
@@ -725,40 +725,26 @@ class JParser implements JsonParser {
 
   private int lastNameLen;
 
-  private int calcHashAndCopyName(int hash, int ci) {
-    int soFar = ci - tokenStart;
-    long startPosition = currentPosition - soFar;
-    while (chars.length < soFar) {
-      chars = Arrays.copyOf(chars, chars.length * 2);
-    }
-    int i = 0;
-    for (; i < soFar; i++) {
-      chars[i] = (char) buffer[i + tokenStart];
-    }
-    currentIndex = ci;
-    do {
-      byte b = read();
-      if (b == '\\') {
-        b = read();
-      } else if (b == '"') {
-        nameEnd = -1;
-        lastNameLen = i;
-        return hash;
-      }
-      if (i == chars.length) {
-        chars = Arrays.copyOf(chars, chars.length * 2);
-      }
-      chars[i++] = (char) b;
-      hash ^= b;
-      hash *= 0x1000193;
-    } while (!isEndOfStream());
-    //TODO: check offset
-    throw newParseErrorAt("JSON string was not closed with a double quote", (int) startPosition);
+  private int calcHashAndCopyName() {
+    // the name crosses the end of the buffer, read it again with parseString() which refills
+    // the buffer and decodes the name, then hash the decoded name as JsonNames does
+    currentIndex = tokenStart;
+    lastNameLen = parseString();
+    nameEnd = -1;
+    return Escape.nameHash(new String(chars, 0, lastNameLen));
   }
 
   private String lastFieldName() {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
+    }
+    for (int i = tokenStart; i < nameEnd - 1; i++) {
+      if (buffer[i] == '\\') {
+        // the name is still in the buffer, read it again to decode its escape sequences
+        currentIndex = tokenStart;
+        final int len = parseString();
+        return new String(chars, 0, len);
+      }
     }
     return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
   }
