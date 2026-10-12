@@ -123,12 +123,14 @@ class JParser implements JsonParser {
     length = 0;
     readLimit = 0;
     nameStack.clear();
+    currentNames = null;
     stream = null;
   }
 
   @Override
   public final JParser process(final InputStream newStream) {
     nameStack.clear();
+    currentNames = null;
     currentPosition = 0;
     currentIndex = 0;
     stream = newStream;
@@ -151,6 +153,7 @@ class JParser implements JsonParser {
       throw new IllegalArgumentException("length can't be longer than buffer.length");
     }
     nameStack.clear();
+    currentNames = null;
     currentIndex = 0;
     length = newLength;
     stream = null;
@@ -691,7 +694,7 @@ class JParser implements JsonParser {
         byte b = buffer[ci];
         if (b == '\\') {
           if (ci == readLimit - 1) {
-            return calcHashAndCopyName(hash, ci);
+            return calcHashAndCopyName();
           }
           b = buffer[++ci];
         } else if (b == '"') {
@@ -702,7 +705,7 @@ class JParser implements JsonParser {
         hash *= 0x1000193;
       }
       if (ci >= readLimit) {
-        return calcHashAndCopyName(hash, ci);
+        return calcHashAndCopyName();
       }
       nameEnd = currentIndex = ci + 1;
     } else {
@@ -724,49 +727,27 @@ class JParser implements JsonParser {
   }
 
   private int lastNameLen;
-  /** True when the last parsed field name (streaming cross-buffer path) contained a JSON escape. */
-  private boolean lastNameEscaped;
 
-  private int calcHashAndCopyName(int hash, int ci) {
-    int soFar = ci - tokenStart;
-    long startPosition = currentPosition - soFar;
-    while (chars.length < soFar) {
-      chars = Arrays.copyOf(chars, chars.length * 2);
-    }
-    lastNameEscaped = false;
-    int i = 0;
-    for (; i < soFar; i++) {
-      final byte raw = buffer[i + tokenStart];
-      if (raw == '\\') {
-        lastNameEscaped = true;
-      }
-      chars[i] = (char) raw;
-    }
-    currentIndex = ci;
-    do {
-      byte b = read();
-      if (b == '\\') {
-        lastNameEscaped = true;
-        b = read();
-      } else if (b == '"') {
-        nameEnd = -1;
-        lastNameLen = i;
-        return hash;
-      }
-      if (i == chars.length) {
-        chars = Arrays.copyOf(chars, chars.length * 2);
-      }
-      chars[i++] = (char) b;
-      hash ^= b;
-      hash *= 0x1000193;
-    } while (!isEndOfStream());
-    //TODO: check offset
-    throw newParseErrorAt("JSON string was not closed with a double quote", (int) startPosition);
+  private int calcHashAndCopyName() {
+    // the name crosses the end of the buffer, read it again with parseString() which refills
+    // the buffer and decodes the name, then hash the decoded name as JsonNames does
+    currentIndex = tokenStart;
+    lastNameLen = parseString();
+    nameEnd = -1;
+    return Escape.nameHash(new String(chars, 0, lastNameLen));
   }
 
   private String lastFieldName() {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
+    }
+    for (int i = tokenStart; i < nameEnd - 1; i++) {
+      if (buffer[i] == '\\') {
+        // the name is still in the buffer, read it again to decode its escape sequences
+        currentIndex = tokenStart;
+        final int len = parseString();
+        return new String(chars, 0, len);
+      }
     }
     return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
   }
@@ -783,18 +764,17 @@ class JParser implements JsonParser {
    * matches on the fast path.
    *
    * @param hash the matched name hash
+   * @param key the name registered for the hash
    * @return true only when the parsed key is the registered name
    */
-  private boolean nameMatches(final int hash) {
+  private boolean nameMatches(final int hash, final String key) {
     if (stream != null && nameEnd == -1) {
-      // streaming, name copied across a buffer boundary into chars[0..lastNameLen)
-      final byte[] rawName = currentNames.rawName(hash);
-      if (rawName == null || lastNameEscaped || lastNameLen != rawName.length) {
-        // an escaped key crossing the buffer cannot be confirmed here - treat as unknown
+      // streaming, name decoded across a buffer boundary into chars[0..lastNameLen)
+      if (key.length() != lastNameLen) {
         return false;
       }
       for (int i = 0; i < lastNameLen; i++) {
-        if ((chars[i] & 0xff) != (rawName[i] & 0xff)) {
+        if (key.charAt(i) != chars[i]) {
           return false;
         }
       }
@@ -948,7 +928,7 @@ class JParser implements JsonParser {
     if (currentNames != null) {
       final int hash = calcHash();
       String key = currentNames.lookup(hash);
-      if (key != null && !nameMatches(hash)) {
+      if (key != null && !nameMatches(hash, key)) {
         // hash matched but the actual key differs (hash collision) - treat as unknown
         key = null;
       }
