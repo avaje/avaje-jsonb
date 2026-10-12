@@ -11,9 +11,9 @@
 
   <properties>
     <jmh.version>1.37</jmh.version>
-    <avaje-jsonb.version>1.8-RC4</avaje-jsonb.version>
+    <avaje-jsonb.version>3.16</avaje-jsonb.version>
     <yasson.version>2.0.2</yasson.version>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>25</maven.compiler.release>
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
   </properties>
 
@@ -30,77 +30,15 @@
     </dependency>
     <dependency>
       <groupId>io.avaje</groupId>
-      <artifactId>avaje-jsonb-jackson</artifactId>
+      <artifactId>avaje-jsonb</artifactId>
       <version>${avaje-jsonb.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.avaje</groupId>-->
-<!--      <artifactId>avaje-jsonb-jakarta</artifactId>-->
-<!--      <version>${avaje-jsonb.version}</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>io.avaje</groupId>-->
-<!--      <artifactId>avaje-jsonb-diesel</artifactId>-->
-<!--      <version>${avaje-jsonb.version}</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-jsonb-generator</artifactId>
       <version>${avaje-jsonb.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.13.0</version>
-    </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.eclipse</groupId>-->
-<!--      <artifactId>yasson</artifactId>-->
-<!--      <version>${yasson.version}</version>-->
-<!--    </dependency>-->
-
-<!--    <dependency>-->
-<!--      <groupId>com.dslplatform</groupId>-->
-<!--      <artifactId>dsl-json</artifactId>-->
-<!--      <version>1.9.9</version>-->
-<!--    </dependency>-->
-
-    <dependency>
-      <groupId>com.dslplatform</groupId>
-      <artifactId>dsl-json-java8</artifactId>
-      <version>1.9.9</version>
-<!--      <scope>provided</scope>-->
-    </dependency>
-
-<!--    implementation group: 'com.dslplatform', name: '', version: "${dslJsonVersion}"-->
-<!--    annotationProcessor group: 'com.dslplatform', name: 'dsl-json-java8', version: "${dslJsonVersion}"-->
-
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.8.9</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.squareup.moshi</groupId>
-      <artifactId>moshi</artifactId>
-      <version>1.12.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.bluelinelabs</groupId>
-      <artifactId>logansquare</artifactId>
-      <version>1.3.7</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.bluelinelabs</groupId>
-      <artifactId>logansquare-compiler</artifactId>
-      <version>1.3.7</version>
-      <scope>provided</scope>
-    </dependency>
-
   </dependencies>
 
   <build>
@@ -111,6 +49,12 @@
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <compilerArgs>-Xlint:all</compilerArgs>
+          <proc>full</proc>
+          <!-- the older benchmarks target the 1.8 API and other json libraries, only the lookup package is built -->
+          <excludes>
+            <exclude>org/example/jmh/*.java</exclude>
+            <exclude>org/example/jmh/model/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
 
