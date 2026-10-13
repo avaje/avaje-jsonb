@@ -687,12 +687,14 @@ class JParser implements JsonParser {
   final int calcHash() {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
     tokenStart = currentIndex;
+    nameHasEscape = false;
     int ci = currentIndex;
     int hash = 0x811c9dc5;
     if (stream != null) {
       while (ci < readLimit) {
         byte b = buffer[ci];
         if (b == '\\') {
+          nameHasEscape = true;
           if (ci == readLimit - 1) {
             return calcHashAndCopyName();
           }
@@ -713,6 +715,7 @@ class JParser implements JsonParser {
       while (ci < buffer.length) {
         byte b = buffer[ci++];
         if (b == '\\') {
+          nameHasEscape = true;
           if (ci == buffer.length) throw newParseError("Expecting '\"' for attribute name end");
           b = buffer[ci++];
         } else if (b == '"') {
@@ -727,6 +730,7 @@ class JParser implements JsonParser {
   }
 
   private int lastNameLen;
+  private boolean nameHasEscape;
 
   private int calcHashAndCopyName() {
     // the name crosses the end of the buffer, read it again with parseString() which refills
@@ -741,13 +745,10 @@ class JParser implements JsonParser {
     if (stream != null && nameEnd == -1) {
       return new String(chars, 0, lastNameLen);
     }
-    for (int i = tokenStart; i < nameEnd - 1; i++) {
-      if (buffer[i] == '\\') {
-        // the name is still in the buffer, read it again to decode its escape sequences
-        currentIndex = tokenStart;
-        final int len = parseString();
-        return new String(chars, 0, len);
-      }
+    if (nameHasEscape) {
+      // the name is still in the buffer, read it again to decode its escape sequences
+      currentIndex = tokenStart;
+      return new String(chars, 0, parseString());
     }
     return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
   }
@@ -879,7 +880,7 @@ class JParser implements JsonParser {
 
   @Override
   public final String nextField() {
-    if (currentNames != null) {
+    if (currentNames != null && currentNames != JsonNames.EMPTY) {
       final int hash = calcHash();
       String key = currentNames.lookup(hash);
       if (key == null) {
