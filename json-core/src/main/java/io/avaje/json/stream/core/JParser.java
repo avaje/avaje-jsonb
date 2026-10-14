@@ -693,10 +693,7 @@ class JParser implements JsonParser {
       while (ci < readLimit) {
         byte b = buffer[ci];
         if (b == '\\') {
-          if (ci == readLimit - 1) {
-            return calcHashAndCopyName();
-          }
-          b = buffer[++ci];
+          return calcHashAndCopyName();
         } else if (b == '"') {
           break;
         }
@@ -713,8 +710,7 @@ class JParser implements JsonParser {
       while (ci < buffer.length) {
         byte b = buffer[ci++];
         if (b == '\\') {
-          if (ci == buffer.length) throw newParseError("Expecting '\"' for attribute name end");
-          b = buffer[ci++];
+          return calcHashAndCopyName();
         } else if (b == '"') {
           break;
         }
@@ -726,28 +722,20 @@ class JParser implements JsonParser {
     return hash;
   }
 
-  private int lastNameLen;
+  private String lastName;
 
   private int calcHashAndCopyName() {
-    // the name crosses the end of the buffer, read it again with parseString() which refills
-    // the buffer and decodes the name, then hash the decoded name as JsonNames does
+    // the name has an escape or crosses the end of the buffer, read it again with parseString()
+    // which decodes it and refills the buffer, then hash the decoded name as JsonNames does
     currentIndex = tokenStart;
-    lastNameLen = parseString();
+    lastName = new String(chars, 0, parseString());
     nameEnd = -1;
-    return Escape.nameHash(new String(chars, 0, lastNameLen));
+    return Escape.nameHash(lastName);
   }
 
   private String lastFieldName() {
-    if (stream != null && nameEnd == -1) {
-      return new String(chars, 0, lastNameLen);
-    }
-    for (int i = tokenStart; i < nameEnd - 1; i++) {
-      if (buffer[i] == '\\') {
-        // the name is still in the buffer, read it again to decode its escape sequences
-        currentIndex = tokenStart;
-        final int len = parseString();
-        return new String(chars, 0, len);
-      }
+    if (nameEnd == -1) {
+      return lastName;
     }
     return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
   }
@@ -879,7 +867,7 @@ class JParser implements JsonParser {
 
   @Override
   public final String nextField() {
-    if (currentNames != null) {
+    if (currentNames != null && currentNames != JsonNames.EMPTY) {
       final int hash = calcHash();
       String key = currentNames.lookup(hash);
       if (key == null) {
