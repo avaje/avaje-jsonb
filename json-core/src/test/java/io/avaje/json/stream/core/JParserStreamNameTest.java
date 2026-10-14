@@ -70,9 +70,7 @@ class JParserStreamNameTest {
       reader.readInt();
       for (int i = 0; i < decoded.length; i++) {
         assertThat(reader.hasNextField()).isTrue();
-        // decoded when the name crosses the end of the buffer, otherwise as written until
-        // names inside the buffer are decoded too
-        assertThat(reader.nextField()).as("pad %d", pad).isIn(decoded[i], raw[i]);
+        assertThat(reader.nextField()).as("pad %d", pad).isEqualTo(decoded[i]);
         reader.readInt();
       }
       assertThat(reader.hasNextField()).isFalse();
