@@ -12,11 +12,32 @@ final class JsonNames implements PropertyNames {
 
   static final JsonNames EMPTY = new JsonNames(new byte[0][0], Collections.emptyMap());
   private final byte[][] nameArray;
-  private final Map<Integer, String> nameHash;
+  private final Map<Integer, Entry> hashEntry;
 
-  JsonNames(byte[][] nameArray, Map<Integer, String> nameHash) {
+  /**
+   * A name and its quoted, escaped bytes, found by the name hash.
+   */
+  static final class Entry {
+    private final String name;
+    private final byte[] quoted;
+
+    Entry(String name, byte[] quoted) {
+      this.name = name;
+      this.quoted = quoted;
+    }
+
+    String name() {
+      return name;
+    }
+
+    byte[] quoted() {
+      return quoted;
+    }
+  }
+
+  JsonNames(byte[][] nameArray, Map<Integer, Entry> hashEntry) {
     this.nameArray = nameArray;
-    this.nameHash = nameHash;
+    this.hashEntry = hashEntry;
   }
 
   /**
@@ -24,27 +45,36 @@ final class JsonNames implements PropertyNames {
    */
   public static JsonNames of(String... names) {
     final Set<Integer> clashKeys = new HashSet<>();
-    final Map<Integer, String> nameHash = new HashMap<>();
+    final Map<Integer, Entry> hashEntry = new HashMap<>();
     final byte[][] nameArray = new byte[names.length][];
     for (int i = 0; i < names.length; i++) {
       nameArray[i] = Escape.quoteEscape(names[i]);
       final int hash = Escape.nameHash(names[i]);
-      final String priorKey = nameHash.put(hash, names[i]);
-      if (priorKey != null && !priorKey.equals(names[i])) {
+      final Entry prior = hashEntry.put(hash, new Entry(names[i], nameArray[i]));
+      if (prior != null && !prior.name().equals(names[i])) {
         clashKeys.add(hash);
       }
     }
     for (Integer clashKey : clashKeys) {
-      nameHash.remove(clashKey);
+      hashEntry.remove(clashKey);
     }
-    return new JsonNames(nameArray, nameHash);
+    return new JsonNames(nameArray, hashEntry);
   }
 
   byte[] key(int namePos) {
     return nameArray[namePos];
   }
 
+  /**
+   * Return the entry with the given hash, or null when there is none. A hash match is only a
+   * candidate, the caller must confirm the actual key against the entry.
+   */
+  Entry find(int hash) {
+    return hashEntry.get(hash);
+  }
+
   String lookup(int hash) {
-     return nameHash.get(hash);
+    final Entry entry = find(hash);
+    return entry == null ? null : entry.name();
   }
 }

@@ -733,6 +733,30 @@ class JParser implements JsonParser {
     return Escape.nameHash(lastName);
   }
 
+  /**
+   * Confirm the just-parsed field name is the name at the given entry. The hash only finds
+   * a candidate, a different key can have the same hash.
+   */
+  private boolean nameMatches(final JsonNames.Entry entry) {
+    if (stream != null && nameEnd == -1) {
+      // name copied and decoded into chars across a buffer boundary
+      final String name = entry.name();
+      if (name.length() != lastNameLen) {
+        return false;
+      }
+      for (int i = 0; i < lastNameLen; i++) {
+        if (name.charAt(i) != chars[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+    // the literal quoted key bytes in the buffer must equal the name as quoted and escaped
+    final byte[] quoted = entry.quoted();
+    final int from = tokenStart - 1;
+    return Arrays.equals(buffer, from, nameEnd, quoted, 0, quoted.length);
+  }
+
   private String lastFieldName() {
     if (nameEnd == -1) {
       return lastName;
@@ -869,10 +893,8 @@ class JParser implements JsonParser {
   public final String nextField() {
     if (currentNames != null && currentNames != JsonNames.EMPTY) {
       final int hash = calcHash();
-      String key = currentNames.lookup(hash);
-      if (key == null) {
-        key = lastFieldName();
-      }
+      final JsonNames.Entry entry = currentNames.find(hash);
+      final String key = entry != null && nameMatches(entry) ? entry.name() : lastFieldName();
       if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
         throw newParseError("Expecting ':' after attribute name");
       }
