@@ -1,6 +1,7 @@
 package io.avaje.json.stream.core;
 
 import io.avaje.json.JsonWriter;
+import io.avaje.json.stream.BufferRecycleStrategy;
 import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +34,7 @@ class RecycledPrettyWriterTest {
 
   @Test
   void prettyDepthReset_afterIncompleteWrite() {
-    JsonStream stream = JsonStream.builder().build();
+    JsonStream stream = JsonStream.builder().bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL).build();
     String first = write(stream, false);
     assertThat(first).isEqualTo("{\n  \"a\": {\n    \"b\": 1\n  }\n}");
 
@@ -43,7 +44,7 @@ class RecycledPrettyWriterTest {
 
   @Test
   void prettyArrayDepthReset_afterIncompleteWrite() {
-    JsonStream stream = JsonStream.builder().build();
+    JsonStream stream = JsonStream.builder().bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL).build();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     try (JsonWriter w = stream.writer(out)) {
       w.pretty(true);
