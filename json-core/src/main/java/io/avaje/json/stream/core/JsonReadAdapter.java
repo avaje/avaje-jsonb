@@ -90,6 +90,16 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
+  public int nextFieldHash() {
+    return reader.nextFieldHash();
+  }
+
+  @Override
+  public String lastFieldName() {
+    return reader.lastFieldName();
+  }
+
+  @Override
   public boolean readBoolean() {
     if (failOnNullPrimitives && reader.isNullValue()) throw new JsonDataException("Read NULL value for boolean");
     return reader.readBoolean();

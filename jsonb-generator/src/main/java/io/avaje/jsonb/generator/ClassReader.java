@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
@@ -51,6 +52,9 @@ final class ClassReader implements BeanReader {
 
   /** An Interface/abstract type with a single implementation */
   private ClassReader implementation;
+
+  private Map<String, String> hashConstants;
+  private boolean hashConstantsInit;
 
   ClassReader(TypeElement beanType, String errorContext) {
     this(beanType, null, errorContext, Optional.empty());
@@ -287,6 +291,70 @@ final class ClassReader implements BeanReader {
     }
     writer.append("  private final PropertyNames names;").eol();
     writer.eol();
+    final var fromJsonReader = readOnlyInterface ? implementation : this;
+    if (fromJsonReader != null) {
+      fromJsonReader.writeHashConstants(writer);
+    }
+  }
+
+  private void writeHashConstants(Append writer) {
+    final var constants = hashConstants();
+    if (constants == null) {
+      return;
+    }
+    writer
+        .append("  // hash of each json property name (FNV-1a), used to switch on in fromJson()")
+        .eol();
+    for (final var entry : constants.entrySet()) {
+      writer
+          .append(
+              "  private static final int %s = %s;",
+              entry.getValue(), Util.fieldNameHash(entry.getKey()))
+          .eol();
+    }
+    writer.eol();
+  }
+
+  private Map<String, String> hashConstants() {
+    if (!hashConstantsInit) {
+      hashConstantsInit = true;
+      hashConstants = initHashConstants();
+    }
+    return hashConstants;
+  }
+
+  private Map<String, String> initHashConstants() {
+    if (caseInsensitiveKeys || hasSubTypes || unmappedField != null) {
+      return null;
+    }
+    final var hashes = new HashMap<Integer, String>();
+    final var constants = new LinkedHashMap<String, String>();
+    final var usedNames = new HashSet<String>();
+    usedNames.add("FACTORY");
+    final var seen = new HashSet<String>();
+    for (final var field : allFields) {
+      if (field.isUnmapped() || !seen.add(field.propertyName())) {
+        continue;
+      }
+      final var keys = new ArrayList<>(field.aliases());
+      keys.add(field.propertyName());
+      for (final var key : keys) {
+        final var prior = hashes.putIfAbsent(Util.fieldNameHash(key), key);
+        if (prior != null && !prior.equals(key)) {
+          // hash collision, use String switch
+          return null;
+        }
+        if (!constants.containsKey(key)) {
+          final var base = Util.constantName(key);
+          var constantName = base;
+          for (int i = 2; !usedNames.add(constantName); i++) {
+            constantName = base + "_" + i;
+          }
+          constants.put(key, constantName);
+        }
+      }
+    }
+    return constants;
   }
 
   private static boolean includeField(FieldReader allField, Set<String> uniqueTypes) {
@@ -673,6 +741,12 @@ final class ClassReader implements BeanReader {
     writer.append("    // read json").eol();
     writer.append("    reader.beginObject(names);").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
+    final var constants = hashConstants();
+    final UnaryOperator<String> caseLabel = constants == null ? key -> '"' + key + '"' : constants::get;
+    if (constants != null) {
+      writer.append("      final int fieldHash = reader.nextFieldHash();").eol();
+      writer.append("      switch (fieldHash) {").eol();
+    }else {
     if (caseInsensitiveKeys) {
       writer.append("      final String origFieldName = reader.nextField();").eol();
       writer.append("      final String fieldName = origFieldName.toLowerCase();").eol();
@@ -680,6 +754,7 @@ final class ClassReader implements BeanReader {
       writer.append("      final String fieldName = reader.nextField();").eol();
     }
     writer.append("      switch (fieldName) {").eol();
+  }
     if (hasSubTypes && !usesTypeProperty) {
       writer.append("        case \"%s\":", typePropertyKey()).eol();
       writer.append("          type = stringJsonAdapter.fromJson(reader);").eol();
@@ -696,14 +771,15 @@ final class ClassReader implements BeanReader {
         final var isCommonFieldDiffType = isCommonFieldMap.get(name);
         if (isCommonFieldDiffType == null || !isCommonFieldDiffType) {
           allField.writeFromJsonSwitch(
-            writer,
-            defaultConstructor,
-            varName,
-            caseInsensitiveKeys,
-            allFields.stream()
-              .filter(x -> x.fieldName().equals(name))
-              .flatMap(f -> f.aliases().stream())
-              .collect(toList()));
+              writer,
+              defaultConstructor,
+              varName,
+              caseInsensitiveKeys,
+              allFields.stream()
+                  .filter(x -> x.fieldName().equals(name))
+                  .flatMap(f -> f.aliases().stream())
+                  .collect(toList()),
+              caseLabel);
         } else {
           // if subclass shares a field name with another subclass
           // write a special case statement
@@ -715,11 +791,13 @@ final class ClassReader implements BeanReader {
             varName);
         }
 
-      } else
-        allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
+      } else {
+        allField.writeFromJsonSwitch(
+            writer, defaultConstructor, varName, caseInsensitiveKeys, List.of(), caseLabel);
+      }
     }
     writer.append("        default:").eol();
-    final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
+    final String unmappedFieldName = constants != null ? "reader.lastFieldName()" : caseInsensitiveKeys ? "origFieldName" : "fieldName";
     if (unmappedField != null) {
       if (unmappedJsonNodeType()) {
         writer.append("          var value = jsonNodeAdapter.fromJson(reader);").eol();
