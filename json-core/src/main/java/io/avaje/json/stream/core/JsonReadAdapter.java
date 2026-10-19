@@ -139,6 +139,11 @@ final class JsonReadAdapter implements JsonReader {
   }
 
   @Override
+  public String readString(PropertyNames values) {
+    return reader.readString((JsonNames) values);
+  }
+
+  @Override
   public byte[] readBinary() {
     return reader.readBinary();
   }

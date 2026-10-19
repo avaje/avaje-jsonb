@@ -257,6 +257,10 @@ class JParser implements JsonParser {
     return prepareNextBlock() == 0;
   }
 
+  private boolean isEndOfInput() {
+    return currentIndex >= length && (stream == null || prepareNextBlock() == 0);
+  }
+
   /**
    * Which was last byte read from the JSON input.
    * JsonReader doesn't allow to go back, but it remembers previously read byte
@@ -428,6 +432,38 @@ class JParser implements JsonParser {
     final int len = parseString();
     //return valuesCache == null ? new String(chars, 0, len) : valuesCache.get(chars, len);
     return new String(chars, 0, len);
+  }
+
+  @Override
+  public final String readString(final JsonNames values) {
+    if (last != '"') throw newParseError("Expecting '\"' for string start");
+    final int start = currentIndex;
+    final byte[] buf = buffer;
+    final int end = length;
+    int hash = 0x811c9dc5;
+    for (int ci = start; ci < end; ci++) {
+      final byte b = buf[ci];
+      if (b == '"') {
+        final int pos = values.position(hash);
+        if (pos >= 0 && matches(values.key(pos), start, ci)) {
+          currentIndex = ci + 1;
+          return values.name(pos);
+        }
+        break;
+      } else if (b == '\\') {
+        break;
+      }
+      hash ^= b;
+      hash *= 0x1000193;
+    }
+    // escaped, unknown or not fully in the buffer
+    return readString();
+  }
+
+  /** Return true if the buffer from start to end matches the quoted key. */
+  private boolean matches(final byte[] quotedKey, final int start, final int end) {
+    return quotedKey.length - 2 == end - start
+        && Arrays.equals(quotedKey, 1, quotedKey.length - 1, buffer, start, end);
   }
 
   final int parseString() {
@@ -636,7 +672,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextStreamElement() {
-    if (currentIndex >= length) {
+    if (isEndOfInput()) {
       return false;
     }
     try {
@@ -654,7 +690,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextElement() {
-    if (currentIndex >= length) {
+    if (isEndOfInput()) {
       return false;
     }
     final boolean firstElement = last == '[';

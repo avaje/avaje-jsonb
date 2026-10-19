@@ -133,6 +133,15 @@ public interface JsonReader extends Closeable {
   }
 
   /**
+   * Read a string value that is expected to be one of the given values.
+   *
+   * @param values The expected values typically created via {@code Jsonb.properties(String...)}
+   */
+  default String readString(PropertyNames values) {
+    return readString();
+  }
+
+  /**
    * Return true if the value to be read is a null.
    */
   boolean isNullValue();

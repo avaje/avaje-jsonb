@@ -47,6 +47,11 @@ interface JsonParser extends Closeable {
   String lastFieldName();
 
   /**
+   * Read a string value that is expected to be one of the given values.
+   */
+  String readString(JsonNames values);
+
+  /**
    * Start a stream which could be an ARRAY or x-json-stream new line delimited json.
    */
   void startStream();
