@@ -749,9 +749,10 @@ final class ClassReader implements BeanReader {
   private void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
     writer.eol();
     writer.append("    // read json").eol();
-    writer.append("    reader.beginObject(names);").eol();
-    writer.append("    while (reader.hasNextField()) {").eol();
     final var constants = hashConstants();
+    // hash mode matches on nextFieldHash() so the reader has no use for the names
+    writer.append(constants == null ? "    reader.beginObject(names);" : "    reader.beginObject();").eol();
+    writer.append("    while (reader.hasNextField()) {").eol();
     final UnaryOperator<String> caseLabel = constants == null ? key -> '"' + key + '"' : constants::get;
     if (constants != null) {
       writer.append("      final int fieldHash = reader.nextFieldHash();").eol();
