@@ -581,6 +581,12 @@ class JGenerator implements JsonGenerator {
   }
 
   @Override
+  public void write(JsonNames values, int position) {
+    prefixValue();
+    writeAscii(values.key(position));
+  }
+
+  @Override
   public void write(byte[] value) {
     prefixValue();
     writeBase64(value);

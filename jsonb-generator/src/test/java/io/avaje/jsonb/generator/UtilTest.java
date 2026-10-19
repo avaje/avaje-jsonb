@@ -1,11 +1,15 @@
 package io.avaje.jsonb.generator;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import io.avaje.json.JsonReader;
 
 class UtilTest {
 
@@ -16,6 +20,30 @@ class UtilTest {
     assertEquals("Fo", Util.initCap("fo"));
     assertEquals("A", Util.initCap("a"));
     assertEquals("InitCap", Util.initCap("initCap"));
+  }
+
+  @Test
+  void fieldNameHash_matchesRuntime() {
+    for (String name : List.of("", "id", "firstName", "café", "日本", "😀", "$a", "#")) {
+      assertEquals(JsonReader.nameHash(name), Util.fieldNameHash(name));
+    }
+    // generator names are java string literal escaped
+    assertEquals(JsonReader.nameHash("\"with quotes\""), Util.fieldNameHash(Util.escapeQuotes("\"with quotes\"")));
+    assertEquals(JsonReader.nameHash("a\\b"), Util.fieldNameHash("a\\\\b"));
+  }
+
+  @Test
+  void constantName() {
+    assertEquals("ID", Util.constantName("id"));
+    assertEquals("FIRST_NAME", Util.constantName("firstName"));
+    assertEquals("FIRST_NAME", Util.constantName("first-name"));
+    assertEquals("FIRST_NAME", Util.constantName("first_name"));
+    assertEquals("ADDRESS2", Util.constantName("address2"));
+    assertEquals("URL", Util.constantName("URL"));
+    assertEquals("F_1ST", Util.constantName("1st"));
+    assertEquals("F__", Util.constantName("#"));
+    assertEquals("_A", Util.constantName("$a"));
+    assertEquals("F_", Util.constantName(""));
   }
 
   @Test

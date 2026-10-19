@@ -17,6 +17,7 @@ final class ObjectJsonReader implements JsonReader {
 
   private final Object source;
   private Object currentValue;
+  private String lastFieldName;
   private Iterator<?> collectionIterator;
   private Iterator<Map.Entry<String, Object>> mapIterator;
   private final ArrayDeque<Iterator<?>> collectionStack = new ArrayDeque<>();
@@ -99,6 +100,17 @@ final class ObjectJsonReader implements JsonReader {
     final Map.Entry<String, Object> mapEntry = mapIterator.next();
     currentValue = mapEntry.getValue();
     return mapEntry.getKey();
+  }
+
+  @Override
+  public int nextFieldHash() {
+    lastFieldName = nextField();
+    return JsonReader.nameHash(lastFieldName);
+  }
+
+  @Override
+  public String lastFieldName() {
+    return lastFieldName;
   }
 
   @Override
