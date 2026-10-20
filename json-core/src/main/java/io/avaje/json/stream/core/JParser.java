@@ -740,6 +740,52 @@ class JParser implements JsonParser {
     return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
   }
 
+  /**
+   * Confirm that the just-parsed field name actually equals the name registered for the
+   * matched hash. The hash lookup alone can return a name for a different (colliding) key, so
+   * the key is compared byte-for-byte before the match is accepted.
+   *
+   * <p>In-buffer, the literal quoted key bytes are compared with the name's canonical
+   * quoted+escaped form, so a colliding key (e.g. {@code "6ktbvb"} for {@code admin}) or an
+   * escaped key that only collides via the hash (e.g. {@code "\n"} for {@code n}) is rejected,
+   * while the exact key that avaje itself writes (including names needing escaping) still
+   * matches on the fast path.
+   *
+   * @param hash the matched name hash
+   * @param key the name registered for the hash
+   * @return true only when the parsed key is the registered name
+   */
+  private boolean nameMatches(final int hash, final String key) {
+    if (stream != null && nameEnd == -1) {
+      // streaming, name decoded across a buffer boundary into chars[0..lastNameLen)
+      if (key.length() != lastNameLen) {
+        return false;
+      }
+      for (int i = 0; i < lastNameLen; i++) {
+        if (key.charAt(i) != chars[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+    // name available in-buffer as the literal quoted key bytes buffer[tokenStart-1 .. nameEnd)
+    final byte[] quoted = currentNames.quotedName(hash);
+    if (quoted == null) {
+      return false;
+    }
+    final int from = tokenStart - 1;
+    final int len = nameEnd - from;
+    if (len != quoted.length) {
+      return false;
+    }
+    for (int i = 0; i < len; i++) {
+      if (buffer[from + i] != quoted[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private byte skipString() {
     byte c = read();
     boolean inEscape = false;
@@ -870,6 +916,10 @@ class JParser implements JsonParser {
     if (currentNames != null && currentNames != JsonNames.EMPTY) {
       final int hash = calcHash();
       String key = currentNames.lookup(hash);
+      if (key != null && !nameMatches(hash, key)) {
+        // hash matched but the actual key differs (hash collision) - treat as unknown
+        key = null;
+      }
       if (key == null) {
         key = lastFieldName();
       }
