@@ -9,7 +9,7 @@ final class Constants {
   static final String JSON_IMPORT_LIST = "io.avaje.jsonb.Json.Import.Imports";
   static final String JSON_MIXIN = "io.avaje.jsonb.Json.MixIn";
   static final String IOEXCEPTION = "java.io.IOException";
-  static final String METHODHANDLE = "java.lang.invoke.MethodHandle";
+  static final String UNARY_OPERATOR = "java.util.function.UnaryOperator";
   static final String REFLECT_TYPE = "java.lang.reflect.Type";
   static final String PARAMETERIZED_TYPE = "java.lang.reflect.ParameterizedType";
 

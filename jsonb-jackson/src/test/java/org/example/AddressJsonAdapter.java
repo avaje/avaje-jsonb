@@ -8,7 +8,7 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.json.view.ViewBuilder;
 import io.avaje.json.view.ViewBuilderAware;
 
-import java.lang.invoke.MethodHandle;
+import java.util.function.UnaryOperator;
 
 public class AddressJsonAdapter implements ViewBuilderAware, JsonAdapter<Address> {
 
@@ -31,11 +31,11 @@ public class AddressJsonAdapter implements ViewBuilderAware, JsonAdapter<Address
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle mh) {
-    builder.beginObject(name, mh);
-    builder.add("street", stringAdapter, builder.method(Address.class, "street", String.class));
-    builder.add("suburb", stringAdapter, builder.method(Address.class, "suburb", String.class));
-    builder.add("city", stringAdapter, builder.method(Address.class, "city", String.class));
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.beginObject(name, accessor);
+    builder.add("street", stringAdapter, o -> ((Address) o).street());
+    builder.add("suburb", stringAdapter, o -> ((Address) o).suburb());
+    builder.add("city", stringAdapter, o -> ((Address) o).city());
     builder.endObject();
   }
 

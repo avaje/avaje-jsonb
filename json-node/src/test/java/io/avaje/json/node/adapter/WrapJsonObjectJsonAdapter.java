@@ -1,6 +1,6 @@
 package io.avaje.json.node.adapter;
 
-import java.lang.invoke.MethodHandle;
+import java.util.function.UnaryOperator;
 
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
@@ -75,9 +75,9 @@ public final class WrapJsonObjectJsonAdapter implements JsonAdapter<WrapJsonObje
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) {
-    builder.beginObject(name, handle);
-    builder.add("json", jsonObjectJsonAdapter, builder.field(WrapJsonObject.class, "json"));
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.beginObject(name, accessor);
+    builder.add("json", jsonObjectJsonAdapter, o -> ((WrapJsonObject) o).json);
     builder.endObject();
   }
 }

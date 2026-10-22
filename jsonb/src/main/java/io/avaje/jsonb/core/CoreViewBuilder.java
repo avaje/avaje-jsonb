@@ -8,10 +8,8 @@ import io.avaje.json.view.ViewBuilder;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 final class CoreViewBuilder implements ViewBuilder {
 
@@ -31,27 +29,8 @@ final class CoreViewBuilder implements ViewBuilder {
     this.names = names;
   }
 
-  @Override
-  public MethodHandle method(Class<?> cls, String methodName, Class<?> returnType) {
-    try {
-      return ExtensionLoader.lookupLookup(cls).findVirtual(cls, methodName, MethodType.methodType(returnType));
-    } catch (Exception e) {
-      throw new JsonException(e);
-    }
-  }
-
-  @Override
-  public MethodHandle field(Class<?> cls, String name) {
-    try {
-      Field field = cls.getDeclaredField(name);
-      return ExtensionLoader.lookupLookup(cls).unreflectGetter(field);
-    } catch (Exception e) {
-      throw new JsonException(e);
-    }
-  }
-
-  private void push(String name, MethodHandle mh) {
-    current = new Items(names, name, mh);
+  private void push(String name, UnaryOperator<Object> accessor) {
+    current = new Items(names, name, accessor);
     stack.push(current);
   }
 
@@ -67,21 +46,21 @@ final class CoreViewBuilder implements ViewBuilder {
   }
 
   @Override
-  public void add(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) {
+  public void add(String name, JsonAdapter<?> adapter, UnaryOperator<Object> accessor) {
     if (viewDsl.contains(name)) {
       if (adapter.isViewBuilderAware()) {
         viewDsl.push(name);
-        adapter.viewBuild().build(this, name, methodHandle);
+        adapter.viewBuild().build(this, name, accessor);
         viewDsl.pop();
       } else {
-        current.add(new Scalar(names.add(name), adapter, methodHandle));
+        current.add(new Scalar(names.add(name), adapter, accessor));
       }
     }
   }
 
   @Override
-  public void beginObject(String name, MethodHandle methodHandle) {
-    push(name, methodHandle);
+  public void beginObject(String name, UnaryOperator<Object> accessor) {
+    push(name, accessor);
   }
 
   @Override
@@ -90,7 +69,7 @@ final class CoreViewBuilder implements ViewBuilder {
   }
 
   @Override
-  public void addArray(String name, JsonAdapter<?> adapter, MethodHandle methodHandle) {
+  public void addArray(String name, JsonAdapter<?> adapter, UnaryOperator<Object> accessor) {
     try {
       CoreViewBuilder nested = new CoreViewBuilder(viewDsl, names);
       adapter.viewBuild().build(nested);
@@ -101,7 +80,7 @@ final class CoreViewBuilder implements ViewBuilder {
         }
         resultElement = new CollectionElement(nestedView);
       } else {
-        current.add(new NestedCollection(nestedView, names.add(name), methodHandle));
+        current.add(new NestedCollection(nestedView, names.add(name), accessor));
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -142,13 +121,13 @@ final class CoreViewBuilder implements ViewBuilder {
   static final class Items {
     private final Names names;
     private final String name;
-    private final MethodHandle methodHandle;
+    private final UnaryOperator<Object> accessor;
     private final List<Element> items = new ArrayList<>();
 
-    Items(Names names, String name, MethodHandle mh) {
+    Items(Names names, String name, UnaryOperator<Object> accessor) {
       this.names = names;
       this.name = name;
-      this.methodHandle = mh;
+      this.accessor = accessor;
     }
 
     void add(Element element) {
@@ -159,7 +138,7 @@ final class CoreViewBuilder implements ViewBuilder {
       if (name == null) {
         return new ObjectElement(items);
       } else {
-        return new NestedObject(items, names.add(name), methodHandle);
+        return new NestedObject(items, names.add(name), accessor);
       }
     }
   }
@@ -252,22 +231,18 @@ final class CoreViewBuilder implements ViewBuilder {
 
     private final int namePosition;
     private final JsonAdapter adapter;
-    private final MethodHandle methodHandle;
+    private final UnaryOperator<Object> accessor;
 
-    Scalar(int namePosition, JsonAdapter adapter, MethodHandle methodHandle) {
+    Scalar(int namePosition, JsonAdapter adapter, UnaryOperator<Object> accessor) {
       this.namePosition = namePosition;
       this.adapter = adapter;
-      this.methodHandle = methodHandle;
+      this.accessor = accessor;
     }
 
     @Override
     public void write(JsonWriter writer, Object object) {
-      try {
-        writer.name(namePosition);
-        adapter.toJson(writer, methodHandle.invoke(object));
-      } catch (Throwable e) {
-        throw JsonException.of(e);
-      }
+      writer.name(namePosition);
+      adapter.toJson(writer, accessor.apply(object));
     }
   }
 
@@ -296,12 +271,12 @@ final class CoreViewBuilder implements ViewBuilder {
   private static final class NestedObject implements Element {
 
     private final int namePosition;
-    private final MethodHandle methodHandle;
+    private final UnaryOperator<Object> accessor;
     private final Element[] elements;
 
-    NestedObject(List<Element> elements, int namePosition, MethodHandle methodHandle) {
+    NestedObject(List<Element> elements, int namePosition, UnaryOperator<Object> accessor) {
       this.namePosition = namePosition;
-      this.methodHandle = methodHandle;
+      this.accessor = accessor;
       this.elements = elements.toArray(new Element[0]);
     }
 
@@ -310,13 +285,13 @@ final class CoreViewBuilder implements ViewBuilder {
       try {
         writer.name(namePosition);
         writer.beginObject();
-        final Object nested = methodHandle.invoke(object);
-        for (final Element element : elements) {
+        final var nested = accessor.apply(object);
+        for (final var element : elements) {
           element.write(writer, nested);
         }
         writer.endObject();
-      } catch (Throwable e) {
-        throw JsonException.of(e);
+      } catch (IOException e) {
+        throw new JsonIoException(e);
       }
     }
   }
@@ -332,12 +307,12 @@ final class CoreViewBuilder implements ViewBuilder {
 
     @Override
     public void write(JsonWriter writer, Object object) {
-      final Collection<?> collection = (Collection<?>) object;
+      final var collection = (Collection<?>) object;
       if (collection.isEmpty()) {
         writer.emptyArray();
       } else {
         writer.beginArray();
-        for (final Object value : collection) {
+        for (final var value : collection) {
           child.toJson(value, writer);
         }
         writer.endArray();
@@ -350,30 +325,26 @@ final class CoreViewBuilder implements ViewBuilder {
 
     private final JsonView child;
     private final int namePosition;
-    private final MethodHandle methodHandle;
+    private final UnaryOperator<Object> accessor;
 
-    NestedCollection(JsonView child, int namePosition, MethodHandle methodHandle) {
+    NestedCollection(JsonView child, int namePosition, UnaryOperator<Object> accessor) {
       this.child = child;
       this.namePosition = namePosition;
-      this.methodHandle = methodHandle;
+      this.accessor = accessor;
     }
 
     @Override
     public void write(JsonWriter writer, Object object) {
-      try {
-        writer.name(namePosition);
-        final Collection<?> collection = (Collection<?>) methodHandle.invoke(object);
-        if (collection.isEmpty()) {
-          writer.emptyArray();
-        } else {
-          writer.beginArray();
-          for (final Object value : collection) {
-            child.toJson(value, writer);
-          }
-          writer.endArray();
+      writer.name(namePosition);
+      final var collection = (Collection<?>) accessor.apply(object);
+      if (collection.isEmpty()) {
+        writer.emptyArray();
+      } else {
+        writer.beginArray();
+        for (final var value : collection) {
+          child.toJson(value, writer);
         }
-      } catch (Throwable e) {
-        throw JsonException.of(e);
+        writer.endArray();
       }
     }
   }

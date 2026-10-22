@@ -163,11 +163,11 @@ public final class AddressJsonAdapter implements JsonAdapter<Address>, ViewBuild
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) {
-    builder.beginObject(name, handle);
-    builder.add("street", stringJsonAdapter, builder.method(Address.class, "getStreet", java.lang.String.class));
-    builder.add("city", cityJsonAdapter, builder.method(Address.class, "getCity", City.class));
-    builder.add("suburb", suburbJsonAdapter, builder.method(Address.class, "getSuburb", Suburb.class));
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.beginObject(name, accessor);
+    builder.add("street", stringJsonAdapter, o -> ((Address) o).getStreet());
+    builder.add("city", cityJsonAdapter, o -> ((Address) o).getCity());
+    builder.add("suburb", suburbJsonAdapter, o -> ((Address) o).getSuburb());
     builder.endObject();
   }
 
