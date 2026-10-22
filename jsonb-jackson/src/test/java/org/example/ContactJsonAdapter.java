@@ -7,7 +7,7 @@ import io.avaje.jsonb.Jsonb;
 import io.avaje.json.view.ViewBuilder;
 import io.avaje.json.view.ViewBuilderAware;
 
-import java.lang.invoke.MethodHandle;
+import java.util.function.UnaryOperator;
 
 public class ContactJsonAdapter implements ViewBuilderAware, JsonAdapter<Contact> {
 
@@ -30,11 +30,11 @@ public class ContactJsonAdapter implements ViewBuilderAware, JsonAdapter<Contact
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle mh) {
-    builder.beginObject(name, mh);
-    builder.add("id", longAdapter, builder.method(Contact.class, "id", Long.class));
-    builder.add("firstName", stringAdapter, builder.method(Contact.class, "firstName", String.class));
-    builder.add("lastName", stringAdapter, builder.method(Contact.class, "lastName", String.class));
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.beginObject(name, accessor);
+    builder.add("id", longAdapter, o -> ((Contact) o).id());
+    builder.add("firstName", stringAdapter, o -> ((Contact) o).firstName());
+    builder.add("lastName", stringAdapter, o -> ((Contact) o).lastName());
     builder.endObject();
   }
 

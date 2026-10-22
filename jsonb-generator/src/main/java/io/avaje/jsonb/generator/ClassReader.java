@@ -210,7 +210,7 @@ final class ClassReader implements BeanReader {
     }
     importTypes.add(Constants.IOEXCEPTION);
     if (!hasSubTypes) {
-      importTypes.add(Constants.METHODHANDLE);
+      importTypes.add(Constants.UNARY_OPERATOR);
     }
     importTypes.add(type);
     for (final FieldReader allField : allFields) {
@@ -379,8 +379,8 @@ final class ClassReader implements BeanReader {
 
   private void writeViewBuild(Append writer) {
     writer.append("  @Override").eol();
-    writer.append("  public void build(ViewBuilder builder, String name, MethodHandle handle) {").eol();
-    writer.append("    builder.beginObject(name, handle);").eol();
+    writer.append("  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {").eol();
+    writer.append("    builder.beginObject(name, accessor);").eol();
     for (final FieldReader allField : allFields) {
       if (allField.includeToJson(null)) {
         allField.writeViewBuilder(writer, shortName);

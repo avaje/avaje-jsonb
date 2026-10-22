@@ -338,15 +338,9 @@ final class FieldProperty {
   }
 
   void writeViewBuilder(Append writer, String shortName, String propertyName) {
-    if (getter == null) {
-      writer.append("    builder.add(\"%s\", %s, builder.field(%s.class, \"%s\"));", propertyName, adapterFieldName, shortName, fieldName).eol();
-    } else {
-      String topType = genericType.topType() + ".class";
-      if (genericTypeParameter) {
-        topType = genericTypeReplacement(topType, "Object.class");
-      }
-      writer.append("    builder.add(\"%s\", %s, builder.method(%s.class, \"%s\", %s));", propertyName, adapterFieldName, shortName, getter.getName(), topType).eol();
-    }
+    writer.append("    builder.add(\"%s\", %s, o -> ", propertyName, adapterFieldName);
+    writeGetValue(writer, "((" + shortName + ") o)", ");");
+    writer.eol();
   }
 
   void writeFromJsonSetter(Append writer, String varName, String prefix, String num) {
