@@ -50,7 +50,7 @@ public class CustomerJsonAdapter implements ViewBuilderAware, JsonAdapter<Custom
 
   @Override
   public void toJson(JsonWriter writer, Customer customer) {
-    writer.beginObject(names);
+    writer.beginObject(names, 5);
     writer.name( 0);
     intAdapter.toJson(writer, customer.id());
     writer.name( 1);

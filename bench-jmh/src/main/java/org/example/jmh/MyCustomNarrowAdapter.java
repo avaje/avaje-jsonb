@@ -26,8 +26,7 @@ public class MyCustomNarrowAdapter implements JsonAdapter<NarrowNamesRecord> {
 
   @Override
   public void toJson(JsonWriter writer, NarrowNamesRecord myRecord) {
-    writer.beginObject();
-    //writer.names(names);
+    writer.beginObject(5);
     //writer.name(0);
     writer.name("a");
     stringJsonAdapter.toJson(writer, myRecord.a());
