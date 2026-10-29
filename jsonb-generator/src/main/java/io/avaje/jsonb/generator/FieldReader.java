@@ -6,6 +6,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 final class FieldReader {
 
@@ -287,18 +288,24 @@ final class FieldReader {
     property.writeFromJsonVariablesRecord(writer, num);
   }
 
-  void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName, boolean caseInsensitiveKeys, List<String> moreAlias) {
+  void writeFromJsonSwitch(
+      Append writer,
+      boolean defaultConstructor,
+      String varName,
+      boolean caseInsensitiveKeys,
+      List<String> moreAlias,
+      UnaryOperator<String> caseLabel) {
     if (unmapped) {
       return;
     }
     aliases.addAll(moreAlias);
     for (final String alias : aliases) {
       final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
-      writer.append("        case \"%s\":", propertyKey).eol();
+      writer.append("        case %s:", caseLabel.apply(propertyKey)).eol();
     }
     final String propertyKey = caseInsensitiveKeys ? propertyName.toLowerCase() : propertyName;
     if (!aliases.contains(propertyName)) {
-      writer.append("        case \"%s\": ", propertyKey).eol();
+      writer.append("        case %s: ", caseLabel.apply(propertyKey)).eol();
     }
     if (!deserialize) {
       writer.append("          reader.skipValue();");

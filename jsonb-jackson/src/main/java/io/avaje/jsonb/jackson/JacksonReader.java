@@ -16,6 +16,7 @@ final class JacksonReader implements JsonReader {
   private final JsonParser parser;
   private final boolean failOnUnknown;
   private boolean streamArray;
+  private String lastFieldName;
 
   JacksonReader(JsonParser parser, boolean failOnUnknown) {
     this.parser = parser;
@@ -135,6 +136,17 @@ final class JacksonReader implements JsonReader {
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
+  }
+
+  @Override
+  public int nextFieldHash() {
+    lastFieldName = nextField();
+    return JsonReader.nameHash(lastFieldName);
+  }
+
+  @Override
+  public String lastFieldName() {
+    return lastFieldName;
   }
 
   @Override
