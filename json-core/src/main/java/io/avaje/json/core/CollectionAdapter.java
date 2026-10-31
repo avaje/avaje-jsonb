@@ -21,8 +21,8 @@ import io.avaje.json.JsonWriter;
 import io.avaje.json.view.ViewBuilder;
 import io.avaje.json.view.ViewBuilderAware;
 
-import java.lang.invoke.MethodHandle;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 /**
  * Converts collection types to JSON arrays containing their converted contents.
@@ -66,8 +66,8 @@ abstract class CollectionAdapter<C extends Collection<T>, T> implements ViewBuil
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) {
-    builder.addArray(name, elementAdapter, handle);
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.addArray(name, elementAdapter, accessor);
   }
 
   @Override
