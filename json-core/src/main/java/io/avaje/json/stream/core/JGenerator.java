@@ -4,8 +4,11 @@ import io.avaje.json.JsonIoException;
 import io.avaje.json.stream.JsonOutput;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -32,6 +35,8 @@ import java.util.Deque;
  * They should not be shared across threads (concurrently) so for Thread reuse it's best to use patterns such as ThreadLocal.
  */
 class JGenerator implements JsonGenerator {
+
+  private static final VarHandle LONGS = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
   private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -572,9 +577,42 @@ class JGenerator implements JsonGenerator {
 
   @Override
   public void writeName(int namePos) {
-    prefixName();
-    writeAscii(currentNames.key(namePos));
-    writeColon();
+    if (pretty) {
+      prefixName();
+      writeAscii(currentNames.key(namePos));
+      writeColon();
+      return;
+    }
+    final long[] shortFields = currentNames.shortFields();
+    if (shortFields != null) {
+      // comma then "name": as 2 longs (bytes past the field are overwritten by what follows)
+      if (position + 17 >= buffer.length) {
+        enlargeOrFlush(position, 17);
+      }
+      int pos = position;
+      if (lastOp == OP_END) {
+        buffer[pos++] = COMMA;
+      }
+      LONGS.set(buffer, pos, shortFields[namePos << 1]);
+      LONGS.set(buffer, pos + 8, shortFields[(namePos << 1) + 1]);
+      position = pos + currentNames.field(namePos).length - 1;
+      lastOp = OP_FIELD;
+      return;
+    }
+    // the comma, quoted name and colon with a single capacity check
+    final byte[] field = currentNames.field(namePos);
+    final int len = field.length;
+    if (position + len >= buffer.length) {
+      enlargeOrFlush(position, len);
+    }
+    if (lastOp == OP_END) {
+      System.arraycopy(field, 0, buffer, position, len);
+      position += len;
+    } else {
+      System.arraycopy(field, 1, buffer, position, len - 1);
+      position += len - 1;
+    }
+    lastOp = OP_FIELD;
   }
 
   @Override
