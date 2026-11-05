@@ -1,6 +1,6 @@
 package io.avaje.json.view;
 
-import java.lang.invoke.MethodHandle;
+import java.util.function.UnaryOperator;
 
 /**
  * A (non-scalar) JsonAdapter that is part of building json views.
@@ -21,6 +21,6 @@ public interface ViewBuilderAware {
   /**
    * Build nested part of the view.
    */
-  void build(ViewBuilder builder, String name, MethodHandle handle);
+  void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor);
 
 }

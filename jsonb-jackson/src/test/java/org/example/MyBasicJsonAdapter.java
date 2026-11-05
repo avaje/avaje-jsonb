@@ -9,7 +9,7 @@ import io.avaje.json.PropertyNames;
 import io.avaje.json.view.ViewBuilder;
 import io.avaje.json.view.ViewBuilderAware;
 
-import java.lang.invoke.MethodHandle;
+import java.util.function.UnaryOperator;
 
 @Generated
 public final class MyBasicJsonAdapter implements ViewBuilderAware, JsonAdapter<StreamBasicTest.MyBasic> {
@@ -39,10 +39,10 @@ public final class MyBasicJsonAdapter implements ViewBuilderAware, JsonAdapter<S
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) {
-    builder.beginObject(name, handle);
-    builder.add("id", pintJsonAdapter, builder.method(StreamBasicTest.MyBasic.class, "id", int.class));
-    builder.add("name", stringJsonAdapter, builder.method(StreamBasicTest.MyBasic.class, "name", String.class));
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.beginObject(name, accessor);
+    builder.add("id", pintJsonAdapter, o -> ((StreamBasicTest.MyBasic) o).id);
+    builder.add("name", stringJsonAdapter, o -> ((StreamBasicTest.MyBasic) o).name);
     builder.endObject();
   }
 
