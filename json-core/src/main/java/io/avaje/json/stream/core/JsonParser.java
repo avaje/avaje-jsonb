@@ -37,6 +37,21 @@ interface JsonParser extends Closeable {
   String nextField();
 
   /**
+   * Read the field name returning its hash.
+   */
+  int nextFieldHash();
+
+  /**
+   * Return the name of the field last read via {@link #nextFieldHash()}.
+   */
+  String lastFieldName();
+
+  /**
+   * Read a string value that is expected to be one of the given values.
+   */
+  String readString(JsonNames values);
+
+  /**
    * Start a stream which could be an ARRAY or x-json-stream new line delimited json.
    */
   void startStream();
@@ -146,6 +161,7 @@ interface JsonParser extends Closeable {
   /**
    * Close the parser.
    */
+  @Override
   void close();
 
   /**

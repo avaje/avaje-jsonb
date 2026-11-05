@@ -113,6 +113,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   }
 
   @Override
+  public final void value(PropertyNames values, int position) {
+    delegate.value(values, position);
+  }
+
+  @Override
   public final void value(boolean value) {
     delegate.value(value);
   }

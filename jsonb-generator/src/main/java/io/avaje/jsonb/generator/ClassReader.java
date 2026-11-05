@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
@@ -51,6 +52,9 @@ final class ClassReader implements BeanReader {
 
   /** An Interface/abstract type with a single implementation */
   private ClassReader implementation;
+
+  private Map<String, String> hashConstants;
+  private boolean hashConstantsInit;
 
   ClassReader(TypeElement beanType, String errorContext) {
     this(beanType, null, errorContext, Optional.empty());
@@ -286,7 +290,76 @@ final class ClassReader implements BeanReader {
       }
     }
     writer.append("  private final PropertyNames names;").eol();
+    if (hasSubTypes) {
+      writer.append("  private final PropertyNames typeNames;").eol();
+    }
     writer.eol();
+    final var fromJsonReader = readOnlyInterface ? implementation : this;
+    if (fromJsonReader != null) {
+      fromJsonReader.writeHashConstants(writer);
+    }
+  }
+
+  private void writeHashConstants(Append writer) {
+    final var constants = hashConstants();
+    if (constants == null) {
+      return;
+    }
+    writer
+        .append("  // hash of each json property name (FNV-1a), used to switch on in fromJson()")
+        .eol();
+    for (final var entry : constants.entrySet()) {
+      writer
+          .append(
+              "  private static final int %s = %s;",
+              entry.getValue(), Util.fieldNameHash(entry.getKey()))
+          .eol();
+    }
+    writer.eol();
+  }
+
+  private Map<String, String> hashConstants() {
+    if (!hashConstantsInit) {
+      hashConstantsInit = true;
+      hashConstants = initHashConstants();
+    }
+    return hashConstants;
+  }
+
+  private Map<String, String> initHashConstants() {
+    if (caseInsensitiveKeys) {
+      return null;
+    }
+    final var keys = new ArrayList<String>();
+    if (hasSubTypes && !usesTypeProperty) {
+      keys.add(typePropertyKey());
+    }
+    for (final var field : allFields) {
+      if (!field.isUnmapped()) {
+        keys.addAll(field.aliases());
+        keys.add(field.propertyName());
+      }
+    }
+    final var hashes = new HashMap<Integer, String>();
+    final var constants = new LinkedHashMap<String, String>();
+    final var usedNames = new HashSet<String>();
+    usedNames.add("FACTORY");
+    for (final var key : keys) {
+      final var prior = hashes.putIfAbsent(Util.fieldNameHash(key), key);
+      if (prior != null && !prior.equals(key)) {
+        // hash collision, use String switch
+        return null;
+      }
+      if (!constants.containsKey(key)) {
+        final var base = Util.constantName(key);
+        var constantName = base;
+        for (int i = 2; !usedNames.add(constantName); i++) {
+          constantName = base + "_" + i;
+        }
+        constants.put(key, constantName);
+      }
+    }
+    return constants;
   }
 
   private static boolean includeField(FieldReader allField, Set<String> uniqueTypes) {
@@ -335,6 +408,12 @@ final class ClassReader implements BeanReader {
     properties.addAll(propertyNames());
     writer.append(String.join(", ", properties));
     writer.append(");").eol();
+    if (hasSubTypes) {
+      final String typeNames = subTypes.stream()
+        .map(subType -> '"' + subType.name() + '"')
+        .collect(Collectors.joining(", "));
+      writer.append("    this.typeNames = jsonb.properties(%s);", typeNames).eol();
+    }
   }
 
   private List<String> propertyNames() {
@@ -418,7 +497,6 @@ final class ClassReader implements BeanReader {
       for (int i = 0; i < subTypes.size(); i++) {
         final TypeSubTypeMeta subTypeMeta = subTypes.get(i);
         final String subType = subTypeMeta.type();
-        final String subTypeName = subTypeMeta.name();
         final String elseIf = i == 0 ? "if" : "else if";
         final String subTypeShort = Util.shortType(subTypeMeta.type());
         if (useInstanceofPattern) {
@@ -428,7 +506,7 @@ final class ClassReader implements BeanReader {
           writer.append("      %s sub = (%s) %s;", subTypeShort, subTypeShort, varName).eol();
         }
         writer.append("      writer.name(0);").eol();
-        writer.append("      stringJsonAdapter.toJson(writer, \"%s\");", subTypeName).eol();
+        writer.append("      writer.value(typeNames, %s);", i).eol();
         writeToJsonForType(writer, "sub", "      ", subType);
         writer.append("    }").eol();
       }
@@ -671,8 +749,15 @@ final class ClassReader implements BeanReader {
   private void writeFromJsonSwitch(Append writer, boolean defaultConstructor, String varName) {
     writer.eol();
     writer.append("    // read json").eol();
-    writer.append("    reader.beginObject(names);").eol();
+    final var constants = hashConstants();
+    // hash mode matches on nextFieldHash() so the reader has no use for the names
+    writer.append(constants == null ? "    reader.beginObject(names);" : "    reader.beginObject();").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
+    final UnaryOperator<String> caseLabel = constants == null ? key -> '"' + key + '"' : constants::get;
+    if (constants != null) {
+      writer.append("      final int fieldHash = reader.nextFieldHash();").eol();
+      writer.append("      switch (fieldHash) {").eol();
+    }else {
     if (caseInsensitiveKeys) {
       writer.append("      final String origFieldName = reader.nextField();").eol();
       writer.append("      final String fieldName = origFieldName.toLowerCase();").eol();
@@ -680,9 +765,10 @@ final class ClassReader implements BeanReader {
       writer.append("      final String fieldName = reader.nextField();").eol();
     }
     writer.append("      switch (fieldName) {").eol();
+  }
     if (hasSubTypes && !usesTypeProperty) {
-      writer.append("        case \"%s\":", typePropertyKey()).eol();
-      writer.append("          type = stringJsonAdapter.fromJson(reader);").eol();
+      writer.append("        case %s:", caseLabel.apply(typePropertyKey())).eol();
+      writer.append("          type = reader.isNullValue() ? null : reader.readString(typeNames);").eol();
       writer.append("          break;").eol();
     }
     // don't write same switch case twice
@@ -696,14 +782,15 @@ final class ClassReader implements BeanReader {
         final var isCommonFieldDiffType = isCommonFieldMap.get(name);
         if (isCommonFieldDiffType == null || !isCommonFieldDiffType) {
           allField.writeFromJsonSwitch(
-            writer,
-            defaultConstructor,
-            varName,
-            caseInsensitiveKeys,
-            allFields.stream()
-              .filter(x -> x.fieldName().equals(name))
-              .flatMap(f -> f.aliases().stream())
-              .collect(toList()));
+              writer,
+              defaultConstructor,
+              varName,
+              caseInsensitiveKeys,
+              allFields.stream()
+                  .filter(x -> x.fieldName().equals(name))
+                  .flatMap(f -> f.aliases().stream())
+                  .collect(toList()),
+              caseLabel);
         } else {
           // if subclass shares a field name with another subclass
           // write a special case statement
@@ -712,21 +799,29 @@ final class ClassReader implements BeanReader {
             writer,
             allFields.stream().filter(x -> x.fieldName().equals(name)).collect(toList()),
             defaultConstructor,
-            varName);
+            varName,
+            caseLabel);
         }
 
-      } else
-        allField.writeFromJsonSwitch(writer, defaultConstructor, varName, caseInsensitiveKeys, List.of());
+      } else {
+        allField.writeFromJsonSwitch(
+            writer, defaultConstructor, varName, caseInsensitiveKeys, List.of(), caseLabel);
+      }
     }
     writer.append("        default:").eol();
-    final String unmappedFieldName = caseInsensitiveKeys ? "origFieldName" : "fieldName";
+    final String unmappedFieldName = constants != null ? "reader.lastFieldName()" : caseInsensitiveKeys ? "origFieldName" : "fieldName";
     if (unmappedField != null) {
+      if (constants != null) {
+        // read the name before the value which can contain nested fields
+        writer.append("          final String unmappedName = %s;", unmappedFieldName).eol();
+      }
+      final String name = constants != null ? "unmappedName" : unmappedFieldName;
       if (unmappedJsonNodeType()) {
         writer.append("          var value = jsonNodeAdapter.fromJson(reader);").eol();
-        writer.append("          unmapped.add(%s, value);", unmappedFieldName).eol();
+        writer.append("          unmapped.add(%s, value);", name).eol();
       } else {
         writer.append("          var value = objectJsonAdapter.fromJson(reader);").eol();
-        writer.append("          unmapped.put(%s, value);", unmappedFieldName).eol();
+        writer.append("          unmapped.put(%s, value);", name).eol();
       }
     } else {
       writer.append("          reader.unmappedField(%s);", unmappedFieldName).eol();
@@ -737,12 +832,12 @@ final class ClassReader implements BeanReader {
     writer.append("    reader.endObject();").eol();
   }
 
-  private void writeSubTypeCase(String name, Append writer, List<FieldReader> commonFields, boolean defaultConstructor, String varName) {
-    writer.append("        case \"%s\":", name).eol();
+  private void writeSubTypeCase(String name, Append writer, List<FieldReader> commonFields, boolean defaultConstructor, String varName, UnaryOperator<String> caseLabel) {
+    writer.append("        case %s:", caseLabel.apply(name)).eol();
     // get all possible aliases of this field from the subtypes
     for (final String alias : commonFields.stream().map(FieldReader::aliases).findFirst().orElseGet(List::of)) {
       final String propertyKey = caseInsensitiveKeys ? alias.toLowerCase() : alias;
-      writer.append("        case \"%s\":", propertyKey).eol();
+      writer.append("        case %s:", caseLabel.apply(propertyKey)).eol();
     }
     var elseIf = false;
     // write the case statements with subtypeCheck

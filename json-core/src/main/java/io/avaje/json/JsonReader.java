@@ -18,6 +18,7 @@ package io.avaje.json;
 import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Reads json content as a stream of JSON tokens and content.
@@ -104,6 +105,43 @@ public interface JsonReader extends Closeable {
   String nextField();
 
   /**
+   * Read the next field returning the hash of its name rather than the name.
+   *
+   * @see {@link #nameHash(String)}.
+   */
+  default int nextFieldHash() {
+    return nameHash(nextField());
+  }
+
+  /** Return the name of the field last read via {@link #nextFieldHash()}. */
+  default String lastFieldName() {
+    return null;
+  }
+
+  /**
+   * Return the hash of the given field name as returned by {@link #nextFieldHash()}.
+   *
+   * <p>This is FNV-1a (32 bit) over the UTF-8 bytes of the name.
+   */
+  static int nameHash(String name) {
+    int hash = 0x811c9dc5;
+    for (byte b : name.getBytes(StandardCharsets.UTF_8)) {
+      hash ^= b;
+      hash *= 0x1000193;
+    }
+    return hash;
+  }
+
+  /**
+   * Read a string value that is expected to be one of the given values.
+   *
+   * @param values The expected values typically created via {@code Jsonb.properties(String...)}
+   */
+  default String readString(PropertyNames values) {
+    return readString();
+  }
+
+  /**
    * Return true if the value to be read is a null.
    */
   boolean isNullValue();
@@ -166,6 +204,7 @@ public interface JsonReader extends Closeable {
   /**
    * Close the resources of the reader.
    */
+  @Override
   void close();
 
   /**
