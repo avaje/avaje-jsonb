@@ -32,7 +32,7 @@ final class StreamAdapter<T> implements DJsonClosable<Stream<T>>, JsonAdapter<St
         });
         writer.writeNewLine();
       } else {
-        writer.beginArray();
+        writer.beginArray(); // It is impossible to know the length of a stream without consuming its elements
         stream.forEach(bean -> elementAdapter.toJson(writer, bean));
         writer.endArray();
       }

@@ -36,7 +36,7 @@ final class EnumMapAdapter<K extends Enum<K>, V> implements JsonAdapter<Map<K, V
 
   @Override
   public void toJson(JsonWriter writer, Map<K, V> map) {
-    writer.beginObject();
+    writer.beginObject(map.size());
     for (final var entry : map.entrySet()) {
       if (entry.getKey() == null) {
         throw new JsonDataException("Map key is null at " + writer.path());

@@ -46,9 +46,9 @@ class CustomAdapter2Test {
 
     @Override
     public void toJson(JsonWriter writer, MyOtherType value) {
-      writer.beginObject(names);
+      writer.beginObject(names, 2);
       writer.name(0);
-      // writer.beginObject();
+      // writer.beginObject(2);
       // writer.name("foo");
       writer.value(value.foo);
       writer.name(1);
