@@ -3,6 +3,7 @@ package io.avaje.json.stream.core;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonEofException;
 import io.avaje.json.JsonIoException;
+import io.avaje.json.JsonReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -58,6 +59,7 @@ class JParser implements JsonParser {
   }
 
   private int tokenStart;
+  private int nameStart;
   private int nameEnd;
   private int currentIndex = 0;
   private long currentPosition = 0;
@@ -124,6 +126,7 @@ class JParser implements JsonParser {
     readLimit = 0;
     nameStack.clear();
     currentNames = null;
+    nameEnd = 0;
     stream = null;
   }
 
@@ -133,6 +136,7 @@ class JParser implements JsonParser {
     currentNames = null;
     currentPosition = 0;
     currentIndex = 0;
+    nameEnd = 0;
     stream = newStream;
     if (newStream != null) {
       readLimit = Math.min(length, bufferLenWithExtraSpace);
@@ -215,6 +219,11 @@ class JParser implements JsonParser {
   }
 
   private int prepareNextBlock() {
+    if (nameEnd > 0) {
+      // the last field name is about to be shifted out of the buffer, keep it for lastFieldName()
+      lastName = new String(buffer, nameStart, nameEnd - nameStart - 1, StandardCharsets.UTF_8);
+      nameEnd = -1;
+    }
     final int len = length - currentIndex;
     if (readRawBuffer != null) {
       // performing readRaw()
@@ -246,6 +255,10 @@ class JParser implements JsonParser {
       return false;
     }
     return prepareNextBlock() == 0;
+  }
+
+  private boolean isEndOfInput() {
+    return currentIndex >= length && (stream == null || prepareNextBlock() == 0);
   }
 
   /**
@@ -419,6 +432,38 @@ class JParser implements JsonParser {
     final int len = parseString();
     //return valuesCache == null ? new String(chars, 0, len) : valuesCache.get(chars, len);
     return new String(chars, 0, len);
+  }
+
+  @Override
+  public final String readString(final JsonNames values) {
+    if (last != '"') throw newParseError("Expecting '\"' for string start");
+    final int start = currentIndex;
+    final byte[] buf = buffer;
+    final int end = length;
+    int hash = 0x811c9dc5;
+    for (int ci = start; ci < end; ci++) {
+      final byte b = buf[ci];
+      if (b == '"') {
+        final int pos = values.position(hash);
+        if (pos >= 0 && matches(values.key(pos), start, ci)) {
+          currentIndex = ci + 1;
+          return values.name(pos);
+        }
+        break;
+      } else if (b == '\\') {
+        break;
+      }
+      hash ^= b;
+      hash *= 0x1000193;
+    }
+    // escaped, unknown or not fully in the buffer
+    return readString();
+  }
+
+  /** Return true if the buffer from start to end matches the quoted key. */
+  private boolean matches(final byte[] quotedKey, final int start, final int end) {
+    return quotedKey.length - 2 == end - start
+        && Arrays.equals(quotedKey, 1, quotedKey.length - 1, buffer, start, end);
   }
 
   final int parseString() {
@@ -627,7 +672,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextStreamElement() {
-    if (currentIndex >= length) {
+    if (isEndOfInput()) {
       return false;
     }
     try {
@@ -645,7 +690,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextElement() {
-    if (currentIndex >= length) {
+    if (isEndOfInput()) {
       return false;
     }
     final boolean firstElement = last == '[';
@@ -686,7 +731,7 @@ class JParser implements JsonParser {
 
   final int calcHash() {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
-    tokenStart = currentIndex;
+    nameStart = tokenStart = currentIndex;
     int ci = currentIndex;
     int hash = 0x811c9dc5;
     if (stream != null) {
@@ -728,16 +773,18 @@ class JParser implements JsonParser {
     // the name has an escape or crosses the end of the buffer, read it again with parseString()
     // which decodes it and refills the buffer, then hash the decoded name as JsonNames does
     currentIndex = tokenStart;
-    lastName = new String(chars, 0, parseString());
     nameEnd = -1;
-    return Escape.nameHash(lastName);
+    final int len = parseString();
+    lastName = new String(chars, 0, len);
+    return JsonReader.nameHash(lastName);
   }
 
-  private String lastFieldName() {
+  @Override
+  public final String lastFieldName() {
     if (nameEnd == -1) {
       return lastName;
     }
-    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
+    return new String(buffer, nameStart, nameEnd - nameStart - 1, StandardCharsets.UTF_8);
   }
 
   private byte skipString() {
@@ -824,21 +871,19 @@ class JParser implements JsonParser {
   private byte skipObject() {
     byte nextToken = nextToken();
     if (nextToken == '}') return nextToken();
-    if (nextToken == '"') {
-      nextToken = skipString();
-    } else {
+    if (nextToken != '"'){
       throw newParseError("Expecting '\"' for attribute name");
     }
+    nextToken = skipString();
     if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
     nextToken();
     nextToken = skipNextValue();
     while (nextToken == ',') {
       nextToken = nextToken();
-      if (nextToken == '"') {
-        nextToken = skipString();
-      } else {
+      if (nextToken != '"'){
         throw newParseError("Expecting '\"' for attribute name");
       }
+      nextToken = skipString();
       if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
       nextToken();
       nextToken = skipNextValue();
@@ -880,6 +925,16 @@ class JParser implements JsonParser {
       return key;
     }
     return readKey();
+  }
+
+  @Override
+  public final int nextFieldHash() {
+    final int hash = calcHash();
+    if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
+      throw newParseError("Expecting ':' after attribute name");
+    }
+    nextToken();
+    return hash;
   }
 
   /**

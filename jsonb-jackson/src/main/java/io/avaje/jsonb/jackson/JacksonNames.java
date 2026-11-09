@@ -22,6 +22,11 @@ final class JacksonNames implements PropertyNames {
     return keys[pos];
   }
 
+  @Override
+  public String name(int position) {
+    return keys[position].getValue();
+  }
+
   private static SerializedString obtain(String name) {
     return NAME_CACHE.get(name);
   }

@@ -234,6 +234,16 @@ final class JacksonWriter implements JsonWriter {
   }
 
   @Override
+  public void value(PropertyNames values, int position) {
+    try {
+      writeDeferredName();
+      generator.writeString(((JacksonNames) values).key(position));
+    } catch (IOException e) {
+      throw new JsonIoException(e);
+    }
+  }
+
+  @Override
   public void value(boolean value) {
     try {
       writeDeferredName();

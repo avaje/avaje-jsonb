@@ -1,8 +1,10 @@
 package io.avaje.json.stream.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import io.avaje.json.JsonReader;
 
 class JsonNamesTest {
 
@@ -14,9 +16,9 @@ class JsonNamesTest {
     assertThat(names.lookup(23)).isNull();
     assertThat(names.lookup(-23)).isNull();
 
-    assertThat(names.lookup(Escape.nameHash("one"))).isEqualTo("one");
-    assertThat(names.lookup(Escape.nameHash("two"))).isEqualTo("two");
-    assertThat(names.lookup(Escape.nameHash("three"))).isEqualTo("three");
+    assertThat(names.lookup(JsonReader.nameHash("one"))).isEqualTo("one");
+    assertThat(names.lookup(JsonReader.nameHash("two"))).isEqualTo("two");
+    assertThat(names.lookup(JsonReader.nameHash("three"))).isEqualTo("three");
   }
 
   @Test
@@ -30,7 +32,7 @@ class JsonNamesTest {
   }
 
   private static void check(JsonNames names, String key) {
-    String statusCode = names.lookup(Escape.nameHash(key));
+    String statusCode = names.lookup(JsonReader.nameHash(key));
     assertThat(statusCode).isEqualTo(key);
   }
 
