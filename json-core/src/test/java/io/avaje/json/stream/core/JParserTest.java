@@ -74,6 +74,29 @@ class JParserTest {
     assertThat(parser.readRaw()).isEqualTo(raw);
   }
 
+  @Test
+  void readRaw_when_streaming_exceedsStringLimit() {
+    JParser parser = newParser(4096, 50_000, 200_000);
+    String raw = "\"" + "x".repeat(100_001) + "\"";
+    String content = "{\"id\":43, \"content\":" + raw + "}";
+    initParserViaStream(parser, content);
+
+    assertThat(parser.nextField()).isEqualTo("content");
+    assertThat(parser.readRaw()).isEqualTo(raw);
+  }
+
+  @Test
+  void readRaw_when_streaming_exceedsRawLimit() {
+    JParser parser = newParser(4096, 200_000, 50_000);
+    String raw = "\"" + "x".repeat(100_001) + "\"";
+    String content = "{\"id\":43, \"content\":" + raw + "}";
+    initParserViaStream(parser, content);
+
+    assertThat(parser.nextField()).isEqualTo("content");
+    assertThatThrownBy(parser::readRaw)
+      .hasMessageContaining("Maximum buffer limit exceeded for raw content: '50000'");
+  }
+
   private String createLargeContent() {
     StringBuilder raw = new StringBuilder("\"begin");
     String add = "|this-is-my-content-that-exceeds-buffer-size";
@@ -157,8 +180,16 @@ class JParserTest {
   }
 
   private JParser newParser(int len) {
+    return newParser(len, maxStringBuffer);
+  }
+
+  private JParser newParser(int len, int maxStringBuffer) {
+    return newParser(len, maxStringBuffer, maxStringBuffer);
+  }
+
+  private JParser newParser(int len, int maxStringBuffer, int maxRawBuffer) {
     final char[] tmp = new char[len];
     final byte[] buffer = new byte[len];
-    return new JParser(tmp, buffer, buffer.length, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer);
+    return new JParser(tmp, buffer, buffer.length, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer, maxRawBuffer);
   }
 }
