@@ -155,6 +155,38 @@ class JGenerator implements JsonGenerator {
     buffer[position++] = value;
   }
 
+  private void writeRawUtf8(final String value) {
+    for (int i = 0; i < value.length();) {
+      final int cp = Character.codePointAt(value, i);
+      if (cp <= 0x7F) {
+        writeByte((byte) cp);
+        i++;
+      } else if (cp <= 0x7FF) {
+        ensureCapacity(2);
+        buffer[position++] = (byte) (0xC0 | (cp >> 6));
+        buffer[position++] = (byte) (0x80 | (cp & 0x3F));
+        i++;
+      } else if (cp <= 0xFFFF) {
+        if (Character.isSurrogate((char) cp)) {
+          throw new JsonIoException(
+            String.format("Invalid unicode codepoint %s at index %s", Integer.toHexString(cp), i));
+        }
+        ensureCapacity(3);
+        buffer[position++] = (byte) (0xE0 | (cp >> 12));
+        buffer[position++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+        buffer[position++] = (byte) (0x80 | (cp & 0x3F));
+        i++;
+      } else {
+        ensureCapacity(4);
+        buffer[position++] = (byte) (0xF0 | (cp >> 18));
+        buffer[position++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+        buffer[position++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+        buffer[position++] = (byte) (0x80 | (cp & 0x3F));
+        i += 2;
+      }
+    }
+  }
+
   private void writeString(final String value) {
     final int len = value.length();
     if (len > largeStringMax) {
@@ -604,7 +636,7 @@ class JGenerator implements JsonGenerator {
   @Override
   public void writeRaw(String value) {
     prefixValue();
-    writeAscii(value);
+    writeRawUtf8(value);
   }
 
   @Override

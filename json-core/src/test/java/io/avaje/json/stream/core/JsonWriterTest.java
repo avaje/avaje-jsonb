@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
+import io.avaje.json.stream.BufferedJsonWriter;
+import io.avaje.json.stream.BytesJsonWriter;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.stream.JsonOutput;
 import io.avaje.json.stream.JsonStream;
@@ -234,6 +236,30 @@ class JsonWriterTest {
     fw.close();
 
     assertThat(writer.toString()).isEqualTo("{\"key\":\"abc\"}");
+  }
+
+  @Test
+  void rawValue_unicode_stringWriter() {
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+
+    BufferedJsonWriter stringWriter = build.bufferedWriter();
+    stringWriter.beginObject();
+    stringWriter.name("key");
+    stringWriter.rawValue("\"安\"");
+    stringWriter.endObject();
+    assertThat(stringWriter.result()).isEqualTo("{\"key\":\"安\"}");
+  }
+
+  @Test
+  void rawValue_unicode_bytesWriter() {
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+
+    BytesJsonWriter bytesWriter = build.bufferedWriterAsBytes();
+    bytesWriter.beginObject();
+    bytesWriter.name("key");
+    bytesWriter.rawValue("\"安\"");
+    bytesWriter.endObject();
+    assertThat(bytesWriter.result()).isEqualTo("{\"key\":\"安\"}".getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
