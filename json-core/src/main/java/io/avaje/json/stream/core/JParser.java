@@ -89,6 +89,7 @@ class JParser implements JsonParser {
   final UnknownNumberParsing unknownNumbers;
   final int maxNumberDigits;
   private final int maxStringBuffer;
+  private final int maxRawBuffer;
 
   public JParser(
     final char[] tmp,
@@ -98,6 +99,18 @@ class JParser implements JsonParser {
     final UnknownNumberParsing unknownNumbers,
     final int maxNumberDigits,
     final int maxStringBuffer) {
+    this(tmp, buffer, length, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer, maxStringBuffer);
+  }
+
+  public JParser(
+    final char[] tmp,
+    final byte[] buffer,
+    final int length,
+    final DoublePrecision doublePrecision,
+    final UnknownNumberParsing unknownNumbers,
+    final int maxNumberDigits,
+    final int maxStringBuffer,
+    final int maxRawBuffer) {
     this.tmp = tmp;
     this.buffer = buffer;
     this.length = length;
@@ -107,6 +120,7 @@ class JParser implements JsonParser {
     this.unknownNumbers = unknownNumbers;
     this.maxNumberDigits = maxNumberDigits;
     this.maxStringBuffer = maxStringBuffer;
+    this.maxRawBuffer = maxRawBuffer;
     this.doubleLengthLimit = 15 + doublePrecision.level;
     this.originalBuffer = buffer;
     this.originalBufferLenWithExtraSpace = bufferLenWithExtraSpace;
@@ -229,8 +243,8 @@ class JParser implements JsonParser {
       // performing readRaw()
       readRawBuffer.write(buffer, readRawStartPosition, currentIndex - readRawStartPosition);
       readRawStartPosition = 0;
-      if (readRawBuffer.size() > maxStringBuffer) {
-        throw newParseErrorWith("Maximum buffer limit exceeded for raw content", maxStringBuffer);
+      if (readRawBuffer.size() > maxRawBuffer) {
+        throw newParseErrorWith("Maximum buffer limit exceeded for raw content", maxRawBuffer);
       }
     }
     System.arraycopy(buffer, currentIndex, buffer, 0, len);
@@ -255,10 +269,6 @@ class JParser implements JsonParser {
       return false;
     }
     return prepareNextBlock() == 0;
-  }
-
-  private boolean isEndOfInput() {
-    return currentIndex >= length && (stream == null || prepareNextBlock() == 0);
   }
 
   /**
@@ -672,7 +682,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextStreamElement() {
-    if (isEndOfInput()) {
+    if (isEndOfStream()) {
       return false;
     }
     try {
@@ -690,7 +700,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextElement() {
-    if (isEndOfInput()) {
+    if (isEndOfStream()) {
       return false;
     }
     final boolean firstElement = last == '[';

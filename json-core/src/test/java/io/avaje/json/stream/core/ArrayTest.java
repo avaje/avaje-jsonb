@@ -8,7 +8,9 @@ import io.avaje.json.core.CoreTypes;
 import io.avaje.json.stream.JsonStream;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -101,6 +103,25 @@ class ArrayTest {
       assertEquals("yy", reader.readString());
       assertFalse(reader.hasNextElement());
       reader.endArray();
+    }
+  }
+
+  @Test
+  void readArrayStringEndingAtStreamBufferBoundary() {
+    String json = "{\"a\":[\"" + "x".repeat(4088) + "\",\"y\"]}";
+    try (JsonReader reader = adapter.reader(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)))) {
+      reader.beginObject();
+      assertTrue(reader.hasNextField());
+      assertThat(reader.nextField()).isEqualTo("a");
+      reader.beginArray();
+
+      assertTrue(reader.hasNextElement());
+      assertThat(reader.readString()).hasSize(4088);
+      assertTrue(reader.hasNextElement());
+      assertThat(reader.readString()).isEqualTo("y");
+      assertFalse(reader.hasNextElement());
+      reader.endArray();
+      reader.endObject();
     }
   }
 
