@@ -1,6 +1,7 @@
 package io.avaje.json.stream.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
@@ -263,6 +264,51 @@ class JsonWriterTest {
   }
 
   @Test
+  void rawValue_unicode_mixedWidths() {
+    var build = CoreJsonStream.builder().serializeNulls(true).build();
+    var raw = "\"a\u00e9\u5b89\uD83D\uDE00z\"";
+
+    var bytesWriter = build.bufferedWriterAsBytes();
+    bytesWriter.beginObject();
+    bytesWriter.name("key");
+    bytesWriter.rawValue(raw);
+    bytesWriter.endObject();
+    assertThat(bytesWriter.result())
+        .isEqualTo(("{\"key\":" + raw + "}").getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rawValue_unicode_large() {
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+    StringBuilder sb = new StringBuilder("\"");
+    for (int i = 0; i < 20_000; i++) {
+      sb.append("ab\u00e9\u5b89\uD83D\uDE00");
+    }
+    String raw = sb.append('"').toString();
+
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    try (JsonWriter writer = build.writer(os)) {
+      writer.beginObject();
+      writer.name("key");
+      writer.rawValue(raw);
+      writer.endObject();
+    }
+    assertThat(os.toByteArray()).isEqualTo(("{\"key\":" + raw + "}").getBytes(StandardCharsets.UTF_8));
+
+    BytesJsonWriter bytesWriter = build.bufferedWriterAsBytes();
+    bytesWriter.rawValue(raw);
+    assertThat(bytesWriter.result()).isEqualTo(raw.getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rawValue_loneSurrogate_throws() {
+    JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
+    BytesJsonWriter bytesWriter = build.bufferedWriterAsBytes();
+    assertThatThrownBy(() -> bytesWriter.rawValue("\"\uD83Dx\""))
+      .hasMessageContaining("Invalid unicode codepoint d83d");
+  }
+
+  @Test
   void rawChunk() {
     JsonStream build = CoreJsonStream.builder().serializeNulls(true).build();
 
@@ -283,6 +329,32 @@ class JsonWriterTest {
     fw.close();
 
     assertThat(writer.toString()).isEqualTo("{\"key\":\"abc\",\"x\":1}");
+  }
+
+  @Test
+  void rawChunk_unicode() {
+    var build = CoreJsonStream.builder().serializeNulls(true).build();
+
+    var os = new ByteArrayOutputStream();
+    var fw = build.writer(os);
+
+    fw.beginObject();
+    fw.name("key");
+    fw.rawChunkStart();
+    fw.rawChunk('"');
+    fw.rawChunk("a\u5b89");
+    fw.rawChunk('\u00e9');
+    fw.rawChunk("\uD83D\uDE00z");
+    fw.rawChunk('"');
+    fw.rawChunkEnd();
+    fw.name("x");
+    fw.value(1);
+    fw.endObject();
+    fw.close();
+
+    assertThat(os.toByteArray())
+        .isEqualTo(
+            "{\"key\":\"a\u5b89\u00e9\uD83D\uDE00z\",\"x\":1}".getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
