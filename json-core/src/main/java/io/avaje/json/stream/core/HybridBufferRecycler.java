@@ -232,7 +232,8 @@ final class HybridBufferRecycler implements BufferRecycler {
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
         Recyclers.PARSER_MAX_NUMBER_DIGITS,
-        Recyclers.PARSER_MAX_STRING_BUFFER);
+        Recyclers.PARSER_MAX_STRING_BUFFER,
+        Recyclers.PARSER_MAX_RAW_BUFFER);
       this.slot = slot;
     }
   }

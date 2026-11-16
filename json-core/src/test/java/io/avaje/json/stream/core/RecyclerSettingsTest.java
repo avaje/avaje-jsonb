@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *   <li>JSONB_PARSER_CHAR_BUFFER_SIZE</li>
  *   <li>JSONB_PARSER_MAX_NUMBER_DIGITS</li>
  *   <li>JSONB_PARSER_MAX_STRING_BUFFER</li>
+ *   <li>JSONB_PARSER_MAX_RAW_BUFFER</li>
  * </ul>
  */
 class RecyclerSettingsTest {
