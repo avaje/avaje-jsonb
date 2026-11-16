@@ -13,6 +13,7 @@ properties** or **environment variables** — no code changes required.
 | Parser char buffer | `jsonb.parserCharBufferSize` | `JSONB_PARSER_CHAR_BUFFER_SIZE` | `4096` |
 | Max number digits | `jsonb.parserMaxNumberDigits` | `JSONB_PARSER_MAX_NUMBER_DIGITS` | `309` |
 | Max string buffer | `jsonb.parserMaxStringBuffer` | `JSONB_PARSER_MAX_STRING_BUFFER` | `50000` |
+| Max raw buffer | `jsonb.parserMaxRawBuffer` | `JSONB_PARSER_MAX_RAW_BUFFER` | `10000000` |
 
 ### Priority order
 
@@ -37,6 +38,20 @@ export JSONB_PARSER_MAX_STRING_BUFFER=500000
 
 # System property (JVM flag)
 -Djsonb.parserMaxStringBuffer=500000
+```
+
+### `parserMaxRawBuffer`
+
+Limits the amount of streamed raw JSON content retained by `readRaw()`. This is
+separate from `parserMaxStringBuffer` because raw content is returned without
+decoding it as a JSON string value.
+
+```bash
+# ENV var (recommended for containers / native images)
+export JSONB_PARSER_MAX_RAW_BUFFER=500000
+
+# System property (JVM flag)
+-Djsonb.parserMaxRawBuffer=500000
 ```
 
 ### Buffer sizes
