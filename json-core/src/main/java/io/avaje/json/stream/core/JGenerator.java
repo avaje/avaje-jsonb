@@ -156,35 +156,51 @@ class JGenerator implements JsonGenerator {
   }
 
   private void writeRawUtf8(final String value) {
-    for (int i = 0; i < value.length();) {
-      final int cp = Character.codePointAt(value, i);
-      if (cp <= 0x7F) {
-        writeByte((byte) cp);
-        i++;
-      } else if (cp <= 0x7FF) {
-        ensureCapacity(2);
-        buffer[position++] = (byte) (0xC0 | (cp >> 6));
-        buffer[position++] = (byte) (0x80 | (cp & 0x3F));
-        i++;
-      } else if (cp <= 0xFFFF) {
-        if (Character.isSurrogate((char) cp)) {
-          throw new JsonIoException(
-            String.format("Invalid unicode codepoint %s at index %s", Integer.toHexString(cp), i));
-        }
-        ensureCapacity(3);
-        buffer[position++] = (byte) (0xE0 | (cp >> 12));
-        buffer[position++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-        buffer[position++] = (byte) (0x80 | (cp & 0x3F));
-        i++;
+    final int len = value.length();
+    int offset = 0;
+    while (offset < len) {
+      int end = Math.min(len, offset + largeStringMax);
+      if (end < len && Character.isHighSurrogate(value.charAt(end - 1))) {
+        end--; // don't split surrogate pair across segments
+      }
+      final int max = (end - offset) * 3;
+      if (position + max >= buffer.length) {
+        enlargeOrFlush(position, max);
+      }
+      writeRawSegment(value, offset, end);
+      offset = end;
+    }
+  }
+
+  private void writeRawSegment(final String value, int i, final int end) {
+    final byte[] buf = buffer;
+    int cur = position;
+    for (; i < end; i++) {
+      final char c = value.charAt(i);
+      if (c < 0x80) {
+        buf[cur++] = (byte) c;
+      } else if (c < 0x800) {
+        buf[cur++] = (byte) (0xC0 | (c >> 6));
+        buf[cur++] = (byte) (0x80 | (c & 0x3F));
+      } else if (!Character.isSurrogate(c)) {
+        buf[cur++] = (byte) (0xE0 | (c >> 12));
+        buf[cur++] = (byte) (0x80 | ((c >> 6) & 0x3F));
+        buf[cur++] = (byte) (0x80 | (c & 0x3F));
+      } else if (Character.isHighSurrogate(c)
+          && i + 1 < end
+          && Character.isLowSurrogate(value.charAt(i + 1))) {
+        final int cp = Character.toCodePoint(c, value.charAt(++i));
+        buf[cur++] = (byte) (0xF0 | (cp >> 18));
+        buf[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+        buf[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+        buf[cur++] = (byte) (0x80 | (cp & 0x3F));
       } else {
-        ensureCapacity(4);
-        buffer[position++] = (byte) (0xF0 | (cp >> 18));
-        buffer[position++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
-        buffer[position++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-        buffer[position++] = (byte) (0x80 | (cp & 0x3F));
-        i += 2;
+        position = cur;
+        throw new JsonIoException(
+            String.format("Invalid unicode codepoint %s at index %s", Integer.toHexString(c), i));
       }
     }
+    position = cur;
   }
 
   private void writeString(final String value) {
@@ -646,7 +662,7 @@ class JGenerator implements JsonGenerator {
 
   @Override
   public void writeRawChunk(String value) {
-    writeAscii(value);
+    writeRawUtf8(value);
   }
 
   @Override
@@ -656,7 +672,11 @@ class JGenerator implements JsonGenerator {
 
   @Override
   public void writeRawChunk(char value) {
-    writeByte((byte) value);
+    if (value < 0x80) {
+      writeByte((byte) value);
+    } else {
+      writeRawUtf8(String.valueOf(value));
+    }
   }
 
   @Override
