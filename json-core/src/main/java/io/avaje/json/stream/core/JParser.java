@@ -641,7 +641,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextStreamElement() {
-    if (currentIndex >= length) {
+    if (isEndOfStream()) {
       return false;
     }
     try {
@@ -659,7 +659,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextElement() {
-    if (currentIndex >= length) {
+    if (isEndOfStream()) {
       return false;
     }
     final boolean firstElement = last == '[';
