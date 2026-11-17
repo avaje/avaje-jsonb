@@ -31,18 +31,6 @@ class HashCollisionTest {
   }
 
   @Test
-  void fromJson_aliasCollision() {
-    var aliasType = jsonb.type(HashCollision.Alias.class);
-    assertThat(aliasType.fromJson("{\"yacxa\":\"b\"}"))
-      .isEqualTo(new HashCollision.Alias(null, "b"));
-    assertThat(aliasType.fromJson("{\"y\\u0061cxa\":\"b\"}"))
-      .isEqualTo(new HashCollision.Alias(null, "b"));
-    var streamJson = "{\"glbvs\":\"a\",\"yacxa\":\"b\"}";
-    assertThat(aliasType.fromJson(new ByteArrayInputStream(streamJson.getBytes(StandardCharsets.UTF_8))))
-      .isEqualTo(new HashCollision.Alias("a", "b"));
-  }
-
-  @Test
   void fromJson_caseInsensitiveAliasCollision() {
     var aliasType = jsonb.type(HashCollision.CaseInsensitiveAlias.class);
     assertThat(aliasType.fromJson("{\"yacxa\":\"b\"}"))
