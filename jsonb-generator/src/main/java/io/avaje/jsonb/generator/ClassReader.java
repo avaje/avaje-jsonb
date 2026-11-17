@@ -275,10 +275,6 @@ final class ClassReader implements BeanReader {
       writer.append("  private final JsonAdapter<String> rawAdapter;").eol();
     }
     final Set<String> uniqueTypes = new HashSet<>();
-    if (hasSubTypes) {
-      writer.append("  private final JsonAdapter<String> stringJsonAdapter;").eol();
-      uniqueTypes.add("stringJsonAdapter");
-    }
     for (final FieldReader allField : allFields) {
       if (includeField(allField, uniqueTypes)) {
         allField.writeField(writer);
@@ -379,10 +375,6 @@ final class ClassReader implements BeanReader {
     }
 
     final Set<String> uniqueTypes = new HashSet<>();
-    if (hasSubTypes) {
-      writer.append("    this.stringJsonAdapter = jsonb.adapter(String.class);").eol();
-      uniqueTypes.add("stringJsonAdapter");
-    }
     for (final FieldReader allField : allFields) {
       if (includeField(allField, uniqueTypes)) {
         if (hasSubTypes) {
