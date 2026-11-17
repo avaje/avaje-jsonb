@@ -141,6 +141,7 @@ class JParser implements JsonParser {
     nameStack.clear();
     currentNames = null;
     nameEnd = 0;
+    lastName = null;
     stream = null;
   }
 
@@ -151,6 +152,7 @@ class JParser implements JsonParser {
     currentPosition = 0;
     currentIndex = 0;
     nameEnd = 0;
+    lastName = null;
     stream = newStream;
     if (newStream != null) {
       readLimit = Math.min(length, bufferLenWithExtraSpace);
@@ -173,6 +175,8 @@ class JParser implements JsonParser {
     nameStack.clear();
     currentNames = null;
     currentIndex = 0;
+    nameEnd = 0;
+    lastName = null;
     length = newLength;
     stream = null;
     readLimit = newLength;
@@ -791,6 +795,9 @@ class JParser implements JsonParser {
 
   @Override
   public final String lastFieldName() {
+    if (nameEnd == 0) {
+      return null;
+    }
     if (nameEnd == -1) {
       return lastName;
     }

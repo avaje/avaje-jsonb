@@ -91,4 +91,94 @@ class JParserFieldHashTest {
     parser.process(content, content.length);
     return new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
   }
+
+  @Test
+  void lastFieldName_beforeAnyField_returnsNull() {
+    byte[] content = "{}".getBytes(StandardCharsets.UTF_8);
+    JsonReadAdapter byteReader = reader(content);
+    byteReader.beginObject();
+    assertThat(byteReader.lastFieldName()).isNull();
+    byteReader.endObject();
+
+    JParser streamParser = new JParser(new char[100], new byte[100], 100, JParser.DoublePrecision.HIGH,
+      JParser.UnknownNumberParsing.BIGDECIMAL, 100, 1000);
+    streamParser.process(new ByteArrayInputStream(content));
+    JsonReadAdapter streamReader = new JsonReadAdapter(streamParser, Recyclers.ThreadLocalPool.shared(), true, true);
+    streamReader.beginObject();
+    assertThat(streamReader.lastFieldName()).isNull();
+    streamReader.endObject();
+  }
+
+  @Test
+  void lastFieldName_resetAcrossCloseAndReuse() {
+    JParser parser = new JParser(new char[100], new byte[1000], 1000, JParser.DoublePrecision.HIGH,
+      JParser.UnknownNumberParsing.BIGDECIMAL, 100, 1000);
+
+    // 1) Unescaped field sets nameStart/nameEnd > 0; close() and process() must reset safely
+    byte[] first = "{\"   \" : 0, \"first\":1}".getBytes(StandardCharsets.UTF_8);
+    parser.process(first, first.length);
+    JsonReadAdapter r1 = new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
+    r1.beginObject();
+    assertThat(r1.hasNextField()).isTrue();
+    r1.nextFieldHash();
+    r1.readInt();
+    assertThat(r1.hasNextField()).isTrue();
+    r1.nextFieldHash();
+    assertThat(r1.lastFieldName()).isEqualTo("first");
+    r1.readInt();
+    r1.endObject();
+    parser.close();
+    assertThat(parser.lastFieldName()).isNull();
+
+    // Reuse via process(byte[], int) without calling close() after escaped field sets lastName / nameEnd = -1
+    byte[] escaped = "{\"fir\\u0073t\":1}".getBytes(StandardCharsets.UTF_8);
+    parser.process(escaped, escaped.length);
+    JsonReadAdapter r2 = new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
+    r2.beginObject();
+    assertThat(r2.lastFieldName()).isNull();
+    assertThat(r2.hasNextField()).isTrue();
+    r2.nextFieldHash();
+    assertThat(r2.lastFieldName()).isEqualTo("first");
+    r2.readInt();
+    r2.endObject();
+
+    // Reuse directly via process(byte[], int) -> must not retain stale lastName = "first"
+    byte[] empty = "{}".getBytes(StandardCharsets.UTF_8);
+    parser.process(empty, empty.length);
+    assertThat(parser.lastFieldName()).isNull();
+
+    // Reuse via process(InputStream) after setting lastName -> must also reset lastName to null
+    parser.process(escaped, escaped.length);
+    JsonReadAdapter r3 = new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
+    r3.beginObject();
+    assertThat(r3.hasNextField()).isTrue();
+    r3.nextFieldHash();
+    assertThat(r3.lastFieldName()).isEqualTo("first");
+    r3.readInt();
+    r3.endObject();
+
+    parser.process(new ByteArrayInputStream(empty));
+    assertThat(parser.lastFieldName()).isNull();
+  }
+
+  @Test
+  void lastFieldName_staleLastNameAfterProcess() {
+    JParser parser = new JParser(new char[100], new byte[1000], 1000, JParser.DoublePrecision.HIGH,
+      JParser.UnknownNumberParsing.BIGDECIMAL, 100, 1000);
+
+    byte[] escaped = "{\"fir\\u0073t\":1}".getBytes(StandardCharsets.UTF_8);
+    parser.process(escaped, escaped.length);
+    JsonReadAdapter r1 = new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
+    r1.beginObject();
+    assertThat(r1.hasNextField()).isTrue();
+    r1.nextFieldHash();
+    assertThat(r1.lastFieldName()).isEqualTo("first");
+    r1.readInt();
+    r1.endObject();
+
+    // process(byte[], int) currently leaves nameEnd = -1 and lastName = "first"
+    byte[] empty = "{}".getBytes(StandardCharsets.UTF_8);
+    parser.process(empty, empty.length);
+    assertThat(parser.lastFieldName()).isNull();
+  }
 }
