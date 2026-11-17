@@ -757,15 +757,15 @@ final class ClassReader implements BeanReader {
     if (constants != null) {
       writer.append("      final int fieldHash = reader.nextFieldHash();").eol();
       writer.append("      switch (fieldHash) {").eol();
-    }else {
-    if (caseInsensitiveKeys) {
-      writer.append("      final String origFieldName = reader.nextField();").eol();
-      writer.append("      final String fieldName = origFieldName.toLowerCase();").eol();
     } else {
-      writer.append("      final String fieldName = reader.nextField();").eol();
+      if (caseInsensitiveKeys) {
+        writer.append("      final String origFieldName = reader.nextField();").eol();
+        writer.append("      final String fieldName = origFieldName.toLowerCase();").eol();
+      } else {
+        writer.append("      final String fieldName = reader.nextField();").eol();
+      }
+      writer.append("      switch (fieldName) {").eol();
     }
-    writer.append("      switch (fieldName) {").eol();
-  }
     if (hasSubTypes && !usesTypeProperty) {
       writer.append("        case %s:", caseLabel.apply(typePropertyKey())).eol();
       writer.append("          type = reader.isNullValue() ? null : reader.readString(typeNames);").eol();
