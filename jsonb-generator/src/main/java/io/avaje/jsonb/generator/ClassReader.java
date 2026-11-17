@@ -750,8 +750,7 @@ final class ClassReader implements BeanReader {
     writer.eol();
     writer.append("    // read json").eol();
     final var constants = hashConstants();
-    // hash mode matches on nextFieldHash() so the reader has no use for the names
-    writer.append(constants == null ? "    reader.beginObject(names);" : "    reader.beginObject();").eol();
+    writer.append("    reader.beginObject();").eol();
     writer.append("    while (reader.hasNextField()) {").eol();
     final UnaryOperator<String> caseLabel = constants == null ? key -> '"' + key + '"' : constants::get;
     if (constants != null) {

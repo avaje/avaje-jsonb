@@ -8,4 +8,10 @@ import io.avaje.jsonb.Json;
  */
 @Json
 public record HashCollision(String glbvs, String yacxa, String other) {
+
+  @Json
+  public record Alias(String glbvs, @Json.Alias("yacxa") String other) {}
+
+  @Json(caseInsensitiveKeys = true)
+  public record CaseInsensitiveAlias(String glbvs, @Json.Alias("yacxa") String other) {}
 }
