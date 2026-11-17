@@ -11,7 +11,12 @@ package io.avaje.json;
  */
 public interface PropertyNames {
 
-  /** Return the (unescaped) name at the given position. */
+  /**
+   * Return the (unescaped) name at the given position.
+   *
+   * @param position The index position of the name
+   * @return The name at the given position
+   */
   default String name(int position) {
     throw new UnsupportedOperationException();
   }

@@ -107,13 +107,17 @@ public interface JsonReader extends Closeable {
   /**
    * Read the next field returning the hash of its name rather than the name.
    *
-   * @see {@link #nameHash(String)}.
+   * @see #nameHash(String)
    */
   default int nextFieldHash() {
     return nameHash(nextField());
   }
 
-  /** Return the name of the field last read via {@link #nextFieldHash()}. */
+  /**
+   * Return the name of the field last read via {@link #nextFieldHash()}.
+   *
+   * @return The last field name, or {@code null} if none has been read
+   */
   default String lastFieldName() {
     return null;
   }
@@ -122,6 +126,9 @@ public interface JsonReader extends Closeable {
    * Return the hash of the given field name as returned by {@link #nextFieldHash()}.
    *
    * <p>This is FNV-1a (32 bit) over the UTF-8 bytes of the name.
+   *
+   * @param name The field name
+   * @return The FNV-1a 32-bit hash of the field name
    */
   static int nameHash(String name) {
     int hash = 0x811c9dc5;
@@ -136,6 +143,7 @@ public interface JsonReader extends Closeable {
    * Read a string value that is expected to be one of the given values.
    *
    * @param values The expected values typically created via {@code Jsonb.properties(String...)}
+   * @return The string value read
    */
   default String readString(PropertyNames values) {
     return readString();
