@@ -18,6 +18,20 @@ final class NumberParser {
     1e60, 1e61, 1e62, 1e63, 1e64, 1e65
   };
 
+  /** Largest mantissa that converts to double without rounding. */
+  private static final long MAX_EXACT_MANTISSA = 1L << 53;
+  /** Largest power of ten that is exactly representable as a double. */
+  private static final int MAX_EXACT_POW_10 = 22;
+  private static final int MAX_LONG_DIGITS = 18;
+  private static final double[] EXACT_POW_10 = {
+    1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10,
+    1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22
+  };
+
+  private static boolean isTerminator(final byte b) {
+    return b == ',' || b == '}' || b == ']';
+  }
+
   static short deserializeShort(final JParser reader) {
     if (reader.currentToken() == '"') {
       final int position = reader.getCurrentIndex();
@@ -51,6 +65,33 @@ final class NumberParser {
         throw reader.newParseErrorAt("Integer overflow detected", reader.getCurrentIndex() - position);
       }
     }
+    // single pass fast path: plain integer directly followed by , ] or }
+    final byte[] buf = reader.buffer;
+    final int start = reader.numberStart();
+    final int limit = reader.length();
+    final boolean negative = buf[start] == '-';
+    final int digitStart = negative ? start + 1 : start;
+    final int maxEnd = Math.min(limit, digitStart + 10);
+    long value = 0;
+    int i = digitStart;
+    int d;
+    while (i < maxEnd && (d = buf[i] - '0') >= 0 && d <= 9) {
+      value = value * 10 + d;
+      i++;
+    }
+    if (i < limit && isTerminator(buf[i]) && i > digitStart && (buf[digitStart] != '0' || i == digitStart + 1)) {
+      if (negative) {
+        value = -value;
+      }
+      if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
+        reader.numberEnd(start, i);
+        return (int) value;
+      }
+    }
+    return deserializeIntSlow(reader);
+  }
+
+  private static int deserializeIntSlow(final JParser reader) {
     final int start = reader.scanNumber();
     final int end = reader.getCurrentIndex();
     final byte[] buf = reader.buffer;
@@ -157,6 +198,28 @@ final class NumberParser {
         throw reader.newParseErrorAt("Long overflow detected", reader.getCurrentIndex() - position);
       }
     }
+    // single pass fast path: plain integer of up to 18 digits directly followed by , ] or }
+    final byte[] buf = reader.buffer;
+    final int start = reader.numberStart();
+    final int limit = reader.length();
+    final boolean negative = buf[start] == '-';
+    final int digitStart = negative ? start + 1 : start;
+    final int maxEnd = Math.min(limit, digitStart + MAX_LONG_DIGITS);
+    long value = 0;
+    int i = digitStart;
+    int d;
+    while (i < maxEnd && (d = buf[i] - '0') >= 0 && d <= 9) {
+      value = value * 10 + d;
+      i++;
+    }
+    if (i < limit && isTerminator(buf[i]) && i > digitStart && (buf[digitStart] != '0' || i == digitStart + 1)) {
+      reader.numberEnd(start, i);
+      return negative ? -value : value;
+    }
+    return deserializeLongSlow(reader);
+  }
+
+  private static long deserializeLongSlow(final JParser reader) {
     final int start = reader.scanNumber();
     final int end = reader.getCurrentIndex();
     final byte[] buf = reader.buffer;
@@ -254,6 +317,10 @@ final class NumberParser {
       final char[] buf = reader.readSimpleQuote();
       return parseDoubleGeneric(buf, reader.getCurrentIndex() - position - 1, reader, true);
     }
+    final double fast = fastDouble(reader);
+    if (fast == fast) {
+      return fast;
+    }
     final int start = reader.scanNumber();
     final int end = reader.getCurrentIndex();
     final byte[] buf = reader.buffer;
@@ -262,6 +329,86 @@ final class NumberParser {
       return -parseDouble(buf, reader, start, end, 1);
     }
     return parseDouble(buf, reader, start, end, 0);
+  }
+
+  /**
+   * Single pass parse of a number directly followed by {@code ,}, {@code ]} or {@code }}.
+   *
+   * <p>When the decimal mantissa fits in 53 bits and the power of ten is at most 22, both are exact
+   * doubles, so one multiply or divide yields the correctly rounded result.
+   *
+   * @return the parsed value, or NaN when the number needs the slow path
+   */
+  private static double fastDouble(final JParser reader) {
+    final byte[] buf = reader.buffer;
+    final int start = reader.numberStart();
+    final int limit = reader.length();
+    final boolean negative = buf[start] == '-';
+    final int digitStart = negative ? start + 1 : start;
+    int i = digitStart;
+    int d;
+    long mantissa = 0;
+    final int intEnd = Math.min(limit, digitStart + MAX_LONG_DIGITS);
+    while (i < intEnd && (d = buf[i] - '0') >= 0 && d <= 9) {
+      mantissa = mantissa * 10 + d;
+      i++;
+    }
+    final int intDigits = i - digitStart;
+    if (intDigits == 0 || i >= limit || (intDigits > 1 && buf[digitStart] == '0')) {
+      return Double.NaN;
+    }
+    byte b = buf[i];
+    int exp10 = 0;
+    if (b == '.') {
+      final int fracStart = ++i;
+      final int fracEnd = Math.min(limit, fracStart + MAX_LONG_DIGITS - intDigits);
+      while (i < fracEnd && (d = buf[i] - '0') >= 0 && d <= 9) {
+        mantissa = mantissa * 10 + d;
+        i++;
+      }
+      if (i == fracStart || i >= limit) {
+        return Double.NaN;
+      }
+      exp10 = fracStart - i;
+      b = buf[i];
+    }
+    if (b == 'e' || b == 'E') {
+      if (++i >= limit) {
+        return Double.NaN;
+      }
+      b = buf[i];
+      final boolean expNegative = b == '-';
+      if ((expNegative || b == '+') && ++i >= limit) {
+        return Double.NaN;
+      }
+      final int expStart = i;
+      final int expEnd = Math.min(limit, expStart + 3);
+      int exp = 0;
+      while (i < expEnd && (d = buf[i] - '0') >= 0 && d <= 9) {
+        exp = exp * 10 + d;
+        i++;
+      }
+      if (i == expStart || i >= limit) {
+        return Double.NaN;
+      }
+      exp10 += expNegative ? -exp : exp;
+      b = buf[i];
+    }
+    if (!isTerminator(b) || mantissa > MAX_EXACT_MANTISSA) {
+      return Double.NaN;
+    }
+    final double value;
+    if (exp10 == 0 || mantissa == 0) {
+      value = mantissa;
+    } else if (exp10 > 0 && exp10 <= MAX_EXACT_POW_10) {
+      value = mantissa * EXACT_POW_10[exp10];
+    } else if (exp10 < 0 && exp10 >= -MAX_EXACT_POW_10) {
+      value = mantissa / EXACT_POW_10[-exp10];
+    } else {
+      return Double.NaN;
+    }
+    reader.numberEnd(start, i);
+    return negative ? -value : value;
   }
 
   private static double parseDouble(final byte[] buf, final JParser reader, final int start, final int end, final int offset) {
@@ -419,12 +566,9 @@ final class NumberParser {
     }
     if (fraction == 0) {
       if (exp == 0 || whole == 0) return whole;
-      else if (exp > 0 && exp < POW_10.length) return whole * POW_10[exp - 1];
-      else if (exp < 0 && -exp < POW_10.length) return whole / POW_10[-exp - 1];
-      else if (reader.doublePrecision != JParser.DoublePrecision.HIGH) {
-        if (exp > 0 && exp < 300) return whole * Math.pow(10, exp);
-        else if (exp > -300 && exp < 0) return whole / Math.pow(10, exp);
-      }
+      else if (exp > 0 && exp <= MAX_EXACT_POW_10) return whole * EXACT_POW_10[exp];
+      else if (exp < 0 && exp >= -MAX_EXACT_POW_10) return whole / EXACT_POW_10[-exp];
+      // powers of ten beyond 1e22 are inexact, use the generic parser
     } else {
       if (exp == 0) return whole + fraction;
       else if (exp > 0 && exp < POW_10.length) return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
