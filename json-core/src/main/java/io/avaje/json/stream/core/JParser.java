@@ -336,6 +336,16 @@ class JParser implements JsonParser {
     return tokenStart;
   }
 
+  final int numberStart() {
+    return currentIndex - 1;
+  }
+
+  final void numberEnd(final int start, final int end) {
+    tokenStart = start;
+    currentIndex = end;
+    last = buffer[end];
+  }
+
   final char[] prepareBuffer(final int start, final int len) {
     if (len > maxNumberDigits) {
       throw maxNumberDigitsExceeded(len, len);
