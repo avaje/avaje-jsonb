@@ -166,7 +166,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<Calendar> CALENDAR_ZONED = new JsonAdapter<>() {
     @Override
     public Calendar fromJson(JsonReader reader) {
-      final ZonedDateTime zdt = ZonedDateTime.parse(reader.readString());
+      final ZonedDateTime zdt = IsoTime.parseZonedDateTime(reader.readString());
       return GregorianCalendar.from(zdt);
     }
 
