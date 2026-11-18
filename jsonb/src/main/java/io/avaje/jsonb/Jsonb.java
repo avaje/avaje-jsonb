@@ -461,16 +461,26 @@ public interface Jsonb {
 
     /**
      * Add a JsonAdapter to use for the given type.
+     *
+     * <p>Adapters cannot be registered for {@code String}, {@code boolean}/{@code Boolean},
+     * {@code int}/{@code Integer}, {@code long}/{@code Long}, or {@code double}/{@code Double}.
+     * These scalar types are handled directly by generated adapters.
      */
     <T> Builder add(Type type, JsonAdapter<T> jsonAdapter);
 
     /**
      * Add a Supplier which provides a JsonAdapter to use for the given type.
+     *
+     * <p>Adapters cannot be registered for the direct scalar types documented on
+     * {@link #add(Type, JsonAdapter)}.
      */
     <T> Builder add(Type type, Supplier<JsonAdapter<T>> builder);
 
     /**
      * Add a AdapterBuilder which provides a JsonAdapter to use for the given type.
+     *
+     * <p>Adapters cannot be registered for the direct scalar types documented on
+     * {@link #add(Type, JsonAdapter)}.
      */
     Builder add(Type type, AdapterBuilder builder);
 
@@ -481,6 +491,9 @@ public interface Jsonb {
 
     /**
      * Add a JsonAdapter.Factory which provides JsonAdapters to use.
+     *
+     * <p>A factory that returns an adapter for one of the direct scalar types documented on
+     * {@link #add(Type, JsonAdapter)} will fail when that adapter is requested.
      */
     Builder add(AdapterFactory factory);
 
