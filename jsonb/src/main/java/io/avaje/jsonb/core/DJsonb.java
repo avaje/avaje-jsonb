@@ -333,16 +333,19 @@ final class DJsonb implements Jsonb {
 
     @Override
     public Builder add(Type type, AdapterBuilder builder) {
+      rejectDirectScalar(type);
       return add(newAdapterFactory(type, builder));
     }
 
     @Override
     public <T> Builder add(Type type, JsonAdapter<T> jsonAdapter) {
+      rejectDirectScalar(type);
       return add(newAdapterFactory(type, jsonAdapter));
     }
 
     @Override
     public <T> Builder add(Type type, Supplier<JsonAdapter<T>> jsonAdapter) {
+      rejectDirectScalar(type);
       return add(newAdapterFactory(type, jsonAdapter));
     }
 
@@ -354,7 +357,8 @@ final class DJsonb implements Jsonb {
 
     @Override
     public Builder add(AdapterFactory factory) {
-      factories.add(factory);
+      requireNonNull(factory);
+      factories.add(new DirectScalarAdapterGuard(factory));
       return this;
     }
 
@@ -395,6 +399,48 @@ final class DJsonb implements Jsonb {
         || serializeNulls
         || !serializeEmpty
         || HYBRID_POOL != strategy;
+    }
+
+    private static void rejectDirectScalar(Type type) {
+      requireNonNull(type);
+      if (isDirectScalar(type)) {
+        throw directScalarAdapterException(type);
+      }
+    }
+
+    private static boolean isDirectScalar(Type type) {
+      return type == String.class
+        || type == Boolean.class
+        || type == boolean.class
+        || type == Integer.class
+        || type == int.class
+        || type == Long.class
+        || type == long.class
+        || type == Double.class
+        || type == double.class;
+    }
+
+    private static IllegalArgumentException directScalarAdapterException(Type type) {
+      return new IllegalArgumentException(
+        "Custom adapters are not supported for direct scalar type '" + type.getTypeName() + "'");
+    }
+
+    private static final class DirectScalarAdapterGuard implements AdapterFactory {
+
+      private final AdapterFactory delegate;
+
+      private DirectScalarAdapterGuard(AdapterFactory delegate) {
+        this.delegate = delegate;
+      }
+
+      @Override
+      public JsonAdapter<?> create(Type type, Jsonb jsonb) {
+        final JsonAdapter<?> adapter = delegate.create(type, jsonb);
+        if (adapter != null && isDirectScalar(type)) {
+          throw directScalarAdapterException(type);
+        }
+        return adapter;
+      }
     }
 
   static <T> AdapterFactory newAdapterFactory(Type type, JsonAdapter<T> jsonAdapter) {
