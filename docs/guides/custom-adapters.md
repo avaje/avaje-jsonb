@@ -35,6 +35,10 @@ Jsonb jsonb = Jsonb.builder()
   .build();
 ```
 
+Generated adapters use direct scalar IO for `String`, `boolean`/`Boolean`, `int`/`Integer`,
+`long`/`Long`, and `double`/`Double`. Custom adapters cannot be registered for those types.
+Field-level custom serializers remain supported.
+
 ## Next Steps
 
 - See [property mapping](property-mapping.md)
