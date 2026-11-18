@@ -1,5 +1,6 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -10,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.SplittableRandom;
@@ -84,6 +86,17 @@ class IsoTimeTest {
     for (Instant instant : new Instant[]{Instant.MIN, Instant.MAX, Instant.EPOCH, Instant.ofEpochSecond(-62167219201L), Instant.ofEpochSecond(253402300800L)}) {
       assertThat(IsoTime.format(instant)).isEqualTo(instant.toString());
     }
+  }
+
+  @Test
+  void utilDate_roundTrip() {
+    var dateType = Jsonb.builder().build().type(Date.class);
+    for (String iso : new String[]{"\"1970-01-01T00:00:00Z\"", "\"2024-06-15T12:34:56.789Z\"", "\"1969-12-31T23:59:59.001Z\""}) {
+      Date parsed = dateType.fromJson(iso);
+      assertThat(parsed).isEqualTo(Date.from(Instant.parse(iso.substring(1, iso.length() - 1))));
+      assertThat(dateType.toJson(parsed)).isEqualTo(iso);
+    }
+    assertThat(dateType.fromJson("null")).isNull();
   }
 
   private static <T> void check(List<String> bad, String s, String type, Function<String, T> fast, Function<String, T> jdk) {
