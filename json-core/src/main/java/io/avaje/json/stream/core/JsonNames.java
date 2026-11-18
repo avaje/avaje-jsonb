@@ -1,9 +1,11 @@
 package io.avaje.json.stream.core;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import io.avaje.json.JsonReader;
 import io.avaje.json.PropertyNames;
 
@@ -16,17 +18,35 @@ final class JsonNames implements PropertyNames {
   static final JsonNames EMPTY = of();
   private final String[] allNames;
   private final byte[][] nameArray;
+  /** The unescaped UTF-8 bytes of each name. */
+  private final byte[][] rawArray;
   /** Open addressing table of name hash to name position, -1 for an empty slot. */
   private final int[] hashes;
   private final int[] positions;
   private final int mask;
+  /** Hashes shared by more than one of the names, these are not in the hash table. */
+  private final Set<Integer> clashHashes;
+  /** A value that is not the hash of any of the names. */
+  private final int unknownHash;
 
-  JsonNames(String[] allNames, byte[][] nameArray, int[] hashes, int[] positions) {
+  JsonNames(String[] allNames, byte[][] nameArray, int[] hashes, int[] positions, Set<Integer> clashHashes) {
     this.allNames = allNames;
     this.nameArray = nameArray;
+    this.rawArray = new byte[allNames.length][];
+    final var allHashes = new HashSet<Integer>();
+    for (int i = 0; i < allNames.length; i++) {
+      rawArray[i] = allNames[i].getBytes(StandardCharsets.UTF_8);
+      allHashes.add(JsonReader.nameHash(allNames[i]));
+    }
     this.hashes = hashes;
     this.positions = positions;
     this.mask = positions.length - 1;
+    this.clashHashes = clashHashes;
+    int unknown = 0;
+    while (allHashes.contains(unknown)) {
+      unknown++;
+    }
+    this.unknownHash = unknown;
   }
 
   /**
@@ -60,7 +80,7 @@ final class JsonNames implements PropertyNames {
       hashes[slot] = hash;
       positions[slot] = entry.getValue();
     }
-    return new JsonNames(names.clone(), nameArray, hashes, positions);
+    return new JsonNames(names.clone(), nameArray, hashes, positions, Set.copyOf(clashKeys));
   }
 
   @Override
@@ -70,6 +90,36 @@ final class JsonNames implements PropertyNames {
 
   byte[] key(int namePos) {
     return nameArray[namePos];
+  }
+
+  /** Return the unescaped UTF-8 bytes of the name at the given position. */
+  byte[] raw(int namePos) {
+    return rawArray[namePos];
+  }
+
+  /** Return a value that is not the hash of any of the names. */
+  int unknownHash() {
+    return unknownHash;
+  }
+
+  /** Return true if the hash is shared by more than one of the names. */
+  boolean isClash(int hash) {
+    return !clashHashes.isEmpty() && clashHashes.contains(hash);
+  }
+
+  /**
+   * Return the hash of the name when it is one of these names, otherwise a value that is not
+   * the hash of any of these names.
+   */
+  int knownHash(String name) {
+    final int hash = JsonReader.nameHash(name);
+    for (String known : allNames) {
+      if (known.equals(name)) {
+        return hash;
+      }
+    }
+    final int pos = position(hash);
+    return pos >= 0 || clashHashes.contains(hash) ? unknownHash : hash;
   }
 
   String lookup(int hash) {

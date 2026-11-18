@@ -42,6 +42,12 @@ interface JsonParser extends Closeable {
   int nextFieldHash();
 
   /**
+   * Read the field name returning its hash, confirming the name when the hash is the hash of one of
+   * the given names.
+   */
+  int nextFieldHash(JsonNames names);
+
+  /**
    * Return the name of the field last read via {@link #nextFieldHash()}.
    */
   String lastFieldName();

@@ -4,6 +4,7 @@ import static io.avaje.jsonb.generator.APContext.jdkVersion;
 import static io.avaje.jsonb.generator.APContext.logError;
 import static io.avaje.jsonb.generator.APContext.previewEnabled;
 import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.InvocationTargetException;
@@ -289,8 +290,11 @@ final class ClassReader implements BeanReader {
     if (hasSubTypes) {
       writer.append("  private final PropertyNames typeNames;").eol();
     }
-    writer.eol();
     final var fromJsonReader = readOnlyInterface ? implementation : this;
+    if (fromJsonReader != null && fromJsonReader.hashConstants() != null) {
+      writer.append("  private final PropertyNames readNames;").eol();
+    }
+    writer.eol();
     if (fromJsonReader != null) {
       fromJsonReader.writeHashConstants(writer);
     }
@@ -405,6 +409,15 @@ final class ClassReader implements BeanReader {
         .map(subType -> '"' + subType.name() + '"')
         .collect(Collectors.joining(", "));
       writer.append("    this.typeNames = jsonb.properties(%s);", typeNames).eol();
+    }
+    final var fromJsonReader = readOnlyInterface ? implementation : this;
+    final var constants = fromJsonReader == null ? null : fromJsonReader.hashConstants();
+    if (constants != null) {
+      // all the names switched on by hash, used to confirm a field name and not just its hash
+      final String readNames = constants.keySet().stream()
+        .map(key -> '"' + key + '"')
+        .collect(joining(", "));
+      writer.append("    this.readNames = jsonb.properties(%s);", readNames).eol();
     }
   }
 
@@ -746,7 +759,7 @@ final class ClassReader implements BeanReader {
     writer.append("    while (reader.hasNextField()) {").eol();
     final UnaryOperator<String> caseLabel = constants == null ? key -> '"' + key + '"' : constants::get;
     if (constants != null) {
-      writer.append("      final int fieldHash = reader.nextFieldHash();").eol();
+      writer.append("      final int fieldHash = reader.nextFieldHash(readNames);").eol();
       writer.append("      switch (fieldHash) {").eol();
     } else {
       if (caseInsensitiveKeys) {

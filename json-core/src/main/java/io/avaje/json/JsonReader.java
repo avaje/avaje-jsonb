@@ -114,6 +114,17 @@ public interface JsonReader extends Closeable {
   }
 
   /**
+   * Read the next field returning the hash of its name, where the names expected are given.
+   *
+   * @param names The expected names
+   * @return The hash of the field name
+   * @see #nameHash(String)
+   */
+  default int nextFieldHash(PropertyNames names) {
+    return nextFieldHash();
+  }
+
+  /**
    * Return the name of the field last read via {@link #nextFieldHash()}.
    *
    * @return The last field name, or {@code null} if none has been read

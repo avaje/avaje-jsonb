@@ -954,6 +954,33 @@ class JParser implements JsonParser {
     return hash;
   }
 
+  @Override
+  public final int nextFieldHash(final JsonNames names) {
+    int hash = calcHash();
+    final int pos = names.position(hash);
+    if (pos >= 0 ? !isName(names, pos) : names.isClash(hash)) {
+      // the name only shares the hash, check the actual name
+      hash = names.knownHash(lastFieldName());
+    }
+    if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
+      throw newParseError("Expecting ':' after attribute name");
+    }
+    nextToken();
+    return hash;
+  }
+
+  /** Return true if the name last read by calcHash() is the name at the given position. */
+  private boolean isName(final JsonNames names, final int position) {
+    if (nameEnd <= 0) {
+      // escaped or crossed the end of the buffer
+      return names.name(position).equals(lastName);
+    }
+    final byte[] key = names.raw(position);
+    final int start = nameStart;
+    return key.length == nameEnd - start - 1
+      && Arrays.equals(key, 0, key.length, buffer, start, nameEnd - 1);
+  }
+
   /**
    * Read key value of JSON input.
    */

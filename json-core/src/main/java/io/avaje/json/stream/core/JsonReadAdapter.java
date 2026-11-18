@@ -12,12 +12,18 @@ final class JsonReadAdapter implements JsonReader {
   private final JsonParser reader;
   private final boolean failOnUnknown;
   private final boolean failOnNullPrimitives;
+  private final boolean strictPropertyNames;
   private final BufferRecycler recycler;
 
   JsonReadAdapter(JsonParser reader, BufferRecycler recycler, boolean failOnUnknown, boolean failOnNullPrimitives) {
+    this(reader, recycler, failOnUnknown, failOnNullPrimitives, false);
+  }
+
+  JsonReadAdapter(JsonParser reader, BufferRecycler recycler, boolean failOnUnknown, boolean failOnNullPrimitives, boolean strictPropertyNames) {
     this.reader = reader;
     this.failOnUnknown = failOnUnknown;
     this.failOnNullPrimitives = failOnNullPrimitives;
+    this.strictPropertyNames = strictPropertyNames;
     this.recycler = recycler;
   }
 
@@ -97,6 +103,11 @@ final class JsonReadAdapter implements JsonReader {
   @Override
   public String lastFieldName() {
     return reader.lastFieldName();
+  }
+
+  @Override
+  public int nextFieldHash(PropertyNames names) {
+    return strictPropertyNames ? reader.nextFieldHash((JsonNames) names) : reader.nextFieldHash();
   }
 
   @Override
