@@ -172,6 +172,12 @@ final class JsonWriteAdapter implements JsonWriter {
   }
 
   @Override
+  public void value(PropertyNames values, int position) {
+    writeDeferredName();
+    generator.write((JsonNames) values, position);
+  }
+
+  @Override
   public void value(boolean value) {
     writeDeferredName();
     generator.write(value);

@@ -36,6 +36,7 @@ import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
+import io.avaje.json.PropertyNames;
 import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.Jsonb;
 import io.avaje.jsonb.Types;
@@ -64,7 +65,7 @@ final class BasicTypeAdapters {
 
         final Class<?> rawType = Util.rawType(type);
         if (rawType.isEnum()) {
-          return new EnumJsonAdapter(rawType).nullSafe();
+          return new EnumJsonAdapter(rawType, jsonb).nullSafe();
         }
         return null;
       };
@@ -387,21 +388,27 @@ final class BasicTypeAdapters {
   private static class EnumJsonAdapter<T extends Enum<T>> implements JsonAdapter<T> {
 
     protected final Class<T> enumType;
+    private final PropertyNames names;
 
-    EnumJsonAdapter(Class<T> enumType) {
+    EnumJsonAdapter(Class<T> enumType, Jsonb jsonb) {
       this.enumType = enumType;
+      final T[] constants = enumType.getEnumConstants();
+      final String[] constantNames = new String[constants.length];
+      for (int i = 0; i < constants.length; i++) {
+        constantNames[i] = constants[i].name();
+      }
+      this.names = jsonb.properties(constantNames);
     }
 
     @Override
     public T fromJson(JsonReader reader) {
-      final String value = reader.readString();
-      return Enum.valueOf(enumType, value);
+      return Enum.valueOf(enumType, reader.readString(names));
     }
 
     @Override
     public void toJson(JsonWriter writer, T value) {
       if (value != null) {
-        writer.value(value.name());
+        writer.value(names, value.ordinal());
       } else {
         writer.value((String) null);
       }
