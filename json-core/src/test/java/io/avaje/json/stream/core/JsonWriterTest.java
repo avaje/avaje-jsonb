@@ -149,6 +149,65 @@ class JsonWriterTest {
   }
 
   @Test
+  void using_names_matchesStringNames() {
+    // with a long name, and with short names written as longs ("x" * 13 is the longest at 16 bytes)
+    var longNames = JsonNames.of("one", "b\"c", "café", "x".repeat(40));
+    var shortNames = JsonNames.of("one", "b\"c", "café", "x".repeat(13));
+    assertThat(longNames.shortFields()).isNull();
+    assertThat(shortNames.shortFields()).isNotNull();
+    assertThat(JsonNames.of("x".repeat(14)).shortFields()).isNull();
+    for (var names : new JsonNames[] {longNames, shortNames}) {
+      for (boolean pretty : new boolean[] {false, true}) {
+        // small buffer with a stream output, so names cross a flush
+        for (int size = 16; size < 120; size++) {
+          assertThat(writeNames(names, pretty, size, true))
+              .as("pretty %s size %d", pretty, size)
+              .isEqualTo(writeNames(names, pretty, 512, false));
+        }
+      }
+      var last = names.name(3);
+      assertThat(writeNames(names, false, 512, true))
+          .isEqualTo("[{\"one\":1,\"b\\\"c\":{\"café\":[]},\"" + last + "\":2},{\"café\":3}]");
+    }
+  }
+
+  private String writeNames(JsonNames names, boolean pretty, int size, boolean prepared) {
+    var os = new ByteArrayOutputStream();
+    var generator = new JGenerator(size);
+    generator.prepare(JsonOutput.ofStream(os));
+    var fw = new JsonWriteAdapter(generator, HybridBufferRecycler.shared(), true, true);
+    fw.pretty(pretty);
+    fw.beginArray();
+    fw.beginObject(names);
+    name(fw, names, 0, prepared);
+    fw.value(1);
+    name(fw, names, 1, prepared);
+    fw.beginObject(names);
+    name(fw, names, 2, prepared);
+    fw.beginArray();
+    fw.endArray();
+    fw.endObject();
+    name(fw, names, 3, prepared);
+    fw.value(2);
+    fw.endObject();
+    fw.beginObject(names);
+    name(fw, names, 2, prepared);
+    fw.value(3);
+    fw.endObject();
+    fw.endArray();
+    fw.close();
+    return os.toString(StandardCharsets.UTF_8);
+  }
+
+  private static void name(JsonWriteAdapter fw, JsonNames names, int pos, boolean prepared) {
+    if (prepared) {
+      fw.name(pos);
+    } else {
+      fw.name(names.name(pos));
+    }
+  }
+
+  @Test
   void largeString() {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     JGenerator dJsonWriter = new JGenerator(200);

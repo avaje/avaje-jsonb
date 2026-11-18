@@ -20,6 +20,10 @@ final class JsonNames implements PropertyNames {
   private final byte[][] nameArray;
   /** The unescaped UTF-8 bytes of each name. */
   private final byte[][] rawArray;
+  /** The names as written for a field, with a leading comma and trailing colon. */
+  private final byte[][] fieldArray;
+  /** For a short field, {@code "name":} as 2 little endian longs (zero padded), else null. */
+  private final long[] shortFields;
   /** Open addressing table of name hash to name position, -1 for an empty slot. */
   private final int[] hashes;
   private final int[] positions;
@@ -29,9 +33,11 @@ final class JsonNames implements PropertyNames {
   /** A value that is not the hash of any of the names. */
   private final int unknownHash;
 
-  JsonNames(String[] allNames, byte[][] nameArray, int[] hashes, int[] positions, Set<Integer> clashHashes) {
+  JsonNames(String[] allNames, byte[][] nameArray, byte[][] fieldArray, int[] hashes, int[] positions, Set<Integer> clashHashes) {
     this.allNames = allNames;
     this.nameArray = nameArray;
+    this.fieldArray = fieldArray;
+    this.shortFields = shortFields(fieldArray);
     this.rawArray = new byte[allNames.length][];
     final var allHashes = new HashSet<Integer>();
     for (int i = 0; i < allNames.length; i++) {
@@ -56,8 +62,10 @@ final class JsonNames implements PropertyNames {
     final var clashKeys = new HashSet<Integer>();
     final var namePosition = new LinkedHashMap<Integer, Integer>();
     final byte[][] nameArray = new byte[names.length][];
+    final byte[][] fieldArray = new byte[names.length][];
     for (int i = 0; i < names.length; i++) {
       nameArray[i] = Escape.quoteEscape(names[i]);
+      fieldArray[i] = field(nameArray[i]);
       final int hash = JsonReader.nameHash(names[i]);
       final Integer priorPos = namePosition.putIfAbsent(hash, i);
       if (priorPos != null && !names[priorPos].equals(names[i])) {
@@ -80,7 +88,34 @@ final class JsonNames implements PropertyNames {
       hashes[slot] = hash;
       positions[slot] = entry.getValue();
     }
-    return new JsonNames(names.clone(), nameArray, hashes, positions, Set.copyOf(clashKeys));
+    return new JsonNames(names.clone(), nameArray, fieldArray, hashes, positions, Set.copyOf(clashKeys));
+  }
+
+  private static long[] shortFields(byte[][] fieldArray) {
+    final long[] longs = new long[fieldArray.length * 2];
+    for (int i = 0; i < fieldArray.length; i++) {
+      final byte[] field = fieldArray[i];
+      if (field.length - 1 > 16) {
+        return null;
+      }
+      for (int b = 1; b < field.length; b++) {
+        longs[i * 2 + (b - 1) / 8] |= (field[b] & 0xFFL) << (((b - 1) % 8) * 8);
+      }
+    }
+    return longs;
+  }
+
+  /** Return the short fields as longs, null when any {@code "name":} is longer than 16 bytes. */
+  long[] shortFields() {
+    return shortFields;
+  }
+
+  private static byte[] field(byte[] quoted) {
+    final byte[] field = new byte[quoted.length + 2];
+    field[0] = ',';
+    System.arraycopy(quoted, 0, field, 1, quoted.length);
+    field[field.length - 1] = ':';
+    return field;
   }
 
   @Override
@@ -90,6 +125,11 @@ final class JsonNames implements PropertyNames {
 
   byte[] key(int namePos) {
     return nameArray[namePos];
+  }
+
+  /** Return the name as written for a field, {@code ,"name":} */
+  byte[] field(int namePos) {
+    return fieldArray[namePos];
   }
 
   /** Return the unescaped UTF-8 bytes of the name at the given position. */
