@@ -194,6 +194,13 @@ class NumberParserDoubleTest {
   }
 
   @Test
+  void readDouble_mantissaExceeds53BitsWithExponent() {
+    for (final String number : new String[] {"9007199254740993e1", "-9007199254740993e1"}) {
+      assertThat(readDouble(number)).as(number).isEqualTo(Double.parseDouble(number));
+    }
+  }
+
+  @Test
   void topLevelNumbers() {
     try (var reader = stream.reader("-42")) {
       assertThat(reader.readInt()).isEqualTo(-42);
