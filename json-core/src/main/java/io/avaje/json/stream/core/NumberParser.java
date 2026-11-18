@@ -117,7 +117,7 @@ final class NumberParser {
       end--;
     }
     if (end > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.maxNumberDigitsExceeded(len, end);
     }
     final int offset = buf[0] == '-' ? 1 : 0;
     if (buf[offset] == '0' && end > offset + 1 && buf[offset + 1] >= '0' && buf[offset + 1] <= '9') {
@@ -133,7 +133,7 @@ final class NumberParser {
   static void numberException(final JParser reader, final int start, final int end, String message) {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.maxNumberDigitsExceeded(len, end);
     }
     throw reader.newParseErrorWith("Error parsing number", len, message, null, ". Error parsing number");
   }
@@ -141,7 +141,7 @@ final class NumberParser {
   static void numberException(final JParser reader, final int start, final int end, String message, Object messageArgument) {
     final int len = end - start;
     if (len > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.maxNumberDigitsExceeded(len, end);
     }
     throw reader.newParseErrorWith("Error parsing number", len, message, messageArgument, ". Error parsing number");
   }
@@ -238,7 +238,7 @@ final class NumberParser {
       int oldLen = len;
       len += end;
       if (len > reader.maxNumberDigits) {
-        throw reader.newParseErrorFormat("Too many digits detected in number", len, "Number of digits larger than %d. Unable to read number", reader.maxNumberDigits);
+        throw reader.maxNumberDigitsExceeded(len, len);
       }
       char[] tmp = result;
       result = new char[len];
@@ -443,7 +443,7 @@ final class NumberParser {
       end--;
     }
     if (end > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.maxNumberDigitsExceeded(len, end);
     }
     final int offset = buf[0] == '-' ? 1 : 0;
     if (buf[offset] == '0' && end > offset + 1 && buf[offset + 1] >= '0' && buf[offset + 1] <= '9') {
@@ -622,7 +622,7 @@ final class NumberParser {
       // do nothing
     }
     if (end > reader.maxNumberDigits) {
-      throw reader.newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", end, "");
+      throw reader.maxNumberDigitsExceeded(len, end);
     } else {
       try {
         return new BigInteger(new String(buf, 0, end));

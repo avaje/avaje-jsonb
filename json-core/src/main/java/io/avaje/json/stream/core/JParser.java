@@ -338,7 +338,7 @@ class JParser implements JsonParser {
 
   final char[] prepareBuffer(final int start, final int len) {
     if (len > maxNumberDigits) {
-      throw newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", len, "");
+      throw maxNumberDigitsExceeded(len, len);
     }
     while (chars.length < len) {
       chars = Arrays.copyOf(chars, chars.length * 2);
@@ -507,7 +507,7 @@ class JParser implements JsonParser {
     if (i == _tmp.length) {
       final int newSize = chars.length * 2;
       if (newSize > maxStringBuffer) {
-        throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+        throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
       }
       _tmp = chars = Arrays.copyOf(chars, newSize);
     }
@@ -525,7 +525,7 @@ class JParser implements JsonParser {
         if (soFar >= _tmpLen - 6) {
           final int newSize = chars.length * 2;
           if (newSize > maxStringBuffer) {
-            throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+            throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
           }
           _tmp = chars = Arrays.copyOf(chars, newSize);
           _tmpLen = _tmp.length;
@@ -566,7 +566,7 @@ class JParser implements JsonParser {
         if (soFar >= _tmpLen - 4) {
           final int newSize = chars.length * 2;
           if (newSize > maxStringBuffer) {
-            throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+            throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
           }
           _tmp = chars = Arrays.copyOf(chars, newSize);
           _tmpLen = _tmp.length;
@@ -604,7 +604,7 @@ class JParser implements JsonParser {
       } else if (soFar >= _tmpLen) {
         final int newSize = chars.length * 2;
         if (newSize > maxStringBuffer) {
-          throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+          throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
         }
         _tmp = chars = Arrays.copyOf(chars, newSize);
         _tmpLen = _tmp.length;
@@ -1152,6 +1152,29 @@ class JParser implements JsonParser {
     error.append(" ");
     positionDescription(offset, error);
     return new JsonDataException(errorMessage());
+  }
+
+  final JsonDataException maxNumberDigitsExceeded(int offset, int digits) {
+    final String description = "Too many digits detected in number";
+    return newParseErrorWith(
+        description,
+        offset,
+        description,
+        digits,
+        ". Maximum allowed is "
+            + maxNumberDigits
+            + ". Increase the limit via system property jsonb.parserMaxNumberDigits"
+            + " or environment variable JSONB_PARSER_MAX_NUMBER_DIGITS");
+  }
+
+  private JsonDataException maxStringBufferExceeded(String description) {
+    return newParseErrorWith(
+        description,
+        0,
+        description,
+        maxStringBuffer,
+        ". Increase the limit via system property jsonb.parserMaxStringBuffer"
+            + " or environment variable JSONB_PARSER_MAX_STRING_BUFFER");
   }
 
   final JsonDataException newParseErrorWith(String description, Object argument) {
