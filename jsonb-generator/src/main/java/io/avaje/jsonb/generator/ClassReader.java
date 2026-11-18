@@ -835,7 +835,7 @@ final class ClassReader implements BeanReader {
     for (final FieldReader fieldReader : commonFields) {
       final var subtype = new ArrayList<>(fieldReader.subTypes().values()).get(0);
       final var setter = fieldReader.setter();
-      final var adapterFieldName = fieldReader.adapterFieldName();
+      final var readValue = fieldReader.readValue();
       final var fieldName = fieldReader.fieldNameWithNum();
       if (useEnum) {
         writer.append("          %sif (%s.equals(%s)) {", elseIf ? "else " : "", subtype.name(), "type").eol();
@@ -847,12 +847,12 @@ final class ClassReader implements BeanReader {
         writer.append("            reader.skipValue();");
       } else if (defaultConstructor) {
         if (setter != null) {
-          writer.append("            _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
+          writer.append("            _$%s.%s(%s);", varName, setter.getName(), readValue);
         } else if (fieldReader.isPublicField()) {
-          writer.append("            _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
+          writer.append("            _$%s.%s = %s;", varName, fieldName, readValue);
         }
       } else {
-        writer.append("            _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
+        writer.append("            _val$%s = %s;", fieldName, readValue);
         if (!fieldReader.isConstructorParam()) {
           writer.eol().append("            _set$%s = true;", fieldName);
         }

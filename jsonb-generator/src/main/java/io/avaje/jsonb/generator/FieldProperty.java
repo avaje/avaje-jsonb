@@ -296,10 +296,47 @@ final class FieldProperty {
       writer.append("%s}", prefix).eol();
     } else {
       writer.append("%swriter.name(%s);", prefix, position).eol();
-      writer.append("%s%s.toJson(writer, ", prefix, adapterFieldName);
+      if (directRead() != null) {
+        writer.append("%swriter.value(", prefix);
+      } else {
+        writer.append("%s%s.toJson(writer, ", prefix, adapterFieldName);
+      }
       writeGetValue(writer, varName, ");");
       writer.eol();
     }
+  }
+
+  private String directRead() {
+    if (raw || unmapped || optional || genericTypeParameter || customSerializer.isPresent()) {
+      return null;
+    }
+    switch (genericType.topType()) {
+      case "java.lang.String":
+        return "reader.isNullValue() ? null : reader.readString()";
+      case "java.lang.Boolean":
+        return "reader.isNullValue() ? null : reader.readBoolean()";
+      case "java.lang.Integer":
+        return "reader.isNullValue() ? null : reader.readInt()";
+      case "java.lang.Long":
+        return "reader.isNullValue() ? null : reader.readLong()";
+      case "java.lang.Double":
+        return "reader.isNullValue() ? null : reader.readDouble()";
+      case "boolean":
+        return "reader.readBoolean()";
+      case "int":
+        return "reader.readInt()";
+      case "long":
+        return "reader.readLong()";
+      case "double":
+        return "reader.readDouble()";
+      default: // no float, char because those require special handling
+        return null;
+    }
+  }
+
+  String readValue() {
+    final var direct = directRead();
+    return direct != null ? direct : adapterFieldName + ".fromJson(reader)";
   }
 
   private void writeGetValue(Append writer, String varName, String suffix) {
@@ -377,16 +414,17 @@ final class FieldProperty {
   }
 
   public void writeFromJsonSwitch(Append writer, String varName, boolean defaultConstructor, boolean useGetterAddAll) {
+    final String readValue = readValue();
     if (defaultConstructor) {
       if (setter != null) {
-        writer.append("          _$%s.%s(%s.fromJson(reader));", varName, setter.getName(), adapterFieldName);
+        writer.append("          _$%s.%s(%s);", varName, setter.getName(), readValue);
       } else if (publicField) {
-        writer.append("          _$%s.%s = %s.fromJson(reader);", varName, fieldName, adapterFieldName);
+        writer.append("          _$%s.%s = %s;", varName, fieldName, readValue);
       } else if (useGetterAddAll) {
         writer.append("          _$%s.%s().addAll(Types.nullToEmpty(%s.fromJson(reader)));", varName, getter.getName(), adapterFieldName);
       }
     } else {
-      writer.append("          _val$%s = %s.fromJson(reader);", fieldName, adapterFieldName);
+      writer.append("          _val$%s = %s;", fieldName, readValue);
       if (!constructorParam && !optional) {
         writer.eol().append("          _set$%s = true;", fieldName);
       }

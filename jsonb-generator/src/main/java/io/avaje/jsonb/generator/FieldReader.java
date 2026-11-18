@@ -349,6 +349,10 @@ final class FieldReader {
     return property.adapterFieldName();
   }
 
+  String readValue() {
+    return property.readValue();
+  }
+
   MethodReader setter() {
     return property.setter();
   }
