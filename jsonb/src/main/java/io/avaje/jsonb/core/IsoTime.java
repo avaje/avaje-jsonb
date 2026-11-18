@@ -74,7 +74,7 @@ final class IsoTime {
   static ZonedDateTime parseZonedDateTime(String s) {
     final var value = offsetDateTime(s);
     return value != null
-        ? ZonedDateTime.of(value.toLocalDateTime(), value.getOffset())
+        ? value.toZonedDateTime()
         : ZonedDateTime.parse(s);
   }
 
