@@ -10,4 +10,14 @@ package io.avaje.json;
  * @see JsonWriter#name(int)
  */
 public interface PropertyNames {
+
+  /**
+   * Return the (unescaped) name at the given position.
+   *
+   * @param position The index position of the name
+   * @return The name at the given position
+   */
+  default String name(int position) {
+    throw new UnsupportedOperationException();
+  }
 }
