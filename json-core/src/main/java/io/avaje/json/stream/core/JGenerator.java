@@ -82,8 +82,7 @@ class JGenerator implements JsonGenerator {
   private int position;
   private boolean pretty;
   private int depth;
-  private int arrayDepth;
-  private int objectDepth;
+  private boolean[] arrayLevel;
   private final Deque<JsonNames> nameStack = new ArrayDeque<>();
   private JsonNames currentNames;
   private boolean allNames;
@@ -110,6 +109,7 @@ class JGenerator implements JsonGenerator {
     lastOp = 0;
     position = 0;
     pretty = false;
+    depth = 0;
     nameStack.clear();
     allNames = false;
     currentNames = null;
@@ -153,6 +153,54 @@ class JGenerator implements JsonGenerator {
       enlargeOrFlush(position, 0);
     }
     buffer[position++] = value;
+  }
+
+  private void writeRawUtf8(final String value) {
+    final int len = value.length();
+    int offset = 0;
+    while (offset < len) {
+      int end = Math.min(len, offset + largeStringMax);
+      if (end < len && Character.isHighSurrogate(value.charAt(end - 1))) {
+        end--; // don't split surrogate pair across segments
+      }
+      final int max = (end - offset) * 3;
+      if (position + max >= buffer.length) {
+        enlargeOrFlush(position, max);
+      }
+      writeRawSegment(value, offset, end);
+      offset = end;
+    }
+  }
+
+  private void writeRawSegment(final String value, int i, final int end) {
+    final byte[] buf = buffer;
+    int cur = position;
+    for (; i < end; i++) {
+      final char c = value.charAt(i);
+      if (c < 0x80) {
+        buf[cur++] = (byte) c;
+      } else if (c < 0x800) {
+        buf[cur++] = (byte) (0xC0 | (c >> 6));
+        buf[cur++] = (byte) (0x80 | (c & 0x3F));
+      } else if (!Character.isSurrogate(c)) {
+        buf[cur++] = (byte) (0xE0 | (c >> 12));
+        buf[cur++] = (byte) (0x80 | ((c >> 6) & 0x3F));
+        buf[cur++] = (byte) (0x80 | (c & 0x3F));
+      } else if (Character.isHighSurrogate(c)
+          && i + 1 < end
+          && Character.isLowSurrogate(value.charAt(i + 1))) {
+        final int cp = Character.toCodePoint(c, value.charAt(++i));
+        buf[cur++] = (byte) (0xF0 | (cp >> 18));
+        buf[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+        buf[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+        buf[cur++] = (byte) (0x80 | (cp & 0x3F));
+      } else {
+        position = cur;
+        throw new JsonIoException(
+            String.format("Invalid unicode codepoint %s at index %s", Integer.toHexString(c), i));
+      }
+    }
+    position = cur;
   }
 
   private void writeString(final String value) {
@@ -412,15 +460,39 @@ class JGenerator implements JsonGenerator {
     if (lastOp == OP_END) {
       writeByte(COMMA);
     }
-    if (pretty && depth > 1 && objectDepth <= arrayDepth) {
+    if (pretty && inArray()) {
       prettyIndent();
     }
     lastOp = OP_END;
   }
 
+  private boolean inArray() {
+    return depth > 0 && arrayLevel[depth];
+  }
+
+  private void pushLevel(boolean array) {
+    if (inArray()) {
+      prettyIndent();
+    }
+    if (++depth == arrayLevel.length) {
+      arrayLevel = Arrays.copyOf(arrayLevel, depth * 2);
+    }
+    arrayLevel[depth] = array;
+  }
+
+  private void popLevel() {
+    depth--;
+    if (lastOp != OP_START) {
+      prettyIndent();
+    }
+  }
+
   @Override
   public void pretty(boolean pretty) {
     this.pretty = pretty;
+    if (pretty && arrayLevel == null) {
+      arrayLevel = new boolean[16];
+    }
   }
 
   private void writeStartObject() {
@@ -428,11 +500,7 @@ class JGenerator implements JsonGenerator {
       writeByte(COMMA);
     }
     if (pretty) {
-      if (arrayDepth > 0 && arrayDepth >= objectDepth) {
-        prettyIndent();
-      }
-      depth++;
-      objectDepth++;
+      pushLevel(false);
     }
     writeByte(OBJECT_START);
     lastOp = OP_START;
@@ -462,9 +530,7 @@ class JGenerator implements JsonGenerator {
       currentNames = nameStack.poll();
     }
     if (pretty) {
-      depth--;
-      objectDepth--;
-      prettyIndent();
+      popLevel();
     }
     writeByte(OBJECT_END);
     lastOp = OP_END;
@@ -475,20 +541,17 @@ class JGenerator implements JsonGenerator {
     if (lastOp == OP_END) {
       writeByte(COMMA);
     }
+    if (pretty) {
+      pushLevel(true);
+    }
     writeByte(ARRAY_START);
     lastOp = OP_START;
-    if (pretty) {
-      depth++;
-      arrayDepth++;
-    }
   }
 
   @Override
   public void endArray() {
     if (pretty) {
-      depth--;
-      arrayDepth--;
-      prettyIndent();
+      popLevel();
     }
     writeByte(ARRAY_END);
     lastOp = OP_END;
@@ -581,6 +644,12 @@ class JGenerator implements JsonGenerator {
   }
 
   @Override
+  public void write(JsonNames values, int position) {
+    prefixValue();
+    writeAscii(values.key(position));
+  }
+
+  @Override
   public void write(byte[] value) {
     prefixValue();
     writeBase64(value);
@@ -589,7 +658,7 @@ class JGenerator implements JsonGenerator {
   @Override
   public void writeRaw(String value) {
     prefixValue();
-    writeAscii(value);
+    writeRawUtf8(value);
   }
 
   @Override
@@ -599,7 +668,7 @@ class JGenerator implements JsonGenerator {
 
   @Override
   public void writeRawChunk(String value) {
-    writeAscii(value);
+    writeRawUtf8(value);
   }
 
   @Override
@@ -609,7 +678,11 @@ class JGenerator implements JsonGenerator {
 
   @Override
   public void writeRawChunk(char value) {
-    writeByte((byte) value);
+    if (value < 0x80) {
+      writeByte((byte) value);
+    } else {
+      writeRawUtf8(String.valueOf(value));
+    }
   }
 
   @Override

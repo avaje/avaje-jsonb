@@ -103,6 +103,18 @@ final class HybridBufferRecycler implements BufferRecycler {
       return INSTANCE;
     }
 
+    private static final int MAX_POW2 = 1 << 30;
+
+    private static int roundToPowerOfTwo(final int value) {
+      if (value > MAX_POW2) {
+        throw new IllegalArgumentException("Exceeded max power of 2 (2^31), got " + value);
+      }
+      if (value < 0) {
+        throw new IllegalArgumentException("Expecting value >= 0, got " + value);
+      }
+      return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
+    }
+
     @Override
     public JsonParser parser(byte[] bytes) {
       return parser().process(bytes, bytes.length);
@@ -220,7 +232,8 @@ final class HybridBufferRecycler implements BufferRecycler {
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
         Recyclers.PARSER_MAX_NUMBER_DIGITS,
-        Recyclers.PARSER_MAX_STRING_BUFFER);
+        Recyclers.PARSER_MAX_STRING_BUFFER,
+        Recyclers.PARSER_MAX_RAW_BUFFER);
       this.slot = slot;
     }
   }
@@ -249,17 +262,5 @@ final class HybridBufferRecycler implements BufferRecycler {
       probe ^= probe << 5;
       return probe;
     }
-  }
-
-  private static final int MAX_POW2 = 1 << 30;
-
-  private static int roundToPowerOfTwo(final int value) {
-    if (value > MAX_POW2) {
-      throw new IllegalArgumentException("Exceeded max power of 2 (2^31), got " + value);
-    }
-    if (value < 0) {
-      throw new IllegalArgumentException("Expecting value >= 0, got " + value);
-    }
-    return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
   }
 }

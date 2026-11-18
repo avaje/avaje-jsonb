@@ -3,6 +3,7 @@ package io.avaje.json.stream.core;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonEofException;
 import io.avaje.json.JsonIoException;
+import io.avaje.json.JsonReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -58,6 +59,7 @@ class JParser implements JsonParser {
   }
 
   private int tokenStart;
+  private int nameStart;
   private int nameEnd;
   private int currentIndex = 0;
   private long currentPosition = 0;
@@ -87,6 +89,7 @@ class JParser implements JsonParser {
   final UnknownNumberParsing unknownNumbers;
   final int maxNumberDigits;
   private final int maxStringBuffer;
+  private final int maxRawBuffer;
 
   public JParser(
     final char[] tmp,
@@ -96,6 +99,18 @@ class JParser implements JsonParser {
     final UnknownNumberParsing unknownNumbers,
     final int maxNumberDigits,
     final int maxStringBuffer) {
+    this(tmp, buffer, length, doublePrecision, unknownNumbers, maxNumberDigits, maxStringBuffer, maxStringBuffer);
+  }
+
+  public JParser(
+    final char[] tmp,
+    final byte[] buffer,
+    final int length,
+    final DoublePrecision doublePrecision,
+    final UnknownNumberParsing unknownNumbers,
+    final int maxNumberDigits,
+    final int maxStringBuffer,
+    final int maxRawBuffer) {
     this.tmp = tmp;
     this.buffer = buffer;
     this.length = length;
@@ -105,6 +120,7 @@ class JParser implements JsonParser {
     this.unknownNumbers = unknownNumbers;
     this.maxNumberDigits = maxNumberDigits;
     this.maxStringBuffer = maxStringBuffer;
+    this.maxRawBuffer = maxRawBuffer;
     this.doubleLengthLimit = 15 + doublePrecision.level;
     this.originalBuffer = buffer;
     this.originalBufferLenWithExtraSpace = bufferLenWithExtraSpace;
@@ -124,6 +140,8 @@ class JParser implements JsonParser {
     readLimit = 0;
     nameStack.clear();
     currentNames = null;
+    nameEnd = 0;
+    lastName = null;
     stream = null;
   }
 
@@ -133,6 +151,8 @@ class JParser implements JsonParser {
     currentNames = null;
     currentPosition = 0;
     currentIndex = 0;
+    nameEnd = 0;
+    lastName = null;
     stream = newStream;
     if (newStream != null) {
       readLimit = Math.min(length, bufferLenWithExtraSpace);
@@ -155,6 +175,8 @@ class JParser implements JsonParser {
     nameStack.clear();
     currentNames = null;
     currentIndex = 0;
+    nameEnd = 0;
+    lastName = null;
     length = newLength;
     stream = null;
     readLimit = newLength;
@@ -215,13 +237,18 @@ class JParser implements JsonParser {
   }
 
   private int prepareNextBlock() {
+    if (nameEnd > 0) {
+      // the last field name is about to be shifted out of the buffer, keep it for lastFieldName()
+      lastName = new String(buffer, nameStart, nameEnd - nameStart - 1, StandardCharsets.UTF_8);
+      nameEnd = -1;
+    }
     final int len = length - currentIndex;
     if (readRawBuffer != null) {
       // performing readRaw()
       readRawBuffer.write(buffer, readRawStartPosition, currentIndex - readRawStartPosition);
       readRawStartPosition = 0;
-      if (readRawBuffer.size() > maxStringBuffer) {
-        throw newParseErrorWith("Maximum buffer limit exceeded for raw content", maxStringBuffer);
+      if (readRawBuffer.size() > maxRawBuffer) {
+        throw newParseErrorWith("Maximum buffer limit exceeded for raw content", maxRawBuffer);
       }
     }
     System.arraycopy(buffer, currentIndex, buffer, 0, len);
@@ -311,7 +338,7 @@ class JParser implements JsonParser {
 
   final char[] prepareBuffer(final int start, final int len) {
     if (len > maxNumberDigits) {
-      throw newParseErrorWith("Too many digits detected in number", len, "Too many digits detected in number", len, "");
+      throw maxNumberDigitsExceeded(len, len);
     }
     while (chars.length < len) {
       chars = Arrays.copyOf(chars, chars.length * 2);
@@ -421,6 +448,38 @@ class JParser implements JsonParser {
     return new String(chars, 0, len);
   }
 
+  @Override
+  public final String readString(final JsonNames values) {
+    if (last != '"') throw newParseError("Expecting '\"' for string start");
+    final int start = currentIndex;
+    final byte[] buf = buffer;
+    final int end = length;
+    int hash = 0x811c9dc5;
+    for (int ci = start; ci < end; ci++) {
+      final byte b = buf[ci];
+      if (b == '"') {
+        final int pos = values.position(hash);
+        if (pos >= 0 && matches(values.key(pos), start, ci)) {
+          currentIndex = ci + 1;
+          return values.name(pos);
+        }
+        break;
+      } else if (b == '\\') {
+        break;
+      }
+      hash ^= b;
+      hash *= 0x1000193;
+    }
+    // escaped, unknown or not fully in the buffer
+    return readString();
+  }
+
+  /** Return true if the buffer from start to end matches the quoted key. */
+  private boolean matches(final byte[] quotedKey, final int start, final int end) {
+    return quotedKey.length - 2 == end - start
+        && Arrays.equals(quotedKey, 1, quotedKey.length - 1, buffer, start, end);
+  }
+
   final int parseString() {
     final int startIndex = currentIndex;
     if (last != '"') throw newParseError("Expecting '\"' for string start");
@@ -448,7 +507,7 @@ class JParser implements JsonParser {
     if (i == _tmp.length) {
       final int newSize = chars.length * 2;
       if (newSize > maxStringBuffer) {
-        throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+        throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
       }
       _tmp = chars = Arrays.copyOf(chars, newSize);
     }
@@ -466,7 +525,7 @@ class JParser implements JsonParser {
         if (soFar >= _tmpLen - 6) {
           final int newSize = chars.length * 2;
           if (newSize > maxStringBuffer) {
-            throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+            throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
           }
           _tmp = chars = Arrays.copyOf(chars, newSize);
           _tmpLen = _tmp.length;
@@ -507,7 +566,7 @@ class JParser implements JsonParser {
         if (soFar >= _tmpLen - 4) {
           final int newSize = chars.length * 2;
           if (newSize > maxStringBuffer) {
-            throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+            throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
           }
           _tmp = chars = Arrays.copyOf(chars, newSize);
           _tmpLen = _tmp.length;
@@ -545,7 +604,7 @@ class JParser implements JsonParser {
       } else if (soFar >= _tmpLen) {
         final int newSize = chars.length * 2;
         if (newSize > maxStringBuffer) {
-          throw newParseErrorWith("Maximum string buffer limit exceeded", maxStringBuffer);
+          throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
         }
         _tmp = chars = Arrays.copyOf(chars, newSize);
         _tmpLen = _tmp.length;
@@ -627,7 +686,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextStreamElement() {
-    if (currentIndex >= length) {
+    if (isEndOfStream()) {
       return false;
     }
     try {
@@ -645,7 +704,7 @@ class JParser implements JsonParser {
 
   @Override
   public final boolean hasNextElement() {
-    if (currentIndex >= length) {
+    if (isEndOfStream()) {
       return false;
     }
     final boolean firstElement = last == '[';
@@ -686,7 +745,7 @@ class JParser implements JsonParser {
 
   final int calcHash() {
     if (last != '"') throw newParseError("Expecting '\"' for attribute name start");
-    tokenStart = currentIndex;
+    nameStart = tokenStart = currentIndex;
     int ci = currentIndex;
     int hash = 0x811c9dc5;
     if (stream != null) {
@@ -728,16 +787,21 @@ class JParser implements JsonParser {
     // the name has an escape or crosses the end of the buffer, read it again with parseString()
     // which decodes it and refills the buffer, then hash the decoded name as JsonNames does
     currentIndex = tokenStart;
-    lastName = new String(chars, 0, parseString());
     nameEnd = -1;
-    return Escape.nameHash(lastName);
+    final int len = parseString();
+    lastName = new String(chars, 0, len);
+    return JsonReader.nameHash(lastName);
   }
 
-  private String lastFieldName() {
+  @Override
+  public final String lastFieldName() {
+    if (nameEnd == 0) {
+      return null;
+    }
     if (nameEnd == -1) {
       return lastName;
     }
-    return new String(buffer, tokenStart, nameEnd - tokenStart - 1, StandardCharsets.UTF_8);
+    return new String(buffer, nameStart, nameEnd - nameStart - 1, StandardCharsets.UTF_8);
   }
 
   private byte skipString() {
@@ -824,21 +888,19 @@ class JParser implements JsonParser {
   private byte skipObject() {
     byte nextToken = nextToken();
     if (nextToken == '}') return nextToken();
-    if (nextToken == '"') {
-      nextToken = skipString();
-    } else {
+    if (nextToken != '"'){
       throw newParseError("Expecting '\"' for attribute name");
     }
+    nextToken = skipString();
     if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
     nextToken();
     nextToken = skipNextValue();
     while (nextToken == ',') {
       nextToken = nextToken();
-      if (nextToken == '"') {
-        nextToken = skipString();
-      } else {
+      if (nextToken != '"'){
         throw newParseError("Expecting '\"' for attribute name");
       }
+      nextToken = skipString();
       if (nextToken != ':') throw newParseError("Expecting ':' after attribute name");
       nextToken();
       nextToken = skipNextValue();
@@ -880,6 +942,16 @@ class JParser implements JsonParser {
       return key;
     }
     return readKey();
+  }
+
+  @Override
+  public final int nextFieldHash() {
+    final int hash = calcHash();
+    if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
+      throw newParseError("Expecting ':' after attribute name");
+    }
+    nextToken();
+    return hash;
   }
 
   /**
@@ -1080,6 +1152,29 @@ class JParser implements JsonParser {
     error.append(" ");
     positionDescription(offset, error);
     return new JsonDataException(errorMessage());
+  }
+
+  final JsonDataException maxNumberDigitsExceeded(int offset, int digits) {
+    final String description = "Too many digits detected in number";
+    return newParseErrorWith(
+        description,
+        offset,
+        description,
+        digits,
+        ". Maximum allowed is "
+            + maxNumberDigits
+            + ". Increase the limit via system property jsonb.parserMaxNumberDigits"
+            + " or environment variable JSONB_PARSER_MAX_NUMBER_DIGITS");
+  }
+
+  private JsonDataException maxStringBufferExceeded(String description) {
+    return newParseErrorWith(
+        description,
+        0,
+        description,
+        maxStringBuffer,
+        ". Increase the limit via system property jsonb.parserMaxStringBuffer"
+            + " or environment variable JSONB_PARSER_MAX_STRING_BUFFER");
   }
 
   final JsonDataException newParseErrorWith(String description, Object argument) {

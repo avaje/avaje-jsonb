@@ -66,12 +66,7 @@ final class SimpleComponentWriter {
       final String typeName = Util.shortType(Util.baseTypeOfAdapter(adapterFullName).replace("$", "."));
       writer.append("    builder.add(%s.class, %s::new);", typeName, adapterShortName).eol();
     }
-    writer.append("  }").eol().eol();
-    writer.append("  @Override").eol();
-    writer.append("  public Lookup lookup() {").eol();
-    writer.append("    return MethodHandles.lookup();").eol();
-    writer.append("  }").eol().eol();
-
+    writer.append("  }").eol();
   }
 
   private void writeClassEnd() {
@@ -112,8 +107,6 @@ final class SimpleComponentWriter {
     importTypes.add("io.avaje.jsonb.spi.Generated");
     importTypes.add("io.avaje.jsonb.spi.GeneratedComponent");
     importTypes.add("io.avaje.jsonb.spi.MetaData");
-    importTypes.add("java.lang.invoke.MethodHandles");
-    importTypes.add("java.lang.invoke.MethodHandles.Lookup");
 
     for (final String importType : importTypes) {
       if (Util.validImportType(importType, packageName)) {

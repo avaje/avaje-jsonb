@@ -419,6 +419,7 @@ supported.
 | Parser char buffer | `JSONB_PARSER_CHAR_BUFFER_SIZE` | `4096` |
 | Max number digits | `JSONB_PARSER_MAX_NUMBER_DIGITS` | `309` |
 | Max string buffer | `JSONB_PARSER_MAX_STRING_BUFFER` | `50000` |
+| Max raw buffer | `JSONB_PARSER_MAX_RAW_BUFFER` | `10000000` |
 
 Each ENV var has a matching system property (e.g. `-Djsonb.parserMaxStringBuffer=100000`).
 System property takes priority over ENV var.

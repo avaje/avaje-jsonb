@@ -103,6 +103,11 @@ interface JsonGenerator extends Closeable, Flushable {
   void write(String value);
 
   /**
+   * Write a String value using the already encoded and escaped values of JsonNames.
+   */
+  void write(JsonNames values, int position);
+
+  /**
    * Write a binary value as base64.
    */
   void write(byte[] value);

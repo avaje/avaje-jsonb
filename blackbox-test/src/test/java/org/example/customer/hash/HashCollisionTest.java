@@ -1,0 +1,53 @@
+package org.example.customer.hash;
+
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class HashCollisionTest {
+
+  Jsonb jsonb = Jsonb.builder().build();
+  JsonType<HashCollision> jsonType = jsonb.type(HashCollision.class);
+
+  @Test
+  void toFromJson() {
+    var bean = new HashCollision("a", "b", "c");
+    String asJson = jsonType.toJson(bean);
+    assertThat(asJson).isEqualTo("{\"glbvs\":\"a\",\"yacxa\":\"b\",\"other\":\"c\"}");
+
+    assertThat(jsonType.fromJson(asJson)).isEqualTo(bean);
+    assertThat(jsonType.fromJson(new ByteArrayInputStream(asJson.getBytes(StandardCharsets.UTF_8)))).isEqualTo(bean);
+  }
+
+  @Test
+  void fromJson_reverseOrder() {
+    var bean = jsonType.fromJson("{\"other\":\"c\",\"yacxa\":\"b\",\"glbvs\":\"a\"}");
+    assertThat(bean).isEqualTo(new HashCollision("a", "b", "c"));
+  }
+
+  @Test
+  void fromJson_aliasCollision() {
+    var aliasType = jsonb.type(HashCollision.Alias.class);
+    assertThat(aliasType.fromJson("{\"yacxa\":\"b\"}"))
+      .isEqualTo(new HashCollision.Alias(null, "b"));
+    assertThat(aliasType.fromJson("{\"y\\u0061cxa\":\"b\"}"))
+      .isEqualTo(new HashCollision.Alias(null, "b"));
+    var streamJson = "{\"glbvs\":\"a\",\"yacxa\":\"b\"}";
+    assertThat(aliasType.fromJson(new ByteArrayInputStream(streamJson.getBytes(StandardCharsets.UTF_8))))
+      .isEqualTo(new HashCollision.Alias("a", "b"));
+  }
+
+  @Test
+  void fromJson_caseInsensitiveAliasCollision() {
+    var aliasType = jsonb.type(HashCollision.CaseInsensitiveAlias.class);
+    assertThat(aliasType.fromJson("{\"yacxa\":\"b\"}"))
+      .isEqualTo(new HashCollision.CaseInsensitiveAlias(null, "b"));
+    assertThat(aliasType.fromJson("{\"YACXA\":\"b\",\"GLBVS\":\"a\"}"))
+      .isEqualTo(new HashCollision.CaseInsensitiveAlias("a", "b"));
+  }
+}

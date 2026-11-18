@@ -150,6 +150,17 @@ public interface JsonWriter extends Closeable, Flushable {
   void value(String value);
 
   /**
+   * Write a string value that is one of the given values by position. This uses the
+   * already encoded and escaped values of PropertyNames.
+   *
+   * @param values   The values typically created via {@code Jsonb.properties(String...)}
+   * @param position The position of the value to write
+   */
+  default void value(PropertyNames values, int position) {
+    value(values.name(position));
+  }
+
+  /**
    * Write a boolean value.
    */
   void value(boolean value);

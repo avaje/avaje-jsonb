@@ -77,4 +77,27 @@ class JParserStreamNameTest {
       reader.endObject();
     }
   }
+
+  @Test
+  void nextField_withNames_nameLongerThanBuffer() {
+    for (int pad = 0; pad < 250; pad++) {
+      String padKey = "p".repeat(pad);
+      String content = "{\"" + padKey + "\":0,\"after\":1}";
+
+      JParser parser = new JParser(new char[100], new byte[100], 100, JParser.DoublePrecision.HIGH,
+        JParser.UnknownNumberParsing.BIGDECIMAL, 100, 1000);
+      parser.process(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+      JsonReadAdapter reader = new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true);
+
+      reader.beginObject(names);
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).as("pad %d", pad).isEqualTo(padKey);
+      assertThat(reader.readInt()).isEqualTo(0);
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).as("pad %d", pad).isEqualTo(AFTER);
+      assertThat(reader.readInt()).isEqualTo(1);
+      assertThat(reader.hasNextField()).isFalse();
+      reader.endObject();
+    }
+  }
 }
