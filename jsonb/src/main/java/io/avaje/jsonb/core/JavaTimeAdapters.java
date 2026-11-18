@@ -64,12 +64,12 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<Date> UTIL_DATE = new JsonAdapter<>() {
     @Override
     public Date fromJson(JsonReader reader) {
-      return Date.from(Instant.parse(reader.readString()));
+      return Date.from(IsoTime.parseInstant(reader.readString()));
     }
 
     @Override
     public void toJson(JsonWriter writer, Date value) {
-      writer.value(value.toInstant().toString());
+      writer.value(IsoTime.format(value.toInstant()));
     }
 
     @Override
@@ -98,12 +98,12 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<>() {
     @Override
     public Instant fromJson(JsonReader reader) {
-      return Instant.parse(reader.readString());
+      return IsoTime.parseInstant(reader.readString());
     }
 
     @Override
     public void toJson(JsonWriter writer, Instant value) {
-      writer.value(value.toString());
+      writer.value(IsoTime.format(value));
     }
 
     @Override
@@ -115,7 +115,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<OffsetDateTime> OFFSET_DATE_TIME_ADAPTER = new JsonAdapter<>() {
     @Override
     public OffsetDateTime fromJson(JsonReader reader) {
-      return OffsetDateTime.parse(reader.readString());
+      return IsoTime.parseOffsetDateTime(reader.readString());
     }
 
     @Override
@@ -149,7 +149,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<ZonedDateTime> ZONED_DATE_TIME_ADAPTER = new JsonAdapter<>() {
     @Override
     public ZonedDateTime fromJson(JsonReader reader) {
-      return ZonedDateTime.parse(reader.readString());
+      return IsoTime.parseZonedDateTime(reader.readString());
     }
 
     @Override
@@ -243,7 +243,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<LocalDate> LOCAL_DATE_ADAPTER = new JsonAdapter<>() {
     @Override
     public LocalDate fromJson(JsonReader reader) {
-      return LocalDate.parse(reader.readString());
+      return IsoTime.parseLocalDate(reader.readString());
     }
 
     @Override
@@ -260,7 +260,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<LocalDateTime> LOCAL_DATE_TIME_ADAPTER = new JsonAdapter<>() {
     @Override
     public LocalDateTime fromJson(JsonReader reader) {
-      return LocalDateTime.parse(reader.readString());
+      return IsoTime.parseLocalDateTime(reader.readString());
     }
 
     @Override
@@ -277,7 +277,7 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<LocalTime> LOCAL_TIME_ADAPTER = new JsonAdapter<>() {
     @Override
     public LocalTime fromJson(JsonReader reader) {
-      return LocalTime.parse(reader.readString());
+      return IsoTime.parseLocalTime(reader.readString());
     }
 
     @Override
