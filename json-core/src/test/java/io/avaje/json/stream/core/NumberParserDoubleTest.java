@@ -7,10 +7,12 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.SplittableRandom;
 
 import org.junit.jupiter.api.Test;
 
+import io.avaje.json.JsonDataException;
 import io.avaje.json.stream.JsonStream;
 
 class NumberParserDoubleTest {
@@ -142,7 +144,7 @@ class NumberParserDoubleTest {
       if (r.nextBoolean()) d = -d;
       final var s = Double.toString(d);
       if (Double.compare(readDouble(s), d) != 0) bad.add(s);
-      final var sci = String.format("%.6e", d);
+      final var sci = String.format(Locale.ROOT, "%.6e", d);
       if (Double.compare(readDouble(sci), Double.parseDouble(sci)) != 0) bad.add(sci);
     }
     assertThat(bad).isEmpty();
@@ -162,7 +164,7 @@ class NumberParserDoubleTest {
   void readInt_invalid() {
     for (final String number :
         new String[] {"2147483648", "-2147483649", "01", "-01", "1.5", "1e2x", "-", "1a"}) {
-      assertThatThrownBy(() -> readInt(number)).as(number).isInstanceOf(RuntimeException.class);
+      assertThatThrownBy(() -> readInt(number)).as(number).isInstanceOf(JsonDataException.class);
     }
   }
 
@@ -180,14 +182,29 @@ class NumberParserDoubleTest {
   void readLong_invalid() {
     for (final String number :
         new String[] {"9223372036854775808", "-9223372036854775809", "01", "1.5", "-"}) {
-      assertThatThrownBy(() -> readLong(number)).as(number).isInstanceOf(RuntimeException.class);
+      assertThatThrownBy(() -> readLong(number)).as(number).isInstanceOf(JsonDataException.class);
     }
   }
 
   @Test
   void readDouble_invalid() {
     for (final String number : new String[] {"01", "-01", "1.", "-", "1e", "1x", "1e+", "1.5e", ".5"}) {
-      assertThatThrownBy(() -> readDouble(number)).as(number).isInstanceOf(RuntimeException.class);
+      assertThatThrownBy(() -> readDouble(number)).as(number).isInstanceOf(JsonDataException.class);
+    }
+  }
+
+  @Test
+  void topLevelNumbers() {
+    try (var reader = stream.reader("-42")) {
+      assertThat(reader.readInt()).isEqualTo(-42);
+    }
+    try (var reader = stream.reader("123456789012345")) {
+      assertThat(reader.readLong()).isEqualTo(123456789012345L);
+    }
+    for (final String number : new String[] {"-123.45", "1.5e-3"}) {
+      try (var reader = stream.reader(number)) {
+        assertThat(reader.readDouble()).as(number).isEqualTo(Double.parseDouble(number));
+      }
     }
   }
 
