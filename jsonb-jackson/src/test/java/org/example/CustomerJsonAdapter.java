@@ -5,7 +5,7 @@ import io.avaje.json.*;
 import io.avaje.json.view.ViewBuilder;
 import io.avaje.json.view.ViewBuilderAware;
 
-import java.lang.invoke.MethodHandle;
+import java.util.function.UnaryOperator;
 import java.time.Instant;
 import java.util.List;
 
@@ -38,13 +38,13 @@ public class CustomerJsonAdapter implements ViewBuilderAware, JsonAdapter<Custom
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) {
-    builder.beginObject(name, handle);
-    builder.add("id", intAdapter, builder.method(Customer.class, "id", Integer.class));
-    builder.add("name", stringAdapter, builder.method(Customer.class, "name", String.class));
-    builder.add("whenCreated", instantAdapter, builder.method(Customer.class, "whenCreated", Instant.class));
-    builder.add("billingAddress", addressAdapter, builder.method(Customer.class, "billingAddress", Address.class));
-    builder.add("contacts", contactsAdapter, builder.method(Customer.class, "contacts", List.class));
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.beginObject(name, accessor);
+    builder.add("id", intAdapter, o -> ((Customer) o).id());
+    builder.add("name", stringAdapter, o -> ((Customer) o).name());
+    builder.add("whenCreated", instantAdapter, o -> ((Customer) o).whenCreated());
+    builder.add("billingAddress", addressAdapter, o -> ((Customer) o).billingAddress());
+    builder.add("contacts", contactsAdapter, o -> ((Customer) o).contacts());
     builder.endObject();
   }
 

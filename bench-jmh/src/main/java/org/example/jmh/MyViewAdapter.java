@@ -2,7 +2,7 @@ package org.example.jmh;
 
 import io.avaje.jsonb.*;
 import java.io.IOException;
-import java.lang.invoke.MethodHandle;
+import java.util.function.UnaryOperator;
 import java.time.Instant;
 import java.util.List;
 
@@ -41,18 +41,18 @@ public class MyViewAdapter implements JsonAdapter<SomePropertyData>, ViewBuilder
   }
 
   @Override
-  public void build(ViewBuilder builder, String name, MethodHandle handle) {
-    builder.beginObject(name, handle);
-    builder.add("firstNameProperty1", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp1", String.class));
-    builder.add("lastNameProperty2", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp2", String.class));
-    builder.add("anotherSimilarProperty3", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp3", String.class));
-    builder.add("moreOrLessProperty4", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp4", String.class));
-    builder.add("lastButNotLeastProperty5", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp5", String.class));
-    builder.add("prop6", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp6", String.class));
-    builder.add("prop7", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp7", String.class));
-    builder.add("prop8", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp8", String.class));
-    builder.add("prop9", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp9", String.class));
-    builder.add("prop10", stringJsonAdapter, builder.method(SomePropertyData.class, "getProp10", String.class));
+  public void build(ViewBuilder builder, String name, UnaryOperator<Object> accessor) {
+    builder.beginObject(name, accessor);
+    builder.add("firstNameProperty1", stringJsonAdapter, o -> ((SomePropertyData) o).getProp1());
+    builder.add("lastNameProperty2", stringJsonAdapter, o -> ((SomePropertyData) o).getProp2());
+    builder.add("anotherSimilarProperty3", stringJsonAdapter, o -> ((SomePropertyData) o).getProp3());
+    builder.add("moreOrLessProperty4", stringJsonAdapter, o -> ((SomePropertyData) o).getProp4());
+    builder.add("lastButNotLeastProperty5", stringJsonAdapter, o -> ((SomePropertyData) o).getProp5());
+    builder.add("prop6", stringJsonAdapter, o -> ((SomePropertyData) o).getProp6());
+    builder.add("prop7", stringJsonAdapter, o -> ((SomePropertyData) o).getProp7());
+    builder.add("prop8", stringJsonAdapter, o -> ((SomePropertyData) o).getProp8());
+    builder.add("prop9", stringJsonAdapter, o -> ((SomePropertyData) o).getProp9());
+    builder.add("prop10", stringJsonAdapter, o -> ((SomePropertyData) o).getProp10());
     builder.endObject();
   }
 

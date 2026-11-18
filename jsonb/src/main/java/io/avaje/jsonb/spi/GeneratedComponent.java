@@ -7,8 +7,4 @@ import java.lang.invoke.MethodHandles.Lookup;
 @FunctionalInterface
 public interface GeneratedComponent extends JsonbComponent, JsonbExtension {
 
-  /** Method handle Lookup for Json Views */
-  default Lookup lookup() {
-    return MethodHandles.lookup();
-  }
 }
