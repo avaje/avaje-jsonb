@@ -985,10 +985,7 @@ class JParser implements JsonParser {
       // escaped or crossed the end of the buffer
       return names.name(position).equals(lastName);
     }
-    final byte[] key = names.raw(position);
-    final int start = nameStart;
-    return key.length == nameEnd - start - 1
-      && Arrays.equals(key, 0, key.length, buffer, start, nameEnd - 1);
+    return matches(names.key(position), nameStart, nameEnd - 1);
   }
 
   /**

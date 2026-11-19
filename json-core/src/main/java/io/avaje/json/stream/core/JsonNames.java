@@ -1,6 +1,5 @@
 package io.avaje.json.stream.core;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -18,8 +17,6 @@ final class JsonNames implements PropertyNames {
   static final JsonNames EMPTY = of();
   private final String[] allNames;
   private final byte[][] nameArray;
-  /** The unescaped UTF-8 bytes of each name. */
-  private final byte[][] rawArray;
   /** The names as written for a field, with a leading comma and trailing colon. */
   private final byte[][] fieldArray;
   /** For a short field, {@code "name":} as 2 little endian longs (zero padded), else null. */
@@ -38,10 +35,8 @@ final class JsonNames implements PropertyNames {
     this.nameArray = nameArray;
     this.fieldArray = fieldArray;
     this.shortFields = shortFields(fieldArray);
-    this.rawArray = new byte[allNames.length][];
     final var allHashes = new HashSet<Integer>();
     for (int i = 0; i < allNames.length; i++) {
-      rawArray[i] = allNames[i].getBytes(StandardCharsets.UTF_8);
       allHashes.add(JsonReader.nameHash(allNames[i]));
     }
     this.hashes = hashes;
@@ -130,11 +125,6 @@ final class JsonNames implements PropertyNames {
   /** Return the name as written for a field, {@code ,"name":} */
   byte[] field(int namePos) {
     return fieldArray[namePos];
-  }
-
-  /** Return the unescaped UTF-8 bytes of the name at the given position. */
-  byte[] raw(int namePos) {
-    return rawArray[namePos];
   }
 
   /** Return a value that is not the hash of any of the names. */
