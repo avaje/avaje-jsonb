@@ -291,7 +291,7 @@ final class ClassReader implements BeanReader {
       writer.append("  private final PropertyNames typeNames;").eol();
     }
     final var fromJsonReader = readOnlyInterface ? implementation : this;
-    if (fromJsonReader != null && fromJsonReader.hashConstants() != null) {
+    if (hasSeparateReadNames()) {
       writer.append("  private final PropertyNames readNames;").eol();
     }
     writer.eol();
@@ -410,15 +410,32 @@ final class ClassReader implements BeanReader {
         .collect(Collectors.joining(", "));
       writer.append("    this.typeNames = jsonb.properties(%s);", typeNames).eol();
     }
-    final var fromJsonReader = readOnlyInterface ? implementation : this;
-    final var constants = fromJsonReader == null ? null : fromJsonReader.hashConstants();
-    if (constants != null) {
+    if (hasSeparateReadNames()) {
+      final var fromJsonReader = readOnlyInterface ? implementation : this;
+      final var constants = fromJsonReader.hashConstants();
       // all the names switched on by hash, used to confirm a field name and not just its hash
       final String readNames = constants.keySet().stream()
         .map(key -> '"' + key + '"')
         .collect(joining(", "));
       writer.append("    this.readNames = jsonb.properties(%s);", readNames).eol();
     }
+  }
+
+  private boolean hasSeparateReadNames() {
+    final var fromJsonReader = readOnlyInterface ? implementation : this;
+    final var constants = fromJsonReader == null ? null : fromJsonReader.hashConstants();
+    if (constants == null) {
+      return false;
+    }
+    final var names = new LinkedHashSet<String>();
+    if (hasSubTypes) {
+      names.add('"' + typeProperty + '"');
+    }
+    names.addAll(propertyNames());
+    final var readNames = constants.keySet().stream()
+      .map(key -> '"' + key + '"')
+      .collect(Collectors.toSet());
+    return !names.equals(readNames);
   }
 
   private List<String> propertyNames() {
@@ -759,7 +776,8 @@ final class ClassReader implements BeanReader {
     writer.append("    while (reader.hasNextField()) {").eol();
     final UnaryOperator<String> caseLabel = constants == null ? key -> '"' + key + '"' : constants::get;
     if (constants != null) {
-      writer.append("      final int fieldHash = reader.nextFieldHash(readNames);").eol();
+      writer.append("      final int fieldHash = reader.nextFieldHash(%s);",
+        hasSeparateReadNames() ? "readNames" : "names").eol();
       writer.append("      switch (fieldHash) {").eol();
     } else {
       if (caseInsensitiveKeys) {
