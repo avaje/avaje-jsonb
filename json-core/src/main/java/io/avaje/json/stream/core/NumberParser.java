@@ -566,9 +566,11 @@ final class NumberParser {
     }
     if (fraction == 0) {
       if (exp == 0 || whole == 0) return whole;
-      else if (exp > 0 && exp <= MAX_EXACT_POW_10) return whole * EXACT_POW_10[exp];
-      else if (exp < 0 && exp >= -MAX_EXACT_POW_10) return whole / EXACT_POW_10[-exp];
-      // powers of ten beyond 1e22 are inexact, use the generic parser
+      else if (whole <= MAX_EXACT_MANTISSA) {
+        if (exp > 0 && exp <= MAX_EXACT_POW_10) return whole * EXACT_POW_10[exp];
+        else if (exp < 0 && exp >= -MAX_EXACT_POW_10) return whole / EXACT_POW_10[-exp];
+      }
+      // mantissas beyond 2^53 or powers of ten beyond 1e22 are inexact, use the generic parser
     } else {
       if (exp == 0) return whole + fraction;
       else if (exp > 0 && exp < POW_10.length) return fraction * POW_10[exp - 1] + whole * POW_10[exp - 1];
