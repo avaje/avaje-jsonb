@@ -45,6 +45,15 @@ class CollideTest {
   }
 
   @Test
+  void record_fromObject() {
+    final var type = jsonb.type(Collide.AdminRecord.class);
+    assertThat(type.fromObject(Map.of("name", "alice", "6ktbvb", true)))
+        .isEqualTo(new Collide.AdminRecord("alice", false));
+    assertThat(type.fromObject(Map.of("name", "alice", "admin", true)))
+        .isEqualTo(new Collide.AdminRecord("alice", true));
+  }
+
+  @Test
   void record_escapedKey() {
     final var type = jsonb.type(Collide.AdminRecord.class);
     assertThat(type.fromJson("{\"6ktbv\\u0062\":true}"))

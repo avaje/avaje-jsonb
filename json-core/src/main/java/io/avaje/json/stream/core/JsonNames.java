@@ -137,19 +137,22 @@ final class JsonNames implements PropertyNames {
     return !clashHashes.isEmpty() && clashHashes.contains(hash);
   }
 
-  /**
-   * Return the hash of the name when it is one of these names, otherwise a value that is not
-   * the hash of any of these names.
-   */
-  int knownHash(String name) {
+  @Override
+  public int knownHash(String name) {
     final int hash = JsonReader.nameHash(name);
-    for (String known : allNames) {
-      if (known.equals(name)) {
-        return hash;
-      }
-    }
     final int pos = position(hash);
-    return pos >= 0 || clashHashes.contains(hash) ? unknownHash : hash;
+    if (pos >= 0) {
+      return allNames[pos].equals(name) ? hash : unknownHash;
+    }
+    if (isClash(hash)) {
+      for (String known : allNames) {
+        if (known.equals(name)) {
+          return hash;
+        }
+      }
+      return unknownHash;
+    }
+    return hash;
   }
 
   String lookup(int hash) {

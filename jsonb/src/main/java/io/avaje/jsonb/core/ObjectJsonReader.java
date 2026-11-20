@@ -109,6 +109,12 @@ final class ObjectJsonReader implements JsonReader {
   }
 
   @Override
+  public int nextFieldHash(PropertyNames names) {
+    lastFieldName = nextField();
+    return names.knownHash(lastFieldName);
+  }
+
+  @Override
   public String lastFieldName() {
     return lastFieldName;
   }
