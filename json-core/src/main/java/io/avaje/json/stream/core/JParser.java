@@ -939,11 +939,23 @@ class JParser implements JsonParser {
 
   @Override
   public final String nextField() {
+    return nextField(false);
+  }
+
+  @Override
+  public final String nextField(final boolean strictPropertyNames) {
     if (currentNames != null && currentNames != JsonNames.EMPTY) {
       final int hash = calcHash();
-      String key = currentNames.lookup(hash);
-      if (key == null) {
-        key = lastFieldName();
+      final String key;
+      if (strictPropertyNames) {
+        final int pos = currentNames.position(hash);
+        key = pos >= 0 && isName(currentNames, pos) ? currentNames.name(pos) : lastFieldName();
+      } else {
+        String lookup = currentNames.lookup(hash);
+        if (lookup == null) {
+          lookup = lastFieldName();
+        }
+        key = lookup;
       }
       if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
         throw newParseError("Expecting ':' after attribute name");

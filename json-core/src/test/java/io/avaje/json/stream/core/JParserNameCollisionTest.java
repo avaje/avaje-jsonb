@@ -67,6 +67,30 @@ class JParserNameCollisionTest {
   }
 
   @Test
+  void nextField_strictPreparedNames() {
+    JsonReadAdapter reader = reader("{\"admin\":1,\"6ktbvb\":2}");
+    reader.beginObject(names);
+    assertThat(reader.hasNextField()).isTrue();
+    assertThat(reader.nextField()).isEqualTo("admin");
+    assertThat(reader.readInt()).isEqualTo(1);
+    assertThat(reader.hasNextField()).isTrue();
+    assertThat(reader.nextField()).isEqualTo("6ktbvb");
+    assertThat(reader.readInt()).isEqualTo(2);
+    assertThat(reader.hasNextField()).isFalse();
+    reader.endObject();
+  }
+
+  @Test
+  void nextField_notStrict_preparedNamesStillMatchByHash() {
+    JsonReadAdapter reader = reader("{\"6ktbvb\":1}", false);
+    reader.beginObject(names);
+    assertThat(reader.hasNextField()).isTrue();
+    assertThat(reader.nextField()).isEqualTo("admin");
+    assertThat(reader.readInt()).isEqualTo(1);
+    reader.endObject();
+  }
+
+  @Test
   void nextFieldHash_clashingNames() {
     JsonNames clash = JsonNames.of("glbvs", "yacxa");
     int hash = JsonReader.nameHash("glbvs");
@@ -132,10 +156,14 @@ class JParserNameCollisionTest {
   }
 
   private static JsonReadAdapter reader(String json) {
+    return reader(json, true);
+  }
+
+  private static JsonReadAdapter reader(String json, boolean strictPropertyNames) {
     byte[] content = json.getBytes(StandardCharsets.UTF_8);
     JParser parser = new JParser(new char[100], new byte[1000], 1000, JParser.DoublePrecision.HIGH,
       JParser.UnknownNumberParsing.BIGDECIMAL, 100, 1000);
     parser.process(content, content.length);
-    return new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true, true);
+    return new JsonReadAdapter(parser, Recyclers.ThreadLocalPool.shared(), true, true, strictPropertyNames);
   }
 }
