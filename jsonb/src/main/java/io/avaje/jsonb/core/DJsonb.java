@@ -52,23 +52,26 @@ final class DJsonb implements Jsonb {
       boolean serializeEmpty,
       boolean failOnUnknown,
       boolean failOnNullPrimitives,
+      boolean strictPropertyNames,
       boolean mathAsString,
       boolean calendarAsString,
       BufferRecycleStrategy strategy) {
 
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString, calendarAsString);
     if (adapter != null) {
-      this.io = adapter;
+      this.io = strictPropertyNames ? adapter.withStrictPropertyNames(true) : adapter;
     } else {
       var adapterFactoryOptional = ExtensionLoader.adapterFactory();
       if (adapterFactoryOptional.isPresent()) {
-        this.io = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
+        final var stream = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
+        this.io = strictPropertyNames ? stream.withStrictPropertyNames(true) : stream;
       } else {
         this.io = JsonStream.builder()
           .serializeNulls(serializeNulls)
           .serializeEmpty(serializeEmpty)
           .failOnUnknown(failOnUnknown)
           .failOnNullPrimitives(failOnNullPrimitives)
+          .strictPropertyNames(strictPropertyNames)
           .bufferRecycling(strategy)
           .build();
       }
@@ -275,6 +278,7 @@ final class DJsonb implements Jsonb {
     private final List<AdapterFactory> factories = new ArrayList<>();
     private boolean failOnUnknown;
     private boolean failOnNullPrimitives;
+    private boolean strictPropertyNames;
     private boolean mathTypesAsString;
     private boolean calendarAsString;
     private boolean serializeNulls;
@@ -304,6 +308,12 @@ final class DJsonb implements Jsonb {
     @Override
     public Builder failOnNullPrimitives(boolean failOnNullPrimitives) {
       this.failOnNullPrimitives = failOnNullPrimitives;
+      return this;
+    }
+
+    @Override
+    public Builder strictPropertyNames(boolean strictPropertyNames) {
+      this.strictPropertyNames = strictPropertyNames;
       return this;
     }
 
@@ -385,7 +395,7 @@ final class DJsonb implements Jsonb {
         return DEFAULT;
       }
       registerComponents();
-      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, mathTypesAsString, calendarAsString, strategy);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, mathTypesAsString, calendarAsString, strategy);
     }
 
     private boolean hasCustomizations() {
@@ -394,6 +404,7 @@ final class DJsonb implements Jsonb {
         || !factories.isEmpty()
         || failOnUnknown
         || failOnNullPrimitives
+        || strictPropertyNames
         || mathTypesAsString
         || calendarAsString
         || serializeNulls

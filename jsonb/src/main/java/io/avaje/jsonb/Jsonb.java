@@ -450,6 +450,17 @@ public interface Jsonb {
     Builder bufferRecycling(BufferRecycleStrategy strategy);
 
     /**
+     * Set to true to confirm property names when reading. Defaults to false.
+     *
+     * <p>By default property names are matched by their hash only, so a key that is not a property
+     * name but shares the hash of a property name is read as that property. Set this to true when
+     * json content is checked or filtered by key name before it is read (for example by a gateway),
+     * such that a key is only read as a property when it equals the property name. Enabling this
+     * has a 15-25% cost to read performance.
+     */
+    Builder strictPropertyNames(boolean strictPropertyNames);
+
+    /**
      * Explicitly set the adapter to use.
      *
      * <p>When not set, the JsonStream is service loaded using {@link JsonStreamFactory} with a

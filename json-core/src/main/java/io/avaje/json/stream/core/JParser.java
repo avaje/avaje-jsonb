@@ -961,11 +961,23 @@ class JParser implements JsonParser {
 
   @Override
   public final String nextField() {
+    return nextField(false);
+  }
+
+  @Override
+  public final String nextField(final boolean strictPropertyNames) {
     if (currentNames != null && currentNames != JsonNames.EMPTY) {
       final int hash = calcHash();
-      String key = currentNames.lookup(hash);
-      if (key == null) {
-        key = lastFieldName();
+      final String key;
+      if (strictPropertyNames) {
+        final int pos = currentNames.position(hash);
+        key = pos >= 0 && isName(currentNames, pos) ? currentNames.name(pos) : lastFieldName();
+      } else {
+        String lookup = currentNames.lookup(hash);
+        if (lookup == null) {
+          lookup = lastFieldName();
+        }
+        key = lookup;
       }
       if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
         throw newParseError("Expecting ':' after attribute name");
@@ -984,6 +996,30 @@ class JParser implements JsonParser {
     }
     nextToken();
     return hash;
+  }
+
+  @Override
+  public final int nextFieldHash(final JsonNames names) {
+    int hash = calcHash();
+    final int pos = names.position(hash);
+    if (pos >= 0 ? !isName(names, pos) : names.isClash(hash)) {
+      // the name only shares the hash, check the actual name
+      hash = names.knownHash(lastFieldName());
+    }
+    if ((read() != ':') && (!wasWhiteSpace() || nextToken() != ':')) {
+      throw newParseError("Expecting ':' after attribute name");
+    }
+    nextToken();
+    return hash;
+  }
+
+  /** Return true if the name last read by calcHash() is the name at the given position. */
+  private boolean isName(final JsonNames names, final int position) {
+    if (nameEnd <= 0) {
+      // escaped or crossed the end of the buffer
+      return names.name(position).equals(lastName);
+    }
+    return matches(names.key(position), nameStart, nameEnd - 1);
   }
 
   /**

@@ -20,4 +20,15 @@ public interface PropertyNames {
   default String name(int position) {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Return the hash of the name when it is one of these names, otherwise a value that does not
+   * match the hash of any of these names.
+   *
+   * @param name The property name
+   * @return The property name hash, or an unmapped hash when colliding
+   */
+  default int knownHash(String name) {
+    return JsonReader.nameHash(name);
+  }
 }
