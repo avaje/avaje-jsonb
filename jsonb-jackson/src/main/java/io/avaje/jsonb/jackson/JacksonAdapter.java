@@ -64,6 +64,7 @@ public class JacksonAdapter implements JsonStream {
     private boolean serializeNulls;
     private boolean serializeEmpty;
     private boolean failOnUnknown;
+    private boolean strictPropertyNames;
 
     /**
      * Set the Jackson JsonFactory to use.
@@ -98,6 +99,14 @@ public class JacksonAdapter implements JsonStream {
     }
 
     /**
+     * Set to true to confirm property names when reading. Defaults to false.
+     */
+    public Builder strictPropertyNames(boolean strictPropertyNames) {
+      this.strictPropertyNames = strictPropertyNames;
+      return this;
+    }
+
+    /**
      * Build and return the JacksonAdapter.
      */
     public JacksonAdapter build() {
@@ -107,7 +116,7 @@ public class JacksonAdapter implements JsonStream {
           .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
           .build();
       }
-      return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory);
+      return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory, strictPropertyNames);
     }
   }
 
@@ -115,6 +124,7 @@ public class JacksonAdapter implements JsonStream {
   private final boolean serializeNulls;
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
+  private final boolean strictPropertyNames;
 
   /**
    * Create with the given default configuration.
@@ -138,10 +148,28 @@ public class JacksonAdapter implements JsonStream {
    * Create additionally providing the jsonFactory.
    */
   public JacksonAdapter(boolean serializeNulls, boolean serializeEmpty, boolean failOnUnknown, JsonFactory jsonFactory) {
+    this(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory, false);
+  }
+
+  private JacksonAdapter(
+      boolean serializeNulls,
+      boolean serializeEmpty,
+      boolean failOnUnknown,
+      JsonFactory jsonFactory,
+      boolean strictPropertyNames) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.jsonFactory = jsonFactory;
+    this.strictPropertyNames = strictPropertyNames;
+  }
+
+  @Override
+  public JsonStream withStrictPropertyNames(boolean strictPropertyNames) {
+    if (this.strictPropertyNames == strictPropertyNames) {
+      return this;
+    }
+    return new JacksonAdapter(serializeNulls, serializeEmpty, failOnUnknown, jsonFactory, strictPropertyNames);
   }
 
   /**
@@ -174,7 +202,7 @@ public class JacksonAdapter implements JsonStream {
   @Override
   public JsonReader reader(String json) {
     try {
-      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
+      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown, strictPropertyNames);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -183,7 +211,7 @@ public class JacksonAdapter implements JsonStream {
   @Override
   public JsonReader reader(byte[] json) {
     try {
-      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown);
+      return new JacksonReader(jsonFactory.createParser(json), failOnUnknown, strictPropertyNames);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -192,7 +220,7 @@ public class JacksonAdapter implements JsonStream {
   @Override
   public JsonReader reader(Reader reader) {
     try {
-      return new JacksonReader(jsonFactory.createParser(reader), failOnUnknown);
+      return new JacksonReader(jsonFactory.createParser(reader), failOnUnknown, strictPropertyNames);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }
@@ -201,7 +229,7 @@ public class JacksonAdapter implements JsonStream {
   @Override
   public JsonReader reader(InputStream inputStream) {
     try {
-      return new JacksonReader(jsonFactory.createParser(inputStream), failOnUnknown);
+      return new JacksonReader(jsonFactory.createParser(inputStream), failOnUnknown, strictPropertyNames);
     } catch (IOException e) {
       throw new JsonIoException(e);
     }

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 
+import io.avaje.json.JsonReader;
 import io.avaje.jsonb.Jsonb;
 
 class JacksonAdapterTest {
@@ -31,6 +32,37 @@ class JacksonAdapterTest {
     var jsonb = Jsonb.instance();
     assertThat(jsonb.reader("")).isInstanceOf(JacksonReader.class);
     assertThat(jsonb.writer(OutputStream.nullOutputStream())).isInstanceOf(JacksonWriter.class);
+  }
+
+  @Test
+  void strictPropertyNames() {
+    final var adminHash = JsonReader.nameHash("admin");
+    assertThat(nextFieldHash(Jsonb.instance(), "6ktbvb")).isEqualTo(adminHash);
+
+    final var serviceLoaded = Jsonb.builder().strictPropertyNames(true).build();
+    assertThat(serviceLoaded.reader("")).isInstanceOf(JacksonReader.class);
+    assertThat(nextFieldHash(serviceLoaded, "6ktbvb")).isNotEqualTo(adminHash);
+    assertThat(nextFieldHash(serviceLoaded, "admin")).isEqualTo(adminHash);
+
+    final var explicitAdapter = Jsonb.builder()
+      .adapter(JacksonAdapter.builder().build())
+      .strictPropertyNames(true)
+      .build();
+    assertThat(nextFieldHash(explicitAdapter, "6ktbvb")).isNotEqualTo(adminHash);
+  }
+
+  private static int nextFieldHash(Jsonb jsonb, String name) {
+    final var names = jsonb.properties("admin");
+    try (JsonReader reader = jsonb.reader("{\"" + name + "\":true}")) {
+      reader.beginObject(names);
+      assertThat(reader.hasNextField()).isTrue();
+      final int hash = reader.nextFieldHash(names);
+      assertThat(reader.lastFieldName()).isEqualTo(name);
+      reader.readBoolean();
+      assertThat(reader.hasNextField()).isFalse();
+      reader.endObject();
+      return hash;
+    }
   }
 
   @Test

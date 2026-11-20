@@ -16,6 +16,7 @@ final class CoreJsonStream implements JsonStream {
   private final boolean failOnUnknown;
   private final boolean failOnNullPrimitives;
   private final boolean strictPropertyNames;
+  private final BufferRecycleStrategy recycleStrategy;
   private final BufferRecycler recycle;
 
   /** Create additionally providing the jsonFactory. */
@@ -31,7 +32,22 @@ final class CoreJsonStream implements JsonStream {
     this.failOnUnknown = failOnUnknown;
     this.failOnNullPrimitives = failOnNullPrimitives;
     this.strictPropertyNames = strictPropertyNames;
+    this.recycleStrategy = recycle;
     this.recycle = init2Recycler(recycle);
+  }
+
+  @Override
+  public JsonStream withStrictPropertyNames(boolean strictPropertyNames) {
+    if (this.strictPropertyNames == strictPropertyNames) {
+      return this;
+    }
+    return new CoreJsonStream(
+      serializeNulls,
+      serializeEmpty,
+      failOnUnknown,
+      failOnNullPrimitives,
+      strictPropertyNames,
+      recycleStrategy);
   }
 
   private static BufferRecycler init2Recycler(BufferRecycleStrategy recycle) {
