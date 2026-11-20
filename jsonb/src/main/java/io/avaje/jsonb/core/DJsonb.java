@@ -59,11 +59,12 @@ final class DJsonb implements Jsonb {
 
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString, calendarAsString);
     if (adapter != null) {
-      this.io = adapter;
+      this.io = strictPropertyNames ? adapter.withStrictPropertyNames(true) : adapter;
     } else {
       var adapterFactoryOptional = ExtensionLoader.adapterFactory();
       if (adapterFactoryOptional.isPresent()) {
-        this.io = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
+        final var stream = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
+        this.io = strictPropertyNames ? stream.withStrictPropertyNames(true) : stream;
       } else {
         this.io = JsonStream.builder()
           .serializeNulls(serializeNulls)

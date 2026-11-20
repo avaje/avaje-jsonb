@@ -70,6 +70,18 @@ public interface JsonStream {
   PropertyNames properties(String... names);
 
   /**
+   * Return this stream configured to verify property names when reading.
+   *
+   * <p>Implementations that do not support strict property-name matching must throw when enabled.
+   */
+  default JsonStream withStrictPropertyNames(boolean strictPropertyNames) {
+    if (strictPropertyNames) {
+      throw new UnsupportedOperationException("Strict property name matching is not supported");
+    }
+    return this;
+  }
+
+  /**
    * Create and return a builder for the default JsonStreamAdapter implementation.
    */
   static Builder builder() {

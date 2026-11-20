@@ -15,12 +15,14 @@ final class JacksonReader implements JsonReader {
 
   private final JsonParser parser;
   private final boolean failOnUnknown;
+  private final boolean strictPropertyNames;
   private boolean streamArray;
   private String lastFieldName;
 
-  JacksonReader(JsonParser parser, boolean failOnUnknown) {
+  JacksonReader(JsonParser parser, boolean failOnUnknown, boolean strictPropertyNames) {
     this.parser = parser;
     this.failOnUnknown = failOnUnknown;
+    this.strictPropertyNames = strictPropertyNames;
   }
 
   @Override
@@ -142,6 +144,12 @@ final class JacksonReader implements JsonReader {
   public int nextFieldHash() {
     lastFieldName = nextField();
     return JsonReader.nameHash(lastFieldName);
+  }
+
+  @Override
+  public int nextFieldHash(PropertyNames names) {
+    lastFieldName = nextField();
+    return strictPropertyNames ? names.knownHash(lastFieldName) : JsonReader.nameHash(lastFieldName);
   }
 
   @Override
