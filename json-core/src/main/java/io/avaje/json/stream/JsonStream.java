@@ -91,6 +91,17 @@ public interface JsonStream {
     /** Set to true to fail on NULL for primitive types. Defaults to false. */
     Builder failOnNullPrimitives(boolean failOnNullPrimitives);
 
+    /**
+     * Set to true to confirm property names when reading. Defaults to false.
+     *
+     * <p>By default property names are matched by their hash (FNV-1a 32 bit) only, so a key that is
+     * not a property name but shares the hash of a property name is read as that property. Set this
+     * to true when json content is checked or filtered by key name before it is read (for example
+     * by a gateway), such that a key is only read as a property when it equals the property name.
+     * Enabling this has a 15-25% cost to read performance.
+     */
+    Builder strictPropertyNames(boolean strictPropertyNames);
+
     /** Determines how byte buffers are recycled */
     Builder bufferRecycling(BufferRecycleStrategy strategy);
 

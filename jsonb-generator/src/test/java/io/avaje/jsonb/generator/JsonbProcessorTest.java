@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
@@ -63,6 +64,16 @@ class JsonbProcessorTest {
     final CompilationTask task = generationTask(files);
 
     assertThat(task.call()).isTrue();
+
+    final var generatedPath =
+        Paths.get("target/generated-test-sources/test-annotations/io/avaje/jsonb/generator/models/valid");
+    final String optionalsAdapter = Files.readString(generatedPath.resolve("OptionalsJsonAdapter.java"));
+    assertThat(optionalsAdapter).doesNotContain("PropertyNames readNames");
+    assertThat(optionalsAdapter).contains("reader.nextFieldHash(names)");
+
+    final String testClassAdapter = Files.readString(generatedPath.resolve("TestClassJsonAdapter.java"));
+    assertThat(testClassAdapter).contains("PropertyNames readNames");
+    assertThat(testClassAdapter).contains("reader.nextFieldHash(readNames)");
   }
 
   @Disabled

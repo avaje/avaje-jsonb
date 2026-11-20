@@ -15,6 +15,7 @@ final class CoreJsonStream implements JsonStream {
   private final boolean serializeEmpty;
   private final boolean failOnUnknown;
   private final boolean failOnNullPrimitives;
+  private final boolean strictPropertyNames;
   private final BufferRecycler recycle;
 
   /** Create additionally providing the jsonFactory. */
@@ -23,11 +24,13 @@ final class CoreJsonStream implements JsonStream {
       boolean serializeEmpty,
       boolean failOnUnknown,
       boolean failOnNullPrimitives,
+      boolean strictPropertyNames,
       BufferRecycleStrategy recycle) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.failOnNullPrimitives = failOnNullPrimitives;
+    this.strictPropertyNames = strictPropertyNames;
     this.recycle = init2Recycler(recycle);
   }
 
@@ -68,7 +71,7 @@ final class CoreJsonStream implements JsonStream {
   @Override
   public JsonReader reader(byte[] json) {
     JsonParser parser = recycle.parser(json);
-    return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives);
+    return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 
   @Override
@@ -79,7 +82,7 @@ final class CoreJsonStream implements JsonStream {
   @Override
   public JsonReader reader(InputStream inputStream) {
     JsonParser parser = recycle.parser(inputStream);
-    return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives);
+    return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 
   @Override

@@ -13,6 +13,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   private boolean serializeEmpty;
   private boolean failOnUnknown;
   private boolean failOnNullPrimitives;
+  private boolean strictPropertyNames;
   /**
    * Set to true to serialize nulls. Defaults to false.
    */
@@ -46,6 +47,12 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
     return this;
   }
 
+  @Override
+  public JsonStreamBuilder strictPropertyNames(boolean strictPropertyNames) {
+    this.strictPropertyNames = strictPropertyNames;
+    return this;
+  }
+
   /**
    * Determines how byte buffers are recycled
    */
@@ -60,6 +67,6 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
    */
   @Override
   public JsonStream build() {
-    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strategy);
+    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, strategy);
   }
 }
