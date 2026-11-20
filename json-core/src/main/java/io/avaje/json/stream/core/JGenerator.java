@@ -1,5 +1,6 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.AsciiCodec;
 import io.avaje.json.JsonIoException;
 import io.avaje.json.stream.JsonOutput;
 
@@ -685,6 +686,21 @@ class JGenerator implements JsonGenerator {
   public void write(JsonNames values, int position) {
     prefixValue();
     writeAscii(values.key(position));
+  }
+
+  @Override
+  public <T> void write(AsciiCodec<T> codec, T value) {
+    prefixValue();
+    final int maxLength = codec.maxLength(value);
+    if (maxLength < 0) {
+      writeString(value.toString());
+      return;
+    }
+    final byte[] buf = ensureCapacity(maxLength + 2);
+    buf[position] = QUOTE;
+    final int end = codec.encode(value, buf, position + 1);
+    buf[end] = QUOTE;
+    position = end + 1;
   }
 
   @Override

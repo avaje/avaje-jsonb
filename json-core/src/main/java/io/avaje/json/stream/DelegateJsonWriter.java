@@ -1,5 +1,6 @@
 package io.avaje.json.stream;
 
+import io.avaje.json.AsciiCodec;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 
@@ -115,6 +116,11 @@ public abstract class DelegateJsonWriter implements JsonWriter {
   @Override
   public final void value(PropertyNames values, int position) {
     delegate.value(values, position);
+  }
+
+  @Override
+  public final <T> void value(AsciiCodec<T> codec, T value) {
+    delegate.value(codec, value);
   }
 
   @Override

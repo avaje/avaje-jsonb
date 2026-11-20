@@ -70,23 +70,6 @@ final class BasicTypeAdapters {
         return null;
       };
 
-  private static final class UuidAdapter implements JsonAdapter<UUID> {
-    @Override
-    public UUID fromJson(JsonReader reader) {
-      return UUID.fromString(reader.readString());
-    }
-
-    @Override
-    public void toJson(JsonWriter writer, UUID value) {
-      writer.value(value.toString());
-    }
-
-    @Override
-    public String toString() {
-      return "JsonAdapter(UUID)";
-    }
-  }
-
   private static final class UrlAdapter implements JsonAdapter<URL> {
     @Override
     public URL fromJson(JsonReader reader) {

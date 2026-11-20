@@ -1,5 +1,6 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.AsciiCodec;
 import io.avaje.json.stream.JsonOutput;
 
 import java.io.Closeable;
@@ -106,6 +107,11 @@ interface JsonGenerator extends Closeable, Flushable {
    * Write a String value using the already encoded and escaped values of JsonNames.
    */
   void write(JsonNames values, int position);
+
+  /**
+   * Write a string value using the codec.
+   */
+  <T> void write(AsciiCodec<T> codec, T value);
 
   /**
    * Write a binary value as base64.

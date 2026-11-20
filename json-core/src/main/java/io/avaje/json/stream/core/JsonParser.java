@@ -1,5 +1,7 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.AsciiCodec;
+
 import java.io.Closeable;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -50,6 +52,11 @@ interface JsonParser extends Closeable {
    * Read a string value that is expected to be one of the given values.
    */
   String readString(JsonNames values);
+
+  /**
+   * Read a string value and convert it with the codec.
+   */
+  <T> T readString(AsciiCodec<T> codec);
 
   /**
    * Start a stream which could be an ARRAY or x-json-stream new line delimited json.

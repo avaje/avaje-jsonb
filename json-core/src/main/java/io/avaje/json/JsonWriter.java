@@ -161,6 +161,21 @@ public interface JsonWriter extends Closeable, Flushable {
   }
 
   /**
+   * Write a value as a string using the given codec.
+   *
+   * @param <T> The type of value
+   * @param codec The codec that converts the value
+   * @param value The value to write
+   */
+  default <T> void value(AsciiCodec<T> codec, T value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      value(value.toString());
+    }
+  }
+
+  /**
    * Write a boolean value.
    */
   void value(boolean value);
@@ -292,11 +307,13 @@ public interface JsonWriter extends Closeable, Flushable {
   /**
    * Flush the writer.
    */
+  @Override
   void flush();
 
   /**
    * Close the writer.
    */
+  @Override
   void close();
 
   /**
