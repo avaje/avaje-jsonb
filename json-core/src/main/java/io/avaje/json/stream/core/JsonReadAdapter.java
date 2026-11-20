@@ -92,7 +92,7 @@ final class JsonReadAdapter implements JsonReader {
 
   @Override
   public String nextField() {
-    return reader.nextField();
+    return reader.nextField(strictPropertyNames);
   }
 
   @Override

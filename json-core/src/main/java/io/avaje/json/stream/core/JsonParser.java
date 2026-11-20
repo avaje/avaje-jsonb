@@ -37,6 +37,12 @@ interface JsonParser extends Closeable {
   String nextField();
 
   /**
+   * Read and return the field name, confirming prepared names when strict property names are
+   * enabled.
+   */
+  String nextField(boolean strictPropertyNames);
+
+  /**
    * Read the field name returning its hash.
    */
   int nextFieldHash();
