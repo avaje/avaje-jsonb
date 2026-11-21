@@ -1,8 +1,9 @@
 # Configuration & Tuning
 
-Avaje Jsonb exposes several low-level parser and generator settings that control
-buffer sizes and parsing limits. These can be tuned at startup via **system
-properties** or **environment variables** — no code changes required.
+Avaje Jsonb exposes low-level parser and generator settings that control buffer
+sizes and parsing limits. System properties and environment variables provide
+defaults; parser limits can also be configured per `JsonStream` or overridden
+for an individual reader.
 
 ## Settings Reference
 
@@ -17,7 +18,37 @@ properties** or **environment variables** — no code changes required.
 
 ### Priority order
 
-System property → ENV var → default. Setting a system property always wins over an ENV var.
+System property → ENV var → built-in default. Setting a system property always
+wins over an ENV var. An explicit `ParserLimits` value takes precedence over
+these defaults for its stream or reader.
+
+### Per-stream and per-reader parser limits
+
+Configure defaults for readers created from a `JsonStream`, or supply limits
+for an individual reader. This is useful when one application processes inputs
+with different size or numeric requirements:
+
+```java
+var standard = new ParserLimits(309, 50_000, 10_000_000);
+var larger = new ParserLimits(309, 500_000, 10_000_000);
+
+Jsonb jsonb = Jsonb.builder()
+  .parserLimits(standard)
+  .build();
+
+JsonStream stream = JsonStream.builder()
+  .parserLimits(standard)
+  .build();
+
+try (JsonReader reader = stream.reader(json, larger)) {
+  // This reader uses the larger string limit; other readers use standard.
+}
+```
+
+The three values are maximum number digits, decoded string buffer size, and raw
+JSON buffer size, respectively. All values must be non-negative. Pooled parsers are
+reconfigured for every reader, so one reader's limits do not carry over to the
+next reader.
 
 ## When to Tune
 
@@ -30,7 +61,8 @@ text field or a base64-encoded blob) exceeds 50,000 characters the parser throws
 Maximum string buffer limit exceeded: '50000' near line 1, column 128
 ```
 
-Raise the limit to accommodate your largest expected string:
+Raise the limit to accommodate your largest expected string, either with
+`ParserLimits` or globally as a default:
 
 ```bash
 # ENV var (recommended for containers / native images)

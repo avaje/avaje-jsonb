@@ -18,9 +18,27 @@ public interface JsonStream {
   JsonReader reader(String json);
 
   /**
+   * Return the JsonReader given json string content with the specified parser limits.
+   *
+   * <p>Implementations that do not support per-reader parser limits must throw when this is used.
+   */
+  default JsonReader reader(String json, ParserLimits limits) {
+    throw new UnsupportedOperationException("Per-reader parser limits are not supported");
+  }
+
+  /**
    * Return the JsonReader given json content as bytes.
    */
   JsonReader reader(byte[] json);
+
+  /**
+   * Return the JsonReader given json content as bytes with the specified parser limits.
+   *
+   * <p>Implementations that do not support per-reader parser limits must throw when this is used.
+   */
+  default JsonReader reader(byte[] json, ParserLimits limits) {
+    throw new UnsupportedOperationException("Per-reader parser limits are not supported");
+  }
 
   /**
    * Return the JsonReader given json string content.
@@ -28,9 +46,27 @@ public interface JsonStream {
   JsonReader reader(Reader reader);
 
   /**
+   * Return the JsonReader given a Reader with the specified parser limits.
+   *
+   * <p>Implementations that do not support per-reader parser limits must throw when this is used.
+   */
+  default JsonReader reader(Reader reader, ParserLimits limits) {
+    throw new UnsupportedOperationException("Per-reader parser limits are not supported");
+  }
+
+  /**
    * Return the JsonReader given json string content.
    */
   JsonReader reader(InputStream inputStream);
+
+  /**
+   * Return the JsonReader given an InputStream with the specified parser limits.
+   *
+   * <p>Implementations that do not support per-reader parser limits must throw when this is used.
+   */
+  default JsonReader reader(InputStream inputStream, ParserLimits limits) {
+    throw new UnsupportedOperationException("Per-reader parser limits are not supported");
+  }
 
   /**
    * Return the JsonWriter given writer to use.
@@ -82,6 +118,15 @@ public interface JsonStream {
   }
 
   /**
+   * Return this stream configured with parser limits.
+   *
+   * <p>Implementations that do not support parser limits must throw.
+   */
+  default JsonStream withParserLimits(ParserLimits parserLimits) {
+    throw new UnsupportedOperationException("Parser limits are not supported");
+  }
+
+  /**
    * Create and return a builder for the default JsonStreamAdapter implementation.
    */
   static Builder builder() {
@@ -113,6 +158,14 @@ public interface JsonStream {
      * Enabling this has a 15-25% cost to read performance.
      */
     Builder strictPropertyNames(boolean strictPropertyNames);
+
+    /**
+     * Set the default parser limits used by readers created from this stream.
+     * System properties and environment variables provide the defaults when this is not set.
+     */
+    default Builder parserLimits(ParserLimits parserLimits) {
+      throw new UnsupportedOperationException("Parser limits are not supported");
+    }
 
     /** Determines how byte buffers are recycled */
     Builder bufferRecycling(BufferRecycleStrategy strategy);

@@ -2,6 +2,9 @@ package io.avaje.json.stream.core;
 
 import io.avaje.json.stream.BufferRecycleStrategy;
 import io.avaje.json.stream.JsonStream;
+import io.avaje.json.stream.ParserLimits;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Used to build the default JsonStream implementation with custom settings.
@@ -14,6 +17,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   private boolean failOnUnknown;
   private boolean failOnNullPrimitives;
   private boolean strictPropertyNames;
+  private ParserLimits parserLimits = Recyclers.DEFAULT_PARSER_LIMITS;
   /**
    * Set to true to serialize nulls. Defaults to false.
    */
@@ -53,6 +57,12 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
     return this;
   }
 
+  @Override
+  public JsonStreamBuilder parserLimits(ParserLimits parserLimits) {
+    this.parserLimits = requireNonNull(parserLimits);
+    return this;
+  }
+
   /**
    * Determines how byte buffers are recycled
    */
@@ -67,6 +77,6 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
    */
   @Override
   public JsonStream build() {
-    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, strategy);
+    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, parserLimits, strategy);
   }
 }

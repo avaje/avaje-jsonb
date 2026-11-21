@@ -1,6 +1,7 @@
 package io.avaje.json.stream.core;
 
 import io.avaje.json.stream.JsonOutput;
+import io.avaje.json.stream.ParserLimits;
 import io.avaje.json.stream.core.HybridBufferRecycler.StripedLockFreePool;
 import io.avaje.json.stream.core.Recyclers.NonRecyclingPool;
 import io.avaje.json.stream.core.Recyclers.ThreadLocalPool;
@@ -27,12 +28,12 @@ interface BufferRecycler {
   /**
    * Return the JsonParser given the content in bytes.
    */
-  JsonParser parser(byte[] bytes);
+  JsonParser parser(byte[] bytes, ParserLimits limits);
 
   /**
    * Return the JsonParser given the content inputStream.
    */
-  JsonParser parser(InputStream in);
+  JsonParser parser(InputStream in, ParserLimits limits);
 
   /**
    * Recycle the generator.

@@ -27,6 +27,7 @@ import io.avaje.json.stream.BufferedJsonWriter;
 import io.avaje.json.stream.BytesJsonWriter;
 import io.avaje.json.stream.JsonOutput;
 import io.avaje.json.stream.JsonStream;
+import io.avaje.json.stream.ParserLimits;
 import io.avaje.jsonb.AdapterFactory;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.JsonView;
@@ -53,27 +54,35 @@ final class DJsonb implements Jsonb {
       boolean failOnUnknown,
       boolean failOnNullPrimitives,
       boolean strictPropertyNames,
+      ParserLimits parserLimits,
       boolean mathAsString,
       boolean calendarAsString,
       BufferRecycleStrategy strategy) {
 
     this.builder = new CoreAdapterBuilder(this, factories, mathAsString, calendarAsString);
     if (adapter != null) {
-      this.io = strictPropertyNames ? adapter.withStrictPropertyNames(true) : adapter;
+      var stream = parserLimits == null ? adapter : adapter.withParserLimits(parserLimits);
+      this.io = strictPropertyNames ? stream.withStrictPropertyNames(true) : stream;
     } else {
       var adapterFactoryOptional = ExtensionLoader.adapterFactory();
       if (adapterFactoryOptional.isPresent()) {
-        final var stream = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
+        var stream = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
+        if (parserLimits != null) {
+          stream = stream.withParserLimits(parserLimits);
+        }
         this.io = strictPropertyNames ? stream.withStrictPropertyNames(true) : stream;
       } else {
-        this.io = JsonStream.builder()
+        var streamBuilder = JsonStream.builder()
           .serializeNulls(serializeNulls)
           .serializeEmpty(serializeEmpty)
           .failOnUnknown(failOnUnknown)
           .failOnNullPrimitives(failOnNullPrimitives)
           .strictPropertyNames(strictPropertyNames)
-          .bufferRecycling(strategy)
-          .build();
+          .bufferRecycling(strategy);
+        if (parserLimits != null) {
+          streamBuilder.parserLimits(parserLimits);
+        }
+        this.io = streamBuilder.build();
       }
     }
     this.anyType = type(Object.class);
@@ -279,6 +288,7 @@ final class DJsonb implements Jsonb {
     private boolean failOnUnknown;
     private boolean failOnNullPrimitives;
     private boolean strictPropertyNames;
+    private ParserLimits parserLimits;
     private boolean mathTypesAsString;
     private boolean calendarAsString;
     private boolean serializeNulls;
@@ -314,6 +324,12 @@ final class DJsonb implements Jsonb {
     @Override
     public Builder strictPropertyNames(boolean strictPropertyNames) {
       this.strictPropertyNames = strictPropertyNames;
+      return this;
+    }
+
+    @Override
+    public Builder parserLimits(ParserLimits parserLimits) {
+      this.parserLimits = requireNonNull(parserLimits);
       return this;
     }
 
@@ -395,7 +411,7 @@ final class DJsonb implements Jsonb {
         return DEFAULT;
       }
       registerComponents();
-      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, mathTypesAsString, calendarAsString, strategy);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, parserLimits, mathTypesAsString, calendarAsString, strategy);
     }
 
     private boolean hasCustomizations() {
@@ -405,6 +421,7 @@ final class DJsonb implements Jsonb {
         || failOnUnknown
         || failOnNullPrimitives
         || strictPropertyNames
+        || parserLimits != null
         || mathTypesAsString
         || calendarAsString
         || serializeNulls

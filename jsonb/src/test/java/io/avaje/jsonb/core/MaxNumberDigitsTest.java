@@ -3,8 +3,13 @@ package io.avaje.jsonb.core;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.stream.JsonStream;
+import io.avaje.json.stream.ParserLimits;
+import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MaxNumberDigitsTest {
@@ -27,5 +32,15 @@ class MaxNumberDigitsTest {
     })
       .isInstanceOf(JsonDataException.class)
       .hasMessageContaining("Too many digits");
+  }
+
+  @Test
+  void largeNumber_usesJsonbParserLimits() {
+    var jsonb = Jsonb.builder()
+      .parserLimits(new ParserLimits(500, 50_000, 10_000_000))
+      .build();
+
+    assertThat(jsonb.type(BigInteger.class).fromJson(LARGE_NUMBER))
+      .isEqualTo(new BigInteger(LARGE_NUMBER));
   }
 }

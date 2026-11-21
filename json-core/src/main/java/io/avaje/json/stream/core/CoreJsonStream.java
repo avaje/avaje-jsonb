@@ -8,6 +8,8 @@ import io.avaje.json.stream.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+import static java.util.Objects.requireNonNull;
+
 /** Default implementation of JsonStreamAdapter provided with Jsonb. */
 final class CoreJsonStream implements JsonStream {
 
@@ -16,6 +18,7 @@ final class CoreJsonStream implements JsonStream {
   private final boolean failOnUnknown;
   private final boolean failOnNullPrimitives;
   private final boolean strictPropertyNames;
+  private final ParserLimits parserLimits;
   private final BufferRecycleStrategy recycleStrategy;
   private final BufferRecycler recycle;
 
@@ -26,12 +29,14 @@ final class CoreJsonStream implements JsonStream {
       boolean failOnUnknown,
       boolean failOnNullPrimitives,
       boolean strictPropertyNames,
+      ParserLimits parserLimits,
       BufferRecycleStrategy recycle) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.failOnNullPrimitives = failOnNullPrimitives;
     this.strictPropertyNames = strictPropertyNames;
+    this.parserLimits = parserLimits;
     this.recycleStrategy = recycle;
     this.recycle = init2Recycler(recycle);
   }
@@ -47,6 +52,20 @@ final class CoreJsonStream implements JsonStream {
       failOnUnknown,
       failOnNullPrimitives,
       strictPropertyNames,
+      parserLimits,
+      recycleStrategy);
+  }
+
+  @Override
+  public JsonStream withParserLimits(ParserLimits parserLimits) {
+    requireNonNull(parserLimits);
+    return new CoreJsonStream(
+      serializeNulls,
+      serializeEmpty,
+      failOnUnknown,
+      failOnNullPrimitives,
+      strictPropertyNames,
+      parserLimits,
       recycleStrategy);
   }
 
@@ -81,23 +100,43 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonReader reader(String json) {
-    return reader(json.getBytes(StandardCharsets.UTF_8));
+    return reader(json, parserLimits);
+  }
+
+  @Override
+  public JsonReader reader(String json, ParserLimits limits) {
+    return reader(json.getBytes(StandardCharsets.UTF_8), limits);
   }
 
   @Override
   public JsonReader reader(byte[] json) {
-    JsonParser parser = recycle.parser(json);
+    return reader(json, parserLimits);
+  }
+
+  @Override
+  public JsonReader reader(byte[] json, ParserLimits limits) {
+    JsonParser parser = recycle.parser(json, requireNonNull(limits));
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 
   @Override
   public JsonReader reader(Reader reader) {
-    return reader(new ReaderInputStream(reader, StandardCharsets.UTF_8));
+    return reader(reader, parserLimits);
+  }
+
+  @Override
+  public JsonReader reader(Reader reader, ParserLimits limits) {
+    return reader(new ReaderInputStream(reader, StandardCharsets.UTF_8), limits);
   }
 
   @Override
   public JsonReader reader(InputStream inputStream) {
-    JsonParser parser = recycle.parser(inputStream);
+    return reader(inputStream, parserLimits);
+  }
+
+  @Override
+  public JsonReader reader(InputStream inputStream, ParserLimits limits) {
+    JsonParser parser = recycle.parser(inputStream, requireNonNull(limits));
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 
