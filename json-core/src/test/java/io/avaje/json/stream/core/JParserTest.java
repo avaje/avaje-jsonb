@@ -162,6 +162,68 @@ class JParserTest {
   }
 
   @Test
+  void readString_nonPowerOfTwoMaxStringBuffer() {
+    JParser parser = newParser(64, 100);
+
+    String exactAscii = "x".repeat(100);
+    byte[] exactBytes = ("\"" + exactAscii + "\"").getBytes(StandardCharsets.UTF_8);
+    parser.process(exactBytes, exactBytes.length);
+    parser.nextToken();
+    assertThat(parser.readString()).isEqualTo(exactAscii);
+
+    byte[] exactEscaped = ("\"" + "x".repeat(99) + "\\u0041\"").getBytes(StandardCharsets.UTF_8);
+    parser.process(exactEscaped, exactEscaped.length);
+    parser.nextToken();
+    assertThat(parser.readString()).isEqualTo("x".repeat(99) + "A");
+
+    String emoji = "\uD83D\uDE00"; // 2 UTF-16 chars
+    byte[] exactSurrogate = ("\"" + "x".repeat(98) + emoji + "\"").getBytes(StandardCharsets.UTF_8);
+    parser.process(exactSurrogate, exactSurrogate.length);
+    parser.nextToken();
+    assertThat(parser.readString()).isEqualTo("x".repeat(98) + emoji);
+
+    byte[] overLimit = ("\"" + "x".repeat(101) + "\"").getBytes(StandardCharsets.UTF_8);
+    parser.process(overLimit, overLimit.length);
+    parser.nextToken();
+    assertThatThrownBy(parser::readString)
+      .hasMessageContaining("Maximum string buffer limit exceeded");
+
+    JParser maxIntParser = newParser(64, Integer.MAX_VALUE);
+    maxIntParser.process(exactBytes, exactBytes.length);
+    maxIntParser.nextToken();
+    assertThat(maxIntParser.readString()).isEqualTo(exactAscii);
+  }
+
+  @Test
+  void readString_whenCharBufferExceedsMaxStringBuffer_failsFastOnStream() {
+    JParser parser = newParser(4096, 10);
+
+    byte[] withinLimit = ("\"" + "x".repeat(10) + "\"").getBytes(StandardCharsets.UTF_8);
+    parser.process(withinLimit, withinLimit.length);
+    parser.nextToken();
+    assertThat(parser.readString()).isEqualTo("x".repeat(10));
+    parser.close();
+
+    var readCount = new java.util.concurrent.atomic.AtomicInteger();
+    byte[] streamBytes = ("\"" + "x".repeat(20_000) + "\"").getBytes(StandardCharsets.UTF_8);
+    parser.process(new ByteArrayInputStream(streamBytes) {
+      @Override
+      public int read(byte[] b, int off, int len) {
+        int n = super.read(b, off, len);
+        if (n > 0) {
+          readCount.addAndGet(n);
+        }
+        return n;
+      }
+    });
+    parser.nextToken();
+    assertThatThrownBy(parser::readString)
+      .hasMessageContaining("Maximum string buffer limit exceeded");
+    // Fails after reading only the initial parser byte buffer (4096), not the full 20,000-byte stream
+    assertThat(readCount.get()).isEqualTo(4096);
+  }
+
+  @Test
   void isNullValue_topLevel_int() {
     JParser parser = newParser(1000);
     byte[] bytes = "42".getBytes(StandardCharsets.UTF_8);
