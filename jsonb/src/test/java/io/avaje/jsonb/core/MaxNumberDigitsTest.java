@@ -35,10 +35,11 @@ class MaxNumberDigitsTest {
   }
 
   @Test
-  void largeNumber_usesJsonbParserLimits() {
-    var jsonb = Jsonb.builder()
+  void largeNumber_usesConfiguredStreamLimits() {
+    var configuredStream = JsonStream.builder()
       .parserLimits(new ParserLimits(500, 50_000, 10_000_000))
       .build();
+    var jsonb = Jsonb.builder().adapter(configuredStream).build();
 
     assertThat(jsonb.type(BigInteger.class).fromJson(LARGE_NUMBER))
       .isEqualTo(new BigInteger(LARGE_NUMBER));

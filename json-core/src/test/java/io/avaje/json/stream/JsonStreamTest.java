@@ -75,11 +75,15 @@ class JsonStreamTest {
   }
 
   @Test
-  void parserLimits_applyPerReaderAndDoNotLeakThroughRecycler() {
+  void parserLimits_applyPerStreamAndDoNotLeakThroughRecycler() {
     var defaults = new ParserLimits(4, 4096, 1000);
     var stream = JsonStream.builder()
       .bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL)
       .parserLimits(defaults)
+      .build();
+    var largerStream = JsonStream.builder()
+      .bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL)
+      .parserLimits(new ParserLimits(25, 8192, 8192))
       .build();
 
     String number = "123456789012345678901";
@@ -87,7 +91,7 @@ class JsonStreamTest {
       assertThatThrownBy(reader::readDecimal).hasMessageContaining("Maximum allowed is 4");
     }
 
-    try (JsonReader reader = stream.reader(number, new ParserLimits(25, 8192, 8192))) {
+    try (JsonReader reader = largerStream.reader(number)) {
       assertThat(reader.readDecimal()).isEqualTo(new BigDecimal(number));
     }
 
@@ -102,7 +106,7 @@ class JsonStreamTest {
       assertThat(reader.nextField()).isEqualTo("value");
       assertThatThrownBy(reader::readString).hasMessageContaining("Maximum string buffer limit exceeded");
     }
-    try (JsonReader reader = stream.reader(longString, new ParserLimits(5, 8192, 8192))) {
+    try (JsonReader reader = largerStream.reader(longString)) {
       reader.beginObject();
       assertThat(reader.hasNextField()).isTrue();
       assertThat(reader.nextField()).isEqualTo("value");
@@ -122,7 +126,7 @@ class JsonStreamTest {
       assertThat(reader.nextField()).isEqualTo("value");
       assertThatThrownBy(reader::readRaw).hasMessageContaining("Maximum buffer limit exceeded for raw content");
     }
-    try (JsonReader reader = stream.reader(new ByteArrayInputStream(longRaw.getBytes(StandardCharsets.UTF_8)), new ParserLimits(5, 8192, 8192))) {
+    try (JsonReader reader = largerStream.reader(new ByteArrayInputStream(longRaw.getBytes(StandardCharsets.UTF_8)))) {
       reader.beginObject();
       assertThat(reader.hasNextField()).isTrue();
       assertThat(reader.nextField()).isEqualTo("value");

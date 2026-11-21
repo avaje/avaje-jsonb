@@ -8,8 +8,6 @@ import io.avaje.json.stream.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import static java.util.Objects.requireNonNull;
-
 /** Default implementation of JsonStreamAdapter provided with Jsonb. */
 final class CoreJsonStream implements JsonStream {
 
@@ -56,19 +54,6 @@ final class CoreJsonStream implements JsonStream {
       recycleStrategy);
   }
 
-  @Override
-  public JsonStream withParserLimits(ParserLimits parserLimits) {
-    requireNonNull(parserLimits);
-    return new CoreJsonStream(
-      serializeNulls,
-      serializeEmpty,
-      failOnUnknown,
-      failOnNullPrimitives,
-      strictPropertyNames,
-      parserLimits,
-      recycleStrategy);
-  }
-
   private static BufferRecycler init2Recycler(BufferRecycleStrategy recycle) {
     switch (recycle) {
       case NO_RECYCLING: return BufferRecycler.nonRecyclingPool();
@@ -100,43 +85,23 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonReader reader(String json) {
-    return reader(json, parserLimits);
-  }
-
-  @Override
-  public JsonReader reader(String json, ParserLimits limits) {
-    return reader(json.getBytes(StandardCharsets.UTF_8), limits);
+    return reader(json.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
   public JsonReader reader(byte[] json) {
-    return reader(json, parserLimits);
-  }
-
-  @Override
-  public JsonReader reader(byte[] json, ParserLimits limits) {
-    JsonParser parser = recycle.parser(json, requireNonNull(limits));
+    JsonParser parser = recycle.parser(json, parserLimits);
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 
   @Override
   public JsonReader reader(Reader reader) {
-    return reader(reader, parserLimits);
-  }
-
-  @Override
-  public JsonReader reader(Reader reader, ParserLimits limits) {
-    return reader(new ReaderInputStream(reader, StandardCharsets.UTF_8), limits);
+    return reader(new ReaderInputStream(reader, StandardCharsets.UTF_8));
   }
 
   @Override
   public JsonReader reader(InputStream inputStream) {
-    return reader(inputStream, parserLimits);
-  }
-
-  @Override
-  public JsonReader reader(InputStream inputStream, ParserLimits limits) {
-    JsonParser parser = recycle.parser(inputStream, requireNonNull(limits));
+    JsonParser parser = recycle.parser(inputStream, parserLimits);
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 

@@ -15,7 +15,6 @@ import io.avaje.json.PropertyNames;
 import io.avaje.json.stream.BufferRecycleStrategy;
 import io.avaje.json.stream.JsonOutput;
 import io.avaje.json.stream.JsonStream;
-import io.avaje.json.stream.ParserLimits;
 import io.avaje.jsonb.core.DefaultBootstrap;
 import io.avaje.jsonb.spi.JsonStreamFactory;
 import io.avaje.jsonb.spi.JsonbComponent;
@@ -460,16 +459,6 @@ public interface Jsonb {
      * has a 15-25% cost to read performance.
      */
     Builder strictPropertyNames(boolean strictPropertyNames);
-
-    /**
-     * Set parser limits for readers created by this Jsonb instance.
-     *
-     * <p>This applies to the built-in JsonStream implementation. Other stream implementations may
-     * not support parser limits and will throw when the Jsonb instance is built.
-     */
-    default Builder parserLimits(ParserLimits parserLimits) {
-      throw new UnsupportedOperationException("Parser limits are not supported");
-    }
 
     /**
      * Explicitly set the adapter to use.
