@@ -145,6 +145,23 @@ class JParserTest {
   }
 
   @Test
+  void readString_asciiCodec_respectsMaxStringBuffer() {
+    JParser withinLimitParser = newParser(64, 8);
+    byte[] withinLimit = ("\"" + "x".repeat(8) + "\"").getBytes(StandardCharsets.UTF_8);
+    withinLimitParser.process(withinLimit, withinLimit.length);
+    withinLimitParser.nextToken();
+    String decoded = withinLimitParser.readString(text -> text);
+    assertThat(decoded).isEqualTo("x".repeat(8));
+
+    JParser overLimitParser = newParser(64, 8);
+    byte[] overLimit = ("\"" + "x".repeat(9) + "\"").getBytes(StandardCharsets.UTF_8);
+    overLimitParser.process(overLimit, overLimit.length);
+    overLimitParser.nextToken();
+    assertThatThrownBy(() -> overLimitParser.readString(text -> text))
+      .hasMessageContaining("Maximum string buffer limit exceeded");
+  }
+
+  @Test
   void isNullValue_topLevel_int() {
     JParser parser = newParser(1000);
     byte[] bytes = "42".getBytes(StandardCharsets.UTF_8);

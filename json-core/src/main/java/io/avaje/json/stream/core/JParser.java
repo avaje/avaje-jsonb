@@ -494,6 +494,9 @@ class JParser implements JsonParser {
     for (int ci = start; ci < end; ci++) {
       final byte b = buf[ci];
       if (b == '"') {
+        if (ci - start > maxStringBuffer) {
+          throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
+        }
         currentIndex = ci + 1;
         return codec.decode(buf, start, ci);
       }
