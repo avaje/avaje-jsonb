@@ -2,9 +2,6 @@ package io.avaje.json.stream.core;
 
 import io.avaje.json.stream.BufferRecycleStrategy;
 import io.avaje.json.stream.JsonStream;
-import io.avaje.json.stream.ParserLimits;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Used to build the default JsonStream implementation with custom settings.
@@ -58,8 +55,20 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   }
 
   @Override
-  public JsonStreamBuilder parserLimits(ParserLimits parserLimits) {
-    this.parserLimits = requireNonNull(parserLimits);
+  public JsonStreamBuilder parserMaxNumberDigits(int maxNumberDigits) {
+    this.parserLimits = new ParserLimits(maxNumberDigits, parserLimits.maxStringBuffer(), parserLimits.maxRawBuffer());
+    return this;
+  }
+
+  @Override
+  public JsonStreamBuilder parserMaxStringBuffer(int maxStringBuffer) {
+    this.parserLimits = new ParserLimits(parserLimits.maxNumberDigits(), maxStringBuffer, parserLimits.maxRawBuffer());
+    return this;
+  }
+
+  @Override
+  public JsonStreamBuilder parserMaxRawBuffer(int maxRawBuffer) {
+    this.parserLimits = new ParserLimits(parserLimits.maxNumberDigits(), parserLimits.maxStringBuffer(), maxRawBuffer);
     return this;
   }
 

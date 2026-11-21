@@ -76,14 +76,17 @@ class JsonStreamTest {
 
   @Test
   void parserLimits_applyPerStreamAndDoNotLeakThroughRecycler() {
-    var defaults = new ParserLimits(4, 4096, 1000);
     var stream = JsonStream.builder()
       .bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL)
-      .parserLimits(defaults)
+      .parserMaxNumberDigits(4)
+      .parserMaxStringBuffer(4096)
+      .parserMaxRawBuffer(1000)
       .build();
     var largerStream = JsonStream.builder()
       .bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL)
-      .parserLimits(new ParserLimits(25, 8192, 8192))
+      .parserMaxNumberDigits(25)
+      .parserMaxStringBuffer(8192)
+      .parserMaxRawBuffer(8192)
       .build();
 
     String number = "123456789012345678901";

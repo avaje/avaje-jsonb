@@ -2,7 +2,8 @@
 
 Avaje Jsonb exposes low-level parser and generator settings that control buffer
 sizes and parsing limits. System properties and environment variables provide
-defaults; parser limits can also be configured when building a `JsonStream`.
+defaults; parser limits can also be configured with `Jsonb.Builder` or when
+building a `JsonStream`.
 
 ## Settings Reference
 
@@ -18,32 +19,29 @@ defaults; parser limits can also be configured when building a `JsonStream`.
 ### Priority order
 
 System property → ENV var → built-in default. Setting a system property always
-wins over an ENV var. An explicit `ParserLimits` value takes precedence over
-these defaults for its stream.
+wins over an ENV var. Explicit builder options take precedence over these
+defaults for the built-in stream.
 
 ### Per-stream parser limits
 
-Build separate streams when inputs need different parser limits:
+Set only the limits that need changing; unspecified limits retain their
+system-property, environment-variable, or built-in defaults:
 
 ```java
-var standard = new ParserLimits(309, 50_000, 10_000_000);
-var larger = new ParserLimits(309, 500_000, 10_000_000);
-
-JsonStream standardStream = JsonStream.builder()
-  .parserLimits(standard)
+Jsonb jsonb = Jsonb.builder()
+  .parserMaxStringBuffer(500_000)
   .build();
 
-JsonStream largerStream = JsonStream.builder()
-  .parserLimits(larger)
+JsonStream stream = JsonStream.builder()
+  .parserMaxNumberDigits(500)
+  .parserMaxStringBuffer(500_000)
+  .parserMaxRawBuffer(20_000_000)
   .build();
-
-Jsonb jsonb = Jsonb.builder().adapter(standardStream).build();
 ```
 
-The three values are maximum number digits, decoded string buffer size, and raw
-JSON buffer size, respectively. All values must be non-negative. Pooled parsers are
-reconfigured for every reader, so one reader's limits do not carry over to the
-next reader.
+Custom stream implementations may ignore builder limits they do not support.
+Pooled parsers are reconfigured for each reader, so one stream's limits do not
+carry over to another.
 
 ## When to Tune
 
@@ -57,7 +55,8 @@ Maximum string buffer limit exceeded: '50000' near line 1, column 128
 ```
 
 Raise the limit to accommodate your largest expected string with
-`ParserLimits` or globally as a default:
+`Jsonb.Builder.parserMaxStringBuffer(...)`, `JsonStream.Builder.parserMaxStringBuffer(...)`,
+or globally as a default:
 
 ```bash
 # ENV var (recommended for containers / native images)

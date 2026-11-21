@@ -1,7 +1,6 @@
 package io.avaje.json.stream.core;
 
 import io.avaje.json.stream.JsonOutput;
-import io.avaje.json.stream.ParserLimits;
 
 import java.io.InputStream;
 

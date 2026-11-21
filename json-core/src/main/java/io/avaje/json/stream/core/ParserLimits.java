@@ -1,9 +1,9 @@
-package io.avaje.json.stream;
+package io.avaje.json.stream.core;
 
 /**
  * Maximum parser limits for numbers, decoded strings, and streamed raw JSON content.
  */
-public final class ParserLimits {
+final class ParserLimits {
 
   private final int maxNumberDigits;
   private final int maxStringBuffer;
@@ -16,7 +16,7 @@ public final class ParserLimits {
    * @param maxStringBuffer maximum decoded string buffer size
    * @param maxRawBuffer maximum buffer size used when reading raw JSON content
    */
-  public ParserLimits(int maxNumberDigits, int maxStringBuffer, int maxRawBuffer) {
+  ParserLimits(int maxNumberDigits, int maxStringBuffer, int maxRawBuffer) {
     if (maxNumberDigits < 0) {
       throw new IllegalArgumentException("maxNumberDigits must not be negative");
     }
@@ -32,17 +32,17 @@ public final class ParserLimits {
   }
 
   /** Maximum number of digits in a numeric value. */
-  public int maxNumberDigits() {
+  int maxNumberDigits() {
     return maxNumberDigits;
   }
 
   /** Maximum decoded string buffer size. */
-  public int maxStringBuffer() {
+  int maxStringBuffer() {
     return maxStringBuffer;
   }
 
   /** Maximum buffer size used when reading raw JSON content. */
-  public int maxRawBuffer() {
+  int maxRawBuffer() {
     return maxRawBuffer;
   }
 }

@@ -5,7 +5,6 @@ import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonEofException;
 import io.avaje.json.JsonIoException;
 import io.avaje.json.JsonReader;
-import io.avaje.json.stream.ParserLimits;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -1259,7 +1258,7 @@ class JParser implements JsonParser {
         digits,
         ". Maximum allowed is "
             + maxNumberDigits
-            + ". Increase the limit via ParserLimits or system property jsonb.parserMaxNumberDigits"
+            + ". Increase the limit via Jsonb.Builder or JsonStream.Builder, system property jsonb.parserMaxNumberDigits"
             + " or environment variable JSONB_PARSER_MAX_NUMBER_DIGITS");
   }
 
@@ -1269,7 +1268,7 @@ class JParser implements JsonParser {
         0,
         description,
         maxStringBuffer,
-        ". Increase the limit via ParserLimits or system property jsonb.parserMaxStringBuffer"
+        ". Increase the limit via Jsonb.Builder or JsonStream.Builder, system property jsonb.parserMaxStringBuffer"
             + " or environment variable JSONB_PARSER_MAX_STRING_BUFFER");
   }
 

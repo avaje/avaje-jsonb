@@ -3,7 +3,6 @@ package io.avaje.jsonb.core;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.stream.JsonStream;
-import io.avaje.json.stream.ParserLimits;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
@@ -35,13 +34,18 @@ class MaxNumberDigitsTest {
   }
 
   @Test
-  void largeNumber_usesConfiguredStreamLimits() {
-    var configuredStream = JsonStream.builder()
-      .parserLimits(new ParserLimits(500, 50_000, 10_000_000))
-      .build();
-    var jsonb = Jsonb.builder().adapter(configuredStream).build();
+  void largeNumber_usesJsonbBuilderLimit() {
+    var jsonb = Jsonb.builder().parserMaxNumberDigits(500).build();
 
     assertThat(jsonb.type(BigInteger.class).fromJson(LARGE_NUMBER))
       .isEqualTo(new BigInteger(LARGE_NUMBER));
+  }
+
+  @Test
+  void largeString_usesJsonbBuilderLimit() {
+    var jsonb = Jsonb.builder().parserMaxStringBuffer(8192).build();
+    String value = "x".repeat(5000);
+
+    assertThat(jsonb.type(String.class).fromJson("\"" + value + "\"")).isEqualTo(value);
   }
 }

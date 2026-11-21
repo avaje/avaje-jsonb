@@ -53,6 +53,9 @@ final class DJsonb implements Jsonb {
       boolean failOnUnknown,
       boolean failOnNullPrimitives,
       boolean strictPropertyNames,
+      Integer parserMaxNumberDigits,
+      Integer parserMaxStringBuffer,
+      Integer parserMaxRawBuffer,
       boolean mathAsString,
       boolean calendarAsString,
       BufferRecycleStrategy strategy) {
@@ -66,14 +69,23 @@ final class DJsonb implements Jsonb {
         var stream = adapterFactoryOptional.get().create(serializeNulls, serializeEmpty, failOnUnknown);
         this.io = strictPropertyNames ? stream.withStrictPropertyNames(true) : stream;
       } else {
-        this.io = JsonStream.builder()
+        var streamBuilder = JsonStream.builder()
           .serializeNulls(serializeNulls)
           .serializeEmpty(serializeEmpty)
           .failOnUnknown(failOnUnknown)
           .failOnNullPrimitives(failOnNullPrimitives)
           .strictPropertyNames(strictPropertyNames)
-          .bufferRecycling(strategy)
-          .build();
+          .bufferRecycling(strategy);
+        if (parserMaxNumberDigits != null) {
+          streamBuilder.parserMaxNumberDigits(parserMaxNumberDigits);
+        }
+        if (parserMaxStringBuffer != null) {
+          streamBuilder.parserMaxStringBuffer(parserMaxStringBuffer);
+        }
+        if (parserMaxRawBuffer != null) {
+          streamBuilder.parserMaxRawBuffer(parserMaxRawBuffer);
+        }
+        this.io = streamBuilder.build();
       }
     }
     this.anyType = type(Object.class);
@@ -279,6 +291,9 @@ final class DJsonb implements Jsonb {
     private boolean failOnUnknown;
     private boolean failOnNullPrimitives;
     private boolean strictPropertyNames;
+    private Integer parserMaxNumberDigits;
+    private Integer parserMaxStringBuffer;
+    private Integer parserMaxRawBuffer;
     private boolean mathTypesAsString;
     private boolean calendarAsString;
     private boolean serializeNulls;
@@ -314,6 +329,33 @@ final class DJsonb implements Jsonb {
     @Override
     public Builder strictPropertyNames(boolean strictPropertyNames) {
       this.strictPropertyNames = strictPropertyNames;
+      return this;
+    }
+
+    @Override
+    public Builder parserMaxNumberDigits(int maxNumberDigits) {
+      if (maxNumberDigits < 0) {
+        throw new IllegalArgumentException("maxNumberDigits must not be negative");
+      }
+      this.parserMaxNumberDigits = maxNumberDigits;
+      return this;
+    }
+
+    @Override
+    public Builder parserMaxStringBuffer(int maxStringBuffer) {
+      if (maxStringBuffer < 0) {
+        throw new IllegalArgumentException("maxStringBuffer must not be negative");
+      }
+      this.parserMaxStringBuffer = maxStringBuffer;
+      return this;
+    }
+
+    @Override
+    public Builder parserMaxRawBuffer(int maxRawBuffer) {
+      if (maxRawBuffer < 0) {
+        throw new IllegalArgumentException("maxRawBuffer must not be negative");
+      }
+      this.parserMaxRawBuffer = maxRawBuffer;
       return this;
     }
 
@@ -395,7 +437,7 @@ final class DJsonb implements Jsonb {
         return DEFAULT;
       }
       registerComponents();
-      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, mathTypesAsString, calendarAsString, strategy);
+      return new DJsonb(adapter, factories, serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, parserMaxNumberDigits, parserMaxStringBuffer, parserMaxRawBuffer, mathTypesAsString, calendarAsString, strategy);
     }
 
     private boolean hasCustomizations() {
@@ -405,6 +447,9 @@ final class DJsonb implements Jsonb {
         || failOnUnknown
         || failOnNullPrimitives
         || strictPropertyNames
+        || parserMaxNumberDigits != null
+        || parserMaxStringBuffer != null
+        || parserMaxRawBuffer != null
         || mathTypesAsString
         || calendarAsString
         || serializeNulls

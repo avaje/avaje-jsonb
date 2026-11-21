@@ -1,7 +1,6 @@
 package io.avaje.json.stream.core;
 
 import io.avaje.json.stream.JsonOutput;
-import io.avaje.json.stream.ParserLimits;
 import io.avaje.json.stream.core.HybridBufferRecycler.StripedLockFreePool;
 import io.avaje.json.stream.core.Recyclers.NonRecyclingPool;
 import io.avaje.json.stream.core.Recyclers.ThreadLocalPool;
