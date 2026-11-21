@@ -120,7 +120,7 @@ class JParser implements JsonParser {
     this.doublePrecision = doublePrecision;
     this.unknownNumbers = unknownNumbers;
     this.maxNumberDigits = maxNumberDigits;
-    this.maxStringBuffer = maxStringBuffer;
+    this.maxStringBuffer = Math.min(maxStringBuffer, Recyclers.MAX_STRING_BUFFER_LIMIT);
     this.maxRawBuffer = maxRawBuffer;
     this.doubleLengthLimit = 15 + doublePrecision.level;
     this.originalBuffer = buffer;
@@ -494,9 +494,7 @@ class JParser implements JsonParser {
     for (int ci = start; ci < end; ci++) {
       final byte b = buf[ci];
       if (b == '"') {
-        if (ci - start > maxStringBuffer) {
-          throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
-        }
+        checkStringBufferLimit(ci - start);
         currentIndex = ci + 1;
         return codec.decode(buf, start, ci);
       }
@@ -523,12 +521,14 @@ class JParser implements JsonParser {
     byte bb;
     int ci = currentIndex;
     char[] _tmp = chars;
+    final int maxCap = maxStringBuffer + 6;
     final int remaining = length - currentIndex;
-    int _tmpLen = Math.min(_tmp.length, remaining);
+    int _tmpLen = Math.min(Math.min(_tmp.length, remaining), maxCap);
     int i = 0;
     while (i < _tmpLen) {
       bb = buffer[ci++];
       if (bb == '"') {
+        checkStringBufferLimit(i);
         currentIndex = ci;
         return i;
       }
@@ -540,29 +540,22 @@ class JParser implements JsonParser {
       _tmp[i++] = (char) bb;
     }
     if (i == _tmp.length) {
-      final int newSize = chars.length * 2;
-      if (newSize > maxStringBuffer) {
-        throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
-      }
-      _tmp = chars = Arrays.copyOf(chars, newSize);
+      _tmp = growChars(maxCap);
     }
-    _tmpLen = _tmp.length;
+    _tmpLen = Math.min(_tmp.length, maxCap);
     currentIndex = ci;
     int soFar = --currentIndex - startIndex;
 
     while (!isEndOfStream()) {
       int bc = read();
       if (bc == '"') {
+        checkStringBufferLimit(soFar);
         return soFar;
       }
 
       if (bc == '\\') {
         if (soFar >= _tmpLen - 6) {
-          final int newSize = chars.length * 2;
-          if (newSize > maxStringBuffer) {
-            throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
-          }
-          _tmp = chars = Arrays.copyOf(chars, newSize);
+          _tmp = growChars(maxCap);
           _tmpLen = _tmp.length;
         }
         bc = buffer[currentIndex++];
@@ -599,11 +592,7 @@ class JParser implements JsonParser {
         }
       } else if ((bc & 0x80) != 0) {
         if (soFar >= _tmpLen - 4) {
-          final int newSize = chars.length * 2;
-          if (newSize > maxStringBuffer) {
-            throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
-          }
-          _tmp = chars = Arrays.copyOf(chars, newSize);
+          _tmp = growChars(maxCap);
           _tmpLen = _tmp.length;
         }
         final int u2 = buffer[currentIndex++];
@@ -637,17 +626,27 @@ class JParser implements JsonParser {
           }
         }
       } else if (soFar >= _tmpLen) {
-        final int newSize = chars.length * 2;
-        if (newSize > maxStringBuffer) {
-          throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
-        }
-        _tmp = chars = Arrays.copyOf(chars, newSize);
+        _tmp = growChars(maxCap);
         _tmpLen = _tmp.length;
       }
 
       _tmp[soFar++] = (char) bc;
     }
     throw newParseErrorAt("JSON string was not closed with a double quote", 0);
+  }
+
+  private char[] growChars(int maxCap) {
+    if (chars.length >= maxCap) {
+      throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
+    }
+    final int newSize = (int) Math.min(Math.max(64L, (long) chars.length * 2), maxCap);
+    return chars = Arrays.copyOf(chars, newSize);
+  }
+
+  private void checkStringBufferLimit(int size) {
+    if (size > maxStringBuffer) {
+      throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
+    }
   }
 
   private int hexToInt(final byte value) {
