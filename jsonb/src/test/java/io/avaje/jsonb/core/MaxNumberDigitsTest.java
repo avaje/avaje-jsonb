@@ -43,9 +43,13 @@ class MaxNumberDigitsTest {
 
   @Test
   void largeString_usesJsonbBuilderLimit() {
-    var jsonb = Jsonb.builder().parserMaxStringBuffer(8192).build();
-    String value = "x".repeat(5000);
+    var stringType = Jsonb.builder().parserMaxStringBuffer(10).build().type(String.class);
+    var withinLimit = "x".repeat(10);
+    var overLimit = "x".repeat(11);
 
-    assertThat(jsonb.type(String.class).fromJson("\"" + value + "\"")).isEqualTo(value);
+    assertThat(stringType.fromJson("\"" + withinLimit + "\"")).isEqualTo(withinLimit);
+    assertThatThrownBy(() -> stringType.fromJson("\"" + overLimit + "\""))
+      .isInstanceOf(JsonDataException.class)
+      .hasMessageContaining("Maximum string buffer limit exceeded");
   }
 }
