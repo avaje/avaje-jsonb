@@ -1,5 +1,6 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.AsciiCodec;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonReader;
 import io.avaje.json.PropertyNames;
@@ -152,6 +153,11 @@ final class JsonReadAdapter implements JsonReader {
   @Override
   public String readString(PropertyNames values) {
     return reader.readString((JsonNames) values);
+  }
+
+  @Override
+  public <T> T readString(AsciiCodec<T> codec) {
+    return reader.readString(codec);
   }
 
   @Override

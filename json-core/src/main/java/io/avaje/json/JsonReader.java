@@ -161,6 +161,17 @@ public interface JsonReader extends Closeable {
   }
 
   /**
+   * Read a string value and convert it using the given codec.
+   *
+   * @param <T> The type of value
+   * @param codec The codec that converts the string content
+   * @return The converted value
+   */
+  default <T> T readString(AsciiCodec<T> codec) {
+    return codec.decode(readString());
+  }
+
+  /**
    * Return true if the value to be read is a null.
    */
   boolean isNullValue();

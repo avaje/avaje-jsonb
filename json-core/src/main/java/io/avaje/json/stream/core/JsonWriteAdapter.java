@@ -1,5 +1,6 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.AsciiCodec;
 import io.avaje.json.JsonWriter;
 import io.avaje.json.PropertyNames;
 
@@ -175,6 +176,16 @@ final class JsonWriteAdapter implements JsonWriter {
   public void value(PropertyNames values, int position) {
     writeDeferredName();
     generator.write((JsonNames) values, position);
+  }
+
+  @Override
+  public <T> void value(AsciiCodec<T> codec, T value) {
+    if (value == null) {
+      nullValue();
+    } else {
+      writeDeferredName();
+      generator.write(codec, value);
+    }
   }
 
   @Override

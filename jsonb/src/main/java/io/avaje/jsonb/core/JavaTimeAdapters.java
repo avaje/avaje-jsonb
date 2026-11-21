@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 
+import io.avaje.json.AsciiCodec;
 import io.avaje.json.JsonAdapter;
 import io.avaje.jsonb.AdapterFactory;
 import io.avaje.json.JsonReader;
@@ -64,12 +65,12 @@ final class JavaTimeAdapters {
   private static final JsonAdapter<Date> UTIL_DATE = new JsonAdapter<>() {
     @Override
     public Date fromJson(JsonReader reader) {
-      return Date.from(IsoTime.parseInstant(reader.readString()));
+      return Date.from(reader.readString(INSTANT_ADAPTER));
     }
 
     @Override
     public void toJson(JsonWriter writer, Date value) {
-      writer.value(IsoTime.format(value.toInstant()));
+      writer.value(INSTANT_ADAPTER, value.toInstant());
     }
 
     @Override
@@ -95,39 +96,89 @@ final class JavaTimeAdapters {
     }
   };
 
-  private static final JsonAdapter<Instant> INSTANT_ADAPTER = new JsonAdapter<>() {
+  static final InstantAdapter INSTANT_ADAPTER = new InstantAdapter();
+
+  static final class InstantAdapter implements JsonAdapter<Instant>, AsciiCodec<Instant> {
+
     @Override
     public Instant fromJson(JsonReader reader) {
-      return IsoTime.parseInstant(reader.readString());
+      return reader.readString(this);
     }
 
     @Override
     public void toJson(JsonWriter writer, Instant value) {
-      writer.value(IsoTime.format(value));
+      writer.value(this, value);
+    }
+
+    @Override
+    public Instant decode(String text) {
+      final var value = IsoTime.instant(IsoTime.bytes(text), 0, text.length());
+      return value != null ? value : Instant.parse(text);
+    }
+
+    @Override
+    public Instant decode(byte[] buffer, int start, int end) {
+      final var value = IsoTime.instant(buffer, start, end);
+      return value != null ? value : Instant.parse(IsoTime.text(buffer, start, end));
+    }
+
+    @Override
+    public int maxLength(Instant value) {
+      return IsoTime.fastInstant(value) ? 30 : -1;
+    }
+
+    @Override
+    public int encode(Instant value, byte[] buffer, int pos) {
+      return IsoTime.writeInstant(buffer, pos, value);
     }
 
     @Override
     public String toString() {
       return "JsonAdapter(Instant)";
     }
-  };
+  }
 
-  private static final JsonAdapter<OffsetDateTime> OFFSET_DATE_TIME_ADAPTER = new JsonAdapter<>() {
+  static final OffsetDateTimeAdapter OFFSET_DATE_TIME_ADAPTER = new OffsetDateTimeAdapter();
+
+  static final class OffsetDateTimeAdapter implements JsonAdapter<OffsetDateTime>, AsciiCodec<OffsetDateTime> {
+
     @Override
     public OffsetDateTime fromJson(JsonReader reader) {
-      return IsoTime.parseOffsetDateTime(reader.readString());
+      return reader.readString(this);
     }
 
     @Override
     public void toJson(JsonWriter writer, OffsetDateTime value) {
-      writer.value(value.toString());
+      writer.value(this, value);
+    }
+
+    @Override
+    public OffsetDateTime decode(String text) {
+      final var value = IsoTime.offsetDateTime(IsoTime.bytes(text), 0, text.length());
+      return value != null ? value : OffsetDateTime.parse(text);
+    }
+
+    @Override
+    public OffsetDateTime decode(byte[] buffer, int start, int end) {
+      final var value = IsoTime.offsetDateTime(buffer, start, end);
+      return value != null ? value : OffsetDateTime.parse(IsoTime.text(buffer, start, end));
+    }
+
+    @Override
+    public int maxLength(OffsetDateTime value) {
+      return IsoTime.fastYear(value.getYear()) ? 29 + 9 : -1;
+    }
+
+    @Override
+    public int encode(OffsetDateTime value, byte[] buffer, int pos) {
+      return IsoTime.writeOffsetDateTime(buffer, pos, value.toLocalDateTime(), value.getOffset());
     }
 
     @Override
     public String toString() {
       return "JsonAdapter(OffsetDateTime)";
     }
-  };
+  }
 
   private static final JsonAdapter<OffsetTime> OFFSET_TIME_ADAPTER = new JsonAdapter<>() {
     @Override
@@ -146,27 +197,64 @@ final class JavaTimeAdapters {
     }
   };
 
-  private static final JsonAdapter<ZonedDateTime> ZONED_DATE_TIME_ADAPTER = new JsonAdapter<>() {
+  static final ZonedDateTimeAdapter ZONED_DATE_TIME_ADAPTER = new ZonedDateTimeAdapter();
+
+  static final class ZonedDateTimeAdapter implements JsonAdapter<ZonedDateTime>, AsciiCodec<ZonedDateTime> {
+
     @Override
     public ZonedDateTime fromJson(JsonReader reader) {
-      return IsoTime.parseZonedDateTime(reader.readString());
+      return reader.readString(this);
     }
 
     @Override
     public void toJson(JsonWriter writer, ZonedDateTime value) {
-      writer.value(value.toString());
+      writer.value(this, value);
+    }
+
+    @Override
+    public ZonedDateTime decode(String text) {
+      final var value = IsoTime.offsetDateTime(IsoTime.bytes(text), 0, text.length());
+      return value != null ? value.toZonedDateTime() : ZonedDateTime.parse(text);
+    }
+
+    @Override
+    public ZonedDateTime decode(byte[] buffer, int start, int end) {
+      final var value = IsoTime.offsetDateTime(buffer, start, end);
+      return value != null ? value.toZonedDateTime() : ZonedDateTime.parse(IsoTime.text(buffer, start, end));
+    }
+
+    @Override
+    public int maxLength(ZonedDateTime value) {
+      if (!IsoTime.fastYear(value.getYear())) {
+        return -1;
+      }
+      final var zone = value.getZone();
+      return zone instanceof ZoneOffset ? 29 + 9 : 29 + 9 + 2 + zone.getId().length();
+    }
+
+    @Override
+    public int encode(ZonedDateTime value, byte[] buffer, int pos) {
+      final var offset = value.getOffset();
+      pos = IsoTime.writeOffsetDateTime(buffer, pos, value.toLocalDateTime(), offset);
+      final var zone = value.getZone();
+      if (zone != offset) {
+        buffer[pos++] = '[';
+        pos = IsoTime.writeAscii(buffer, pos, zone.getId());
+        buffer[pos++] = ']';
+      }
+      return pos;
     }
 
     @Override
     public String toString() {
       return "JsonAdapter(ZonedDateTime)";
     }
-  };
+  }
 
   private static final JsonAdapter<Calendar> CALENDAR_ZONED = new JsonAdapter<>() {
     @Override
     public Calendar fromJson(JsonReader reader) {
-      final ZonedDateTime zdt = IsoTime.parseZonedDateTime(reader.readString());
+      final ZonedDateTime zdt = reader.readString(ZONED_DATE_TIME_ADAPTER);
       return GregorianCalendar.from(zdt);
     }
 
@@ -174,7 +262,7 @@ final class JavaTimeAdapters {
     public void toJson(JsonWriter writer, Calendar value) {
       TimeZone timeZone = value.getTimeZone();
       ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(value.toInstant(), timeZone.toZoneId());
-      writer.value(zonedDateTime.toString());
+      writer.value(ZONED_DATE_TIME_ADAPTER, zonedDateTime);
     }
 
     @Override
@@ -240,56 +328,131 @@ final class JavaTimeAdapters {
     }
   };
 
-  private static final JsonAdapter<LocalDate> LOCAL_DATE_ADAPTER = new JsonAdapter<>() {
+  static final LocalDateAdapter LOCAL_DATE_ADAPTER = new LocalDateAdapter();
+
+  static final class LocalDateAdapter implements JsonAdapter<LocalDate>, AsciiCodec<LocalDate> {
+
     @Override
     public LocalDate fromJson(JsonReader reader) {
-      return IsoTime.parseLocalDate(reader.readString());
+      return reader.readString(this);
     }
 
     @Override
     public void toJson(JsonWriter writer, LocalDate value) {
-      writer.value(value.toString());
+      writer.value(this, value);
+    }
+
+    @Override
+    public LocalDate decode(String text) {
+      final var value = IsoTime.localDate(IsoTime.bytes(text), 0, text.length());
+      return value != null ? value : LocalDate.parse(text);
+    }
+
+    @Override
+    public LocalDate decode(byte[] buffer, int start, int end) {
+      final var value = IsoTime.localDate(buffer, start, end);
+      return value != null ? value : LocalDate.parse(IsoTime.text(buffer, start, end));
+    }
+
+    @Override
+    public int maxLength(LocalDate value) {
+      return IsoTime.fastYear(value.getYear()) ? 10 : -1;
+    }
+
+    @Override
+    public int encode(LocalDate value, byte[] buffer, int pos) {
+      return IsoTime.writeDate(buffer, pos, value);
     }
 
     @Override
     public String toString() {
       return "JsonAdapter(LocalDate)";
     }
-  };
+  }
 
-  private static final JsonAdapter<LocalDateTime> LOCAL_DATE_TIME_ADAPTER = new JsonAdapter<>() {
+  static final LocalDateTimeAdapter LOCAL_DATE_TIME_ADAPTER = new LocalDateTimeAdapter();
+
+  static final class LocalDateTimeAdapter implements JsonAdapter<LocalDateTime>, AsciiCodec<LocalDateTime> {
+
     @Override
     public LocalDateTime fromJson(JsonReader reader) {
-      return IsoTime.parseLocalDateTime(reader.readString());
+      return reader.readString(this);
     }
 
     @Override
     public void toJson(JsonWriter writer, LocalDateTime value) {
-      writer.value(value.toString());
+      writer.value(this, value);
+    }
+
+    @Override
+    public LocalDateTime decode(String text) {
+      final var value = IsoTime.localDateTime(IsoTime.bytes(text), 0, text.length());
+      return value != null ? value : LocalDateTime.parse(text);
+    }
+
+    @Override
+    public LocalDateTime decode(byte[] buffer, int start, int end) {
+      final var value = IsoTime.localDateTime(buffer, start, end);
+      return value != null ? value : LocalDateTime.parse(IsoTime.text(buffer, start, end));
+    }
+
+    @Override
+    public int maxLength(LocalDateTime value) {
+      return IsoTime.fastYear(value.getYear()) ? 29 : -1;
+    }
+
+    @Override
+    public int encode(LocalDateTime value, byte[] buffer, int pos) {
+      return IsoTime.writeDateTime(buffer, pos, value);
     }
 
     @Override
     public String toString() {
       return "JsonAdapter(LocalDateTime)";
     }
-  };
+  }
 
-  private static final JsonAdapter<LocalTime> LOCAL_TIME_ADAPTER = new JsonAdapter<>() {
+  static final LocalTimeAdapter LOCAL_TIME_ADAPTER = new LocalTimeAdapter();
+
+  static final class LocalTimeAdapter implements JsonAdapter<LocalTime>, AsciiCodec<LocalTime> {
+
     @Override
     public LocalTime fromJson(JsonReader reader) {
-      return IsoTime.parseLocalTime(reader.readString());
+      return reader.readString(this);
     }
 
     @Override
     public void toJson(JsonWriter writer, LocalTime value) {
-      writer.value(value.toString());
+      writer.value(this, value);
+    }
+
+    @Override
+    public LocalTime decode(String text) {
+      final var value = IsoTime.localTime(IsoTime.bytes(text), 0, text.length());
+      return value != null ? value : LocalTime.parse(text);
+    }
+
+    @Override
+    public LocalTime decode(byte[] buffer, int start, int end) {
+      final var value = IsoTime.localTime(buffer, start, end);
+      return value != null ? value : LocalTime.parse(IsoTime.text(buffer, start, end));
+    }
+
+    @Override
+    public int maxLength(LocalTime value) {
+      return 18;
+    }
+
+    @Override
+    public int encode(LocalTime value, byte[] buffer, int pos) {
+      return IsoTime.writeTime(buffer, pos, value);
     }
 
     @Override
     public String toString() {
       return "JsonAdapter(LocalTime)";
     }
-  };
+  }
 
   private static final JsonAdapter<MonthDay> MONTH_DAY_ADAPTER = new JsonAdapter<>() {
     @Override

@@ -1,5 +1,6 @@
 package io.avaje.json.stream.core;
 
+import io.avaje.json.AsciiCodec;
 import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonEofException;
 import io.avaje.json.JsonIoException;
@@ -482,6 +483,30 @@ class JParser implements JsonParser {
     }
     // escaped, unknown or not fully in the buffer
     return readString();
+  }
+
+  @Override
+  public final <T> T readString(final AsciiCodec<T> codec) {
+    if (last != '"') throw newParseError("Expecting '\"' for string start");
+    final int start = currentIndex;
+    final byte[] buf = buffer;
+    final int end = length;
+    for (int ci = start; ci < end; ci++) {
+      final byte b = buf[ci];
+      if (b == '"') {
+        if (ci - start > maxStringBuffer) {
+          throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
+        }
+        currentIndex = ci + 1;
+        return codec.decode(buf, start, ci);
+      }
+      if ((b ^ '\\') < 1) {
+        // escape sequence or non-ASCII
+        break;
+      }
+    }
+    // escaped, non-ASCII or not fully in the buffer
+    return codec.decode(readString());
   }
 
   /** Return true if the buffer from start to end matches the quoted key. */

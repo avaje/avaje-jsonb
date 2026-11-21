@@ -1,8 +1,12 @@
 package io.avaje.jsonb.core;
 
+import io.avaje.json.AsciiCodec;
+import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,12 +46,12 @@ class IsoTimeTest {
   void edgeCases_matchJdk() {
     List<String> bad = new ArrayList<>();
     for (String s : EDGE) {
-      check(bad, s, "LocalDate", IsoTime::parseLocalDate, LocalDate::parse);
-      check(bad, s, "LocalTime", IsoTime::parseLocalTime, LocalTime::parse);
-      check(bad, s, "LocalDateTime", IsoTime::parseLocalDateTime, LocalDateTime::parse);
-      check(bad, s, "OffsetDateTime", IsoTime::parseOffsetDateTime, OffsetDateTime::parse);
-      check(bad, s, "ZonedDateTime", IsoTime::parseZonedDateTime, ZonedDateTime::parse);
-      check(bad, s, "Instant", IsoTime::parseInstant, Instant::parse);
+      check(bad, s, "LocalDate", JavaTimeAdapters.LOCAL_DATE_ADAPTER::decode, LocalDate::parse);
+      check(bad, s, "LocalTime", JavaTimeAdapters.LOCAL_TIME_ADAPTER::decode, LocalTime::parse);
+      check(bad, s, "LocalDateTime", JavaTimeAdapters.LOCAL_DATE_TIME_ADAPTER::decode, LocalDateTime::parse);
+      check(bad, s, "OffsetDateTime", JavaTimeAdapters.OFFSET_DATE_TIME_ADAPTER::decode, OffsetDateTime::parse);
+      check(bad, s, "ZonedDateTime", JavaTimeAdapters.ZONED_DATE_TIME_ADAPTER::decode, ZonedDateTime::parse);
+      check(bad, s, "Instant", JavaTimeAdapters.INSTANT_ADAPTER::decode, Instant::parse);
     }
     assertThat(bad).isEmpty();
   }
@@ -65,26 +69,112 @@ class IsoTimeTest {
         : r.nextInt(1_000_000_000);
       if (r.nextInt(8) == 0) epochSecond -= epochSecond % 60;
       Instant instant = Instant.ofEpochSecond(epochSecond, nano);
-      if (!IsoTime.format(instant).equals(instant.toString())) bad.add("format " + instant);
       ZoneOffset offset = ZoneOffset.ofTotalSeconds(r.nextInt(-18 * 4, 18 * 4 + 1) * 900);
       OffsetDateTime odt = instant.atOffset(offset);
       LocalDateTime ldt = odt.toLocalDateTime();
 
-      check(bad, instant.toString(), "Instant", IsoTime::parseInstant, Instant::parse);
-      check(bad, odt.toString(), "OffsetDateTime", IsoTime::parseOffsetDateTime, OffsetDateTime::parse);
-      check(bad, odt.toZonedDateTime().toString(), "ZonedDateTime", IsoTime::parseZonedDateTime, ZonedDateTime::parse);
-      check(bad, ldt.toString(), "LocalDateTime", IsoTime::parseLocalDateTime, LocalDateTime::parse);
-      check(bad, ldt.toLocalDate().toString(), "LocalDate", IsoTime::parseLocalDate, LocalDate::parse);
-      check(bad, ldt.toLocalTime().toString(), "LocalTime", IsoTime::parseLocalTime, LocalTime::parse);
-      if (!IsoTime.parseInstant(instant.toString()).equals(instant)) bad.add("roundTrip " + instant);
+      check(bad, instant.toString(), "Instant", JavaTimeAdapters.INSTANT_ADAPTER::decode, Instant::parse);
+      check(bad, odt.toString(), "OffsetDateTime", JavaTimeAdapters.OFFSET_DATE_TIME_ADAPTER::decode, OffsetDateTime::parse);
+      check(bad, odt.toZonedDateTime().toString(), "ZonedDateTime", JavaTimeAdapters.ZONED_DATE_TIME_ADAPTER::decode, ZonedDateTime::parse);
+      check(bad, ldt.toString(), "LocalDateTime", JavaTimeAdapters.LOCAL_DATE_TIME_ADAPTER::decode, LocalDateTime::parse);
+      check(bad, ldt.toLocalDate().toString(), "LocalDate", JavaTimeAdapters.LOCAL_DATE_ADAPTER::decode, LocalDate::parse);
+      check(bad, ldt.toLocalTime().toString(), "LocalTime", JavaTimeAdapters.LOCAL_TIME_ADAPTER::decode, LocalTime::parse);
+      if (!JavaTimeAdapters.INSTANT_ADAPTER.decode(instant.toString()).equals(instant)) bad.add("roundTrip " + instant);
     }
     assertThat(bad).isEmpty();
   }
 
   @Test
-  void format_outsideFastRange() {
-    for (Instant instant : new Instant[]{Instant.MIN, Instant.MAX, Instant.EPOCH, Instant.ofEpochSecond(-62167219201L), Instant.ofEpochSecond(253402300800L)}) {
-      assertThat(IsoTime.format(instant)).isEqualTo(instant.toString());
+  void random_encode_matchesToString() {
+    SplittableRandom r = new SplittableRandom(5);
+    String[] zones = {"Europe/Paris", "America/St_Johns", "Asia/Kathmandu", "UTC", "GMT", "Etc/GMT+5", "UTC+01:30"};
+    List<String> bad = new ArrayList<>();
+    for (int i = 0; i < 100_000; i++) {
+      long epochSecond = r.nextLong(-62167219200L + 86400, 253402300800L - 86400);
+      int kind = r.nextInt(5);
+      int nano = kind == 0 ? 0
+        : kind == 1 ? r.nextInt(1000) * 1_000_000
+        : kind == 2 ? r.nextInt(1_000_000) * 1_000
+        : r.nextInt(1_000_000_000);
+      if (r.nextInt(4) == 0) epochSecond -= epochSecond % 60;
+      if (r.nextInt(8) == 0) epochSecond -= epochSecond % 3600;
+      Instant instant = Instant.ofEpochSecond(epochSecond, nano);
+      ZoneOffset offset = r.nextInt(8) == 0
+        ? ZoneOffset.ofTotalSeconds(r.nextInt(-18 * 3600, 18 * 3600 + 1))
+        : ZoneOffset.ofTotalSeconds(r.nextInt(-18 * 4, 18 * 4 + 1) * 900);
+      OffsetDateTime odt = instant.atOffset(offset);
+      ZonedDateTime zdt = r.nextBoolean() ? odt.toZonedDateTime() : instant.atZone(java.time.ZoneId.of(zones[r.nextInt(zones.length)]));
+      LocalDateTime ldt = odt.toLocalDateTime();
+
+      checkEncode(bad, JavaTimeAdapters.INSTANT_ADAPTER, instant);
+      checkEncode(bad, JavaTimeAdapters.OFFSET_DATE_TIME_ADAPTER, odt);
+      checkEncode(bad, JavaTimeAdapters.ZONED_DATE_TIME_ADAPTER, zdt);
+      checkEncode(bad, JavaTimeAdapters.LOCAL_DATE_TIME_ADAPTER, ldt);
+      checkEncode(bad, JavaTimeAdapters.LOCAL_DATE_ADAPTER, ldt.toLocalDate());
+      checkEncode(bad, JavaTimeAdapters.LOCAL_TIME_ADAPTER, ldt.toLocalTime());
+    }
+    assertThat(bad).isEmpty();
+  }
+
+  @Test
+  void encode_outsideFastRange_usesToString() {
+    Jsonb jsonb = Jsonb.builder().build();
+    LocalDateTime[] values = {LocalDateTime.MIN, LocalDateTime.MAX, LocalDateTime.of(-1, 1, 1, 0, 0), LocalDateTime.of(10000, 1, 1, 0, 0), LocalDateTime.of(0, 1, 1, 0, 0), LocalDateTime.of(9999, 12, 31, 23, 59, 59, 999_999_999)};
+    for (LocalDateTime ldt : values) {
+      assertThat(jsonb.toJson(ldt)).isEqualTo("\"" + ldt + "\"");
+      assertThat(jsonb.toJson(ldt.toLocalDate())).isEqualTo("\"" + ldt.toLocalDate() + "\"");
+      OffsetDateTime odt = ldt.atOffset(ZoneOffset.ofHoursMinutesSeconds(-5, -30, -15));
+      assertThat(jsonb.toJson(odt)).isEqualTo("\"" + odt + "\"");
+      ZonedDateTime zdt = ldt.atZone(ZoneOffset.UTC);
+      assertThat(jsonb.toJson(zdt)).isEqualTo("\"" + zdt + "\"");
+    }
+    for (Instant instant : new Instant[]{Instant.MIN, Instant.MAX, Instant.ofEpochSecond(-62167219201L), Instant.ofEpochSecond(253402300800L), Instant.ofEpochSecond(-62167219200L), Instant.ofEpochSecond(253402300799L, 999_999_999)}) {
+      assertThat(jsonb.toJson(instant)).isEqualTo("\"" + instant + "\"");
+    }
+  }
+
+  private static <T> void checkEncode(List<String> bad, AsciiCodec<T> codec, T value) {
+    String expected = value.toString();
+    int max = codec.maxLength(value);
+    if (max < expected.length()) {
+      bad.add("maxLength " + max + " for " + expected);
+      return;
+    }
+    byte[] buf = new byte[max + 4];
+    int end = codec.encode(value, buf, 2);
+    String actual = new String(buf, 2, end - 2, StandardCharsets.ISO_8859_1);
+    if (!expected.equals(actual)) {
+      bad.add("encode " + expected + " got " + actual);
+    }
+  }
+
+  @Test
+  void stream_acrossBufferBoundaries() {
+    // values straddle the stream buffer refills, so some take the readString() fallback
+    List<LocalDate> dates = new ArrayList<>();
+    SplittableRandom r = new SplittableRandom(11);
+    for (int i = 0; i < 10_000; i++) {
+      dates.add(LocalDate.ofEpochDay(r.nextLong(-700_000, 2_900_000)));
+    }
+    JsonType<List<LocalDate>> dateList = Jsonb.builder().build().type(LocalDate.class).list();
+    String json = dateList.toJson(dates);
+    assertThat(dateList.fromJson(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)))).isEqualTo(dates);
+  }
+
+  @Test
+  void escaped_and_nonAscii_fallBackToString() {
+    var type = Jsonb.builder().build().type(LocalDate.class);
+    assertThat(type.fromJson("\"\\u0032020-01-15\"")).isEqualTo(LocalDate.of(2020, 1, 15));
+    String nonAscii = "2020-01-1\u00e9";
+    assertThat(result(() -> type.fromJson("\"" + nonAscii + "\"")))
+      .isEqualTo(result(() -> LocalDate.parse(nonAscii)));
+  }
+
+  private static Object result(java.util.function.Supplier<Object> supplier) {
+    try {
+      return supplier.get();
+    } catch (RuntimeException e) {
+      return e.getClass().getName() + ": " + e.getMessage();
     }
   }
 
@@ -112,9 +202,34 @@ class IsoTimeTest {
     } catch (RuntimeException e) {
       actual = e.getClass().getName() + ": " + e.getMessage();
     }
+    compare(bad, s, type, expected, actual);
+
+    // the byte path, with content in the middle of a buffer
+    byte[] buf = ("@\"_" + s + "\"@").getBytes(StandardCharsets.ISO_8859_1);
+    try {
+      actual = codec(type).decode(buf, 3, 3 + s.length());
+    } catch (RuntimeException e) {
+      actual = e.getClass().getName() + ": " + e.getMessage();
+    }
+    compare(bad, s, type + "(bytes)", expected, actual);
+  }
+
+  private static void compare(List<String> bad, String s, String type, Object expected, Object actual) {
     // compare via equals and toString, ZonedDateTime equality includes the zone
     if (!Objects.equals(expected, actual) || !String.valueOf(expected).equals(String.valueOf(actual))) {
       bad.add(type + " '" + s + "' expected " + expected + " but got " + actual);
+    }
+  }
+
+  private static AsciiCodec<?> codec(String type) {
+    switch (type) {
+      case "LocalDate": return JavaTimeAdapters.LOCAL_DATE_ADAPTER;
+      case "LocalTime": return JavaTimeAdapters.LOCAL_TIME_ADAPTER;
+      case "LocalDateTime": return JavaTimeAdapters.LOCAL_DATE_TIME_ADAPTER;
+      case "OffsetDateTime": return JavaTimeAdapters.OFFSET_DATE_TIME_ADAPTER;
+      case "ZonedDateTime": return JavaTimeAdapters.ZONED_DATE_TIME_ADAPTER;
+      case "Instant": return JavaTimeAdapters.INSTANT_ADAPTER;
+      default: throw new IllegalArgumentException(type);
     }
   }
 }
