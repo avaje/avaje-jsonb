@@ -52,17 +52,17 @@ final class HybridBufferRecycler implements BufferRecycler {
   }
 
   @Override
-  public JsonParser parser(byte[] bytes) {
+  public JsonParser parser(byte[] bytes, ParserLimits limits) {
     return VT_ENABLED && ThreadFunctions.isVirtual()
-      ? VIRTUAL_RECYCLER.parser(bytes)
-      : NATIVE_RECYCLER.parser(bytes);
+      ? VIRTUAL_RECYCLER.parser(bytes, limits)
+      : NATIVE_RECYCLER.parser(bytes, limits);
   }
 
   @Override
-  public JsonParser parser(InputStream in) {
+  public JsonParser parser(InputStream in, ParserLimits limits) {
     return VT_ENABLED && ThreadFunctions.isVirtual()
-      ? VIRTUAL_RECYCLER.parser(in)
-      : NATIVE_RECYCLER.parser(in);
+      ? VIRTUAL_RECYCLER.parser(in, limits)
+      : NATIVE_RECYCLER.parser(in, limits);
   }
 
   @Override
@@ -116,13 +116,13 @@ final class HybridBufferRecycler implements BufferRecycler {
     }
 
     @Override
-    public JsonParser parser(byte[] bytes) {
-      return parser().process(bytes, bytes.length);
+    public JsonParser parser(byte[] bytes, ParserLimits limits) {
+      return parser().process(bytes, bytes.length, limits);
     }
 
     @Override
-    public JsonParser parser(InputStream in) {
-      return parser().process(in);
+    public JsonParser parser(InputStream in, ParserLimits limits) {
+      return parser().process(in, limits);
     }
 
     @Override
@@ -142,7 +142,7 @@ final class HybridBufferRecycler implements BufferRecycler {
       }
     }
 
-    private JsonParser parser() {
+    private JParser parser() {
       int index = threadProbe.index();
 
       var currentHead = parserStacks.get(index);
@@ -231,9 +231,9 @@ final class HybridBufferRecycler implements BufferRecycler {
         0,
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
-        Recyclers.PARSER_MAX_NUMBER_DIGITS,
-        Recyclers.PARSER_MAX_STRING_BUFFER,
-        Recyclers.PARSER_MAX_RAW_BUFFER);
+        Recyclers.DEFAULT_PARSER_LIMITS.maxNumberDigits(),
+        Recyclers.DEFAULT_PARSER_LIMITS.maxStringBuffer(),
+        Recyclers.DEFAULT_PARSER_LIMITS.maxRawBuffer());
       this.slot = slot;
     }
   }

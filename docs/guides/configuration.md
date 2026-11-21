@@ -1,8 +1,9 @@
 # Configuration & Tuning
 
-Avaje Jsonb exposes several low-level parser and generator settings that control
-buffer sizes and parsing limits. These can be tuned at startup via **system
-properties** or **environment variables** — no code changes required.
+Avaje Jsonb exposes low-level parser and generator settings that control buffer
+sizes and parsing limits. System properties and environment variables provide
+defaults; parser limits can also be configured with `Jsonb.Builder` or when
+building a `JsonStream`.
 
 ## Settings Reference
 
@@ -17,7 +18,30 @@ properties** or **environment variables** — no code changes required.
 
 ### Priority order
 
-System property → ENV var → default. Setting a system property always wins over an ENV var.
+System property → ENV var → built-in default. Setting a system property always
+wins over an ENV var. Explicit builder options take precedence over these
+defaults for the built-in stream.
+
+### Per-stream parser limits
+
+Set only the limits that need changing; unspecified limits retain their
+system-property, environment-variable, or built-in defaults:
+
+```java
+Jsonb jsonb = Jsonb.builder()
+  .parserMaxStringBuffer(500_000)
+  .build();
+
+JsonStream stream = JsonStream.builder()
+  .parserMaxNumberDigits(500)
+  .parserMaxStringBuffer(500_000)
+  .parserMaxRawBuffer(20_000_000)
+  .build();
+```
+
+Custom stream implementations may ignore builder limits they do not support.
+Pooled parsers are reconfigured for each reader, so one stream's limits do not
+carry over to another.
 
 ## When to Tune
 
@@ -30,7 +54,9 @@ text field or a base64-encoded blob) exceeds 50,000 characters the parser throws
 Maximum string buffer limit exceeded: '50000' near line 1, column 128
 ```
 
-Raise the limit to accommodate your largest expected string:
+Raise the limit to accommodate your largest expected string with
+`Jsonb.Builder.parserMaxStringBuffer(...)`, `JsonStream.Builder.parserMaxStringBuffer(...)`,
+or globally as a default:
 
 ```bash
 # ENV var (recommended for containers / native images)

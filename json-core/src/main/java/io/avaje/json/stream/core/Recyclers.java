@@ -14,9 +14,10 @@ final class Recyclers {
   static final int GENERATOR_BUFFER_SIZE = intSetting("jsonb.generatorBufferSize", "JSONB_GENERATOR_BUFFER_SIZE", 4096);
   static final int PARSER_BUFFER_SIZE = intSetting("jsonb.parserBufferSize", "JSONB_PARSER_BUFFER_SIZE", 4096);
   static final int PARSER_CHAR_BUFFER_SIZE = intSetting("jsonb.parserCharBufferSize", "JSONB_PARSER_CHAR_BUFFER_SIZE", 4096);
-  static final int PARSER_MAX_NUMBER_DIGITS = intSetting("jsonb.parserMaxNumberDigits", "JSONB_PARSER_MAX_NUMBER_DIGITS", 309);
-  static final int PARSER_MAX_STRING_BUFFER = intSetting("jsonb.parserMaxStringBuffer", "JSONB_PARSER_MAX_STRING_BUFFER", 50_000);
-  static final int PARSER_MAX_RAW_BUFFER = intSetting("jsonb.parserMaxRawBuffer", "JSONB_PARSER_MAX_RAW_BUFFER", 10_000_000);
+  static final ParserLimits DEFAULT_PARSER_LIMITS = new ParserLimits(
+    intSetting("jsonb.parserMaxNumberDigits", "JSONB_PARSER_MAX_NUMBER_DIGITS", 309),
+    intSetting("jsonb.parserMaxStringBuffer", "JSONB_PARSER_MAX_STRING_BUFFER", 50_000),
+    intSetting("jsonb.parserMaxRawBuffer", "JSONB_PARSER_MAX_RAW_BUFFER", 10_000_000));
 
   static int intSetting(String sysProp, String envVar, int defaultValue) {
     String val = System.getProperty(sysProp);
@@ -31,6 +32,10 @@ final class Recyclers {
   }
 
   static JParser createParser() {
+    return createParser(DEFAULT_PARSER_LIMITS);
+  }
+
+  static JParser createParser(ParserLimits limits) {
     final char[] ch = new char[PARSER_CHAR_BUFFER_SIZE];
     final byte[] by = new byte[PARSER_BUFFER_SIZE];
     return new JParser(
@@ -39,9 +44,9 @@ final class Recyclers {
         0,
         JParser.DoublePrecision.DEFAULT,
         JParser.UnknownNumberParsing.BIGDECIMAL,
-        PARSER_MAX_NUMBER_DIGITS,
-        PARSER_MAX_STRING_BUFFER,
-        PARSER_MAX_RAW_BUFFER);
+        limits.maxNumberDigits(),
+        limits.maxStringBuffer(),
+        limits.maxRawBuffer());
   }
 
   /**
@@ -70,13 +75,13 @@ final class Recyclers {
     }
 
     @Override
-    public JsonParser parser(byte[] bytes) {
-      return PARSER.get().process(bytes, bytes.length);
+    public JsonParser parser(byte[] bytes, ParserLimits limits) {
+      return PARSER.get().process(bytes, bytes.length, limits);
     }
 
     @Override
-    public JsonParser parser(InputStream in) {
-      return PARSER.get().process(in);
+    public JsonParser parser(InputStream in, ParserLimits limits) {
+      return PARSER.get().process(in, limits);
     }
 
     @Override
@@ -110,13 +115,13 @@ final class Recyclers {
     }
 
     @Override
-    public JsonParser parser(byte[] bytes) {
-      return createParser().process(bytes, bytes.length);
+    public JsonParser parser(byte[] bytes, ParserLimits limits) {
+      return createParser(limits).process(bytes, bytes.length, limits);
     }
 
     @Override
-    public JsonParser parser(InputStream in) {
-      return createParser().process(in);
+    public JsonParser parser(InputStream in, ParserLimits limits) {
+      return createParser(limits).process(in, limits);
     }
 
     @Override

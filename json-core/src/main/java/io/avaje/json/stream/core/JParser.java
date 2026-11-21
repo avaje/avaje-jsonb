@@ -88,9 +88,9 @@ class JParser implements JsonParser {
   final DoublePrecision doublePrecision;
   final int doubleLengthLimit;
   final UnknownNumberParsing unknownNumbers;
-  final int maxNumberDigits;
-  private final int maxStringBuffer;
-  private final int maxRawBuffer;
+  int maxNumberDigits;
+  private int maxStringBuffer;
+  private int maxRawBuffer;
 
   public JParser(
     final char[] tmp,
@@ -125,6 +125,22 @@ class JParser implements JsonParser {
     this.doubleLengthLimit = 15 + doublePrecision.level;
     this.originalBuffer = buffer;
     this.originalBufferLenWithExtraSpace = bufferLenWithExtraSpace;
+  }
+
+  final JParser process(final InputStream newStream, final ParserLimits limits) {
+    setLimits(limits);
+    return process(newStream);
+  }
+
+  final JParser process(final byte[] newBuffer, final int newLength, final ParserLimits limits) {
+    setLimits(limits);
+    return process(newBuffer, newLength);
+  }
+
+  private void setLimits(ParserLimits limits) {
+    maxNumberDigits = limits.maxNumberDigits();
+    maxStringBuffer = limits.maxStringBuffer();
+    maxRawBuffer = limits.maxRawBuffer();
   }
 
   /**
@@ -529,6 +545,7 @@ class JParser implements JsonParser {
     while (i < _tmpLen) {
       bb = buffer[ci++];
       if (bb == '"') {
+        checkStringBufferLimit(i);
         currentIndex = ci;
         return i;
       }
@@ -553,6 +570,7 @@ class JParser implements JsonParser {
     while (!isEndOfStream()) {
       int bc = read();
       if (bc == '"') {
+        checkStringBufferLimit(soFar);
         return soFar;
       }
 
@@ -648,6 +666,12 @@ class JParser implements JsonParser {
       _tmp[soFar++] = (char) bc;
     }
     throw newParseErrorAt("JSON string was not closed with a double quote", 0);
+  }
+
+  private void checkStringBufferLimit(int size) {
+    if (size > maxStringBuffer) {
+      throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
+    }
   }
 
   private int hexToInt(final byte value) {
@@ -1234,7 +1258,7 @@ class JParser implements JsonParser {
         digits,
         ". Maximum allowed is "
             + maxNumberDigits
-            + ". Increase the limit via system property jsonb.parserMaxNumberDigits"
+            + ". Increase the limit via Jsonb.Builder or JsonStream.Builder, system property jsonb.parserMaxNumberDigits"
             + " or environment variable JSONB_PARSER_MAX_NUMBER_DIGITS");
   }
 
@@ -1244,7 +1268,7 @@ class JParser implements JsonParser {
         0,
         description,
         maxStringBuffer,
-        ". Increase the limit via system property jsonb.parserMaxStringBuffer"
+        ". Increase the limit via Jsonb.Builder or JsonStream.Builder, system property jsonb.parserMaxStringBuffer"
             + " or environment variable JSONB_PARSER_MAX_STRING_BUFFER");
   }
 

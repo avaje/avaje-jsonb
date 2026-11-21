@@ -4,7 +4,12 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.PropertyNames;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JsonStreamTest {
 
@@ -66,6 +71,69 @@ class JsonStreamTest {
     // surefire sets jsonb.maxNumberDigits=200, so the large number parses cleanly
     try (JsonReader reader = stream.reader(LARGE_NUMBER)) {
       assertThat(reader.readDouble()).isEqualTo(1.0);
+    }
+  }
+
+  @Test
+  void parserLimits_applyPerStreamAndDoNotLeakThroughRecycler() {
+    var stream = JsonStream.builder()
+      .bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL)
+      .parserMaxNumberDigits(4)
+      .parserMaxStringBuffer(4096)
+      .parserMaxRawBuffer(1000)
+      .build();
+    var largerStream = JsonStream.builder()
+      .bufferRecycling(BufferRecycleStrategy.THREAD_LOCAL)
+      .parserMaxNumberDigits(25)
+      .parserMaxStringBuffer(8192)
+      .parserMaxRawBuffer(8192)
+      .build();
+
+    String number = "123456789012345678901";
+    try (JsonReader reader = stream.reader(number)) {
+      assertThatThrownBy(reader::readDecimal).hasMessageContaining("Maximum allowed is 4");
+    }
+
+    try (JsonReader reader = largerStream.reader(number)) {
+      assertThat(reader.readDecimal()).isEqualTo(new BigDecimal(number));
+    }
+
+    try (JsonReader reader = stream.reader(number)) {
+      assertThatThrownBy(reader::readDecimal).hasMessageContaining("Maximum allowed is 4");
+    }
+
+    String longString = "{\"value\":\"" + "x".repeat(5000) + "\"}";
+    try (JsonReader reader = stream.reader(longString)) {
+      reader.beginObject();
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("value");
+      assertThatThrownBy(reader::readString).hasMessageContaining("Maximum string buffer limit exceeded");
+    }
+    try (JsonReader reader = largerStream.reader(longString)) {
+      reader.beginObject();
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("value");
+      assertThat(reader.readString()).hasSize(5000);
+    }
+    try (JsonReader reader = stream.reader(longString)) {
+      reader.beginObject();
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("value");
+      assertThatThrownBy(reader::readString).hasMessageContaining("Maximum string buffer limit exceeded");
+    }
+
+    String longRaw = "{\"value\":\"" + "x".repeat(5000) + "\"}";
+    try (JsonReader reader = stream.reader(new ByteArrayInputStream(longRaw.getBytes(StandardCharsets.UTF_8)))) {
+      reader.beginObject();
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("value");
+      assertThatThrownBy(reader::readRaw).hasMessageContaining("Maximum buffer limit exceeded for raw content");
+    }
+    try (JsonReader reader = largerStream.reader(new ByteArrayInputStream(longRaw.getBytes(StandardCharsets.UTF_8)))) {
+      reader.beginObject();
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("value");
+      assertThat(reader.readRaw()).hasSize(5002);
     }
   }
 

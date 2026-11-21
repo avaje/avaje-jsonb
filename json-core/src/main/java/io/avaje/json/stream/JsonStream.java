@@ -114,6 +114,30 @@ public interface JsonStream {
      */
     Builder strictPropertyNames(boolean strictPropertyNames);
 
+    /**
+     * Set the maximum number of digits in a numeric value.
+     * Implementations that do not support this limit may ignore it.
+     */
+    default Builder parserMaxNumberDigits(int maxNumberDigits) {
+      return this;
+    }
+
+    /**
+     * Set the maximum decoded string buffer size.
+     * Implementations that do not support this limit may ignore it.
+     */
+    default Builder parserMaxStringBuffer(int maxStringBuffer) {
+      return this;
+    }
+
+    /**
+     * Set the maximum buffer size used when reading raw JSON content.
+     * Implementations that do not support this limit may ignore it.
+     */
+    default Builder parserMaxRawBuffer(int maxRawBuffer) {
+      return this;
+    }
+
     /** Determines how byte buffers are recycled */
     Builder bufferRecycling(BufferRecycleStrategy strategy);
 
