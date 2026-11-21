@@ -546,6 +546,7 @@ class JParser implements JsonParser {
     while (i < _tmpLen) {
       bb = buffer[ci++];
       if (bb == '"') {
+        checkStringBufferLimit(i);
         currentIndex = ci;
         return i;
       }
@@ -570,6 +571,7 @@ class JParser implements JsonParser {
     while (!isEndOfStream()) {
       int bc = read();
       if (bc == '"') {
+        checkStringBufferLimit(soFar);
         return soFar;
       }
 
@@ -665,6 +667,12 @@ class JParser implements JsonParser {
       _tmp[soFar++] = (char) bc;
     }
     throw newParseErrorAt("JSON string was not closed with a double quote", 0);
+  }
+
+  private void checkStringBufferLimit(int size) {
+    if (size > maxStringBuffer) {
+      throw maxStringBufferExceeded("Maximum string buffer limit exceeded");
+    }
   }
 
   private int hexToInt(final byte value) {

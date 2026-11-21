@@ -108,6 +108,12 @@ class JsonStreamTest {
       assertThat(reader.nextField()).isEqualTo("value");
       assertThat(reader.readString()).hasSize(5000);
     }
+    try (JsonReader reader = stream.reader(longString)) {
+      reader.beginObject();
+      assertThat(reader.hasNextField()).isTrue();
+      assertThat(reader.nextField()).isEqualTo("value");
+      assertThatThrownBy(reader::readString).hasMessageContaining("Maximum string buffer limit exceeded");
+    }
 
     String longRaw = "{\"value\":\"" + "x".repeat(5000) + "\"}";
     try (JsonReader reader = stream.reader(new ByteArrayInputStream(longRaw.getBytes(StandardCharsets.UTF_8)))) {
