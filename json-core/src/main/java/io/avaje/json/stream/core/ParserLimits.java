@@ -5,6 +5,8 @@ package io.avaje.json.stream.core;
  */
 final class ParserLimits {
 
+  static final int MAX_STRING_BUFFER_LIMIT = Integer.MAX_VALUE - 8;
+
   private final int maxNumberDigits;
   private final int maxStringBuffer;
   private final int maxRawBuffer;
@@ -27,8 +29,12 @@ final class ParserLimits {
       throw new IllegalArgumentException("maxRawBuffer must not be negative");
     }
     this.maxNumberDigits = maxNumberDigits;
-    this.maxStringBuffer = maxStringBuffer;
+    this.maxStringBuffer = capMaxStringBuffer(maxStringBuffer);
     this.maxRawBuffer = maxRawBuffer;
+  }
+
+  static int capMaxStringBuffer(int maxStringBuffer) {
+    return Math.min(maxStringBuffer, MAX_STRING_BUFFER_LIMIT);
   }
 
   /** Maximum number of digits in a numeric value. */

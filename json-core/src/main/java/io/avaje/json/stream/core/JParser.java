@@ -120,7 +120,7 @@ class JParser implements JsonParser {
     this.doublePrecision = doublePrecision;
     this.unknownNumbers = unknownNumbers;
     this.maxNumberDigits = maxNumberDigits;
-    this.maxStringBuffer = Math.min(maxStringBuffer, Recyclers.MAX_STRING_BUFFER_LIMIT);
+    this.maxStringBuffer = ParserLimits.capMaxStringBuffer(maxStringBuffer);
     this.maxRawBuffer = maxRawBuffer;
     this.doubleLengthLimit = 15 + doublePrecision.level;
     this.originalBuffer = buffer;
