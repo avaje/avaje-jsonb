@@ -461,6 +461,30 @@ public interface Jsonb {
     Builder strictPropertyNames(boolean strictPropertyNames);
 
     /**
+     * Set the maximum number of digits in a numeric value.
+     * Custom JsonStream implementations may ignore this setting.
+     */
+    default Builder parserMaxNumberDigits(int maxNumberDigits) {
+      return this;
+    }
+
+    /**
+     * Set the maximum decoded string buffer size.
+     * Custom JsonStream implementations may ignore this setting.
+     */
+    default Builder parserMaxStringBuffer(int maxStringBuffer) {
+      return this;
+    }
+
+    /**
+     * Set the maximum buffer size used when reading raw JSON content.
+     * Custom JsonStream implementations may ignore this setting.
+     */
+    default Builder parserMaxRawBuffer(int maxRawBuffer) {
+      return this;
+    }
+
+    /**
      * Explicitly set the adapter to use.
      *
      * <p>When not set, the JsonStream is service loaded using {@link JsonStreamFactory} with a

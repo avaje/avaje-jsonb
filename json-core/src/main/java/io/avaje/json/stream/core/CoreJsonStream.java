@@ -16,6 +16,7 @@ final class CoreJsonStream implements JsonStream {
   private final boolean failOnUnknown;
   private final boolean failOnNullPrimitives;
   private final boolean strictPropertyNames;
+  private final ParserLimits parserLimits;
   private final BufferRecycleStrategy recycleStrategy;
   private final BufferRecycler recycle;
 
@@ -26,12 +27,14 @@ final class CoreJsonStream implements JsonStream {
       boolean failOnUnknown,
       boolean failOnNullPrimitives,
       boolean strictPropertyNames,
+      ParserLimits parserLimits,
       BufferRecycleStrategy recycle) {
     this.serializeNulls = serializeNulls;
     this.serializeEmpty = serializeEmpty;
     this.failOnUnknown = failOnUnknown;
     this.failOnNullPrimitives = failOnNullPrimitives;
     this.strictPropertyNames = strictPropertyNames;
+    this.parserLimits = parserLimits;
     this.recycleStrategy = recycle;
     this.recycle = init2Recycler(recycle);
   }
@@ -47,6 +50,7 @@ final class CoreJsonStream implements JsonStream {
       failOnUnknown,
       failOnNullPrimitives,
       strictPropertyNames,
+      parserLimits,
       recycleStrategy);
   }
 
@@ -86,7 +90,7 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonReader reader(byte[] json) {
-    JsonParser parser = recycle.parser(json);
+    JsonParser parser = recycle.parser(json, parserLimits);
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 
@@ -97,7 +101,7 @@ final class CoreJsonStream implements JsonStream {
 
   @Override
   public JsonReader reader(InputStream inputStream) {
-    JsonParser parser = recycle.parser(inputStream);
+    JsonParser parser = recycle.parser(inputStream, parserLimits);
     return new JsonReadAdapter(parser, recycle, failOnUnknown, failOnNullPrimitives, strictPropertyNames);
   }
 

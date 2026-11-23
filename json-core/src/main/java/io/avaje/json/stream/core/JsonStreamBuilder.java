@@ -14,6 +14,7 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
   private boolean failOnUnknown;
   private boolean failOnNullPrimitives;
   private boolean strictPropertyNames;
+  private ParserLimits parserLimits = Recyclers.DEFAULT_PARSER_LIMITS;
   /**
    * Set to true to serialize nulls. Defaults to false.
    */
@@ -53,6 +54,24 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
     return this;
   }
 
+  @Override
+  public JsonStreamBuilder parserMaxNumberDigits(int maxNumberDigits) {
+    this.parserLimits = new ParserLimits(maxNumberDigits, parserLimits.maxStringBuffer(), parserLimits.maxRawBuffer());
+    return this;
+  }
+
+  @Override
+  public JsonStreamBuilder parserMaxStringBuffer(int maxStringBuffer) {
+    this.parserLimits = new ParserLimits(parserLimits.maxNumberDigits(), maxStringBuffer, parserLimits.maxRawBuffer());
+    return this;
+  }
+
+  @Override
+  public JsonStreamBuilder parserMaxRawBuffer(int maxRawBuffer) {
+    this.parserLimits = new ParserLimits(parserLimits.maxNumberDigits(), parserLimits.maxStringBuffer(), maxRawBuffer);
+    return this;
+  }
+
   /**
    * Determines how byte buffers are recycled
    */
@@ -67,6 +86,6 @@ public final class JsonStreamBuilder implements JsonStream.Builder {
    */
   @Override
   public JsonStream build() {
-    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, strategy);
+    return new CoreJsonStream(serializeNulls, serializeEmpty, failOnUnknown, failOnNullPrimitives, strictPropertyNames, parserLimits, strategy);
   }
 }
