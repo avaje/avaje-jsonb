@@ -14,10 +14,13 @@ final class Recyclers {
   static final int GENERATOR_BUFFER_SIZE = intSetting("jsonb.generatorBufferSize", "JSONB_GENERATOR_BUFFER_SIZE", 4096);
   static final int PARSER_BUFFER_SIZE = intSetting("jsonb.parserBufferSize", "JSONB_PARSER_BUFFER_SIZE", 4096);
   static final int PARSER_CHAR_BUFFER_SIZE = intSetting("jsonb.parserCharBufferSize", "JSONB_PARSER_CHAR_BUFFER_SIZE", 4096);
-  static final ParserLimits DEFAULT_PARSER_LIMITS = new ParserLimits(
-    intSetting("jsonb.parserMaxNumberDigits", "JSONB_PARSER_MAX_NUMBER_DIGITS", 309),
-    intSetting("jsonb.parserMaxStringBuffer", "JSONB_PARSER_MAX_STRING_BUFFER", 50_000),
-    intSetting("jsonb.parserMaxRawBuffer", "JSONB_PARSER_MAX_RAW_BUFFER", 10_000_000));
+
+  static final int MAX_STRING_BUFFER_LIMIT = Integer.MAX_VALUE - 8;
+  static final int PARSER_MAX_NUMBER_DIGITS = intSetting("jsonb.parserMaxNumberDigits", "JSONB_PARSER_MAX_NUMBER_DIGITS", 309);
+  static final int PARSER_MAX_STRING_BUFFER = Math.min(intSetting("jsonb.parserMaxStringBuffer", "JSONB_PARSER_MAX_STRING_BUFFER", 50_000), MAX_STRING_BUFFER_LIMIT);
+  static final int PARSER_MAX_RAW_BUFFER = intSetting("jsonb.parserMaxRawBuffer", "JSONB_PARSER_MAX_RAW_BUFFER", 10_000_000);
+
+  static final ParserLimits DEFAULT_PARSER_LIMITS = new ParserLimits(PARSER_MAX_NUMBER_DIGITS, PARSER_MAX_STRING_BUFFER, PARSER_MAX_RAW_BUFFER);
 
   static int intSetting(String sysProp, String envVar, int defaultValue) {
     String val = System.getProperty(sysProp);
