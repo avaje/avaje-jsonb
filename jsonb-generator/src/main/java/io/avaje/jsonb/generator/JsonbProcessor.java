@@ -388,10 +388,18 @@ public final class JsonbProcessor extends AbstractProcessor {
       return;
     }
     if (typeElement.getKind() == ElementKind.ENUM) {
-      logNote(typeElement, "Ignoring @Json on enum %s, built in enum support is used instead. Add @Json.Value if custom serialization is required.", typeElement.getSimpleName());
+      writeAdapterForEnum(typeElement);
       return;
     }
     writeAdapter(typeElement, new ClassReader(typeElement, ""));
+  }
+
+  private void writeAdapterForEnum(TypeElement typeElement) {
+    if (EnumReader.hasCustomizedConstants(typeElement)) {
+      writeAdapter(typeElement, new EnumReader(typeElement));
+    } else {
+      logNote(typeElement, "Ignoring @Json on enum %s, built in enum support is used instead. Add @Json.Value if custom serialization is required.", typeElement.getSimpleName());
+    }
   }
 
   private void writeAdapterForType(TypeElement typeElement, Optional<String> adapterPackage) {
@@ -399,7 +407,7 @@ public final class JsonbProcessor extends AbstractProcessor {
       return;
     }
     if (typeElement.getKind() == ElementKind.ENUM) {
-      logNote(typeElement, "Ignoring @Json on enum %s, built in enum support is used instead. Add @Json.Value if custom serialization is required.", typeElement.getSimpleName());
+      writeAdapterForEnum(typeElement);
       return;
     }
     writeAdapter(typeElement, new ClassReader(typeElement, "", adapterPackage));
@@ -414,6 +422,13 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void writeAdapterForMixInType(TypeElement typeElement, TypeElement mixin, String adapterPackage) {
+    if (valueElements.contains(typeElement.toString())) {
+      return;
+    }
+    if (typeElement.getKind() == ElementKind.ENUM) {
+      writeAdapter(typeElement, new EnumReader(typeElement, mixin, Optional.ofNullable(adapterPackage)));
+      return;
+    }
     final ClassReader beanReader = new ClassReader(typeElement, mixin, "@Json.Mixin of ", Optional.ofNullable(adapterPackage));
     writeAdapter(typeElement, beanReader);
   }

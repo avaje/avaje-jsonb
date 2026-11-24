@@ -34,15 +34,14 @@ final class ValueReader implements BeanReader {
     this.isEnum = beanType.getKind() == ElementKind.ENUM;
     if (isEnum) {
       beanType.getEnclosedElements().stream()
-        .filter(enc -> enc.getKind() == ElementKind.ENUM_CONSTANT)
-        .forEach(enumConst ->
-          AliasPrism.getOptionalOn(enumConst)
-            .ifPresent(prism -> {
-              var aliases = Util.escapeQuotes(prism.value());
-              if (!aliases.isEmpty()) {
-                enumAliases.put(enumConst.getSimpleName().toString(), aliases);
-              }
-            }));
+          .filter(enc -> enc.getKind() == ElementKind.ENUM_CONSTANT)
+          .forEach(
+              enumConst -> {
+                final var aliases = AliasPrism.escapedAliases(enumConst);
+                if (!aliases.isEmpty()) {
+                  enumAliases.put(enumConst.getSimpleName().toString(), aliases);
+                }
+              });
     }
     final TypeMirror returnType = e.getReturnType();
     this.returnTypeStr = PrimitiveUtil.wrap(Util.shortType(returnType.toString()));
@@ -117,12 +116,7 @@ final class ValueReader implements BeanReader {
 
   @Override
   public void writeImports(Append writer, String packageName) {
-    for (final String importType : importTypes()) {
-      if (Util.validImportType(importType, packageName)) {
-        writer.append("import %s;", Util.sanitizeImports(importType)).eol();
-      }
-    }
-    writer.eol();
+    Util.writeImports(writer, importTypes(), packageName);
   }
 
   @Override

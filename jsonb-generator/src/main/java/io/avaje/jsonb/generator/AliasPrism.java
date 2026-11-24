@@ -32,5 +32,9 @@ public interface AliasPrism {
                     .filter(prism -> !prism.value().isEmpty()));
   }
 
+  static List<String> escapedAliases(Element element) {
+    return getOptionalOn(element).map(AliasPrism::value).map(Util::escapeQuotes).orElse(List.of());
+  }
+
   List<String> value();
 }
