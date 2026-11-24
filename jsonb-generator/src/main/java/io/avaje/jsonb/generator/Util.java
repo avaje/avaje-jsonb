@@ -10,6 +10,7 @@ import static io.avaje.jsonb.generator.APContext.logError;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +23,15 @@ final class Util {
   // comma not in quotes
   private static final Pattern COMMA_PATTERN =
       Pattern.compile(", (?=(?:[^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)");
+
+  static void writeImports(Append writer, Collection<String> importTypes, String packageName) {
+    for (final String importType : importTypes) {
+      if (validImportType(importType, packageName)) {
+        writer.append("import %s;", sanitizeImports(importType)).eol();
+      }
+    }
+    writer.eol();
+  }
 
   static boolean validImportType(String type, String packageName) {
     return type.indexOf('.') > -1

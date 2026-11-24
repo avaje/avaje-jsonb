@@ -119,7 +119,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @Target({FIELD, METHOD})
   @interface Property {
 
@@ -139,7 +139,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @Target({FIELD, PARAMETER})
   @interface Alias {
 
@@ -158,7 +158,7 @@ public @interface Json {
    * serialization but not deserialization.
    */
   @Target(FIELD)
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @interface Ignore {
 
     /**
@@ -185,7 +185,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @Target({FIELD, METHOD, PARAMETER})
   @interface Unmapped {
 
@@ -219,7 +219,7 @@ public @interface Json {
    * }</pre>
    */
   @Target(METHOD)
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @interface Value {}
 
   /**
@@ -242,7 +242,7 @@ public @interface Json {
    * }</pre>
    */
   @Target(TYPE)
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @Repeatable(SubTypes.class)
   @interface SubType {
 
@@ -264,7 +264,7 @@ public @interface Json {
    * type can be represented as.
    */
   @Target(TYPE)
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @interface SubTypes {
 
     SubType[] value();
@@ -273,7 +273,7 @@ public @interface Json {
   /**
    * Marks a String field as containing raw JSON content.
    */
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @Target({FIELD, METHOD})
   @interface Raw {
 
@@ -345,7 +345,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @Target({CONSTRUCTOR, METHOD})
   @interface Creator {}
 
@@ -363,7 +363,7 @@ public @interface Json {
    *
    * }</pre>
    */
-  @Retention(SOURCE)
+  @Retention(CLASS)
   @Target({FIELD, METHOD})
   @interface Serializer {
 

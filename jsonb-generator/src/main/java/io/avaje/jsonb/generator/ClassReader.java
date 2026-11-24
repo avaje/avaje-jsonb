@@ -248,12 +248,7 @@ final class ClassReader implements BeanReader {
 
   @Override
   public void writeImports(Append writer, String packageName) {
-    for (final String importType : importTypes()) {
-      if (Util.validImportType(importType, packageName)) {
-        writer.append("import %s;", Util.sanitizeImports(importType)).eol();
-      }
-    }
-    writer.eol();
+    Util.writeImports(writer, importTypes(), packageName);
   }
 
   @Override
