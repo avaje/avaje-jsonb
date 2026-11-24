@@ -414,6 +414,14 @@ public final class JsonbProcessor extends AbstractProcessor {
   }
 
   private void writeAdapterForImportedType(TypeElement importedType, TypeElement implementationType, String adapterPackage) {
+    if (importedType.getKind() == ElementKind.ENUM) {
+      if (EnumReader.hasCustomizedConstants(importedType)) {
+        writeAdapter(importedType, new EnumReader(importedType, null, Optional.ofNullable(adapterPackage)));
+      } else {
+        logNote(importedType, "Ignoring @Json.Import of enum %s, built in enum support is used instead.", importedType.getSimpleName());
+      }
+      return;
+    }
     final ClassReader beanReader = new ClassReader(importedType, "@Json.Import of ", Optional.ofNullable(adapterPackage));
     if (implementationType != null) {
       beanReader.setImplementationType(implementationType);
