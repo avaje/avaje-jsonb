@@ -1,5 +1,6 @@
 package io.avaje.jsonb.generator;
 
+import static io.avaje.jsonb.generator.ProcessingContext.useEnhancedSwitch;
 import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
@@ -209,23 +210,31 @@ final class EnumReader implements BeanReader {
     writer.append("      return;").eol();
     writer.append("    }").eol();
     writer.append("    switch (value) {").eol();
+    final boolean enhanced = useEnhancedSwitch();
     var position = 0;
     for (final Constant constant : constants) {
-      writer.append("      case %s:", constant.name).eol();
+      final String statement;
       if (constant.serialize) {
-        writer.append("        writer.value(writeNames, %d);", position).eol();
-        position++;
-        writer.append("        return;").eol();
+        statement = String.format("writer.value(writeNames, %d);", position++);
       } else {
-        writer
-            .append(
-                "        throw new JsonDataException(\"%s.%s is ignored for serialization\");",
-                shortName, constant.name)
-            .eol();
+        statement = String.format("throw new JsonDataException(\"%s.%s is ignored for serialization\");", shortName, constant.name);
+      }
+      if (enhanced) {
+        writer.append("      case %s -> %s", constant.name, statement).eol();
+      } else {
+        writer.append("      case %s:", constant.name).eol();
+        writer.append("        %s", statement).eol();
+        if (constant.serialize) {
+          writer.append("        return;").eol();
+        }
       }
     }
-    writer.append("      default:").eol();
-    writer.append("        writer.value(value.name());").eol();
+    if (enhanced) {
+      writer.append("      default -> writer.value(value.name());").eol();
+    } else {
+      writer.append("      default:").eol();
+      writer.append("        writer.value(value.name());").eol();
+    }
     writer.append("    }").eol();
     writer.append("  }").eol();
   }
